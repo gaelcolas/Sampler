@@ -27,14 +27,38 @@ Eventually, the aim is to extract this structure and the key re-usable files int
     - [ ] Add DSL for Build file / Task Composition as per Brandon Padgett's suggestion
     - [ ] Find what would be needed to build on Linux/PSCore
 
-    
+
 ## Usage (intented)
 
 `.init.ps1` should be fairly static and do just enough to bootstrap any project, the rest of the environment initialization should be handled by dedicated modules such as PSDepend for installing required module/lib.
 
 `.build.ps1` is where most of the Build customization is done for the project. This is where the default task `.` is composed by importing required tasks exposed by different modules (i.e. BuildHelpers). The logic should be minimum: ordering/selecting tasks, so that this high level abstraction only gives the overview and the overridden parameter values.
-Eventually, the composition should be DSL powered similar to what Brandon Padgett suggested:
+```PowerShell
+Param (
+    [String]
+    #Override the Parameter of every tasks using $BuildOutput (i.e. [QualityTests](.build/Pester/QualityTests.pester.build.ps1))
+    $BuildOutput = "$PSScriptRoot\BuildOutput"
+)
+
+#Import custom tasks
+Get-ChildItem -Path "$PSScriptRoot/.build/" -Recurse -Include *.ps1 -Verbose |
+    Foreach-Object {
+        "Importing file $($_.BaseName)" 
+        . $_.FullName 
+    }
+
+#Compose pre-existing tasks in custom workflow
+task .  ResolveDependencies,
+        SetBuildVariable,
+        UnitTests, 
+        DoSomethingBeforeFailing,
+        FailBuildIfFailedUnitTest, 
+        IntegrationTests, 
+        QualityTestsStopOnFail
 ```
+Eventually, the composition should be DSL powered similar to what Brandon Padgett suggested:
+
+```PowerShell
 #Rough idea, needs to play with...
 # The idea is that the With could automatically resolve Module, 
 #  with discoverable tasks and then auto-load the available parameters/DSL for that task.
