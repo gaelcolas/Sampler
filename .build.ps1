@@ -1,6 +1,6 @@
 Param (
-    #[String]
-    #$BuildOutput = "$PSScriptRoot\BuildOutput",
+    [String]
+    $BuildOutput = "$PSScriptRoot\BuildOutput",
 
     [String[]]
     $GalleryRepository, #used in ResolveDependencies, has default
