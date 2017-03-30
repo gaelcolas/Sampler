@@ -42,7 +42,7 @@ task QualityTests {
     # $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath(".\nonexist\foo.txt")
     $PSVersion = $PSVersionTable.PSVersion.Major
     $Timestamp = Get-date -uformat "%Y%m%d-%H%M%S"
-    $FileName = "TestResults_PS$PSVersion`_$TimeStamp.xml"
+    $FileName = "TestResults_QA_PS$PSVersion`_$TimeStamp.xml"
     $TestFilePath = Join-Path -Path $BuildOutput -ChildPath $FileName
     
     if (!(Test-Path $BuildOutput)) {

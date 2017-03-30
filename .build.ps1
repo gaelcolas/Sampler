@@ -39,16 +39,20 @@ Task Build {
 
 ### Or 
 
-Build ExampleBuild {
+BuildWorkflow SampleBuild {
     Task Init {
-        Clean $True
+        With BuildHelpers {
+            Task Clean
+        }
     }
     
     Task Build {
-        With PSDeploy
-        Tag Build
-        StepVersion Minor
-        DependingOn Init
+        With PSDeploy {
+            Task Deploy
+            Tag Build
+            StepVersion Minor
+            DependingOn Init
+        }
     }
     
     Task Test {
@@ -56,9 +60,10 @@ Build ExampleBuild {
         DependingOn Build
     }
     Task Publish {
-        With PSDeploy
-        Tag Publish
-        DependingOn Test
+        With PSDeploy {
+            Tag Publish
+            DependingOn Test
+        }
     }
 }
 
