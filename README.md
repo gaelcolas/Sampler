@@ -25,4 +25,46 @@ Eventually, the aim is to extract this structure and the key re-usable files int
 - Build
     - [ ] Extend the project to DSC Builds
     - [ ] Add DSL for Build file / Task Composition as per Brandon Padgett's suggestion
-    - [ ] ...
+    - [ ] Find what would be needed to build on Linux/PSCore
+
+    
+## Usage (intented)
+
+`.init.ps1` should be fairly static and do just enough to bootstrap any project, the rest of the environment initialization should be handled by dedicated modules such as PSDepend for installing required module/lib.
+
+`.build.ps1` is where most of the Build customization is done for the project. This is where the default task `.` is composed by importing required tasks exposed by different modules (i.e. BuildHelpers). The logic should be minimum: ordering/selecting tasks, so that this high level abstraction only gives the overview and the overridden parameter values.
+Eventually, the composition should be DSL powered similar to what Brandon Padgett suggested:
+```
+#Rough idea, needs to play with...
+# The idea is that the With could automatically resolve Module, 
+#  with discoverable tasks and then auto-load the available parameters/DSL for that task.
+
+BuildWorkflow SampleBuild {
+    Task Init {
+        With BuildHelpers {
+            Task Clean
+        }
+    }
+    
+    Task Build {
+        With PSDeploy {
+            Task Deploy
+            Tag Build
+            StepVersion Minor
+            DependingOn Init
+        }
+    }
+    
+    Task Test {
+        Path "$ProjectRoot\Tests"
+        DependingOn Build
+    }
+    Task Publish {
+        With PSDeploy {
+            Tag Publish
+            DependingOn Test
+        }
+    }
+}
+
+```
