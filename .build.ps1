@@ -15,7 +15,8 @@ Get-ChildItem -Path "$PSScriptRoot/.build/" -Recurse -Include *.ps1 -Verbose |
         . $_.FullName 
     }
 
-task .  ResolveDependencies,
+task .  Clean,
+        ResolveDependencies,
         SetBuildVariable,
         UnitTests, 
         DoSomethingBeforeFailing,
