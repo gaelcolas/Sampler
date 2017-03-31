@@ -1,5 +1,7 @@
 # Sample Module
 
+[![Build status](https://ci.appveyor.com/api/projects/status/nwjaovie2iqoexf5?svg=true)](https://ci.appveyor.com/project/gaelcolas/samplemodule)
+
 This project is a sample module to experiment with a PowerShell Build Pipeline and its various steps.
 It includes minumum component of a real module, but with minimum amount of code.
 
