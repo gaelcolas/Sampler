@@ -21,10 +21,12 @@ task InstallPSDepend -if {!(Get-Module -ListAvailable PSDepend)} {
     ""
     "`tProxy = $GalleryProxy"
     "`tCredentialUser = $($GalleryPSCredential.UserName)"
+    "`tGallery = $GalleryRepository"
 
     $installModuleParams = @{
         Name = 'PSDepend'
         Repository = @($GalleryRepository)
+        force = $true
     }
 
     if ($GalleryPSCredential) {
