@@ -1,0 +1,8 @@
+
+os: WMF 5
+
+build: false
+
+test_script:
+  - ps: . .\init.ps1
+  - ps: invoke-build
