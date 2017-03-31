@@ -3,8 +3,12 @@ Param (
     $NoBuild
 )
 # Grab nuget bits, install modules, set build variables, start build.
-$null = Get-PackageProvider -Name NuGet -ForceBootstrap
-Install-Module InvokeBuild -Confirm:$false -ErrorAction Stop
+if (!Get-PackageProvider -Name NuGet) {
+    $null = install-packageprovider nuget -force
+    #Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+}
+
+Install-Module InvokeBuild -Force -ErrorAction Stop
 
 #If there's a .build.configuration.json or .build.configuration.psd1 in the current folder,
 #  load and create a parameter hashtable for Invoke-Build
