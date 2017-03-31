@@ -22,7 +22,7 @@ task IntegrationTests {
     
     if (!$IntegrationTestPath.Exists -and
         (   #Try a module structure where the
-            $IntegrationTestPath = [io.DirectoryInfo][system.io.path]::Combine($ProjectPath,$RelativePathToIntegrationTests) -and
+            ($IntegrationTestPath = [io.DirectoryInfo][system.io.path]::Combine($ProjectPath,$RelativePathToIntegrationTests)) -and
             !$IntegrationTestPath.Exists
         )
     )
