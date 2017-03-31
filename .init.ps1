@@ -3,8 +3,8 @@ Param (
     $NoBuild
 )
 # Grab nuget bits, install modules, set build variables, start build.
-if (!Get-PackageProvider -Name NuGet) {
-    $null = install-packageprovider nuget -force
+if (!Get-PackageProvider -Name NuGet -ForceBootstrap) {
+    $null = install-packageprovider nuget -force -ForceBootstrap
     #Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
 }
 
