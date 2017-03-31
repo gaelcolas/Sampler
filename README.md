@@ -12,7 +12,44 @@ The goal is to have a sandbox to experiment with a PowerShell Module pipeline, d
 Eventually, the aim is to extract this structure and the key re-usable files into a Plaster template.
 
 ## TODO
+- Sample Build Workflow:
+    - [x] .init.ps1  -> Bootstrap by installing InvokeBuild from gallery
+    - [x] .build.ps1 -> Compose the default task in the build workflow
+    - [x] Clean the BuildOutput folder
+    - [x] Resolve Dependencies with PSDepend from [Dependencies.psd1](./Dependencies.psd1)
+    - [ ] Run Unit tests
+        - [x] Run all Unit test files against their function\class equivalent
+        - [ ] Save code coverage to file (CLIXml), fail if under threshold
+        - [ ] Save Test results in XML
+        - [ ] Upload test results to Appveyor
+    - [ ] Run Integration Tests
+        - [ ] Merge Classes and Functions into the PSM1 file
+        - [ ] Run Integration tests against 'compiled' module
+        - [ ] Save code coverage to file (CLIXml), fail if under threshold
+        - [ ] Save test results in XML
+        - [ ] Upload test results to Appveyor
+    - [ ] Run QA tests
+        - [x] Ensure each function file has an associated test file
+        - [ ] Ensure each Class file has an associated test file
+        - [x] Ensure PSSA is clean for each function file
+        - [ ] Ensure PSSA is clean for each Class file
+        - [x] Ensure each function as minimum help
+        - [ ] Save test results in XML
+        - [ ] Upload test results to Appveyor
+    - [ ] Generate the help
+        - [ ] PlatyPS to generate or update the help MDs in BuildOutput\docs
+        - [ ] PlatyPS to generate or update the help MAML in BuildOutput\SampleModule
+    - [ ] Prepare Module for export
+        - [ ] Update Metadata with FunctionToExports
+        - [ ] Update Metadata with new version
+        - [ ] Update RequiredModules with what it has been tested with
+        - [ ] Update RequiredAssemblies with the one it has been tested with
+    - [ ] Deploy artefacts
+        - [ ] PSDeploy Docs
+        - [ ] PSDeploy Module to Appveyor Gallery
+        - [ ] Package and make available all outputs
 
+---------------
 - Build Tasks
     - [ ] Create most-generic and re-usable tasks in \.build\ folder
     - [ ] push those tasks upstream in their associate repos (i.e. PSDepend, PSDeploy)
@@ -22,7 +59,7 @@ Eventually, the aim is to extract this structure and the key re-usable files int
 - Tests
     - [ ] Create Test function to run tests based on folder, so that tasks don't duplicate code (Unit,Integration,QA)
     - [ ] Allow Module Quality by Managing Quality level i.e. `Invoke-pester -ExcludeTag HelpQuality` 
-    - [ ] Allow tests to be run either in current session or in New PSSession with no-profile (to have no Class / Assemblies loaded)
+    - ~~[ ] Allow tests to be run either in current session or in New PSSession with no-profile (to have no Class / Assemblies loaded)~~ <-- Less important within CI
 
 - Build
     - [ ] Extend the project to DSC Builds
