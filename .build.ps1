@@ -11,7 +11,7 @@ Param (
 
 Get-ChildItem -Path "$PSScriptRoot/.build/" -Recurse -Include *.ps1 -Verbose |
     Foreach-Object {
-        "Importing file $($_.BaseName)" 
+        "Importing file $($_.BaseName)" | Write-Verbose
         . $_.FullName 
     }
 
