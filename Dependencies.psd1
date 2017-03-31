@@ -11,6 +11,7 @@
 
     buildhelpers = 'latest'
     pester = 'latest'
+    PSScriptAnalyzer = 'latest'
     PlatyPS = 'latest'
     psdeploy = 'latest'
 }
