@@ -5,7 +5,7 @@ Param (
 # Grab nuget bits, install modules, set build variables, start build.
 if (!(Get-PackageProvider -Name NuGet -ForceBootstrap)) {
     $null = Install-PackageProvider nuget -force -ForceBootstrap
-    #Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+    Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
 }
 
 Install-Module InvokeBuild -Force -ErrorAction Stop
