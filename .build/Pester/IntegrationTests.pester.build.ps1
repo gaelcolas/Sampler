@@ -19,7 +19,8 @@ task IntegrationTests {
     "`tProject Name = $ProjectName"
     "`tIntegration Tests   = $RelativePathToIntegrationTests"
     $IntegrationTestPath = [io.DirectoryInfo][system.io.path]::Combine($ProjectPath,$ProjectName,$RelativePathToIntegrationTests)
-    
+     "`tIntegration Tests  = $IntegrationTestPath"
+
     if (!$IntegrationTestPath.Exists -and
         (   #Try a module structure where the
             ($IntegrationTestPath = [io.DirectoryInfo][system.io.path]::Combine($ProjectPath,$RelativePathToIntegrationTests)) -and
@@ -27,14 +28,16 @@ task IntegrationTests {
         )
     )
     {
-        Throw ('Cannot Execute Integration tests, Path Not found {0}' -f $IntegrationTestPath)
+        Write-Warning ('Integration tests Path Not found {0}' -f $IntegrationTestPath)
     }
+    else {
+        "`tIntegrationTest Path: $IntegrationTestPath"
+        ''
+        Push-Location $IntegrationTestPath
 
-    "`tIntegrationTest Path: $IntegrationTestPath"
-    ''
-    Push-Location $IntegrationTestPath
+        Invoke-Pester -ErrorAction Stop
 
-    Invoke-Pester -ErrorAction Stop
-
-    Pop-Location
+        Pop-Location
+    }
+   
 }
