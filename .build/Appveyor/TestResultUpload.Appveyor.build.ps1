@@ -15,7 +15,7 @@ Param (
 task UploadUnitTestResultsToAppVeyor -If ($BuildSystem -eq 'AppVeyor' -or $env:APPVEYOR_JOB_ID) {
 
     $TestResultFiles = Get-ChildItem -Path ([io.Path]::Combine($BuildOutput,$TestOutputPath)) -Filter *.xml
-    $TestResultFiles | Add-TestResultsToAppveyor -verbose
+    $TestResultFiles | Add-TestResultToAppveyor -verbose
     #foreach ($file in $TestResultFiles) {
     #    (New-Object 'System.Net.WebClient').UploadFile(
     #        "https://ci.appveyor.com/api/testresults/nunit/$APPVEYOR_JOB_ID",
