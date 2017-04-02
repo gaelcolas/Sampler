@@ -6,7 +6,10 @@ Param (
     $GalleryRepository, #used in ResolveDependencies, has default
 
     [Uri]
-    $GalleryProxy #used in ResolveDependencies, $null if not specified
+    $GalleryProxy, #used in ResolveDependencies, $null if not specified
+
+    [Switch]
+    $ForceEnvironmentVariables
 )
 
 Get-ChildItem -Path "$PSScriptRoot/.build/" -Recurse -Include *.ps1 -Verbose |
@@ -17,7 +20,7 @@ Get-ChildItem -Path "$PSScriptRoot/.build/" -Recurse -Include *.ps1 -Verbose |
 
 task .  Clean,
         ResolveDependencies,
-        SetBuildVariable,
+        SetBuildEnvironment, #SetBuildVariable,
         UnitTests, 
         DoSomethingBeforeFailing,
         UploadUnitTestResultsToAppVeyor,
@@ -25,6 +28,7 @@ task .  Clean,
         IntegrationTests, 
         QualityTestsStopOnFail
 
+task test SetBuildEnvironment
 
 #task . ResolveDependencies, SetBuildVariable, UnitTestsStopOnFail, IntegrationTests
 <#

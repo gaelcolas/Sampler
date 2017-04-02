@@ -1,6 +1,6 @@
 Param (
     [string]
-    $BuildSystem = (property BuildSystem 'unknown'),
+    $BuildSystem = $(try {property BuildSystem} catch {'unknown'}),
 
     [string]
     $APPVEYOR_JOB_ID = $(try {property APPVEYOR_JOB_ID} catch {}),
@@ -12,7 +12,7 @@ Param (
     $TestOutputPath = (property TestOutputPath 'NUnit')
 )
 
-task UploadUnitTestResultsToAppVeyor -If ($BuildSystem -eq 'AppVeyor') {
+task UploadUnitTestResultsToAppVeyor -If ($BuildSystem -eq 'AppVeyor' -or $env:APPVEYOR_JOB_ID) {
 
     $TestResultFiles = Get-ChildItem -Path ([io.Path]::Combine($BuildOutput,$TestOutputPath)) -Filter *.xml
     $TestResultFiles | Add-TestResultsToAppveyor -verbose
@@ -29,4 +29,8 @@ task DoSomethingBeforeFailing {
     '-'*78
     '-'*78
     'DO Something'
+}
+
+task BuildSys {
+    Write-Host $BuildSystem
 }

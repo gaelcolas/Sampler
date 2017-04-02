@@ -20,7 +20,7 @@
 .NOTES
     General notes
 #>
-function Add-TestResultsToAppveyor {
+function Add-TestResultToAppveyor {
     [CmdletBinding()]
     [OutputType([void])]
     Param (
