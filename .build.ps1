@@ -20,6 +20,7 @@ task .  Clean,
         SetBuildVariable,
         UnitTests, 
         DoSomethingBeforeFailing,
+        UploadUnitTestResultsToAppVeyor,
         FailBuildIfFailedUnitTest, 
         IntegrationTests, 
         QualityTestsStopOnFail
