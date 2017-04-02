@@ -9,17 +9,18 @@ Param (
     $BuildOutput = (property BuildOutput 'C:\BuildOutput'),
 
     [string]
-    $TestOutputPath = (property TestOutputPath 'testResults')
+    $TestOutputPath = (property TestOutputPath 'NUnit')
 )
 
-task UploadTestResultToAppVeyor -If ($BuildSystem -eq 'AppVeyor') {
+task UploadUnitTestResultsToAppVeyor -If ($BuildSystem -eq 'AppVeyor') {
 
     $TestResultFiles = Get-ChildItem -Path ([io.Path]::Combine($BuildOutput,$TestOutputPath)) -Filter *.xml
-    foreach ($file in $TestResultFiles) {
-        (New-Object 'System.Net.WebClient').UploadFile(
-            "https://ci.appveyor.com/api/testresults/nunit/$APPVEYOR_JOB_ID",
-            "$ProjectRoot\$file" )
-    }
+    $TestResultFiles | Add-TestResultsToAppveyor -verbose
+    #foreach ($file in $TestResultFiles) {
+    #    (New-Object 'System.Net.WebClient').UploadFile(
+    #        "https://ci.appveyor.com/api/testresults/nunit/$APPVEYOR_JOB_ID",
+    #        "$ProjectRoot\$file" )
+    #}
 }
 
 task DoSomethingBeforeFailing {
