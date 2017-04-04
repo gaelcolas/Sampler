@@ -12,7 +12,7 @@ Param (
     $RelativePathToUnitTests = (property RelativePathToUnitTests 'tests/Unit'),
 
     [string]
-    $NUnitSubFolder = (property NUnitSubFolder 'NUnit'),
+    $NUnitSubFolder = (property NUnitSubFolder 'NUnit\Unit'),
 
     [string]
     $PesterOutputSubFolder = (property PesterOutputSubFolder 'PesterOut'),
