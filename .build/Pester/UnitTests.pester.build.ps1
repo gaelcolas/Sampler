@@ -101,7 +101,7 @@ task FailIfLastCodeConverageUnderThreshold {
     "`tProject Name     = $ProjectName"
     "`tUnit Tests       = $PathToUnitTests"
     "`tResult Folder    = $BuildOutput\Unit\"
-    "`t Min Coverage    = $CodeCoverageThreshold %"
+    "`tMin Coverage     = $CodeCoverageThreshold %"
     ''
 
     if (![io.path]::IsPathRooted($BuildOutput)) {
