@@ -28,3 +28,7 @@ task UploadUnitTestResultsToAppVeyor -If ($BuildSystem -eq 'AppVeyor') {
     $TestResultFiles = Get-ChildItem -Path $TestOutputPath -Filter *.xml
     $TestResultFiles | Add-TestResultToAppveyor
 }
+
+task BuildSys {
+    $BuildSystem
+}
