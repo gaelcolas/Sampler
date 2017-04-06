@@ -50,7 +50,6 @@ task UnitTests {
     }
 
     "`tUnitTest Path: $UnitTestPath"
-
     ''
 
     if (![io.path]::IsPathRooted($BuildOutput)) {
@@ -87,7 +86,6 @@ task UnitTests {
     }
     $script:UnitTestResults = Invoke-Pester @PesterParams
     $null = $script:UnitTestResults | Export-Clixml -Path $PesterOutFilePath -Force
-    
     Pop-Location
 }
 
@@ -104,7 +102,6 @@ task FailIfLastCodeConverageUnderThreshold {
     "`tUnit Tests       = $PathToUnitTests"
     "`tResult Folder    = $BuildOutput\Unit\"
     "`t Min Coverage    = $CodeCoverageThreshold %"
-
     ''
 
     if (![io.path]::IsPathRooted($BuildOutput)) {
