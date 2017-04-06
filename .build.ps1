@@ -20,15 +20,15 @@ Get-ChildItem -Path "$PSScriptRoot/.build/" -Recurse -Include *.ps1 -Verbose |
 
 task .  Clean,
         ResolveDependencies,
-        SetBuildEnvironment, #SetBuildVariable,
-        UnitTests, 
-        DoSomethingBeforeFailing,
+        SetBuildEnvironment,
+        UnitTests,
         UploadUnitTestResultsToAppVeyor,
         FailBuildIfFailedUnitTest, 
+        FailIfLastCodeConverageUnderThreshold,
         IntegrationTests, 
         QualityTestsStopOnFail
 
-task test SetBuildEnvironment
+task testAll UnitTests, IntegrationTests, QualityTestsStopOnFail
 
 #task . ResolveDependencies, SetBuildVariable, UnitTestsStopOnFail, IntegrationTests
 <#

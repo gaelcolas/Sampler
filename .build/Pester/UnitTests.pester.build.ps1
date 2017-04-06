@@ -17,6 +17,10 @@ Param (
     [string]
     $PesterOutputSubFolder = (property PesterOutputSubFolder 'PesterOut'),
 
+    [Int]
+    [ValidateRange(0,100)]
+    $CodeCoverageThreshold = (property CodeCoverageThreshold 90),
+
     [string]
     $LineSeparation = (property LineSeparation ('-' * 78))
 )
@@ -91,4 +95,36 @@ task FailBuildIfFailedUnitTest -If ($script:UnitTestResults.FailedCount -ne 0) {
     assert ($script:UnitTestResults.FailedCount -eq 0) ('Failed {0} Unit tests. Aborting Build' -f $script:UnitTestResults.FailedCount)
 }
 
-task UnitTestsStopOnFail UnitTests,FailBuildIfFailedUnitTest
+task FailIfLastCodeConverageUnderThreshold {
+    $LineSeparation
+    "`t`t`t LOADING LAST CODE COVERAGE From FILE"
+    $LineSeparation
+    "`tProject Path     = $ProjectPath"
+    "`tProject Name     = $ProjectName"
+    "`tUnit Tests       = $PathToUnitTests"
+    "`tResult Folder    = $BuildOutput\Unit\"
+    "`t Min Coverage    = $CodeCoverageThreshold %"
+
+    ''
+
+    if (![io.path]::IsPathRooted($BuildOutput)) {
+        $BuildOutput = Join-Path -Path $ProjectPath.FullName -ChildPath $BuildOutput
+    }
+
+    $TestResultFileName = "Unit_*_*.xml"
+    $PesterOutPath = [system.io.path]::Combine($BuildOutput,'testResults','unit',$PesterOutputSubFolder,$TestResultFileName)
+    $PesterOutPath
+    $PesterOutFile =  Get-ChildItem -Path $PesterOutPath |  Sort-Object -Descending | Select-Object -first 1
+    $PesterObject = Import-Clixml -Path $PesterOutFile.FullName
+    if ($PesterObject) {
+        $coverage = $PesterObject.CodeCoverage.NumberOfCommandsExecuted / $PesterObject.CodeCoverage.NumberOfCommandsAnalyzed
+        if ($coverage -lt $CodeCoverageThreshold/100) {
+            Throw "The code coverage ($($Coverage*100) %) is under the threshold of $CodeCoverageThreshold %."
+        }
+        else {
+            Write-Host "Code Coverage accepted with value of $($coverage*100) %" -ForegroundColor Green
+        }
+    }
+}
+
+task UnitTestsStopOnFail UnitTests,FailBuildIfFailedUnitTest,FailIfLastCodeConverageUnderThreshold

@@ -9,7 +9,7 @@ Param (
     $ForceEnvironmentVariables = $(try {property ForceEnvironmentVariables} catch {$false})
 )
 
-task SetBuildEnvironment -if {(Get-Command Set-BuildEnvironment).Parameters.variableNamePrefix} { #Until PR pushed to gallery
+task SetBuildEnvironment {
     $LineSeparation
     
     'Set-BuildEnvironment'
