@@ -18,7 +18,7 @@ Param (
     $APPVEYOR_JOB_ID = $(try {property APPVEYOR_JOB_ID} catch {})
 )
 
-task UploadUnitTestResultsToAppVeyor -If ($BuildSystem -eq 'AppVeyor') {
+task UploadUnitTestResultsToAppVeyor -If {$BuildSystem -eq 'AppVeyor'} {
     
     if (![io.path]::IsPathRooted($BuildOutput)) {
         $BuildOutput = Join-Path -Path $ProjectPath.FullName -ChildPath $BuildOutput
