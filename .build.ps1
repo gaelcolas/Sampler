@@ -21,7 +21,6 @@ Get-ChildItem -Path "$PSScriptRoot/.build/" -Recurse -Include *.ps1 -Verbose |
 task .  Clean,
         ResolveDependencies,
         SetBuildEnvironment,
-        BuildSys,#Troubleshooting the BuildSystem env var.
         UnitTests,
         UploadUnitTestResultsToAppVeyor,
         FailBuildIfFailedUnitTest, 

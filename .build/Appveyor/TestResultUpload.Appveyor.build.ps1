@@ -28,10 +28,3 @@ task UploadUnitTestResultsToAppVeyor -If {$BuildSystem -eq 'AppVeyor'} {
     $TestResultFiles = Get-ChildItem -Path $TestOutputPath -Filter *.xml
     $TestResultFiles | Add-TestResultToAppveyor
 }
-
-task BuildSys {
-    $BuildSystem
-    Gci Env:\ | ? { $_.Name -in @('APPVEYOR_BUILD_FOLDER','BuildSystem','ProjectPath','BranchName','CommitMessage','BuildNumber','ProjectName','PSModuleManifest','PSModulePath') -or
-                    $_.Name -match 'appveyor' }
-
-}

@@ -38,7 +38,7 @@ task InstallPSDepend -if {!(Get-Module -ListAvailable PSDepend)} {
 
 task ResolveDependencies InstallPSDepend, {
     $LineSeparation
-    Invoke-PSDepend $Dependency -Force   
+    Invoke-PSDepend $Dependency -Force
 }
 
 task ResolveTasksModuleDependencies {

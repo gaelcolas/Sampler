@@ -12,6 +12,7 @@ Param (
 
 task Clean {
     $LineSeparation
+    "`t`t`t CLEAN UP"
     $LineSeparation
 
     if (![io.path]::IsPathRooted($BuildOutput)) {

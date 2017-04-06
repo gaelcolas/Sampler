@@ -31,7 +31,7 @@ function Get-Something {
     Process {
         if ($pscmdlet.ShouldProcess($Data)) {
             Write-Verbose ('Returning the data: {0}' -f $Data)
-            Write-Output $Data
+            Get-PrivateFunction -PrivateData $Data
         }
     }
 
