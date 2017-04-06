@@ -9,7 +9,8 @@ Param (
     $GalleryProxy, #used in ResolveDependencies, $null if not specified
 
     [Switch]
-    $ForceEnvironmentVariables
+    $ForceEnvironmentVariables = [switch]$true
+    
 )
 
 Get-ChildItem -Path "$PSScriptRoot/.build/" -Recurse -Include *.ps1 -Verbose |
