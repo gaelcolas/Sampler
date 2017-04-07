@@ -11,7 +11,7 @@ Param (
 
 task SetBuildEnvironment {
     $LineSeparation
-    $PSModulePath = $Env:PSModulePath
+    $PSModulePath = $Env:PSModulePath #waiting on RamblingCookieMonster/BuildHelpers#30
     'Set-BuildEnvironment'
     Set-BuildEnvironment -variableNamePrefix $VariableNamePrefix -ErrorVariable err -ErrorAction SilentlyContinue -Force:$ForceEnvironmentVariables -Verbose
 
@@ -21,8 +21,8 @@ task SetBuildEnvironment {
     $LineSeparation
     gci Env:\ | ? Value -Match 'Appveyor'
     
-    $Env:PSModulePath = $PSModulePath
-    
+    $Env:PSModulePath = $Env:PSModulePath  ####
+
     foreach ($e in $err) {
         Write-Host $e
     }

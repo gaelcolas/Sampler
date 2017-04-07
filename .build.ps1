@@ -13,7 +13,7 @@ Param (
     $ForceEnvironmentVariables = [switch]$true,
 
     [String]
-    $DependencyTarget = $BuildOutput
+    $DependencyTarget = "$BuildOutput/modules"
     
 )
 

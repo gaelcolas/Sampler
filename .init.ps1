@@ -5,7 +5,6 @@ Param (
 #Worth noting InvokeBuild supports to attach the Invoke-build.ps1 file in the repo, dot source it and use Invoke-Build alias
 
 
-
 # Grab nuget bits, install modules, set build variables, start build.
 if (!(Get-PackageProvider -Name NuGet -ForceBootstrap)) {
     $null = Install-PackageProvider nuget -force -ForceBootstrap

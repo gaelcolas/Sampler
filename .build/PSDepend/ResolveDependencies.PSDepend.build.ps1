@@ -42,6 +42,8 @@ task InstallPSDepend -if {!(Get-Module -ListAvailable PSDepend)} {
     else {
         "Saving module to $DependencyTarget"
         Save-Module @installModuleParams -Path $DependencyTarget
+        #Add to $Env:PSModulePath so that we can use it
+        $Env:PSModulePath += ';'+ $DependencyTarget
     }
 } 
 
