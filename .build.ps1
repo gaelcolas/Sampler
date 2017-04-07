@@ -9,7 +9,10 @@ Param (
     $GalleryProxy, #used in ResolveDependencies, $null if not specified
 
     [Switch]
-    $ForceEnvironmentVariables = [switch]$true
+    $ForceEnvironmentVariables = [switch]$true,
+
+    [String]
+    $DependencyTarget = $BuildOutput
     
 )
 

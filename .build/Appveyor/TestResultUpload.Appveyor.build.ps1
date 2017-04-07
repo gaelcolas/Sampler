@@ -12,7 +12,7 @@ Param (
     $PesterOutputFormat = (property PesterOutputFormat 'NUnitXml'),
 
     [string]
-    $BuildSystem = (property BuildSystem 'unknown'),
+    $BuildSystem = (property BuildSystem 'blah'),
 
     [string]
     $APPVEYOR_JOB_ID = $(try {property APPVEYOR_JOB_ID} catch {})

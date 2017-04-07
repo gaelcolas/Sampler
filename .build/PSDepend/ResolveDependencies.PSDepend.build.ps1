@@ -9,7 +9,10 @@
     $GalleryPSCredential = $(try { property GalleryPSCredential } catch { }), #propagate or use $null
 
     [string]
-    $Dependency = $(try { property Dependency } catch { '.\Dependencies.psd1' }), #propagate or use $null
+    $Dependency = (property Dependency '.\Dependencies.psd1'), #propagate or use $null
+
+    [String]
+    $DependencyTarget = $(try {property DependencyTarget} catch {$null}),
 
     [string]
     $LineSeparation = (property LineSeparation ('-' * 78)) 
@@ -33,12 +36,25 @@ task InstallPSDepend -if {!(Get-Module -ListAvailable PSDepend)} {
         $installModuleParams.Add('Credential',$GalleryPSCredential)
     }
 
-    Install-Module @installModuleParams
+    if (!$DependencyTarget) {
+        Install-Module @installModuleParams
+    }
+    else {
+        "Saving module to $DependencyTarget"
+        Save-Module @installModuleParams -Path $DependencyTarget
+    }
 } 
 
 task ResolveDependencies InstallPSDepend, {
     $LineSeparation
-    Invoke-PSDepend $Dependency -Force
+    $PSDependParams = @{
+        Force = $true
+        Path  = $Dependency
+    }
+    if ($DependencyTarget) {
+        $PSDependParams.Add('Target',$DependencyTarget)
+    }
+    Invoke-PSDepend @PSDependParams
 }
 
 task ResolveTasksModuleDependencies {
