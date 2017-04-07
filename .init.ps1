@@ -1,6 +1,12 @@
 Param (
     [switch]
-    $NoBuild
+    $NoBuild,
+
+    [String]
+    $BuildOutput = "$PSScriptRoot\BuildOutput",
+
+    [String]
+    $DependencyTarget = $BuildOutput
 )
 #Worth noting InvokeBuild supports to attach the Invoke-build.ps1 file in the repo, dot source it and use Invoke-Build alias
 
@@ -12,7 +18,7 @@ if (!(Get-PackageProvider -Name NuGet -ForceBootstrap)) {
     Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
 }
 
-Install-Module InvokeBuild -Force -ErrorAction Stop
+Save-Module InvokeBuild -Force -ErrorAction Stop -Path $DependencyTarget
 
 #If there's a .build.configuration.json or .build.configuration.psd1 in the current folder,
 #  load and create a parameter hashtable for Invoke-Build
