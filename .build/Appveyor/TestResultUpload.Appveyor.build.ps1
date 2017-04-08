@@ -12,17 +12,10 @@ Param (
     $PesterOutputFormat = (property PesterOutputFormat 'NUnitXml'),
 
     [string]
-    $BuildSystem = (property BuildSystem 'blah'),
-
-    [string]
     $APPVEYOR_JOB_ID = $(try {property APPVEYOR_JOB_ID} catch {})
 )
 
-task UploadUnitTestResultsToAppVeyor -If {Write-host "BuildSystem = $BuildSystem";
-                                            Write-host "Env:BuildSystem = $Env:BuildSystem";
-                                            $BuildSystem -eq 'AppVeyor' -or $Env:BuildSystem -eq 'AppVeyor'} {
-    Write-host "BuildSystem = $BuildSystem"
-    Write-host "Env:BuildSystem = $Env:BuildSystem"
+task UploadUnitTestResultsToAppVeyor -If {(property BuildSystem 'unknown') -eq 'AppVeyor'} {
 
     if (![io.path]::IsPathRooted($BuildOutput)) {
         $BuildOutput = Join-Path -Path $ProjectPath.FullName -ChildPath $BuildOutput
