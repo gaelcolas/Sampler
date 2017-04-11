@@ -1,3 +1,4 @@
+#Requires -Modules InvokeBuild
 Param (
     [String]
     $BuildOutput = "$PSScriptRoot\BuildOutput",
@@ -9,7 +10,11 @@ Param (
     $GalleryProxy, #used in ResolveDependencies, $null if not specified
 
     [Switch]
-    $ForceEnvironmentVariables
+    $ForceEnvironmentVariables = [switch]$true,
+
+    [String]
+    $DependencyTarget = "$BuildOutput/modules"
+    
 )
 
 Get-ChildItem -Path "$PSScriptRoot/.build/" -Recurse -Include *.ps1 -Verbose |
@@ -20,15 +25,15 @@ Get-ChildItem -Path "$PSScriptRoot/.build/" -Recurse -Include *.ps1 -Verbose |
 
 task .  Clean,
         ResolveDependencies,
-        SetBuildEnvironment, #SetBuildVariable,
-        UnitTests, 
-        DoSomethingBeforeFailing,
+        SetBuildEnvironment,
+        UnitTests,
         UploadUnitTestResultsToAppVeyor,
         FailBuildIfFailedUnitTest, 
+        FailIfLastCodeConverageUnderThreshold,
         IntegrationTests, 
         QualityTestsStopOnFail
 
-task test SetBuildEnvironment
+task testAll UnitTests, IntegrationTests, QualityTestsStopOnFail
 
 #task . ResolveDependencies, SetBuildVariable, UnitTestsStopOnFail, IntegrationTests
 <#
