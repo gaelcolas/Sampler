@@ -5,14 +5,15 @@ Param (
 #Worth noting InvokeBuild supports to attach the Invoke-build.ps1 file in the repo, dot source it and use Invoke-Build alias
 
 
-
 # Grab nuget bits, install modules, set build variables, start build.
 if (!(Get-PackageProvider -Name NuGet -ForceBootstrap)) {
     $null = Install-PackageProvider nuget -force -ForceBootstrap
     Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
 }
 
-Install-Module InvokeBuild -Force -ErrorAction Stop
+if(!(Get-Module -listAvailable InvokeBuild )) {
+    Install-Module InvokeBuild -ErrorAction Stop -scope CurrentUser -force
+}
 
 #If there's a .build.configuration.json or .build.configuration.psd1 in the current folder,
 #  load and create a parameter hashtable for Invoke-Build

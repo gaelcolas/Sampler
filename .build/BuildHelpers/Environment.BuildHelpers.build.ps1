@@ -9,23 +9,11 @@ Param (
     $ForceEnvironmentVariables = $(try {property ForceEnvironmentVariables} catch {$false})
 )
 
-task SetBuildEnvironment -if {(Get-Command Set-BuildEnvironment).Parameters.variableNamePrefix} { #Until PR pushed to gallery
+task SetBuildEnvironment {
     $LineSeparation
-    
     'Set-BuildEnvironment'
-    Set-BuildEnvironment -variableNamePrefix $VariableNamePrefix -ErrorVariable err -ErrorAction SilentlyContinue -Force:$ForceEnvironmentVariables
+    Set-BuildEnvironment -variableNamePrefix $VariableNamePrefix -ErrorVariable err -ErrorAction SilentlyContinue -Force:$ForceEnvironmentVariables -Verbose
     foreach ($e in $err) {
         Write-Host $e
     }
-    
-    <# Creates:
-        $BuildSystem
-        $ProjectPath
-        $BranchName
-        $CommitMessage
-        $BuildNumber
-        $ProjectName
-        $PSModuleManifest
-        $PSModulePath
-    #>
 }

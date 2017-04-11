@@ -18,8 +18,9 @@ Eventually, the aim is to extract this structure and the key re-usable files int
     - [x] Clean the BuildOutput folder
     - [x] Resolve Dependencies with PSDepend from [Dependencies.psd1](./Dependencies.psd1)
     - [ ] Test the Functions' Code (aka Function Unit Test)
-        - [x] Run all Unit test files against their function\class equivalent
-        - [ ] Save code coverage to file (CLIXml), fail if under threshold
+        - [x] Run all Unit test files against their function equivalent
+        - [ ] Run all Unit test files against their Class equivalent
+        - [x] Save code coverage to file (CLIXml), fail if under threshold
         - [x] Save Test results in XML
         - [x] Upload test results to Appveyor
     - [ ] Test the Module Mechanics (aka Module Unit Test)

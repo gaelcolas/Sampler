@@ -9,13 +9,17 @@ Param (
     $ProjectName = (property ProjectName (Split-Path -Leaf (Join-Path $PSScriptRoot '../..')) ),
 
     [string]
-    $RelativePathToUnitTests = (property RelativePathToUnitTests 'tests/Unit'),
+    $PesterOutputFormat = (property PesterOutputFormat 'NUnitXml'),
 
     [string]
-    $NUnitSubFolder = (property NUnitSubFolder 'NUnit\Unit'),
+    $PathToUnitTests = (property PathToUnitTests 'tests/Unit'),
 
     [string]
     $PesterOutputSubFolder = (property PesterOutputSubFolder 'PesterOut'),
+
+    [Int]
+    [ValidateRange(0,100)]
+    $CodeCoverageThreshold = (property CodeCoverageThreshold 90),
 
     [string]
     $LineSeparation = (property LineSeparation ('-' * 78))
@@ -27,12 +31,17 @@ task UnitTests {
     $LineSeparation
     "`tProject Path = $ProjectPath"
     "`tProject Name = $ProjectName"
-    "`tUnit Tests   = $RelativePathToUnitTests"
-    $UnitTestPath = [io.DirectoryInfo][system.io.path]::Combine($ProjectPath,$ProjectName,$RelativePathToUnitTests)
+    "`tUnit Tests   = $PathToUnitTests"
+    "`tResult Folder= $BuildOutput\Unit\"
+
+    #Resolving the Unit Tests path based on 2 possible Path: 
+    #    ProjectPath\ProjectName\tests\Unit (my way, I like to ship tests with Modules)
+    # or ProjectPath\tests\Unit (Warren's way: http://ramblingcookiemonster.github.io/Building-A-PowerShell-Module/)
+    $UnitTestPath = [io.DirectoryInfo][system.io.path]::Combine($ProjectPath,$ProjectName,$PathToUnitTests)
     
     if (!$UnitTestPath.Exists -and
-        (   #Try a module structure where the
-            $UnitTestPath = [io.DirectoryInfo][system.io.path]::Combine($ProjectPath,$RelativePathToUnitTests) -and
+        (   #Try a module structure where the tests are outside of the Source directory
+            $UnitTestPath = [io.DirectoryInfo][system.io.path]::Combine($ProjectPath,$PathToUnitTests) -and
             !$UnitTestPath.Exists
         )
     )
@@ -41,37 +50,42 @@ task UnitTests {
     }
 
     "`tUnitTest Path: $UnitTestPath"
+    ''
+
     if (![io.path]::IsPathRooted($BuildOutput)) {
         $BuildOutput = Join-Path -Path $ProjectPath.FullName -ChildPath $BuildOutput
     }
-    # $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath(".\nonexist\foo.txt")
-    $PSVersion = $PSVersionTable.PSVersion.Major
+
+    $PSVersion = 'PSv{0}.{1}' -f $PSVersionTable.PSVersion.Major, $PSVersionTable.PSVersion.Minor
     $Timestamp = Get-date -uformat "%Y%m%d-%H%M%S"
-    $NUnitFileName = "TestResults_Unit_PSv$PSVersion`_$TimeStamp.xml"
-    $NUnitFilePath = [system.io.path]::Combine($BuildOutput,$NUnitSubFolder,$NUnitFileName)
-    $NUnitParentFolder = Split-Path $NUnitFilePath -Parent
+    $TestResultFileName = "Unit_$PSVersion`_$TimeStamp.xml"
+    $TestResultFile = [system.io.path]::Combine($BuildOutput,'testResults','unit',$PesterOutputFormat,$TestResultFileName)
+    $TestResultFileParentFolder = Split-Path $TestResultFile -Parent
+    $PesterOutFilePath = [system.io.path]::Combine($BuildOutput,'testResults','unit',$PesterOutputSubFolder,$TestResultFileName)
+    $PesterOutParentFolder = Split-Path $PesterOutFilePath -Parent
     
-    if (!(Test-Path $NUnitParentFolder)) {
-        "CREATING NUnit Output Folder $NUnitParentFolder"
-        $null = mkdir $NUnitParentFolder -Force
+    if (!(Test-Path $PesterOutParentFolder)) {
+        Write-Verbose "CREATING Pester Results Output Folder $PesterOutParentFolder"
+        $null = mkdir $PesterOutParentFolder -Force
+    }
+
+    if (!(Test-Path $TestResultFileParentFolder)) {
+        Write-Verbose "CREATING Test Results Output Folder $TestResultFileParentFolder"
+        $null = mkdir $TestResultFileParentFolder -Force
     }
     
     Push-Location $UnitTestPath
     $ListOfTestedFile = Get-ChildItem | Foreach-Object { $fileName = $_.BaseName -replace '\.tests',''; "$ProjectPath\$ProjectName\*\$fileName.ps1"  }
-    $ListOfTestedFile
-    $script:UnitTestResults = Invoke-Pester -ErrorAction Stop -OutputFormat NUnitXml -OutputFile $NUnitFilePath -CodeCoverage $ListOfTestedFile -PassThru
-
-
-    $PesterOutFilePath = [system.io.path]::Combine($BuildOutput,$PesterOutputSubFolder,$NUnitFileName)
-    
-    $PesterOutParentFolder = Split-Path $PesterOutFilePath -Parent
-    
-    if (!(Test-Path $PesterOutParentFolder)) {
-        "CREATING NUnit Output Folder $PesterOutParentFolder"
-        $null = mkdir $PesterOutParentFolder -Force
+    $ListOfTestedFile | ForEach-Object { Write-Verbose $_}
+    $PesterParams = @{
+        ErrorAction  = 'Stop'
+        OutputFormat = $PesterOutputFormat
+        OutputFile   = $TestResultFile
+        CodeCoverage = $ListOfTestedFile
+        PassThru     = $true
     }
+    $script:UnitTestResults = Invoke-Pester @PesterParams
     $null = $script:UnitTestResults | Export-Clixml -Path $PesterOutFilePath -Force
-    
     Pop-Location
 }
 
@@ -79,4 +93,35 @@ task FailBuildIfFailedUnitTest -If ($script:UnitTestResults.FailedCount -ne 0) {
     assert ($script:UnitTestResults.FailedCount -eq 0) ('Failed {0} Unit tests. Aborting Build' -f $script:UnitTestResults.FailedCount)
 }
 
-task UnitTestsStopOnFail UnitTests,FailBuildIfFailedUnitTest
+task FailIfLastCodeConverageUnderThreshold {
+    $LineSeparation
+    "`t`t`t LOADING LAST CODE COVERAGE From FILE"
+    $LineSeparation
+    "`tProject Path     = $ProjectPath"
+    "`tProject Name     = $ProjectName"
+    "`tUnit Tests       = $PathToUnitTests"
+    "`tResult Folder    = $BuildOutput\Unit\"
+    "`tMin Coverage     = $CodeCoverageThreshold %"
+    ''
+
+    if (![io.path]::IsPathRooted($BuildOutput)) {
+        $BuildOutput = Join-Path -Path $ProjectPath.FullName -ChildPath $BuildOutput
+    }
+
+    $TestResultFileName = "Unit_*_*.xml"
+    $PesterOutPath = [system.io.path]::Combine($BuildOutput,'testResults','unit',$PesterOutputSubFolder,$TestResultFileName)
+    $PesterOutPath
+    $PesterOutFile =  Get-ChildItem -Path $PesterOutPath |  Sort-Object -Descending | Select-Object -first 1
+    $PesterObject = Import-Clixml -Path $PesterOutFile.FullName
+    if ($PesterObject) {
+        $coverage = $PesterObject.CodeCoverage.NumberOfCommandsExecuted / $PesterObject.CodeCoverage.NumberOfCommandsAnalyzed
+        if ($coverage -lt $CodeCoverageThreshold/100) {
+            Throw "The code coverage ($($Coverage*100) %) is under the threshold of $CodeCoverageThreshold %."
+        }
+        else {
+            Write-Host "Code Coverage accepted with value of $($coverage*100) %" -ForegroundColor Green
+        }
+    }
+}
+
+task UnitTestsStopOnFail UnitTests,FailBuildIfFailedUnitTest,FailIfLastCodeConverageUnderThreshold
