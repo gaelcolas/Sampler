@@ -24,7 +24,7 @@ Eventually, the aim is to extract this structure and the key re-usable files int
         - [x] Save Test results in XML
         - [x] Upload test results to Appveyor
     - [ ] Test the Module Mechanics (aka Module Unit Test)
-        - [ ] Merge Classes and Functions into the PSM1 file
+        - [x] Merge Classes and Functions into the PSM1 file
         - [ ] Run Integration tests against 'compiled' module
         - [ ] Save code coverage to file (CLIXml), fail if under threshold
         - [ ] Save test results in XML

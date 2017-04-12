@@ -13,7 +13,9 @@ Param (
     $ForceEnvironmentVariables = [switch]$true,
 
     [String]
-    $DependencyTarget = "$BuildOutput/modules"
+    $DependencyTarget = "$BuildOutput/modules",
+
+    $MergeList = @('enum*',[PSCustomObject]@{Name='class*';order={@('class1','class2','class12','class11').indexOf($_.BaseName)}},'priv*','pub*')
     
 )
 if ((Get-PSCallStack)[1].InvocationInfo.MyCommand.Name -ne 'Invoke-Build.ps1') {
@@ -34,6 +36,9 @@ task .  Clean,
         UploadUnitTestResultsToAppVeyor,
         FailBuildIfFailedUnitTest, 
         FailIfLastCodeConverageUnderThreshold,
+        CopySourceToModuleOut,
+        MergeFilesToPSM1,
+        CleanOutputEmptyFolders,
         IntegrationTests, 
         QualityTestsStopOnFail
 

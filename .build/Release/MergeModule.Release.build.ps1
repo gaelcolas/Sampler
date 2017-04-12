@@ -6,33 +6,56 @@
     $ProjectName = (property ProjectName (Split-Path -Leaf (Join-Path $PSScriptRoot '../..')) ),
 
     [string]
+    $SourceFolder = $ProjectName,
+
+    [string]
+    $BuildOutput = (property BuildOutput 'C:\BuildOutput'),
+
+    $MergeList = (property MergeList @('enum*','class*','priv*','pub*') ),
+    
+    [string]
     $LineSeparation = (property LineSeparation ('-' * 78))
 
 )
 
-Task MergeModule {
-    # Merge individual PS1 files into a single PSM1.
-    
-    # Use the same case as the manifest.
-    $moduleName = $ProjectName
+Task CopySourceToModuleOut {
+    $LineSeparation
+    "`t`t`t COPY SOURCE TO BUILD OUTPUT"
+    $LineSeparation
 
-    $fileStream = New-Object System.IO.FileStream("$projectPath\$Script:version\$moduleName.psm1", 'Create')
-    $writer = New-Object System.IO.StreamWriter($fileStream)
-
-    Get-ChildItem 'source' -Filter *.ps1 -Recurse | Where-Object { $_.FullName -notlike "*source\examples*" -and $_.Extension -eq '.ps1' } | ForEach-Object {
-        Get-Content $_.FullName | ForEach-Object {
-            $writer.WriteLine($_.TrimEnd())
-        }
-        $writer.WriteLine()
+    if (![io.path]::IsPathRooted($BuildOutput)) {
+        $BuildOutput = Join-Path -Path $ProjectPath.FullName -ChildPath $BuildOutput
     }
-
-    if (Test-Path 'source\InitializeModule.ps1') {
-        $writer.WriteLine('InitializeModule')
-    }
-
-    $writer.Close()
-    $fileStream.Close()
+    $BuiltModuleFolder = [io.Path]::Combine($BuildOutput,$ProjectName)
+    Copy-Item -Path "$ProjectPath\$SourceFolder" -Destination "$BuiltModuleFolder\" -Recurse
 }
 
-#From Chris Dent's BuildTask repo
-#https://github.com/indented-automation/BuildTools/blob/master/build_tasks.ps1
+Task MergeFilesToPSM1 {
+    $LineSeparation
+    "`t`t`t MERGE TO PSM1"
+    $LineSeparation
+    if (![io.path]::IsPathRooted($BuildOutput)) {
+        $BuildOutput = Join-Path -Path $ProjectPath.FullName -ChildPath $BuildOutput
+    }
+    $BuiltModuleFolder = [io.Path]::Combine($BuildOutput,$ProjectName)
+
+    # Merge individual PS1 files into a single PSM1, and delete merged files
+    $OutModulePSM1 = [io.path]::Combine($BuiltModuleFolder,"$ProjectName.psm1")
+    "Merging to $OutModulePSM1"
+    $MergeList | Get-MergedModule -DeleteSource -SourceFolder $BuiltModuleFolder | Out-File $OutModulePSM1 -Force
+}
+
+Task CleanOutputEmptyFolders {
+    $LineSeparation
+    "`t`t`t REMOVE EMPTY FOLDERS"
+    $LineSeparation
+    if (![io.path]::IsPathRooted($BuildOutput)) {
+        $BuildOutput = Join-Path -Path $ProjectPath.FullName -ChildPath $BuildOutput
+    }
+
+    Get-ChildItem $BuildOutput -Recurse -Force | Sort-Object -Property FullName -Descending | Where-Object {
+        $_.PSIsContainer -and
+        $_.GetFiles().count -eq 0 -and
+        $_.GetDirectories().Count -eq 0 
+    } | Remove-Item
+}
