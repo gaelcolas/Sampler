@@ -16,6 +16,10 @@ Param (
     $DependencyTarget = "$BuildOutput/modules"
     
 )
+if ((Get-PSCallStack)[1].InvocationInfo.MyCommand.Name -ne 'Invoke-Build.ps1') {
+    Invoke-Build
+    return
+}
 
 Get-ChildItem -Path "$PSScriptRoot/.build/" -Recurse -Include *.ps1 -Verbose |
     Foreach-Object {

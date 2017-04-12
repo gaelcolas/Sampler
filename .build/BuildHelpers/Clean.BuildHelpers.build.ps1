@@ -19,8 +19,8 @@ task Clean {
         $BuildOutput = Join-Path -Path $ProjectPath.FullName -ChildPath $BuildOutput
     }
     if (Test-Path $BuildOutput) {
-        "Removing $BuildOutput"
-        Remove-Item $BuildOutput -Force -Recurse
+        "Removing $BuildOutput\*"
+        Gci .\BuildOutput\ -Exclude modules | Remove-Item -Force -Recurse
     }
 
 }
