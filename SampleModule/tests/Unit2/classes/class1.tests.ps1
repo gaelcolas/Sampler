@@ -8,7 +8,9 @@ InModuleScope SampleModule {
 
         Context 'Constructors' {
             It 'Has a default constructor' {
-                [class2]::new() | Should -BeOfType [class2]
+                $instance = [class1]::new()
+                $instance | Should -Not -BeNullOrEmpty
+                $instance.GetType().Name | Should -Be 'class1'
             }
         }
 

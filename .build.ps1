@@ -39,6 +39,10 @@ task .  Clean,
         CopySourceToModuleOut,
         MergeFilesToPSM1,
         CleanOutputEmptyFolders,
+        Unit2Tests,
+        UploadUnit2TestResultsToAppVeyor,
+        FailBuildIfFailedUnit2Test,
+        FailUnit2IfLastCodeConverageUnderThreshold,
         IntegrationTests, 
         QualityTestsStopOnFail
 

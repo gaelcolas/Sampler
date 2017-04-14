@@ -1,5 +1,5 @@
 InModuleScope SampleModule {
-    Describe class1 {
+    Describe class12 {
         Context 'Type creation' {
             It 'Has created a type named class12' {
                 'class12' -as [Type] | Should -BeOfType [Type]
@@ -8,7 +8,9 @@ InModuleScope SampleModule {
 
         Context 'Constructors' {
             It 'Has a default constructor' {
-                [class12]::new() | Should -BeOfType [class12]
+                $instance = [class12]::new()
+                $instance | Should -Not -BeNullOrEmpty
+                $instance.GetType().Name | Should -Be 'class12'
             }
         }
 
@@ -25,7 +27,7 @@ InModuleScope SampleModule {
 
         Context 'Properties' {
             BeforeEach {
-                $instance = [class11]::new()
+                $instance = [class12]::new()
             }
 
             It 'Has a Name property' {
