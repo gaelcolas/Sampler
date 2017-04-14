@@ -43,7 +43,8 @@ task .  Clean,
         UploadUnit2TestResultsToAppVeyor,
         FailBuildIfFailedUnit2Test,
         FailUnit2IfLastCodeConverageUnderThreshold,
-        IntegrationTests, 
+        IntegrationTests,
+        GenerateMamlFromMd,
         QualityTestsStopOnFail
 
 task testAll UnitTests, IntegrationTests, QualityTestsStopOnFail
