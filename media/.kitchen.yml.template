@@ -6,7 +6,11 @@ provisioner:
       reboot_if_needed: true
       configuration_mode_frequency_mins: 15
       debug_mode: none
-    configuration_script_folder: PackageProviderBootstrap/examples
+<%
+@"
+    configuration_script_folder: {0}/examples
+"@ -f $PLASTER_PARAM_ModuleName
+%>
     configuration_script: dsc_configuration.ps1
     modules_path: modules
     retry_on_exit_code:
@@ -18,8 +22,12 @@ provisioner:
 
 verifier:
   name: pester
-  test_folder: PackageProviderBootstrap/tests/integration/
+<%
+@"
+  test_folder: {0}/tests/integration/
 
+"@ -f $PLASTER_PARAM_ModuleName
+%>
 platforms:
   - name: win2012r2_PPB
     os_type: windows
