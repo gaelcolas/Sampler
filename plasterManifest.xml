@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<plasterManifest
+  schemaVersion="1.0" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+  <metadata>
+    <name>SampleModule</name>
+    <id>e46ca074-08e9-4a4b-8c87-e927ffb8c98e</id>
+    <version>0.0.1</version>
+    <title>Sample Module Template</title>
+    <description>Sample Module Template with Build bootstrap</description>
+    <author>Gael Colas</author>
+    <tags>Template, Build, Module</tags>
+  </metadata>
+  <parameters>
+    <parameter name="ModuleAuthor" type="text" prompt="Author's name" />
+    <parameter name="ModuleName" type="text" prompt="Name of your module" />
+    <parameter name="ModuleDescription" type="text" prompt="Description of this module" />
+    <parameter name="ModuleVersion" type="text" prompt="Module version"  default="0.0.1"/>
+  </parameters>
+  <content>
+    <file source='' destination='${PLASTER_PARAM_ModuleName}/media' />
+    <file source='.build/**' destination='${PLASTER_PARAM_ModuleName}/.build/' />
+
+    <file source='' destination='${PLASTER_PARAM_ModuleName}/specs/steps' />
+    <file source='' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}' />
+    <file source='' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/classes' />
+    <file source='' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/private' />
+    <file source='' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/public' />
+    <file source='' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/tests' />
+    <file source='' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/examples' />
+
+    <file source='' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/docs' />
+    <file source='' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/examples' />
+    <file source='' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/enums' />
+
+    <file source='.gitinore' destination='${PLASTER_PARAM_ModuleName}/.gitignore' />
+    <file source='.build.ps1' destination='${PLASTER_PARAM_ModuleName}/.build.ps1' />
+    <file source='appveyor.yml' destination='${PLASTER_PARAM_ModuleName}/appveyor.yml' />
+    <file source='.kitchen.yml' destination='${PLASTER_PARAM_ModuleName}/.kitchen.yml' />
+    <file source='Dependencies.psd1' destination='${PLASTER_PARAM_ModuleName}/Dependencies.psd1' />
+    <file source='SampleModule\Public\Get-Something.ps1' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}\Public\Get-Something.ps1' />
+    <file source='SampleModule\Private\Get-PrivateFunction.ps1' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}\Private\Get-PrivateFunction.ps1' />
+
+    <file source='SampleModule\DscResources\DSCResourcesDefinitions.json' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}\DscResources\DSCResourcesDefinitions.json' />
+
+    <newModuleManifest destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}.psd1' 
+        moduleVersion='$PLASTER_PARAM_ModuleVersion'
+        rootModule='${PLASTER_PARAM_ModuleName}.psm1'
+        author='$PLASTER_PARAM_ModuleAuthor'
+        description='$PLASTER_PARAM_ModuleDescription'/>
+    <file source='media/module.template.psm1' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}.psm1'/>
+
+    <!-- Add license based on type of license MIT\Apache2\CC...-->
+    <templateFile source='media/LICENSES/LICENSE.MIT.Template' destination='${PLASTER_PARAM_ModuleName}/LICENSE'/>
+    <templateFile source='media/README.md.template' destination='${PLASTER_PARAM_ModuleName}/README.md'/>
+    <templateFile source='media/docs/about_SampleModule.md.template' destination='${PLASTER_PARAM_ModuleName}/docs/about_${PLASTER_PARAM_ModuleName}.md'/>
+  </content>
+</plasterManifest>

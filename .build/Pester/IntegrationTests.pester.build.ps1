@@ -1,3 +1,4 @@
+#Requires -Modules Pester
 Param (
     [io.DirectoryInfo]
     $ProjectPath = (property ProjectPath (Join-Path $PSScriptRoot '../..' -Resolve -ErrorAction SilentlyContinue)),
@@ -35,6 +36,7 @@ task IntegrationTests {
         ''
         Push-Location $IntegrationTestPath
 
+        Import-module Pester
         Invoke-Pester -ErrorAction Stop
 
         Pop-Location

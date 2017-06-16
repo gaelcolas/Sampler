@@ -27,6 +27,7 @@ Task CopySourceToModuleOut {
         $BuildOutput = Join-Path -Path $ProjectPath.FullName -ChildPath $BuildOutput
     }
     $BuiltModuleFolder = [io.Path]::Combine($BuildOutput,$ProjectName)
+    "Copying $ProjectPath\$SourceFolder To $BuiltModuleFolder\"
     Copy-Item -Path "$ProjectPath\$SourceFolder" -Destination "$BuiltModuleFolder\" -Recurse
 }
 

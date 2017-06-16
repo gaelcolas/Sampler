@@ -2,13 +2,13 @@
     # Set up a mini virtual environment...
     PSDependOptions = @{
         AddToPath = $True
+        Target = 'BuildOutput\modules'
         Parameters = @{
-            Force = $True
-            Import = $True
         }
     }
 
     buildhelpers = 'latest'
+    invokeBuild = 'latest'
     pester = 'latest'
     PSScriptAnalyzer = 'latest'
     PlatyPS = 'latest'

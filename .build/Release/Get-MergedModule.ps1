@@ -1,4 +1,3 @@
-#Courtesy of Chris Dent
 function Get-MergedModule {
     param(
         [Parameter(ValueFromPipeline, ValueFromPipelineByPropertyName)]
@@ -46,3 +45,5 @@ function Get-MergedModule {
         $merge.ToString()
     }
 }
+
+#Courtesy of Chris Dent https://github.com/indented-automation/

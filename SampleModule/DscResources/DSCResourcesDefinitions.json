@@ -1,0 +1,19 @@
+[
+    {
+        "SampleDscResource": [
+            {
+                "Name": "Ensure",
+                "Type": "String",
+                "Attribute": "Read",
+                "ValidateSet": ["Present","Absent"],
+                "Description": "Says whether the thing is installed on the machine."
+            },
+            {
+                "Name": "InstallKey",
+                "Type": "String",
+                "Attribute": "Key",
+                "Description": "At least one property of the DSC resource must be a key"
+            }
+        ]
+    }
+]

@@ -1,3 +1,4 @@
+#Requires -Modules Pester
 Param (
     [io.DirectoryInfo]
     $ProjectPath = (property ProjectPath (Join-Path $PSScriptRoot '../..' -Resolve -ErrorAction SilentlyContinue)),
@@ -41,12 +42,13 @@ task UnitTests {
     
     if (!$UnitTestPath.Exists -and
         (   #Try a module structure where the tests are outside of the Source directory
-            $UnitTestPath = [io.DirectoryInfo][system.io.path]::Combine($ProjectPath,$PathToUnitTests) -and
+            ($UnitTestPath = [io.DirectoryInfo][system.io.path]::Combine($ProjectPath,$PathToUnitTests)) -and
             !$UnitTestPath.Exists
         )
     )
     {
-        Throw ('Cannot Execute Unit tests, Path Not found {0}' -f $UnitTestPath)
+        Write-Warning ('Cannot Execute Unit tests, Path Not found {0}' -f $UnitTestPath)
+        return
     }
 
     "`tUnitTest Path: $UnitTestPath"
@@ -84,12 +86,13 @@ task UnitTests {
         CodeCoverage = $ListOfTestedFile
         PassThru     = $true
     }
+    Import-module Pester
     $script:UnitTestResults = Invoke-Pester @PesterParams
     $null = $script:UnitTestResults | Export-Clixml -Path $PesterOutFilePath -Force
     Pop-Location
 }
 
-task FailBuildIfFailedUnitTest -If ($script:UnitTestResults.FailedCount -ne 0) {
+task FailBuildIfFailedUnitTest -If ($CodeCoverageThreshold -ne 0) {
     assert ($script:UnitTestResults.FailedCount -eq 0) ('Failed {0} Unit tests. Aborting Build' -f $script:UnitTestResults.FailedCount)
 }
 
@@ -110,10 +113,19 @@ task FailIfLastCodeConverageUnderThreshold {
 
     $TestResultFileName = "Unit_*_*.xml"
     $PesterOutPath = [system.io.path]::Combine($BuildOutput,'testResults','unit',$PesterOutputSubFolder,$TestResultFileName)
+    if (-Not (Test-Path $PesterOutPath)) {
+        if ( $CodeCoverageThreshold -eq 0 ) {
+            Write-Host "Code Coverage accepted with value of 0%. No Pester output found." -ForegroundColor Magenta
+            return
+        }
+        else {
+            Throw "No command were tested. Threshold of $CodeCoverageThreshold % not met"
+        }
+    }
     $PesterOutPath
     $PesterOutFile =  Get-ChildItem -Path $PesterOutPath |  Sort-Object -Descending | Select-Object -first 1
     $PesterObject = Import-Clixml -Path $PesterOutFile.FullName
-    if ($PesterObject) {
+    if ($PesterObject.CodeCoverage.NumberOfCommandsAnalyzed) {
         $coverage = $PesterObject.CodeCoverage.NumberOfCommandsExecuted / $PesterObject.CodeCoverage.NumberOfCommandsAnalyzed
         if ($coverage -lt $CodeCoverageThreshold/100) {
             Throw "The code coverage ($($Coverage*100) %) is under the threshold of $CodeCoverageThreshold %."

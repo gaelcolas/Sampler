@@ -1,3 +1,4 @@
+#Requires -Modules Pester
 Param (
     [io.DirectoryInfo]
     $ProjectPath = (property ProjectPath (Join-Path $PSScriptRoot '../..' -Resolve -ErrorAction SilentlyContinue)),
@@ -27,12 +28,13 @@ task QualityTests {
     
     if (!$QualityTestPath.Exists -and
         (   #Try a module structure where the
-            $QualityTestPath = [io.DirectoryInfo][system.io.path]::Combine($ProjectPath,$RelativePathToQualityTests) -and
+            ($QualityTestPath = [io.DirectoryInfo][system.io.path]::Combine($ProjectPath,$RelativePathToQualityTests)) -and
             !$QualityTestPath.Exists
         )
     )
     {
-        Throw ('Cannot Execute Quality tests, Path Not found {0}' -f $QualityTestPath)
+        Write-Warning ('Cannot Execute Quality tests, Path Not found {0}' -f $QualityTestPath)
+        return
     }
 
     "`tQualityTest Path: $QualityTestPath"
@@ -50,13 +52,14 @@ task QualityTests {
     }
 
     Push-Location $QualityTestPath
-
+    
+    Import-module Pester
     $script:QualityTestResults = Invoke-Pester -ErrorAction Stop -OutputFormat NUnitXml -OutputFile $TestFilePath -PassThru
     
     Pop-Location
 }
 
-task FailBuildIfFailedQualityTest -If ($script:QualityTestResults.FailedCount -ne 0) {
+task FailBuildIfFailedQualityTest -If ($CodeCoverageThreshold -ne 0) {
     assert ($script:QualityTestResults.FailedCount -eq 0) ('Failed {0} Quality tests. Aborting Build' -f $script:QualityTestResults.FailedCount)
 }
 

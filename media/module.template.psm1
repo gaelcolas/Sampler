@@ -3,6 +3,10 @@
 if (Test-Path "$PSScriptRoot\Classes\classes.psd1") {
     $ClassLoadOrder = Import-PowerShellDataFile -Path "$PSScriptRoot\Classes\classes.psd1" -ErrorAction SilentlyContinue
 }
+else {
+    $ClassLoadOrder = @{ order=@() }
+    $ClassLoadOrder.order = (get-childItem "$PSScriptRoot\Classes\*" -Filter *.ps1 -ErrorAction SilentlyContinue).BaseName
+}
 
 foreach ($class in $ClassLoadOrder.order) {
     $path = '{0}\classes\{1}.ps1' -f $PSScriptRoot, $class

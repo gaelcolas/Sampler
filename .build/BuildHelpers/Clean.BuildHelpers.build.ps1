@@ -24,3 +24,11 @@ task Clean {
     }
 
 }
+
+task CleanModule {
+     if (![io.path]::IsPathRooted($BuildOutput)) {
+        $BuildOutput = Join-Path -Path $ProjectPath.FullName -ChildPath $BuildOutput
+    }
+    "Removing $BuildOutput\*"
+    Gci .\BuildOutput\ | Remove-Item -Force -Recurse -Verbose -ErrorAction Stop
+}
