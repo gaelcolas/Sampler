@@ -32,10 +32,9 @@
     <file source='' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/examples' />
     <file source='' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/enums' />
 
-    <file source='.gitinore' destination='${PLASTER_PARAM_ModuleName}/.gitignore' />
+    <file source='.gitignore' destination='${PLASTER_PARAM_ModuleName}/.gitignore' />
     <file source='.build.ps1' destination='${PLASTER_PARAM_ModuleName}/.build.ps1' />
     <file source='appveyor.yml' destination='${PLASTER_PARAM_ModuleName}/appveyor.yml' />
-    <file source='.kitchen.yml' destination='${PLASTER_PARAM_ModuleName}/.kitchen.yml' />
     <file source='Dependencies.psd1' destination='${PLASTER_PARAM_ModuleName}/Dependencies.psd1' />
     <file source='SampleModule\Public\Get-Something.ps1' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}\Public\Get-Something.ps1' />
     <file source='SampleModule\Private\Get-PrivateFunction.ps1' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}\Private\Get-PrivateFunction.ps1' />
@@ -53,5 +52,6 @@
     <templateFile source='media/LICENSES/LICENSE.MIT.Template' destination='${PLASTER_PARAM_ModuleName}/LICENSE'/>
     <templateFile source='media/README.md.template' destination='${PLASTER_PARAM_ModuleName}/README.md'/>
     <templateFile source='media/docs/about_SampleModule.md.template' destination='${PLASTER_PARAM_ModuleName}/docs/about_${PLASTER_PARAM_ModuleName}.md'/>
+    <templateFile source='media/.kitchen.yml.template' destination='${PLASTER_PARAM_ModuleName}/.kitchen.yml' />
   </content>
 </plasterManifest>
