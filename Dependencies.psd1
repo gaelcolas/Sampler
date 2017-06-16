@@ -13,4 +13,7 @@
     PSScriptAnalyzer = 'latest'
     PlatyPS = 'latest'
     psdeploy = 'latest'
+
+    #required for DSC authoring
+    xDscResourceDesigner = 'latest'
 }
