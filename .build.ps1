@@ -4,7 +4,7 @@ Param (
     $Tasks,
 
     [switch]
-    $NoDependency,
+    $ResolveDependency,
 
     [String]
     $BuildOutput = "BuildOutput",
@@ -54,7 +54,6 @@ begin {
     function Resolve-Dependency {
         [CmdletBinding()]
         param()
-        $VerbosePreference = 'Continue'
 
         if (!(Get-PackageProvider -Name NuGet -ForceBootstrap)) {
             $providerBootstrapParams = @{
@@ -62,6 +61,7 @@ begin {
                 force = $true
                 ForceBootstrap = $true
             }
+            if($PSBoundParameters.ContainsKey('verbose')) { $providerBootstrapParams.add('verbose',$verbose)}
             if ($GalleryProxy) { $providerBootstrapParams.Add('Proxy',$GalleryProxy) }
             $null = Install-PackageProvider @providerBootstrapParams
             Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
@@ -76,6 +76,7 @@ begin {
                 Confirm = $false
                 Force = $true
             }
+            if($PSBoundParameters.ContainsKey('verbose')) { $InstallPSDependParams.add('verbose',$verbose)}
             if ($GalleryRepository) { $InstallPSDependParams.Add('Repository',$GalleryRepository) }
             if ($GalleryProxy)      { $InstallPSDependParams.Add('Proxy',$GalleryProxy) }
             if ($GalleryCredential) { $InstallPSDependParams.Add('ProxyCredential',$GalleryCredential) }
@@ -86,12 +87,12 @@ begin {
             Force = $true
             Path = "$PSScriptRoot\Dependencies.psd1"
         }
-
+        if($PSBoundParameters.ContainsKey('verbose')) { $PSDependParams.add('verbose',$verbose)}
         Invoke-PSDepend @PSDependParams
         Write-Verbose "Project Bootstrapped, returning to Invoke-Build"
     }
 
-    if (!$NoDependency) {
-        Resolve-Dependency -Verbose
+    if ($ResolveDependency) {
+        Resolve-Dependency -Verbose:$verbose
     }
 }
