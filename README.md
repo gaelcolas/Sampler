@@ -14,16 +14,17 @@ Eventually, the aim is to extract this structure and the key re-usable files int
 ## TODO
 - Sample Build Workflow:
     - [x] .init.ps1  -> Bootstrap by installing InvokeBuild from gallery
-    - [x] .build.ps1 -> Compose the default task in the build workflow
     - [x] Clean the BuildOutput folder
     - [x] Resolve Dependencies with PSDepend from [Dependencies.psd1](./Dependencies.psd1)
-    - [ ] Test the Functions' Code (aka Function Unit Test)
-        - [x] Run all Unit test files against their function equivalent
-        - [ ] Run all Unit test files against their Class equivalent
-        - [x] Save code coverage to file (CLIXml), fail if under threshold
-        - [x] Save Test results in XML
+    - [ ] Run QA tests
+        - [x] Ensure each function file has an associated test file
+        - [ ] Ensure each Class file has an associated test file
+        - [x] Ensure PSSA is clean for each function file
+        - [ ] Ensure PSSA is clean for each Class file
+        - [x] Ensure each function as minimum help
+        - [x] Save test results in XML
         - [x] Upload test results to Appveyor
-    - [ ] Test the Module Mechanics (aka Module Unit Test)
+    - [x] Module Unit Testing
         - [x] Copy Source to BuildOutput for processing
         - [x] Merge enums, Classes and Functions into the PSM1 file
         - [x] Delete merged files and clean up empty dirs
@@ -31,19 +32,11 @@ Eventually, the aim is to extract this structure and the key re-usable files int
         - [x] Save code coverage to file (CLIXml), fail if under threshold
         - [x] Save test results in XML
         - [x] Upload test results to Appveyor
-        - [ ] Run tests in another (Clean) Process
+        - [ ] ~~Run tests in another (Clean) Process~~
     - [ ] Generate the help
         - [x] PlatyPS to update the help MDs in BuildOutput\docs
         - [x] PlatyPS to generate the help MAML in BuildOutput\SampleModule
         - [ ] Either Remove Comment-Based help, or add .EXTERNALHELP (see precedence when both comment-based and maml)
-    - [ ] Run QA tests
-        - [x] Ensure each function file has an associated test file
-        - [ ] Ensure each Class file has an associated test file
-        - [x] Ensure PSSA is clean for each function file
-        - [ ] Ensure PSSA is clean for each Class file
-        - [x] Ensure each function as minimum help
-        - [ ] Save test results in XML
-        - [ ] Upload test results to Appveyor
     - [ ] Prepare Module for export
         - [ ] Update Metadata with FunctionToExports
         - [ ] Update Metadata with new version
