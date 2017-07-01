@@ -29,18 +29,19 @@ task DeployAll {
     }
 
     $DeployFile =  [io.path]::Combine($ProjectPath, $DeployConfig)
-
+    
+    "Deploying Module based on $DeployConfig config"
     
     $InvokePSDeployArgs = @{
-        Path = $DeployFile
-        Force = $truee
-        #DeploymentRoot = $ProjectPath
+        Path    = $DeployFile
+        Force   = $true
+        Verbose = $true
     }
 
     if($DeploymentTags) {
         $null = $InvokePSDeployArgs.Add('Tags',$DeploymentTags)
     }
-
+    "Invoking PSDeploy with params $($InvokePSDeployArgs|FL *)"
     Import-Module PSDeploy
     Invoke-PSDeploy @InvokePSDeployArgs
 }
