@@ -4,4 +4,4 @@ os: WMF 5
 build: false
 
 build_script:
-  - ps: . .\.build.ps1 -Verbose -ResolveDependency
+  - ps: . .\.build.ps1 -ResolveDependency
