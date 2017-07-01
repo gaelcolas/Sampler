@@ -6,6 +6,9 @@ Param (
     [string]
     $BuildOutput = (property BuildOutput 'C:\BuildOutput'),
 
+    [bool]
+    $TestFromBuildOutput = $true,
+
     [string]
     $ProjectName = (property ProjectName (Split-Path -Leaf (Join-Path $PSScriptRoot '../..')) ),
 
@@ -87,6 +90,13 @@ task UnitTests {
         PassThru     = $true
     }
     Import-module Pester
+    if($TestFromBuildOutput) {
+        Import-Module -Force ("$BuildOutput\$ProjectName" -replace '\\$')
+    }
+    else {
+        Import-Module -Force ("$ProjectPath\$ProjectName" -replace '\\$')
+    }
+
     $script:UnitTestResults = Invoke-Pester @PesterParams
     $null = $script:UnitTestResults | Export-Clixml -Path $PesterOutFilePath -Force
     Pop-Location

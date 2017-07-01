@@ -24,6 +24,10 @@ Param (
 
 Process {
     if ($MyInvocation.ScriptName -notlike '*Invoke-Build.ps1') {
+        if ($PSboundParameters.ContainsKey('ResolveDependency')) {
+            Write-Verbose "Dependency already resolved. Skipping"
+            $null = $PSboundParameters.Remove('ResolveDependency')
+        }
         Invoke-Build $Tasks $MyInvocation.MyCommand.Path @PSBoundParameters
         return
     }
@@ -36,15 +40,15 @@ Process {
 
     task .  Clean,
             SetBuildEnvironment,
+            QualityTestsStopOnFail,
+            CopySourceToModuleOut,
+            MergeFilesToPSM1,
+            CleanOutputEmptyFolders,
             UnitTests,
             UploadUnitTestResultsToAppVeyor,
             FailBuildIfFailedUnitTest, 
             FailIfLastCodeConverageUnderThreshold,
-            CopySourceToModuleOut,
-            MergeFilesToPSM1,
-            CleanOutputEmptyFolders,
-            IntegrationTests, 
-            QualityTestsStopOnFail
+            IntegrationTests
 
     task testAll UnitTests, IntegrationTests, QualityTestsStopOnFail
 }
@@ -94,6 +98,11 @@ begin {
     }
 
     if ($ResolveDependency) {
-        Resolve-Dependency -Verbose:$verbose
+        Write-Host "Resolving Dependencies... [this can take a moment]"
+        $Params = @{}
+        if ($PSboundParameters.ContainsKey('verbose')) {
+            $Params.Add('verbose',$verbose)
+        }
+        Resolve-Dependency @Params
     }
 }

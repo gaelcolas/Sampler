@@ -10,7 +10,13 @@ Param (
     $ProjectName = (property ProjectName (Split-Path -Leaf (Join-Path $PSScriptRoot '../..')) ),
 
     [string]
+    $PesterOutputFormat = (property PesterOutputFormat 'NUnitXml'),
+
+    [string]
     $RelativePathToQualityTests = (property RelativePathToQualityTests 'tests/QA'),
+
+    [string]
+    $PesterOutputSubFolder = (property PesterOutputSubFolder 'PesterOut'),
 
     [string]
     $LineSeparation = (property LineSeparation ('-' * 78))
@@ -42,20 +48,29 @@ task QualityTests {
         $BuildOutput = Join-Path -Path $ProjectPath.FullName -ChildPath $BuildOutput
     }
     # $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath(".\nonexist\foo.txt")
-    $PSVersion = $PSVersionTable.PSVersion.Major
+    $PSVersion = 'PSv{0}.{1}' -f $PSVersionTable.PSVersion.Major, $PSVersionTable.PSVersion.Minor
     $Timestamp = Get-date -uformat "%Y%m%d-%H%M%S"
-    $FileName = "TestResults_QA_PS$PSVersion`_$TimeStamp.xml"
-    $TestFilePath = Join-Path -Path $BuildOutput -ChildPath $FileName
+    $TestResultFileName = "QA_$PSVersion`_$TimeStamp.xml"
+    $TestResultFile = [system.io.path]::Combine($BuildOutput,'testResults','QA',$PesterOutputFormat,$TestResultFileName)
+    $TestResultFileParentFolder = Split-Path $TestResultFile -Parent
+    $PesterOutFilePath = [system.io.path]::Combine($BuildOutput,'testResults','QA',$PesterOutputSubFolder,$TestResultFileName)
+    $PesterOutParentFolder = Split-Path $PesterOutFilePath -Parent
     
-    if (!(Test-Path $BuildOutput)) {
-        mkdir $BuildOutput -Force
+    if (!(Test-Path $PesterOutParentFolder)) {
+        Write-Verbose "CREATING Pester Results Output Folder $PesterOutParentFolder"
+        $null = mkdir $PesterOutParentFolder -Force
+    }
+
+    if (!(Test-Path $TestResultFileParentFolder)) {
+        Write-Verbose "CREATING Test Results Output Folder $TestResultFileParentFolder"
+        $null = mkdir $TestResultFileParentFolder -Force
     }
 
     Push-Location $QualityTestPath
     
     Import-module Pester
-    $script:QualityTestResults = Invoke-Pester -ErrorAction Stop -OutputFormat NUnitXml -OutputFile $TestFilePath -PassThru
-    
+    $script:QualityTestResults = Invoke-Pester -ErrorAction Stop -OutputFormat NUnitXml -OutputFile $TestResultFile -PassThru
+    $null = $script:QualityTestResults | Export-Clixml -Path $PesterOutFilePath -Force
     Pop-Location
 }
 
