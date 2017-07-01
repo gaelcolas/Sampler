@@ -75,6 +75,7 @@ begin {
                 AllowClobber = $true
                 Confirm = $false
                 Force = $true
+                Scope = 'CurrentUser'
             }
             if($PSBoundParameters.ContainsKey('verbose')) { $InstallPSDependParams.add('verbose',$verbose)}
             if ($GalleryRepository) { $InstallPSDependParams.Add('Repository',$GalleryRepository) }
