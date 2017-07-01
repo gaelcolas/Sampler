@@ -33,7 +33,7 @@ task DeployAll {
     
     $InvokePSDeployArgs = @{
         Path = $DeployFile
-        DeploymentRoot = $ProjectPath
+        #DeploymentRoot = $ProjectPath
     }
 
     if($DeploymentTags) {
