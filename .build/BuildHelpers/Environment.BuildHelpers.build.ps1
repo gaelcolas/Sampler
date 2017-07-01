@@ -11,8 +11,16 @@ Param (
 
 task SetBuildEnvironment {
     $LineSeparation
-    'Set-BuildEnvironment'
-    Set-BuildEnvironment -variableNamePrefix $VariableNamePrefix -ErrorVariable err -ErrorAction SilentlyContinue -Force:$ForceEnvironmentVariables -Verbose
+    "`t`t`t BUILD HELPERS INIT"
+    $LineSeparation
+    $BH_Params = @{
+        variableNamePrefix = $VariableNamePrefix
+        ErrorVariable      = 'err'
+        ErrorAction        = 'SilentlyContinue'
+        Force              = $ForceEnvironmentVariables
+        Verbose            = $verbose
+    }
+    Set-BuildEnvironment @BH_Params
     foreach ($e in $err) {
         Write-Host $e
     }
