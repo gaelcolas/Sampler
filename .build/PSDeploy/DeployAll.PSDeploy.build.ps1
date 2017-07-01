@@ -41,7 +41,7 @@ task DeployAll {
     if($DeploymentTags) {
         $null = $InvokePSDeployArgs.Add('Tags',$DeploymentTags)
     }
-    "Invoking PSDeploy with params $($InvokePSDeployArgs|FL *)"
+    
     Import-Module PSDeploy
     Invoke-PSDeploy @InvokePSDeployArgs
 }

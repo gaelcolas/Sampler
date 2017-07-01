@@ -10,6 +10,7 @@ if ($env:BuildSystem -eq 'AppVeyor') {
                 Description = 'Sample Module with integrated Build process'
                 Author = "Gael Colas"
                 Owners = "Gael Colas"
+                destinationPath = .\BuildOutput\$Env:ProjectName
             }
             Tagged Appveyor
         }
