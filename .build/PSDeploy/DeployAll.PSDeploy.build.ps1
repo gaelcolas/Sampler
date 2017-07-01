@@ -12,19 +12,34 @@ Param (
     $PesterOutputFormat = (property PesterOutputFormat 'NUnitXml'),
 
     [string]
-    $APPVEYOR_JOB_ID = $(try {property APPVEYOR_JOB_ID} catch {})
+    $APPVEYOR_JOB_ID = $(try {property APPVEYOR_JOB_ID} catch {}),
+
+    $DeploymentTags = $(try {property DeploymentTags} catch {}),
+
+    $DeployConfig = (property DeployConfig 'Deploy.PSDeploy.ps1')
 )
 
-task UploadUnitTestResultsToAppVeyor -If {(property BuildSystem 'unknown') -eq 'AppVeyor'} {
+task DeployAll {
     $LineSeparation
-    "`t`t`UPLOAD TEST RESULT TO APPVEYOR"
+    "`t`t`t DEPLOYMENT "
     $LineSeparation
 
     if (![io.path]::IsPathRooted($BuildOutput)) {
         $BuildOutput = Join-Path -Path $ProjectPath.FullName -ChildPath $BuildOutput
     }
 
-    $TestOutputPath  = [system.io.path]::Combine($BuildOutput,'testResults','unit',$PesterOutputFormat)
-    $TestResultFiles = Get-ChildItem -Path $TestOutputPath -Filter *.xml
-    $TestResultFiles | Add-TestResultToAppveyor
+    $DeployFile =  [io.path]::Combine($ProjectPath, $DeployConfig)
+
+    
+    $InvokePSDeployArgs = @{
+        Path = $DeployFile
+        DeploymentRoot = $ProjectPath
+    }
+
+    if($DeploymentTags) {
+        $InvokePSDeployArgs.Add('Tags',$DeploymentTags)
+    }
+
+    Import-Module PSDeploy
+    Invoke-PSDeploy @InvokePSDeployArgs
 }
