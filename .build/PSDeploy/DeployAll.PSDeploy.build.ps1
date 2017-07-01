@@ -33,11 +33,12 @@ task DeployAll {
     
     $InvokePSDeployArgs = @{
         Path = $DeployFile
+        Force = $truee
         #DeploymentRoot = $ProjectPath
     }
 
     if($DeploymentTags) {
-        $InvokePSDeployArgs.Add('Tags',$DeploymentTags)
+        $null = $InvokePSDeployArgs.Add('Tags',$DeploymentTags)
     }
 
     Import-Module PSDeploy
