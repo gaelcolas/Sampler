@@ -53,6 +53,8 @@ Process {
             DeployAll
 
     task testAll UnitTests, IntegrationTests, QualityTestsStopOnFail
+
+
 }
 
 
