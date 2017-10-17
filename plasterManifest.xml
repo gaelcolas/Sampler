@@ -11,18 +11,88 @@
     <tags>Template, Build, Module</tags>
   </metadata>
   <parameters>
-    <parameter name="ModuleAuthor" type="text" prompt="Author's name" />
+    <parameter name="ModuleType" type="choice" default='1' prompt="Select the type of Module you would like to create:">
+      <choice label='&amp;Simple Module'
+            help="Creates a simple module with minimal structure."
+            value="SimpleModule"/>
+
+      <choice label='&amp;Simple Module Without Build'
+            help="Creates a simple module without the build automation."
+            value="SimpleModule_NoBuild"/>
+
+      <choice label='&amp;Full Module'
+            help="Creates a module with complete structure and example file."
+            value="FullModule"/>
+
+      <choice label='&amp;Full Module Without Build automation'
+            help="Creates a module with complete structure and example file, but without Build automation."
+            value="FullModule_NoBuild"/>
+
+      <choice label='&amp;Custom Module'
+            help="Will prompt you for more details as to what you'd like to scaffold."
+            value="CustomModule"/>
+
+      <choice label='&amp;Shareable DSC Configuration'
+            help="Scaffold a Shareable DSC configuration, based on a simple DSC Composite Resource"
+            value="SharedDscConfig"/>
+
+    </parameter>
+    <parameter name="ModuleAuthor" type="text" prompt="Author's name" default="$Env:Username" />
     <parameter name="ModuleName" type="text" prompt="Name of your module" />
     <parameter name="ModuleDescription" type="text" prompt="Description of this module" />
     <parameter name="ModuleVersion" type="text" prompt="Module version"  default="0.0.1"/>
+
+    <parameter name="License" type="choice" prompt="Do you want to include a License to your project?" default="1" condition='$PLASTER_PARAM_ModuleType -eq "CustomModule"' >
+      <choice label='&amp;Yes' value='true' />
+      <choice label='&amp;No' value='false' />
+    </parameter>
+    <parameter name="LicenseType" type="choice" prompt="What license do you want?" default="1" condition='$PLASTER_PARAM_ModuleType -eq "CustomModule"' >
+      <choice label='&amp;Apache'
+              help="Adds an Apache license file."
+              value="Apache"/>
+      <choice label='&amp;MIT'
+              help="Adds an MIT license file."
+              value="MIT"/>
+      <choice label='&amp;None'
+              help="No license specified."
+              value="None"/>
+    </parameter>
+    <parameter name="Classes" type="choice" prompt="Do you want to include Classes to your project?" default="1" condition='$PLASTER_PARAM_ModuleType -eq "CustomModule"' >
+      <choice label='&amp;Yes' value='true' />
+      <choice label='&amp;No' value='false' />
+    </parameter>
+    <parameter name="Enums" type="choice" prompt="Do you want to include Enums to your project?" default="1" condition='$PLASTER_PARAM_ModuleType -eq "CustomModule"' >
+      <choice label='&amp;Yes' value='true' />
+      <choice label='&amp;No' value='false' />
+    </parameter>
+    <parameter name="AppVeyor" type="choice" prompt="Do you want to include AppVeyor files to your project?" default="1" condition='$PLASTER_PARAM_ModuleType -eq "CustomModule"' >
+      <choice label='&amp;Yes' value='true' />
+      <choice label='&amp;No' value='false' />
+    </parameter>
+    <parameter name="TestKitchen" type="choice" prompt="Do you want to include .kitchen.yml to your project?" default="1" condition='$PLASTER_PARAM_ModuleType -eq "CustomModule"' >
+      <choice label='&amp;Yes' value='true' />
+      <choice label='&amp;No' value='false' />
+    </parameter>
+    <parameter name="Gherkin" type="choice" prompt="Do you want to use Gherkin with your project?" default="1" condition='$PLASTER_PARAM_ModuleType -eq "CustomModule"' >
+      <choice label='&amp;Yes' value='true' />
+      <choice label='&amp;No'  value='false' />
+    </parameter>
+    <parameter name="DSCResources" type="choice" prompt="Do you want to add DSCResources structure with your project?" default="1" condition='$PLASTER_PARAM_ModuleType -eq "CustomModule"' >
+      <choice label='&amp;Yes' value='true' />
+      <choice label='&amp;No'  value='false' />
+    </parameter>
+    <parameter name="DSCResources" type="choice" prompt="Do you want to add DSCResources structure with your project?" default="1" condition='$PLASTER_PARAM_ModuleType -eq "CustomModule"' >
+      <choice label='&amp;Yes' value='true' />
+      <choice label='&amp;No'  value='false' />
+    </parameter>
   </parameters>
   <content>
     <file source='' destination='${PLASTER_PARAM_ModuleName}/media' />
     <file source='.build/**' destination='${PLASTER_PARAM_ModuleName}/.build/' />
 
-    <file source='' destination='${PLASTER_PARAM_ModuleName}/specs/steps' />
+    <file source='' destination='${PLASTER_PARAM_ModuleName}/specs/steps' condition='${PLASTER_PARAM_Gherkin} -eq "true" -or ${PLASTER_PARAM_ModuleType} -in @("FullModule")' />
     <file source='' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}' />
-    <file source='' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/classes' />
+    <file source='' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/classes' condition='${PLASTER_PARAM_Classes} -eq "true" -or ${PLASTER_PARAM_ModuleType} -in @("FullModule")'/>
     <file source='' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/private' />
     <file source='' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/public' />
     <file source='' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/tests' />
