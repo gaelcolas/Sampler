@@ -13,98 +13,123 @@
   <parameters>
     <parameter name="ModuleType" type="choice" default='1' prompt="Select the type of Module you would like to create:">
       <choice label='&amp;Simple Module'
-            help="Creates a simple module with minimal structure."
+            help="Creates a simple module with minimal structure and build scripts."
             value="SimpleModule"/>
 
-      <choice label='&amp;Simple Module Without Build'
-            help="Creates a simple module without the build automation."
-            value="SimpleModule_NoBuild"/>
-
-      <choice label='&amp;Full Module'
-            help="Creates a module with complete structure and example file."
-            value="FullModule"/>
-
-      <choice label='&amp;Full Module Without Build automation'
-            help="Creates a module with complete structure and example file, but without Build automation."
-            value="FullModule_NoBuild"/>
-
-      <choice label='&amp;Custom Module'
+      <choice label='&amp;Select features...'
             help="Will prompt you for more details as to what you'd like to scaffold."
             value="CustomModule"/>
 
-      <choice label='&amp;Shareable DSC Configuration'
+      <choice label='&amp;Complete Module'
+            help="Creates a module with complete structure and example file."
+            value="CompleteModule"/>
+
+      <choice label='Simple &amp;Module Without Build'
+            help="Creates a simple module without the build automation."
+            value="SimpleModule_NoBuild"/>
+
+      <choice label='Complete &amp;Without Build'
+            help="Creates a module with complete structure and example file, but without Build automation."
+            value="CompleteModule_NoBuild"/>
+
+      <choice label='Shareable &amp;DSC Configuration'
             help="Scaffold a Shareable DSC configuration, based on a simple DSC Composite Resource"
             value="SharedDscConfig"/>
 
     </parameter>
-    <parameter name="ModuleAuthor" type="text" prompt="Author's name" default="$Env:Username" />
-    <parameter name="ModuleName" type="text" prompt="Name of your module" />
-    <parameter name="ModuleDescription" type="text" prompt="Description of this module" />
+    <parameter store="text"  name="ModuleAuthor" type="text" prompt="Author's name" default="$Env:Username"/>
+    <parameter store="text"  name="ModuleName" type="text" prompt="Name of your module" />
+    <parameter store="text"  name="ModuleDescription" type="text" prompt="Description of this module" />
     <parameter name="ModuleVersion" type="text" prompt="Module version"  default="0.0.1"/>
 
-    <parameter name="License" type="choice" prompt="Do you want to include a License to your project?" default="1" condition='$PLASTER_PARAM_ModuleType -eq "CustomModule"' >
+    <parameter store="text"  name="License" type="choice" prompt="Do you want to include a License to your project?" default="1" condition='$PLASTER_PARAM_ModuleType -eq "CustomModule"' >
       <choice label='&amp;Yes' value='true' />
       <choice label='&amp;No' value='false' />
     </parameter>
-    <parameter name="LicenseType" type="choice" prompt="What license do you want?" default="1" condition='$PLASTER_PARAM_ModuleType -eq "CustomModule"' >
+
+    <parameter store="text"  name="LicenseType" type="choice" prompt="What license do you want?" default="1" condition='$PLASTER_PARAM_License -eq "true" -and $PLASTER_PARAM_ModuleType -eq "CustomModule"' >
       <choice label='&amp;Apache'
               help="Adds an Apache license file."
               value="Apache"/>
+
       <choice label='&amp;MIT'
               help="Adds an MIT license file."
               value="MIT"/>
+              
       <choice label='&amp;None'
               help="No license specified."
               value="None"/>
     </parameter>
-    <parameter name="Classes" type="choice" prompt="Do you want to include Classes to your project?" default="1" condition='$PLASTER_PARAM_ModuleType -eq "CustomModule"' >
-      <choice label='&amp;Yes' value='true' />
-      <choice label='&amp;No' value='false' />
-    </parameter>
-    <parameter name="Enums" type="choice" prompt="Do you want to include Enums to your project?" default="1" condition='$PLASTER_PARAM_ModuleType -eq "CustomModule"' >
-      <choice label='&amp;Yes' value='true' />
-      <choice label='&amp;No' value='false' />
-    </parameter>
-    <parameter name="AppVeyor" type="choice" prompt="Do you want to include AppVeyor files to your project?" default="1" condition='$PLASTER_PARAM_ModuleType -eq "CustomModule"' >
-      <choice label='&amp;Yes' value='true' />
-      <choice label='&amp;No' value='false' />
-    </parameter>
-    <parameter name="TestKitchen" type="choice" prompt="Do you want to include .kitchen.yml to your project?" default="1" condition='$PLASTER_PARAM_ModuleType -eq "CustomModule"' >
-      <choice label='&amp;Yes' value='true' />
-      <choice label='&amp;No' value='false' />
-    </parameter>
-    <parameter name="Gherkin" type="choice" prompt="Do you want to use Gherkin with your project?" default="1" condition='$PLASTER_PARAM_ModuleType -eq "CustomModule"' >
-      <choice label='&amp;Yes' value='true' />
-      <choice label='&amp;No'  value='false' />
-    </parameter>
-    <parameter name="DSCResources" type="choice" prompt="Do you want to add DSCResources structure with your project?" default="1" condition='$PLASTER_PARAM_ModuleType -eq "CustomModule"' >
-      <choice label='&amp;Yes' value='true' />
-      <choice label='&amp;No'  value='false' />
-    </parameter>
-    <parameter name="DSCResources" type="choice" prompt="Do you want to add DSCResources structure with your project?" default="1" condition='$PLASTER_PARAM_ModuleType -eq "CustomModule"' >
-      <choice label='&amp;Yes' value='true' />
-      <choice label='&amp;No'  value='false' />
+
+    <parameter name="Features" type="multichoice" prompt="What feature would you like to add to your project?" default="0" condition='$PLASTER_PARAM_ModuleType -eq "CustomModule"' >
+      <choice label='&amp;*All'
+              help="Adds all features below."
+              value="All"/>
+
+      <choice label='&amp;Unit Tests'
+              help="Adds Tests folders and example with your features."
+              value="UnitTests"/>
+
+      <choice label='&amp;Quality tests'
+              help="Adds the Module quality verifying Unit tests, help and code coverage."
+              value="ModuleQuality"/>
+
+      <choice label='&amp;AppVeyor'
+              help="Adds AppVeyor folders and an example."
+              value="AppVeyor"/>
+
+      <choice label='&amp;Classes'
+              help="Adds PSv5+ Classes folders and an example."
+              value="Classes"/>
+
+      <choice label='Test&amp;Kitchen'
+              help="Adds TestKitchen folders, yaml and an example."
+              value="TestKitchen"/>
+
+      <choice label='&amp;Gherkin BDD'
+              help="Adds Gherkin folders and an example."
+              value="Gherkin"/>
+
+      <choice label='&amp;DSC Resources'
+              help="Adds DSCResources folders and an example."
+              value="DSCResources"/>
+
+      <choice label='&amp;Enums'
+              help="Adds enum folders and an example."
+              value="Enums"/>
     </parameter>
   </parameters>
+    <!--
+      condition=''
+      ${PLASTER_PARAM_ModuleType}         SimpleModule CustomModule CompleteModule SimpleModule_NoBuild CompleteModule_NoBuild  SharedDscConfig
+      -in @("SimpleModule","CustomModule","CompleteModule","SimpleModule_NoBuild","CompleteModule_NoBuild","SharedDscConfig")
+      ${PLASTER_PARAM_ModuleAuthor}
+      ${PLASTER_PARAM_ModuleName}
+      ${PLASTER_PARAM_ModuleDescription}
+      ${PLASTER_PARAM_ModuleVersion}
+      ${PLASTER_PARAM_License}            true false 
+      ${PLASTER_PARAM_LicenseType}        Apache MIT None
+      ${PLASTER_PARAM_Features}           All UnitTests ModuleQuality AppVeyor TestKitchen Gherkin DSCResources Enums
+
+     -->
   <content>
-    <file source='' destination='${PLASTER_PARAM_ModuleName}/media' />
-    <file source='.build/**' destination='${PLASTER_PARAM_ModuleName}/.build/' />
+    <file source='' destination='${PLASTER_PARAM_ModuleName}/media'             condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CustomModule","CompleteModule_NoBuild","SharedDscConfig")' />
+    <file source='.build/**' destination='${PLASTER_PARAM_ModuleName}/.build/'  condition='${PLASTER_PARAM_ModuleType} -in @("SimpleModule","CompleteModule","SharedDscConfig")' />
 
     <file source='' destination='${PLASTER_PARAM_ModuleName}/specs/steps' condition='${PLASTER_PARAM_Gherkin} -eq "true" -or ${PLASTER_PARAM_ModuleType} -in @("FullModule")' />
     <file source='' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}' />
-    <file source='' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/classes' condition='${PLASTER_PARAM_Classes} -eq "true" -or ${PLASTER_PARAM_ModuleType} -in @("FullModule")'/>
-    <file source='' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/private' />
-    <file source='' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/public' />
-    <file source='' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/tests' />
+    <file source='' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/classes'  condition='${PLASTER_PARAM_Features} -in @("All","Classes") -or ${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild")'/>
+    <file source='' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/private'  condition='${PLASTER_PARAM_ModuleType} -ne "SharedDscConfig"' />
+    <file source='' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/public'   condition='${PLASTER_PARAM_ModuleType} -ne "SharedDscConfig"' />
+    <file source='' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/tests'    condition='${PLASTER_PARAM_ModuleType} -in @("SimpleModule","CompleteModule","SimpleModule_NoBuild","CompleteModule_NoBuild","SharedDscConfig") -or ${PLASTER_PARAM_Features} -in @("All","UnitTests","ModuleQuality","TestKitchen")' />
     <file source='' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/examples' />
 
     <file source='' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/docs' />
-    <file source='' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/examples' />
-    <file source='' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/enums' />
+    <file source='' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/enums'  condition='${PLASTER_PARAM_Features} -in @("All","Enums") -or ${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild")' />
 
-    <file source='.gitignore' destination='${PLASTER_PARAM_ModuleName}/.gitignore' />
+    <file source='.gitignore' destination='${PLASTER_PARAM_ModuleName}/.gitignore' condition='${PLASTER_PARAM_Features} -in @("All","git") -or ${PLASTER_PARAM_ModuleType} -in @("SimpleModule","CustomModule","CompleteModule","SimpleModule_NoBuild","CompleteModule_NoBuild","SharedDscConfig")'/>
     <file source='.build.ps1' destination='${PLASTER_PARAM_ModuleName}/.build.ps1' />
-    <file source='appveyor.yml' destination='${PLASTER_PARAM_ModuleName}/appveyor.yml' />
+    <file source='appveyor.yml' destination='${PLASTER_PARAM_ModuleName}/appveyor.yml' condition='${PLASTER_PARAM_Features} -in @("AppVeyor","All")' />
     <file source='Dependencies.psd1' destination='${PLASTER_PARAM_ModuleName}/Dependencies.psd1' />
     <file source='SampleModule\Public\Get-Something.ps1' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}\Public\Get-Something.ps1' />
     <file source='SampleModule\Private\Get-PrivateFunction.ps1' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}\Private\Get-PrivateFunction.ps1' />
