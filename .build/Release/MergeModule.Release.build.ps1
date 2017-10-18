@@ -28,7 +28,7 @@ Task CopySourceToModuleOut {
     }
     $BuiltModuleFolder = [io.Path]::Combine($BuildOutput,$ProjectName)
     "Copying $ProjectPath\$SourceFolder To $BuiltModuleFolder\"
-    Copy-Item -Path "$ProjectPath\$SourceFolder" -Destination "$BuiltModuleFolder\" -Recurse -Force
+    Copy-Item -Path "$ProjectPath\$SourceFolder" -Destination "$BuiltModuleFolder\" -Recurse -Force -Exclude '*.bak'
 }
 
 Task MergeFilesToPSM1 {
