@@ -16,7 +16,7 @@
             help="Creates a simple module with minimal structure and build scripts."
             value="SimpleModule"/>
 
-      <choice label='&amp;Select features...'
+      <choice label='Select &amp;features...'
             help="Will prompt you for more details as to what you'd like to scaffold."
             value="CustomModule"/>
 
@@ -47,7 +47,7 @@
       <choice label='&amp;No' value='false' />
     </parameter>
 
-    <parameter store="text"  name="LicenseType" type="choice" prompt="What license do you want?" default="1" condition='$PLASTER_PARAM_License -eq "true" -and $PLASTER_PARAM_ModuleType -eq "CustomModule"' >
+    <parameter store="text"  name="LicenseType" type="choice" prompt="What license do you want?" default="2" condition='$PLASTER_PARAM_License -eq "true" -and $PLASTER_PARAM_ModuleType -eq "CustomModule"' >
       <choice label='&amp;Apache'
               help="Adds an Apache license file."
               value="Apache"/>
@@ -66,6 +66,30 @@
               help="Adds all features below."
               value="All"/>
 
+      <choice label='&amp;Enums'
+              help="Adds enum folders and an example."
+              value="Enums"/>
+
+      <choice label='&amp;Classes'
+              help="Adds PSv5+ Classes folders and an example."
+              value="Classes"/>
+
+      <choice label='&amp;DSC Resources'
+              help="Adds DSCResources folders and an example."
+              value="DSCResources"/>
+              
+      <choice label='&amp;Sample Scripts'
+              help="Adds Sample scripts in folders."
+              value="SampleScripts"/>
+              
+      <choice label='&amp;Git ignore'
+              help="Adds project .gitignore."
+              value="git"/>
+
+      <choice label='Ghe&amp;rkin BDD'
+              help="Adds Gherkin folders"
+              value="Gherkin"/>
+
       <choice label='&amp;Unit Tests'
               help="Adds Tests folders and example with your features."
               value="UnitTests"/>
@@ -74,29 +98,19 @@
               help="Adds the Module quality verifying Unit tests, help and code coverage."
               value="ModuleQuality"/>
 
+      <choice label='&amp;Build'
+              help="Adds Build folders and an scripts."
+              value="Build"/>
+
       <choice label='&amp;AppVeyor'
               help="Adds AppVeyor folders and an example."
               value="AppVeyor"/>
-
-      <choice label='&amp;Classes'
-              help="Adds PSv5+ Classes folders and an example."
-              value="Classes"/>
 
       <choice label='Test&amp;Kitchen'
               help="Adds TestKitchen folders, yaml and an example."
               value="TestKitchen"/>
 
-      <choice label='&amp;Gherkin BDD'
-              help="Adds Gherkin folders and an example."
-              value="Gherkin"/>
 
-      <choice label='&amp;DSC Resources'
-              help="Adds DSCResources folders and an example."
-              value="DSCResources"/>
-
-      <choice label='&amp;Enums'
-              help="Adds enum folders and an example."
-              value="Enums"/>
     </parameter>
   </parameters>
     <!--
@@ -109,44 +123,147 @@
       ${PLASTER_PARAM_ModuleVersion}
       ${PLASTER_PARAM_License}            true false 
       ${PLASTER_PARAM_LicenseType}        Apache MIT None
-      ${PLASTER_PARAM_Features}           All UnitTests ModuleQuality AppVeyor TestKitchen Gherkin DSCResources Enums
+      ${PLASTER_PARAM_Features}           All UnitTests ModuleQuality AppVeyor TestKitchen Gherkin DSCResources Enums Classes SampleScripts git
 
      -->
   <content>
-    <file source='' destination='${PLASTER_PARAM_ModuleName}/media'             condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CustomModule","CompleteModule_NoBuild","SharedDscConfig")' />
-    <file source='.build/**' destination='${PLASTER_PARAM_ModuleName}/.build/'  condition='${PLASTER_PARAM_ModuleType} -in @("SimpleModule","CompleteModule","SharedDscConfig")' />
+    <!-- MODULES FOLDER SCAFFOLDING -->
+    <file source='' 
+          destination='${PLASTER_PARAM_ModuleName}/media'
+          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CustomModule","CompleteModule_NoBuild","SharedDscConfig")' 
+    />
+    
+    <file source='' 
+          destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}' 
+    />
+    
+    <file source='' 
+          destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/classes'  
+          condition='${PLASTER_PARAM_Features} -in @("All","Classes") -or ${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild")'
+    />
+    
+    <file source='' 
+          destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/enums' 
+          condition='${PLASTER_PARAM_Features} -in @("All","Enums") -or ${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild")' 
+    />
 
-    <file source='' destination='${PLASTER_PARAM_ModuleName}/specs/steps' condition='${PLASTER_PARAM_Gherkin} -eq "true" -or ${PLASTER_PARAM_ModuleType} -in @("FullModule")' />
-    <file source='' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}' />
-    <file source='' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/classes'  condition='${PLASTER_PARAM_Features} -in @("All","Classes") -or ${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild")'/>
-    <file source='' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/private'  condition='${PLASTER_PARAM_ModuleType} -ne "SharedDscConfig"' />
-    <file source='' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/public'   condition='${PLASTER_PARAM_ModuleType} -ne "SharedDscConfig"' />
-    <file source='' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/tests'    condition='${PLASTER_PARAM_ModuleType} -in @("SimpleModule","CompleteModule","SimpleModule_NoBuild","CompleteModule_NoBuild","SharedDscConfig") -or ${PLASTER_PARAM_Features} -in @("All","UnitTests","ModuleQuality","TestKitchen")' />
-    <file source='' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/examples' />
+    <file source='' 
+          destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/examples' 
+    />
 
-    <file source='' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/docs' />
-    <file source='' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/enums'  condition='${PLASTER_PARAM_Features} -in @("All","Enums") -or ${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild")' />
+    <file source='' 
+          destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/docs' 
+    />
 
-    <file source='.gitignore' destination='${PLASTER_PARAM_ModuleName}/.gitignore' condition='${PLASTER_PARAM_Features} -in @("All","git") -or ${PLASTER_PARAM_ModuleType} -in @("SimpleModule","CustomModule","CompleteModule","SimpleModule_NoBuild","CompleteModule_NoBuild","SharedDscConfig")'/>
-    <file source='.build.ps1' destination='${PLASTER_PARAM_ModuleName}/.build.ps1' />
-    <file source='appveyor.yml' destination='${PLASTER_PARAM_ModuleName}/appveyor.yml' condition='${PLASTER_PARAM_Features} -in @("AppVeyor","All")' />
-    <file source='Dependencies.psd1' destination='${PLASTER_PARAM_ModuleName}/Dependencies.psd1' />
-    <file source='SampleModule\Public\Get-Something.ps1' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}\Public\Get-Something.ps1' />
-    <file source='SampleModule\Private\Get-PrivateFunction.ps1' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}\Private\Get-PrivateFunction.ps1' />
+    <file source='' 
+          destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/private'  
+          condition='${PLASTER_PARAM_ModuleType} -ne "SharedDscConfig"' 
+    />
+    
+    <file source='' 
+          destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/public'   
+          condition='${PLASTER_PARAM_ModuleType} -ne "SharedDscConfig"' 
+    />
+    
+    <file source='' 
+          destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/tests'
+          condition='${PLASTER_PARAM_ModuleType} -in @("SimpleModule","CompleteModule","SimpleModule_NoBuild","CompleteModule_NoBuild","SharedDscConfig") -or ${PLASTER_PARAM_Features} -in @("All","UnitTests","ModuleQuality","TestKitchen")' 
+    />
 
-    <file source='SampleModule\DscResources\DSCResourcesDefinitions.json' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}\DscResources\DSCResourcesDefinitions.json' />
+    <file source='SampleModule/tests/classes/**' 
+          destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/tests/classes/'
+          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild") -or ${PLASTER_PARAM_Features} -in @("All","UnitTests")' 
+    />
+  
+    <file source='SampleModule/tests/Private/**' 
+          destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/tests/Private/'
+          condition='${PLASTER_PARAM_ModuleType} -in @("SimpleModule","SimpleModule_NoBuild","CompleteModule","CompleteModule_NoBuild") -or (${PLASTER_PARAM_Features} -in @("All","UnitTests") -and ${PLASTER_PARAM_Features} -in @("SampleScripts"))' 
+    />
+
+    <!-- MODULES SAMPLE FILES -->
+    <file source='SampleModule\Public\Get-Something.ps1' 
+          destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}\Public\Get-Something.ps1'
+          condition='${PLASTER_PARAM_ModuleType} -ne "SharedDscConfig" -and (${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild") -or ${PLASTER_PARAM_Features} -in @("All","SampleScripts"))'
+    />
+    
+    <file source='SampleModule\Private\Get-PrivateFunction.ps1' 
+          destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}\Private\Get-PrivateFunction.ps1'
+          condition='${PLASTER_PARAM_ModuleType} -ne "SharedDscConfig" -and (${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild") -or ${PLASTER_PARAM_Features} -in @("All","SampleScripts")'
+    />
+
+    <file source='.gitignore' 
+          destination='${PLASTER_PARAM_ModuleName}/.gitignore' 
+          condition='${PLASTER_PARAM_Features} -in @("All","git") -or ${PLASTER_PARAM_ModuleType} -in @("SimpleModule","CompleteModule","SimpleModule_NoBuild","CompleteModule_NoBuild","SharedDscConfig")'
+    />
+
+    <file source='.build/**' 
+          destination='${PLASTER_PARAM_ModuleName}/.build/'  
+          condition='${PLASTER_PARAM_ModuleType} -in @("SimpleModule","CompleteModule","SharedDscConfig") -or ${PLASTER_PARAM_Features} -in @("Build","All")' 
+    />
+
+    <templateFile source='media/.kitchen.yml.template' 
+                  destination='${PLASTER_PARAM_ModuleName}/.kitchen.yml' 
+                  condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","SharedDscConfig") -or ${PLASTER_PARAM_Features} -in @("TestKitchen","All")' 
+    />
+
+    <!-- BUILD SCRIPTS -->
+    <file source='' 
+          destination='${PLASTER_PARAM_ModuleName}/specs/steps' 
+          condition='${PLASTER_PARAM_Gherkin} -eq "true" -or ${PLASTER_PARAM_ModuleType} -in @("FullModule")' 
+    />
+
+    <file source='.build.ps1' 
+          destination='${PLASTER_PARAM_ModuleName}/.build.ps1' 
+          condition='${PLASTER_PARAM_Features} -in @("All","build") -or ${PLASTER_PARAM_ModuleType} -in @("SimpleModule","CompleteModule","SharedDscConfig")'
+    />
+
+    <file source='PSDepend.build.psd1' 
+          destination='${PLASTER_PARAM_ModuleName}/PSDepend.build.psd1'
+          condition='${PLASTER_PARAM_ModuleType} -in @("SimpleModule","CompleteModule","SharedDscConfig") -or ${PLASTER_PARAM_Features} -in @("Build","All")' 
+    />
+
+    <file source='appveyor.yml' 
+          destination='${PLASTER_PARAM_ModuleName}/appveyor.yml' 
+          condition='${PLASTER_PARAM_Features} -in @("AppVeyor","All")'
+    />
+
+    <file source='SampleModule\DscResources\DSCResourcesDefinitions.json' 
+          destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}\DscResources\DSCResourcesDefinitions.json' 
+    />
 
     <newModuleManifest destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}.psd1' 
         moduleVersion='$PLASTER_PARAM_ModuleVersion'
         rootModule='${PLASTER_PARAM_ModuleName}.psm1'
         author='$PLASTER_PARAM_ModuleAuthor'
-        description='$PLASTER_PARAM_ModuleDescription'/>
-    <file source='media/module.template.psm1' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}.psm1'/>
+        description='$PLASTER_PARAM_ModuleDescription'
+    />
+
+    <templateFile 
+        source='media/module.template' 
+        destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}.psm1' 
+        condition='-not (Test-Path "${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}.psm1")' 
+    />
 
     <!-- Add license based on type of license MIT\Apache2\CC...-->
-    <templateFile source='media/LICENSES/LICENSE.MIT.Template' destination='${PLASTER_PARAM_ModuleName}/LICENSE'/>
-    <templateFile source='media/README.md.template' destination='${PLASTER_PARAM_ModuleName}/README.md'/>
-    <templateFile source='media/docs/about_SampleModule.md.template' destination='${PLASTER_PARAM_ModuleName}/docs/about_${PLASTER_PARAM_ModuleName}.md'/>
-    <templateFile source='media/.kitchen.yml.template' destination='${PLASTER_PARAM_ModuleName}/.kitchen.yml' />
+    <templateFile source='media/LICENSES/LICENSE.MIT.Template' 
+                  destination='${PLASTER_PARAM_ModuleName}/LICENSE' 
+                  condition='${PLASTER_PARAM_License} -eq "true" -and ${PLASTER_PARAM_LicenseType} -eq "MIT"'  
+    />
+    
+    <templateFile source='media/LICENSES/LICENSE.Apache.Template' 
+                  destination='${PLASTER_PARAM_ModuleName}/LICENSE' 
+                  condition='${PLASTER_PARAM_License} -eq "true" -and ${PLASTER_PARAM_LicenseType} -eq "Apache"'  
+    />
+
+    <!-- Add Markup help files -->
+    <templateFile source='media/README.md.template' 
+                  destination='${PLASTER_PARAM_ModuleName}/README.md' 
+    />
+    
+    <templateFile source='media/docs/about_SampleModule.md.template' 
+                  destination='${PLASTER_PARAM_ModuleName}/docs/about_${PLASTER_PARAM_ModuleName}.md'
+    />
+
+
   </content>
 </plasterManifest>

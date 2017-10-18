@@ -18,7 +18,7 @@ Param (
     [Switch]
     $ForceEnvironmentVariables = [switch]$true,
 
-    $MergeList = @('enum*',[PSCustomObject]@{Name='class*';order={(Import-PowerShellDataFile .\SampleModule\Classes\classes.psd1).order.indexOf($_.BaseName)}},'priv*','pub*')
+    $MergeList = @('enum*',[PSCustomObject]@{Name='class*';order={(Import-PowerShellDataFile .\*\Classes\classes.psd1).order.indexOf($_.BaseName)}},'priv*','pub*')
     
     ,$CodeCoverageThreshold = 90
 )
@@ -94,7 +94,7 @@ begin {
 
         $PSDependParams = @{
             Force = $true
-            Path = "$PSScriptRoot\Dependencies.psd1"
+            Path = "$PSScriptRoot\PSDepend.build.psd1"
         }
         if($PSBoundParameters.ContainsKey('verbose')) { $PSDependParams.add('verbose',$verbose)}
         Invoke-PSDepend @PSDependParams
