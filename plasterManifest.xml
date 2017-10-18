@@ -211,7 +211,7 @@
 
     <file source='.build/**' 
           destination='${PLASTER_PARAM_ModuleName}/.build/'  
-          condition='${PLASTER_PARAM_ModuleType} -in @("SimpleModule","CompleteModule","SharedDscConfig") -or ${PLASTER_PARAM_Features}.Contains("All") -or ${PLASTER_PARAM_Features}.Contains("build")' 
+          condition='${PLASTER_PARAM_ModuleType} -in @("SimpleModule","CompleteModule","SharedDscConfig") -or ${PLASTER_PARAM_Features}.Contains("All") -or ${PLASTER_PARAM_Features}.Contains("Build")' 
     />
 
     <templateFile source='media/.kitchen.yml.template' 
@@ -221,7 +221,7 @@
 
     <templateFile source='Deploy.PSDeploy.ps1' 
                   destination='${PLASTER_PARAM_ModuleName}/Deploy.PSDeploy.ps1' 
-                  condition='${PLASTER_PARAM_ModuleType} -in @("SimpleModule","CompleteModule","SharedDscConfig") -or ${PLASTER_PARAM_Features}.Contains("All") -or ${PLASTER_PARAM_Features}.Contains("build")'
+                  condition='${PLASTER_PARAM_ModuleType} -in @("SimpleModule","CompleteModule","SharedDscConfig") -or ${PLASTER_PARAM_Features}.Contains("All") -or ${PLASTER_PARAM_Features}.Contains("Build")'
     />
 
     <!-- BUILD SCRIPTS -->
@@ -232,12 +232,12 @@
 
     <file source='.build.ps1' 
           destination='${PLASTER_PARAM_ModuleName}/.build.ps1' 
-          condition='${PLASTER_PARAM_Features}.Contains("All") -or ${PLASTER_PARAM_Features}.Contains("build") -or ${PLASTER_PARAM_ModuleType} -in @("SimpleModule","CompleteModule","SharedDscConfig")'
+          condition='${PLASTER_PARAM_Features}.Contains("All") -or ${PLASTER_PARAM_Features}.Contains("Build") -or ${PLASTER_PARAM_ModuleType} -in @("SimpleModule","CompleteModule","SharedDscConfig")'
     />
 
     <file source='PSDepend.build.psd1' 
           destination='${PLASTER_PARAM_ModuleName}/PSDepend.build.psd1'
-          condition='${PLASTER_PARAM_ModuleType} -in @("SimpleModule","CompleteModule","SharedDscConfig") -or ${PLASTER_PARAM_Features}.Contains("All") -or ${PLASTER_PARAM_Features}.Contains("build")' 
+          condition='${PLASTER_PARAM_ModuleType} -in @("SimpleModule","CompleteModule","SharedDscConfig") -or ${PLASTER_PARAM_Features}.Contains("All") -or ${PLASTER_PARAM_Features}.Contains("Build")' 
     />
 
     <file source='appveyor.yml' 

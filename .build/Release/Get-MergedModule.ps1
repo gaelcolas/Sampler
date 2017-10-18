@@ -26,7 +26,7 @@ function Get-MergedModule {
             $null = $Order.Invoke()
         }
         catch {
-            Warning "YOUR CLASS ORDERING IS INVALID. USING DEFAULT ORDERING"
+            Write-Warning "YOUR CLASS ORDERING IS INVALID. USING DEFAULT ORDERING"
             $Order = {}
         }
         Write-Verbose "Processing $Name"
