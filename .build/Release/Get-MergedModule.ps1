@@ -7,7 +7,7 @@ function Get-MergedModule {
         [io.DirectoryInfo]$SourceFolder,
 
         [Parameter(ValueFromPipelineByPropertyName)]
-        [ScriptBlock]$Order,
+        [ScriptBlock]$Order = {},
 
         [String]$Separator = "`n`n",
 
@@ -22,6 +22,13 @@ function Get-MergedModule {
     }
 
     process {
+        try {
+            $null = $Order.Invoke()
+        }
+        catch {
+            Warning "YOUR CLASS ORDERING IS INVALID. USING DEFAULT ORDERING"
+            $Order = {}
+        }
         Write-Verbose "Processing $Name"
         $FilePath = [io.path]::Combine($SourceFolder,$Name)
         Get-ChildItem $FilePath -Filter *.ps1 -Recurse | Sort-Object $Order | ForEach-Object {

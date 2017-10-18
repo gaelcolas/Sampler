@@ -37,10 +37,10 @@
             value="SharedDscConfig"/>
 
     </parameter>
-    <parameter store="text"  name="ModuleAuthor" type="text" prompt="Author's name" default="$Env:Username"/>
+    <parameter store="text"  name="ModuleAuthor" type="text" prompt="Author's name" default="$Env:Username" />
     <parameter store="text"  name="ModuleName" type="text" prompt="Name of your module" />
     <parameter store="text"  name="ModuleDescription" type="text" prompt="Description of this module" />
-    <parameter name="ModuleVersion" type="text" prompt="Module version"  default="0.0.1"/>
+    <parameter name="ModuleVersion" type="text" prompt="Module version"  default="0.0.1" />
 
     <parameter store="text"  name="License" type="choice" prompt="Do you want to include a License to your project?" default="1" condition='$PLASTER_PARAM_ModuleType -eq "CustomModule"' >
       <choice label='&amp;Yes' value='true' />
@@ -50,15 +50,15 @@
     <parameter store="text"  name="LicenseType" type="choice" prompt="What license do you want?" default="2" condition='$PLASTER_PARAM_License -eq "true" -and $PLASTER_PARAM_ModuleType -eq "CustomModule"' >
       <choice label='&amp;Apache'
               help="Adds an Apache license file."
-              value="Apache"/>
+              value="Apache" />
 
       <choice label='&amp;MIT'
               help="Adds an MIT license file."
-              value="MIT"/>
+              value="MIT" />
               
       <choice label='&amp;None'
               help="No license specified."
-              value="None"/>
+              value="None" />
     </parameter>
 
     <parameter name="Features" type="multichoice" prompt="What feature would you like to add to your project?" default="0" condition='$PLASTER_PARAM_ModuleType -eq "CustomModule"' >
@@ -170,14 +170,24 @@
           condition='${PLASTER_PARAM_ModuleType} -in @("SimpleModule","CompleteModule","SimpleModule_NoBuild","CompleteModule_NoBuild","SharedDscConfig") -or ${PLASTER_PARAM_Features} -in @("All","UnitTests","ModuleQuality","TestKitchen")' 
     />
 
-    <file source='SampleModule/tests/classes/**' 
-          destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/tests/classes/'
+    <file source='SampleModule/tests/Unit/classes/**' 
+          destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/tests/Unit/classes/'
           condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild") -or ${PLASTER_PARAM_Features} -in @("All","UnitTests")' 
     />
   
-    <file source='SampleModule/tests/Private/**' 
-          destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/tests/Private/'
-          condition='${PLASTER_PARAM_ModuleType} -in @("SimpleModule","SimpleModule_NoBuild","CompleteModule","CompleteModule_NoBuild") -or (${PLASTER_PARAM_Features} -in @("All","UnitTests") -and ${PLASTER_PARAM_Features} -in @("SampleScripts"))' 
+    <file source='SampleModule/tests/Unit/Private/**' 
+          destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/tests/Unit/Private/'
+          condition='${PLASTER_PARAM_ModuleType} -in @("SimpleModule","SimpleModule_NoBuild","CompleteModule","CompleteModule_NoBuild") -or (${PLASTER_PARAM_Features} -in @("All","UnitTests") -and ${PLASTER_PARAM_Features} -in @("All","SampleScripts"))' 
+    />
+    
+    <file source='SampleModule/tests/Unit/Public/**' 
+          destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/tests/Unit/Public/'
+          condition='${PLASTER_PARAM_ModuleType} -in @("SimpleModule","SimpleModule_NoBuild","CompleteModule","CompleteModule_NoBuild") -or (${PLASTER_PARAM_Features} -in @("All","UnitTests") -and ${PLASTER_PARAM_Features} -in @("All","SampleScripts"))' 
+    />
+
+    <file source='SampleModule/tests/QA/**' 
+          destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/tests/QA/'
+          condition='${PLASTER_PARAM_ModuleType} -in @("SimpleModule","SimpleModule_NoBuild","CompleteModule","CompleteModule_NoBuild","SharedDscConfig") -or (${PLASTER_PARAM_Features} -in @("All","ModuleQuality"))' 
     />
 
     <!-- MODULES SAMPLE FILES -->
@@ -188,12 +198,17 @@
     
     <file source='SampleModule\Private\Get-PrivateFunction.ps1' 
           destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}\Private\Get-PrivateFunction.ps1'
-          condition='${PLASTER_PARAM_ModuleType} -ne "SharedDscConfig" -and (${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild") -or ${PLASTER_PARAM_Features} -in @("All","SampleScripts")'
+          condition='${PLASTER_PARAM_ModuleType} -ne "SharedDscConfig" -and (${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild") -or ${PLASTER_PARAM_Features} -in @("All","SampleScripts"))'
     />
 
     <file source='.gitignore' 
           destination='${PLASTER_PARAM_ModuleName}/.gitignore' 
           condition='${PLASTER_PARAM_Features} -in @("All","git") -or ${PLASTER_PARAM_ModuleType} -in @("SimpleModule","CompleteModule","SimpleModule_NoBuild","CompleteModule_NoBuild","SharedDscConfig")'
+    />
+        
+    <file source='SampleModule/classes/**' 
+          destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/classes/'  
+          condition='(${PLASTER_PARAM_Features} -in @("All","Classes") -and ${PLASTER_PARAM_Features} -in @("All","SampleScripts")) -or ${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild")'
     />
 
     <file source='.build/**' 
@@ -204,6 +219,11 @@
     <templateFile source='media/.kitchen.yml.template' 
                   destination='${PLASTER_PARAM_ModuleName}/.kitchen.yml' 
                   condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","SharedDscConfig") -or ${PLASTER_PARAM_Features} -in @("TestKitchen","All")' 
+    />
+
+    <templateFile source='Deploy.PSDeploy.ps1' 
+                  destination='${PLASTER_PARAM_ModuleName}/Deploy.PSDeploy.ps1' 
+                  condition='${PLASTER_PARAM_ModuleType} -in @("SimpleModule","CompleteModule","SharedDscConfig") -or ${PLASTER_PARAM_Features} -in @("Build","All")'
     />
 
     <!-- BUILD SCRIPTS -->
@@ -224,7 +244,7 @@
 
     <file source='appveyor.yml' 
           destination='${PLASTER_PARAM_ModuleName}/appveyor.yml' 
-          condition='${PLASTER_PARAM_Features} -in @("AppVeyor","All")'
+          condition='${PLASTER_PARAM_ModuleType} -in @("SimpleModule","CompleteModule","SharedDscConfig") -or ${PLASTER_PARAM_Features} -in @("AppVeyor","All")'
     />
 
     <file source='SampleModule\DscResources\DSCResourcesDefinitions.json' 
@@ -236,6 +256,7 @@
         rootModule='${PLASTER_PARAM_ModuleName}.psm1'
         author='$PLASTER_PARAM_ModuleAuthor'
         description='$PLASTER_PARAM_ModuleDescription'
+        condition='-not (Test-Path "${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}.psd1")'
     />
 
     <templateFile 

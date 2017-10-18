@@ -1,4 +1,10 @@
-InModuleScope SampleModule {
+$here = $PSScriptRoot
+$sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
+
+$modulePath = "$here\..\..\.."
+$moduleName = Split-Path -Path $modulePath -Leaf
+
+InModuleScope $moduleName {
     Describe class11 {
         Context 'Type creation' {
             It 'Has created a type named class11' {
