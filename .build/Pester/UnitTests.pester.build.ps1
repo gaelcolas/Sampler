@@ -1,4 +1,3 @@
-#Requires -Modules Pester
 Param (
     [io.DirectoryInfo]
     $ProjectPath = (property ProjectPath (Join-Path $PSScriptRoot '../..' -Resolve -ErrorAction SilentlyContinue)),
@@ -63,6 +62,7 @@ task UnitTests {
     "`tUnitTest Path: $UnitTestPath"
     ''
 
+    Import-module Pester -ErrorAction Stop
     if (![io.path]::IsPathRooted($BuildOutput)) {
         $BuildOutput = Join-Path -Path $ProjectPath.FullName -ChildPath $BuildOutput
     }
@@ -105,7 +105,7 @@ task UnitTests {
         CodeCoverage = $ListOfTestedFile
         PassThru     = $true
     }
-    Import-module Pester
+    Import-module Pester -ErrorAction Stop
     if($TestFromBuildOutput) {
         Import-Module -Force ("$BuildOutput\$ProjectName" -replace '\\$')
     }

@@ -4,6 +4,7 @@
         AddToPath = $True
         Target = 'BuildOutput\modules'
         Parameters = @{
+            
         }
     }
 
@@ -12,7 +13,7 @@
     pester = 'latest'
     PSScriptAnalyzer = 'latest'
     PlatyPS = 'latest'
-    'gaelcolas/psdeploy' = 'appveyorfix'
+    psdeploy = 'latest'
 
     #required for DSC authoring
     xDscResourceDesigner = 'latest'

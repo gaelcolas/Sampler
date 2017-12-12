@@ -10,6 +10,11 @@
 
     [string]
     $BuildOutput = (property BuildOutput 'C:\BuildOutput'),
+    
+    [string]
+    $ModuleVersion = (property ModuleVersion $(
+        if($ModuleVersion = Get-NextPSGalleryVersion -Name $ProjectName -ea 0) { $ModuleVersion } else { '0.0.1' }
+        )),
 
     $MergeList = (property MergeList @('enum*','class*','priv*','pub*') ),
     
@@ -28,19 +33,17 @@ Task CopySourceToModuleOut {
     }
     $BuiltModuleFolder = [io.Path]::Combine($BuildOutput,$ProjectName)
     "Copying $ProjectPath\$SourceFolder To $BuiltModuleFolder\"
-    Copy-Item -Path "$ProjectPath\$SourceFolder" -Destination "$BuiltModuleFolder\" -Recurse -Force -Exclude '*.bak'
+    Copy-Item -Path "$ProjectPath\$SourceFolder" -Destination "$BuiltModuleFolder\" -Recurse
 }
 
 Task MergeFilesToPSM1 {
     $LineSeparation
     "`t`t`t MERGE TO PSM1"
     $LineSeparation
-    "`tORDER: $($MergeList.ToString())"
     if (![io.path]::IsPathRooted($BuildOutput)) {
         $BuildOutput = Join-Path -Path $ProjectPath.FullName -ChildPath $BuildOutput
     }
     $BuiltModuleFolder = [io.Path]::Combine($BuildOutput,$ProjectName)
-    if(!$MergeList) {$MergeList = @('enum*','class*','priv*','pub*') }
 
     # Merge individual PS1 files into a single PSM1, and delete merged files
     $OutModulePSM1 = [io.path]::Combine($BuiltModuleFolder,"$ProjectName.psm1")
@@ -61,4 +64,19 @@ Task CleanOutputEmptyFolders {
         $_.GetFiles().count -eq 0 -and
         $_.GetDirectories().Count -eq 0 
     } | Remove-Item
+}
+
+Task UpdateModuleManifest {
+    $LineSeparation
+    "`t`t`t UPDATE MODULE MANIFEST"
+    $LineSeparation
+
+    if (![io.path]::IsPathRooted($BuildOutput)) {
+        $BuildOutput = Join-Path -Path $ProjectPath.FullName -ChildPath $BuildOutput
+    }
+    $BuiltModule = [io.path]::Combine($BuildOutput,$ProjectName,"$ProjectName.psd1")
+    Set-ModuleFunctions -Path $BuiltModule
+    if($ModuleVersion) {
+        Update-Metadata -path $BuiltModule -PropertyName ModuleVersion -Value $ModuleVersion
+    }
 }

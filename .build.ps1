@@ -38,7 +38,7 @@ Process {
     }
 
     if(($Env:PSModulePath -split ';') -notcontains (Join-Path $BuildOutput 'modules') ) {
-        $Env:PSModulePath += ';' + (Join-Path $BuildOutput 'modules')
+        $Env:PSModulePath = (Join-Path $BuildOutput 'modules') + ';' + $Env:PSModulePath
     }
     
     Get-ChildItem -Path "$PSScriptRoot/.build/" -Recurse -Include *.ps1 -Verbose |
@@ -46,13 +46,13 @@ Process {
             "Importing file $($_.BaseName)" | Write-Verbose
             . $_.FullName 
         }
-
     task .  Clean,
             SetBuildEnvironment,
             QualityTestsStopOnFail,
             CopySourceToModuleOut,
             MergeFilesToPSM1,
             CleanOutputEmptyFolders,
+            UpdateModuleManifest,
             UnitTests,
             UploadUnitTestResultsToAppVeyor,
             FailBuildIfFailedUnitTest, 
