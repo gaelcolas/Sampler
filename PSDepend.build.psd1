@@ -4,7 +4,6 @@
         AddToPath = $True
         Target = 'BuildOutput\modules'
         Parameters = @{
-            
         }
     }
 

@@ -33,17 +33,19 @@ Task CopySourceToModuleOut {
     }
     $BuiltModuleFolder = [io.Path]::Combine($BuildOutput,$ProjectName)
     "Copying $ProjectPath\$SourceFolder To $BuiltModuleFolder\"
-    Copy-Item -Path "$ProjectPath\$SourceFolder" -Destination "$BuiltModuleFolder\" -Recurse
+    Copy-Item -Path "$ProjectPath\$SourceFolder" -Destination "$BuiltModuleFolder\" -Recurse -Force -Exclude '*.bak'
 }
 
 Task MergeFilesToPSM1 {
     $LineSeparation
     "`t`t`t MERGE TO PSM1"
     $LineSeparation
+    "`tORDER: $($MergeList.ToString())"
     if (![io.path]::IsPathRooted($BuildOutput)) {
         $BuildOutput = Join-Path -Path $ProjectPath.FullName -ChildPath $BuildOutput
     }
     $BuiltModuleFolder = [io.Path]::Combine($BuildOutput,$ProjectName)
+    if(!$MergeList) {$MergeList = @('enum*','class*','priv*','pub*') }
 
     # Merge individual PS1 files into a single PSM1, and delete merged files
     $OutModulePSM1 = [io.path]::Combine($BuiltModuleFolder,"$ProjectName.psm1")
