@@ -20,7 +20,7 @@ Param (
 
     $MergeList = @('enum*',[PSCustomObject]@{Name='class*';order={(Import-PowerShellDataFile -EA 0 .\*\Classes\classes.psd1).order.indexOf($_.BaseName)}},'priv*','pub*')
     
-    ,$CodeCoverageThreshold = 90
+    ,$CodeCoverageThreshold = 80
 )
 
 Process {
