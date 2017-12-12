@@ -1,4 +1,3 @@
-#Requires -Modules Pester
 Param (
     [io.DirectoryInfo]
     $ProjectPath = (property ProjectPath (Join-Path $PSScriptRoot '../..' -Resolve -ErrorAction SilentlyContinue)),
@@ -68,7 +67,7 @@ task QualityTests {
 
     Push-Location $QualityTestPath
     
-    Import-module Pester
+    Import-module Pester -ErrorAction Stop
     $script:QualityTestResults = Invoke-Pester -ErrorAction Stop -OutputFormat NUnitXml -OutputFile $TestResultFile -PassThru
     $null = $script:QualityTestResults | Export-Clixml -Path $PesterOutFilePath -Force
     Pop-Location

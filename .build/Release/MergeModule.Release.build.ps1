@@ -10,6 +10,11 @@
 
     [string]
     $BuildOutput = (property BuildOutput 'C:\BuildOutput'),
+    
+    [string]
+    $ModuleVersion = (property ModuleVersion $(
+        if($ModuleVersion = Get-NextPSGalleryVersion -Name $ProjectName -ea 0) { $ModuleVersion } else { '0.0.1' }
+        )),
 
     $MergeList = (property MergeList @('enum*','class*','priv*','pub*') ),
     
@@ -61,4 +66,19 @@ Task CleanOutputEmptyFolders {
         $_.GetFiles().count -eq 0 -and
         $_.GetDirectories().Count -eq 0 
     } | Remove-Item
+}
+
+Task UpdateModuleManifest {
+    $LineSeparation
+    "`t`t`t UPDATE MODULE MANIFEST"
+    $LineSeparation
+
+    if (![io.path]::IsPathRooted($BuildOutput)) {
+        $BuildOutput = Join-Path -Path $ProjectPath.FullName -ChildPath $BuildOutput
+    }
+    $BuiltModule = [io.path]::Combine($BuildOutput,$ProjectName,"$ProjectName.psd1")
+    Set-ModuleFunctions -Path $BuiltModule
+    if($ModuleVersion) {
+        Update-Metadata -path $BuiltModule -PropertyName ModuleVersion -Value $ModuleVersion
+    }
 }
