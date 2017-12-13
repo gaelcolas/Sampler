@@ -221,7 +221,12 @@
 
     <templateFile source='Deploy.PSDeploy.ps1' 
                   destination='${PLASTER_PARAM_ModuleName}/Deploy.PSDeploy.ps1' 
-                  condition='${PLASTER_PARAM_ModuleType} -in @("SimpleModule","CompleteModule","SharedDscConfig") -or ${PLASTER_PARAM_Features}.Contains("All") -or ${PLASTER_PARAM_Features}.Contains("Build")'
+                  condition='${PLASTER_PARAM_ModuleType} -in @("SimpleModule","CompleteModule","SharedDscConfig") -or ${PLASTER_PARAM_Features}.Contains("All") -or (${PLASTER_PARAM_Features}.Contains("Build") -and ${PLASTER_PARAM_Features}.Contains("AppVeyor"))'
+    />
+    
+    <templateFile source='media/Deploy.PSDeploy.ps1' 
+                  destination='${PLASTER_PARAM_ModuleName}/Deploy.PSDeploy.ps1' 
+                  condition='${PLASTER_PARAM_ModuleType} -in @("SimpleModule","CompleteModule","SharedDscConfig") -or ${PLASTER_PARAM_Features}.Contains("All") -or (${PLASTER_PARAM_Features}.Contains("Build") -and !${PLASTER_PARAM_Features}.Contains("AppVeyor"))'
     />
 
     <!-- BUILD SCRIPTS -->

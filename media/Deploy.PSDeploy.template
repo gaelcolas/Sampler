@@ -1,0 +1,17 @@
+if (
+    $Env:ProjectName -and $Env:ProjectName.Count -eq 1 -and
+    $Env:BuildSystem -ne 'unkown'
+) {
+    if ($Env:BranchName -eq 'master') {
+        Deploy Module {
+            FromSource $(Get-Item ".\BuildOutput\$Env:ProjectName")
+            To $Env:ModuleRepositoryToDeployTo
+            WithOptions @{
+                ApiKey = $Env:NugetApiKey
+            }
+        }
+    }
+}
+else {
+    Write-Warning "Condition to Deploy not met"
+}
