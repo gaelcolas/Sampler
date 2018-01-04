@@ -74,7 +74,7 @@ foreach ($function in $allModuleFunctions) {
                 $FunctionHelp.Examples[0].Length | Should BeGreaterThan ($function.BaseName.Length + 10)
             }
 
-            $parameters = $ParsedFunction.Body.ParamBlock.Parameters.name.VariablePath | % {$_.ToString() }
+            $parameters = $ParsedFunction.Body.ParamBlock.Parameters.name.VariablePath.Foreach{$_.ToString() }
             foreach ($parameter in $parameters) {
                 It "Has help for Parameter: $parameter" {
                     $FunctionHelp.Parameters.($parameter.ToUpper())        | Should Not BeNullOrEmpty
