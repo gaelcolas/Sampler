@@ -4,10 +4,12 @@ if (
 ) {
     if ($Env:BranchName -eq 'master') {
         Deploy Module {
-            FromSource $(Get-Item ".\BuildOutput\$Env:ProjectName")
-            To $Env:ModuleRepositoryToDeployTo
-            WithOptions @{
-                ApiKey = $Env:NugetApiKey
+            by PSGalleryModule {
+                FromSource $(Get-Item ".\BuildOutput\$Env:ProjectName")
+                To $Env:ModuleRepositoryToDeployTo
+                WithOptions @{
+                    ApiKey = $Env:NugetApiKey
+                }
             }
         }
     }
