@@ -44,14 +44,6 @@ Process {
         Invoke-Build $Tasks $MyInvocation.MyCommand.Path @PSBoundParameters
         return
     }
-
-    if (![io.path]::IsPathRooted($BuildOutput)) {
-        $BuildOutput = Join-Path -Path $PSScriptRoot -ChildPath $BuildOutput
-    }
-
-    if(($Env:PSModulePath -split ';') -notcontains (Join-Path $BuildOutput 'modules') ) {
-        $Env:PSModulePath = (Join-Path $BuildOutput 'modules') + ';' + $Env:PSModulePath
-    }
     
     Get-ChildItem -Path "$PSScriptRoot/.build/" -Recurse -Include *.ps1 -Verbose |
         Foreach-Object {
@@ -125,6 +117,15 @@ begin {
         Write-Verbose "Project Bootstrapped, returning to Invoke-Build"
     }
 
+    if (![io.path]::IsPathRooted($BuildOutput)) {
+        $BuildOutput = Join-Path -Path $PSScriptRoot -ChildPath $BuildOutput
+    }
+
+    if(($Env:PSModulePath -split ';') -notcontains (Join-Path $BuildOutput 'modules') ) {
+        $Env:PSModulePath = (Join-Path $BuildOutput 'modules') + ';' + $Env:PSModulePath
+    }
+
+    
     if ($ResolveDependency) {
         Write-Host "Resolving Dependencies... [this can take a moment]"
         $Params = @{}
