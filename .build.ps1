@@ -20,6 +20,18 @@ Param (
 
     $MergeList = @('enum*',[PSCustomObject]@{Name='class*';order={(Import-PowerShellDataFile -EA 0 .\*\Classes\classes.psd1).order.indexOf($_.BaseName)}},'priv*','pub*')
     
+    ,$TaskHeader = {
+        param($Path)
+        ''
+        '=' * 79
+        Write-Build Cyan "`t`t`t$($Task.Name.replace('_',' ').ToUpper())"
+        Write-Build DarkGray  "$(Get-BuildSynopsis $Task)"
+        '-' * 79
+        Write-Build DarkGray "  $Path"
+        Write-Build DarkGray "  $($Task.InvocationInfo.ScriptName):$($Task.InvocationInfo.ScriptLineNumber)"
+        ''
+    }
+
     ,$CodeCoverageThreshold = 80
 )
 
@@ -46,22 +58,26 @@ Process {
             "Importing file $($_.BaseName)" | Write-Verbose
             . $_.FullName 
         }
+    
+    Set-BuildHeader $TaskHeader
+
     task .  Clean,
-            SetBuildEnvironment,
-            QualityTestsStopOnFail,
-            CopySourceToModuleOut,
-            MergeFilesToPSM1,
-            CleanOutputEmptyFolders,
-            UpdateModuleManifest,
-            UnitTests,
-            UploadUnitTestResultsToAppVeyor,
-            FailBuildIfFailedUnitTest, 
-            FailIfLastCodeConverageUnderThreshold,
+            Set_Build_Environment_Variables,
+            Pester_Quality_Tests_Stop_On_Fail,
+            Copy_Source_To_Module_BuildOutput,
+            Merge_Source_Files_To_PSM1,
+            Clean_Empty_Folders_from_Build_Output,
+            Update_Module_Manifest,
+            Run_Unit_Tests,
+            Upload_Unit_Test_Results_To_AppVeyor,
+            Fail_Build_if_Unit_Test_Failed, 
+            Fail_if_Last_Code_Converage_is_Under_Threshold,
             IntegrationTests,
-            DeployAll
+            Deploy_with_PSDeploy
 
     task testAll UnitTests, IntegrationTests, QualityTestsStopOnFail
 
+    task Noop {}
 
 }
 

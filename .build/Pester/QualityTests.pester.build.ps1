@@ -1,12 +1,9 @@
 Param (
-    [io.DirectoryInfo]
-    $ProjectPath = (property ProjectPath (Join-Path $PSScriptRoot '../..' -Resolve -ErrorAction SilentlyContinue)),
+    [string]
+    $BuildOutput = (property BuildOutput 'BuildOutput'),
 
     [string]
-    $BuildOutput = (property BuildOutput 'C:\BuildOutput'),
-
-    [string]
-    $ProjectName = (property ProjectName (Split-Path -Leaf (Join-Path $PSScriptRoot '../..')) ),
+    $ProjectName = (property ProjectName (Split-Path -Leaf $BuildRoot)),
 
     [string]
     $PesterOutputFormat = (property PesterOutputFormat 'NUnitXml'),
@@ -15,16 +12,11 @@ Param (
     $RelativePathToQualityTests = (property RelativePathToQualityTests 'tests/QA'),
 
     [string]
-    $PesterOutputSubFolder = (property PesterOutputSubFolder 'PesterOut'),
-
-    [string]
-    $LineSeparation = (property LineSeparation ('-' * 78))
+    $PesterOutputSubFolder = (property PesterOutputSubFolder 'PesterOut')
 )
 
-task QualityTests {
-    $LineSeparation
-    "`t`t`t RUNNING Quality TESTS"
-    $LineSeparation
+# Synopsis: Making sure the Module meets some quality standard (help, tests)
+task Quality_Tests {
     "`tProject Path = $ProjectPath"
     "`tProject Name = $ProjectName"
     "`tQuality Tests   = $RelativePathToQualityTests"
@@ -46,7 +38,7 @@ task QualityTests {
     if (![io.path]::IsPathRooted($BuildOutput)) {
         $BuildOutput = Join-Path -Path $ProjectPath.FullName -ChildPath $BuildOutput
     }
-    # $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath(".\nonexist\foo.txt")
+    
     $PSVersion = 'PSv{0}.{1}' -f $PSVersionTable.PSVersion.Major, $PSVersionTable.PSVersion.Minor
     $Timestamp = Get-date -uformat "%Y%m%d-%H%M%S"
     $TestResultFileName = "QA_$PSVersion`_$TimeStamp.xml"
@@ -73,8 +65,11 @@ task QualityTests {
     Pop-Location
 }
 
-task FailBuildIfFailedQualityTest -If ($CodeCoverageThreshold -ne 0) {
+# Synopsis: This task ensures the build job fails if the test aren't successful.
+task Fail_Build_if_Quality_Tests_failed -If ($CodeCoverageThreshold -ne 0) {
+    "Asserting that no Quality test failed"
     assert ($script:QualityTestResults.FailedCount -eq 0) ('Failed {0} Quality tests. Aborting Build' -f $script:QualityTestResults.FailedCount)
 }
 
-task QualityTestsStopOnFail QualityTests,FailBuildIfFailedQualityTest
+# Synopsis: Meta task that runs Quality Tests, and fails if they're not successful
+task Pester_Quality_Tests_Stop_On_Fail Quality_Tests,Fail_Build_if_Quality_Tests_failed

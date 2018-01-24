@@ -5,7 +5,7 @@ $modulePath = "$here\..\.."
 $moduleName = Split-Path -Path $modulePath -Leaf
 
 
-Describe 'General module control' -Tags 'FunctionalQuality'   {
+Describe 'General module control' -Tags 'FunctionalQuality'  {
 
     It 'imports without errors' {
         { Import-Module -Name $modulePath -Force -ErrorAction Stop } | Should Not Throw
@@ -45,8 +45,8 @@ foreach ($function in $allModuleFunctions) {
         if ($scriptAnalyzerRules) {
             It "Script Analyzer for $($function.BaseName)" {
                 forEach ($scriptAnalyzerRule in $scriptAnalyzerRules) {
-                    (Invoke-ScriptAnalyzer -Path $function.FullName -IncludeRule $scriptAnalyzerRule).count |
-                         Should Be 0
+                    $PSSAResult = (Invoke-ScriptAnalyzer -Path $function.FullName -IncludeRule $scriptAnalyzerRule)
+                    ($PSSAResult | Select-Object Message,Line | Out-String) | Should -BeNullOrEmpty
                 }
             }
         }

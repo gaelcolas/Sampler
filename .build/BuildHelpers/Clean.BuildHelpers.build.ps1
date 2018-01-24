@@ -1,34 +1,28 @@
 Param (
-
-    [io.DirectoryInfo]
-    $ProjectPath = (property ProjectPath (Join-Path $PSScriptRoot '../..' -Resolve -ErrorAction SilentlyContinue)),
-
     [string]
-    $BuildOutput = (property BuildOutput 'C:\BuildOutput'),
-
-    [string]
-    $LineSeparation = (property LineSeparation ('-' * 78)) 
+    $BuildOutput = (property BuildOutput 'BuildOutput')
 )
 
+# Removes the BuildOutput\modules (errors if Pester is loaded)
+task CleanAll Clean,CleanModule
+
+# Synopsis: Deleting the content of the Build Output folder, except ./modules
 task Clean {
-    $LineSeparation
-    "`t`t`t CLEAN UP"
-    $LineSeparation
-
     if (![io.path]::IsPathRooted($BuildOutput)) {
-        $BuildOutput = Join-Path -Path $ProjectPath.FullName -ChildPath $BuildOutput
-    }
-    if (Test-Path $BuildOutput) {
-        "Removing $BuildOutput\*"
-        Gci .\BuildOutput\ -Exclude modules | Remove-Item -Force -Recurse
+        $BuildOutput = Join-Path -Path $BuildRoot -ChildPath $BuildOutput
     }
 
+    if (Test-Path $BuildOutput) {
+        Write-Build -Color Green "Removing $BuildOutput\* excluding modules"
+        Get-ChildItem $BuildOutput -Exclude modules | Remove-Item -Force -Recurse
+    }
 }
 
+# Synopsis: Removes the Modules from BuildOutput\Modules folder, might fail if there's an handle on one file.
 task CleanModule {
      if (![io.path]::IsPathRooted($BuildOutput)) {
-        $BuildOutput = Join-Path -Path $ProjectPath.FullName -ChildPath $BuildOutput
+        $BuildOutput = Join-Path -Path $BuildRoot -ChildPath $BuildOutput
     }
-    "Removing $BuildOutput\*"
-    Gci .\BuildOutput\ | Remove-Item -Force -Recurse -Verbose -ErrorAction Stop
+    Write-Build -Color Green "Removing $BuildOutput\*"
+    Get-ChildItem $BuildOutput | Remove-Item -Force -Recurse -Verbose -ErrorAction Stop
 }

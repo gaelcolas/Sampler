@@ -1,15 +1,12 @@
 Param (
-    [io.DirectoryInfo]
-    $ProjectPath = (property ProjectPath (Join-Path $PSScriptRoot '../..' -Resolve -ErrorAction SilentlyContinue)),
-
     [string]
-    $BuildOutput = (property BuildOutput 'C:\BuildOutput'),
+    $BuildOutput = (property BuildOutput 'BuildOutput'),
 
     [bool]
     $TestFromBuildOutput = $true,
 
     [string]
-    $ProjectName = (property ProjectName (Split-Path -Leaf (Join-Path $PSScriptRoot '../..')) ),
+    $ProjectName = (property ProjectName (Split-Path -Leaf $BuildRoot) ),
 
     [string]
     $PesterOutputFormat = (property PesterOutputFormat 'NUnitXml'),
@@ -22,17 +19,12 @@ Param (
 
     [Int]
     [ValidateRange(0,100)]
-    $CodeCoverageThreshold = (property CodeCoverageThreshold 90),
-
-    [string]
-    $LineSeparation = (property LineSeparation ('-' * 78))
+    $CodeCoverageThreshold = (property CodeCoverageThreshold 90)
 )
 
-task UnitTests {
-    $LineSeparation
-    "`t`t`t RUNNING UNIT TESTS"
-    $LineSeparation
-    "`tProject Path = $ProjectPath"
+# Synopsis: Execute the Pester Unit tests
+task Run_Unit_Tests {
+    "`tProject Path = $BuildRoot"
     "`tProject Name = $ProjectName"
     "`tUnit Tests   = $PathToUnitTests"
     "`tResult Folder= $BuildOutput\Unit\"
@@ -40,17 +32,17 @@ task UnitTests {
         "`tTesting against compiled Module: $BuildOutput\$ProjectName"
     }
     else {
-        "`tTesting against Source Code: $BuildOutput\$ProjectPath"
+        "`tTesting against Source Code: $BuildOutput\$BuildRoot"
     }
 
     #Resolving the Unit Tests path based on 2 possible Path: 
-    #    ProjectPath\ProjectName\tests\Unit (my way, I like to ship tests with Modules)
-    # or ProjectPath\tests\Unit (Warren's way: http://ramblingcookiemonster.github.io/Building-A-PowerShell-Module/)
-    $UnitTestPath = [io.DirectoryInfo][system.io.path]::Combine($ProjectPath,$ProjectName,$PathToUnitTests)
+    #    BuildRoot\ProjectName\tests\Unit (my way, I like to ship tests with Modules)
+    # or BuildRoot\tests\Unit (Warren's way: http://ramblingcookiemonster.github.io/Building-A-PowerShell-Module/)
+    $UnitTestPath = [io.DirectoryInfo][system.io.path]::Combine($BuildRoot,$ProjectName,$PathToUnitTests)
     
     if (!$UnitTestPath.Exists -and
         (   #Try a module structure where the tests are outside of the Source directory
-            ($UnitTestPath = [io.DirectoryInfo][system.io.path]::Combine($ProjectPath,$PathToUnitTests)) -and
+            ($UnitTestPath = [io.DirectoryInfo][system.io.path]::Combine($BuildRoot,$PathToUnitTests)) -and
             !$UnitTestPath.Exists
         )
     )
@@ -64,7 +56,7 @@ task UnitTests {
 
     Import-module Pester -ErrorAction Stop
     if (![io.path]::IsPathRooted($BuildOutput)) {
-        $BuildOutput = Join-Path -Path $ProjectPath.FullName -ChildPath $BuildOutput
+        $BuildOutput = Join-Path -Path $BuildRoot -ChildPath $BuildOutput
     }
 
     $PSVersion = 'PSv{0}.{1}' -f $PSVersionTable.PSVersion.Major, $PSVersionTable.PSVersion.Minor
@@ -92,7 +84,7 @@ task UnitTests {
     else {
         $ListOfTestedFile = Get-ChildItem | Foreach-Object { 
             $fileName = $_.BaseName -replace '\.tests'
-            "$ProjectPath\$ProjectName\*\$fileName.ps1"
+            "$BuildRoot\$ProjectName\*\$fileName.ps1"
         }
     }
     
@@ -110,7 +102,7 @@ task UnitTests {
         Import-Module -Force ("$BuildOutput\$ProjectName" -replace '\\$')
     }
     else {
-        Import-Module -Force ("$ProjectPath\$ProjectName" -replace '\\$')
+        Import-Module -Force ("$BuildRoot\$ProjectName" -replace '\\$')
     }
 
     $script:UnitTestResults = Invoke-Pester @PesterParams
@@ -118,15 +110,14 @@ task UnitTests {
     Pop-Location
 }
 
-task FailBuildIfFailedUnitTest -If ($CodeCoverageThreshold -ne 0) {
+# Synopsis: If the Unit test failed, fail the build (unless Threshold is set to 0)
+task Fail_Build_if_Unit_Test_Failed -If ($CodeCoverageThreshold -ne 0) {
     assert ($script:UnitTestResults.FailedCount -eq 0) ('Failed {0} Unit tests. Aborting Build' -f $script:UnitTestResults.FailedCount)
 }
 
-task FailIfLastCodeConverageUnderThreshold {
-    $LineSeparation
-    "`t`t`t LOADING LAST CODE COVERAGE From FILE"
-    $LineSeparation
-    "`tProject Path     = $ProjectPath"
+# Synopsis: If the Code coverage is under the defined threshold, fail the build
+task Fail_if_Last_Code_Converage_is_Under_Threshold {
+    "`tProject Path     = $BuildRoot"
     "`tProject Name     = $ProjectName"
     "`tUnit Tests       = $PathToUnitTests"
     "`tResult Folder    = $BuildOutput\Unit\"
@@ -134,7 +125,7 @@ task FailIfLastCodeConverageUnderThreshold {
     ''
 
     if (![io.path]::IsPathRooted($BuildOutput)) {
-        $BuildOutput = Join-Path -Path $ProjectPath.FullName -ChildPath $BuildOutput
+        $BuildOutput = Join-Path -Path $BuildRoot -ChildPath $BuildOutput
     }
 
     $TestResultFileName = "Unit_*.xml"
@@ -162,4 +153,7 @@ task FailIfLastCodeConverageUnderThreshold {
     }
 }
 
-task UnitTestsStopOnFail UnitTests,FailBuildIfFailedUnitTest,FailIfLastCodeConverageUnderThreshold
+# Synopsis: Task to Run the unit tests and fail build if failed or if the code coverage is under threshold
+task Pester_Unit_Tests_Stop_On_Fail Run_Unit_Tests,
+                                    Fail_Build_if_Unit_Test_Failed,
+                                    Fail_if_Last_Code_Converage_is_Under_Threshold
