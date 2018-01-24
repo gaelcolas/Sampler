@@ -38,21 +38,24 @@ Param (
 Process {
     if ($MyInvocation.ScriptName -notlike '*Invoke-Build.ps1') {
         if ($PSboundParameters.ContainsKey('ResolveDependency')) {
-            Write-Verbose "Dependency already resolved. Skipping"
+            Write-Verbose "Dependency already resolved. Handing over to InvokeBuild."
             $null = $PSboundParameters.Remove('ResolveDependency')
         }
         Invoke-Build $Tasks $MyInvocation.MyCommand.Path @PSBoundParameters
         return
     }
     
+    # Loading Build Tasks defined in the .build/ folder
     Get-ChildItem -Path "$PSScriptRoot/.build/" -Recurse -Include *.ps1 -Verbose |
         Foreach-Object {
             "Importing file $($_.BaseName)" | Write-Verbose
             . $_.FullName 
         }
     
-    Set-BuildHeader $TaskHeader
+    # Defining the task header for this Build Job
+    if($TaskHeader) { Set-BuildHeader $TaskHeader }
 
+    # Defining the Default task 'workflow' when invoked without -tasks parameter
     task .  Clean,
             Set_Build_Environment_Variables,
             Pester_Quality_Tests_Stop_On_Fail,
@@ -67,8 +70,10 @@ Process {
             IntegrationTests,
             Deploy_with_PSDeploy
 
+    # Define a testAll tasks for interactive testing
     task testAll UnitTests, IntegrationTests, QualityTestsStopOnFail
 
+    # Define a dummy task when you don't want any task executed (e.g. Only load PSModulePath)
     task Noop {}
 
 }
