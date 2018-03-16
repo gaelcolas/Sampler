@@ -68,7 +68,7 @@ Task Update_Module_Manifest {
     
     $BuiltModule = [io.path]::Combine($BuildOutput,$ProjectName,"$ProjectName.psd1")
     Write-Build Green "  Updating Module functions in Module Manifest..."
-    Set-ModuleFunctions -Path $BuiltModule
+    Set-ModuleFunctions -Path $BuiltModule -FunctionsToExport (gci "$BuildRoot\$SourceFolder\Public" ).BaseName
     if($ModuleVersion) {
         Write-Build Green "  Updating Module version in Manifest to $ModuleVersion"
         Update-Metadata -path $BuiltModule -PropertyName ModuleVersion -Value $ModuleVersion
