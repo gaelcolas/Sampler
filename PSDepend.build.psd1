@@ -7,6 +7,7 @@
         }
     }
 
+    ModuleBuilder = 'latest'
     buildhelpers = 'latest'
     invokeBuild = 'latest'
     pester = 'latest'
