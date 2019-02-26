@@ -22,7 +22,8 @@ Param (
                 (gitversion | ConvertFrom-Json).InformationalVersion
             }
             else { '0.0.1' }
-        ))
+        )),
+    [int]$CodeCoverageThreshold = (property CodeCoverageThreshold 100)
 )
 
 # Synopsis: Making sure the Module meets some quality standard (help, tests)
@@ -47,9 +48,9 @@ task Invoke_pester_tests {
         $null = mkdir -force $PesterOutputFolder -ErrorAction Stop
     }
 
-    $PSVersion = 'PSv{0}' -f $PSVersionTable.PSVersion
+    $PSVersion = 'PSv.{0}' -f $PSVersionTable.PSVersion
     $PesterOutputFileFileName = "{0}_v{1}.PSVersion.{2}.xml" -f $ProjectName, $ModuleVersion, $PSVersion
-    $PesterOutputFullPath = Join-Path $PesterOutputFolder $PesterOutputFileFileName
+    $PesterOutputFullPath = Join-Path $PesterOutputFolder "$($PesterOutputFormat)_$PesterOutputFileFileName"
 
     $moduleUnderTest = Import-Module $ProjectName -PassThru
 
@@ -93,23 +94,24 @@ task Fail_Build_if_Pester_Tests_failed -If ($CodeCoverageThreshold -ne 0) {
 
 
 # Synopsis: Fails the build if the code coverage is under predefined threshold
-task Fail_if_Last_Code_Coverage_is_Under_Threshold {
-    "`tProject Path     = $BuildRoot"
-    "`tProject Name     = $ProjectName"
-    "`tUnit Tests       = $PathToUnitTests"
-    "`tResult Folder    = $BuildOutput\Unit\"
-    "`tMin Coverage     = $CodeCoverageThreshold %"
-    ''
-    $moduleUnderTest = Import-Module $ProjectName -PassThru -ErrorAction Stop
-    $CodeCoverageReport = (Join-Path $PesterOutputFolder "CodeCov_$PesterOutputFileFileName")
+task Pester_if_Code_Coverage_Under_Threshold {
 
-    if (![io.path]::IsPathRooted($BuildOutput)) {
-        $BuildOutput = Join-Path -Path $BuildRoot -ChildPath $BuildOutput
+    if (![io.path]::IsPathRooted($OutputDirectory)) {
+        $OutputDirectory = Join-Path -Path $ProjectPath -ChildPath $OutputDirectory
+        Write-Build Yellow "Absolute path to Output Directory is $OutputDirectory"
     }
 
-    $TestResultFileName = "Unit_*.xml"
-    $PesterOutPath = [system.io.path]::Combine($BuildOutput, 'testResults', 'unit', $PesterOutputSubFolder, $TestResultFileName)
-    if (-Not (Test-Path $PesterOutPath)) {
+    if (![io.path]::IsPathRooted($PesterOutputFolder)) {
+        $PesterOutputFolder = Join-Path $OutputDirectory $PesterOutputFolder
+    }
+
+    $PSVersion = 'PSv.{0}' -f $PSVersionTable.PSVersion
+    $PesterOutputFileFileName = "{0}_v{1}.PSVersion.{2}.xml" -f $ProjectName, $ModuleVersion, $PSVersion
+    $PesterResultObjectClixml = Join-Path $PesterOutputFolder "PesterObject_$PesterOutputFileFileName"
+    Write-Build White "`tPester Output Object = $PesterResultObjectClixml"
+
+
+    if (-Not (Test-Path $PesterResultObjectClixml)) {
         if ( $CodeCoverageThreshold -eq 0 ) {
             Write-Host "Code Coverage SUCCESS with value of 0%. No Pester output found." -ForegroundColor Magenta
             return
@@ -118,16 +120,17 @@ task Fail_if_Last_Code_Coverage_is_Under_Threshold {
             Throw "No command were tested. Threshold of $CodeCoverageThreshold % not met"
         }
     }
-    $PesterOutPath
-    $PesterOutFile = Get-ChildItem -Path $PesterOutPath |  Sort-Object -Descending | Select-Object -first 1
-    $PesterObject = Import-Clixml -Path $PesterOutFile.FullName
+    else {
+        $PesterObject = Import-Clixml -Path $PesterResultObjectClixml
+    }
+
     if ($PesterObject.CodeCoverage.NumberOfCommandsAnalyzed) {
         $coverage = $PesterObject.CodeCoverage.NumberOfCommandsExecuted / $PesterObject.CodeCoverage.NumberOfCommandsAnalyzed
         if ($coverage -lt $CodeCoverageThreshold / 100) {
             Throw "The Code Coverage FAILURE: ($($Coverage*100) %) is under the threshold of $CodeCoverageThreshold %."
         }
         else {
-            Write-Host "Code Coverage SUCCESS with value of $($coverage*100) %" -ForegroundColor Green
+            Write-Build Green "Code Coverage SUCCESS with value of $($coverage*100) %"
         }
     }
 }

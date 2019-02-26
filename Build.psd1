@@ -1,23 +1,29 @@
 @{
-    Path = "./SampleModule/SampleModule.psd1"
+    Path                 = "./SampleModule/SampleModule.psd1"
     OutputDirectory      = "./output/SampleModule"
 
     BuildWorkflow        = @{
-        '.' = @()
+        '.' = @('Clean',
+            'Set_Build_Environment_Variables',
+            'Build_Module_ModuleBuilder',
+            'Pester_Tests_Stop_On_Fail',
+            'Pester_if_Code_Coverage_Under_Threshold'
+            )
+        'test' = @('Pester_Tests_Stop_On_Fail','Pester_if_Code_Coverage_Under_Threshold')
     }
 
     'Resolve-Dependency' = @{
         #PSDependTarget              = './output/modules'
         #Proxy = ''
         #ProxyCredential
-        Gallery                     = 'PSGallery'
+        Gallery         = 'PSGallery'
         # AllowOldPowerShellGetModule = $true
         #MinimumPSDependVersion = '0.3.0'
-        AllowPrerelease             = $false
-        Verbose                     = $false
+        AllowPrerelease = $false
+        Verbose         = $false
     }
 
-    TaskHeader = '
+    TaskHeader           = '
         param($Path)
         ""
         "=" * 79

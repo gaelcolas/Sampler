@@ -27,11 +27,13 @@ Process {
         return
     }
 
+    # Execute the Build Process from the .build.ps1 path.
     Push-Location -Path $PSScriptRoot -StackName BeforeBuild
 
     try {
         Write-Host -ForeGroundColor magenta "[build] Parsing defined tasks"
 
+        # The Build Configuration may be absent or invalid
         try {
             $BuildInfo = Import-PowerShellDataFile -Path $BuildConfig
         }
@@ -49,18 +51,25 @@ Process {
             . $_.FullName
         }
 
+        # Synopsis: Empty task, useful to test the bootstrap process
         task noop {}
 
+        # Define
         task .  Clean,
-                Set_Build_Environment_Variables,
-                Build_Module_ModuleBuilder,
-                Pester_Tests_Stop_On_Fail
+        Set_Build_Environment_Variables,
+        Build_Module_ModuleBuilder,
+        Pester_Tests_Stop_On_Fail,
+        Pester_if_Code_Coverage_Under_Threshold
 
-        # Defining the Default task 'workflow' when invoked without -tasks parameter
-        # task .  Clean,
-        #     Set_Build_Environment_Variables,
-        #     Pester_Quality_Tests_Stop_On_Fail,
-        #
+
+        # Allow the BuildInfo to override the default Workflow (sequence of tasks)
+        foreach ($Workflow in $BuildInfo.BuildWorkflow.keys) {
+            Write-Verbose "Creating Build Workflow '$Workflow' with tasks $($BuildInfo.BuildWorkflow.($Workflow) -join ', ')"
+            task $Workflow $BuildInfo.BuildWorkflow.($Workflow)
+        }
+
+        Write-Host -ForeGroundColor magenta "[build] Executing requested workflow: $($Tasks -join ', ')"
+
         #     Upload_Unit_Test_Results_To_AppVeyor,
         #     Fail_Build_if_Unit_Test_Failed,
         #     Fail_if_Last_Code_Converage_is_Under_Threshold,
@@ -69,7 +78,6 @@ Process {
 
     }
     finally {
-        Write-Host -ForeGroundColor magenta "[build] Executing requested workflow: $($Tasks -join ', ')"
         Pop-Location -StackName BeforeBuild
     }
 }
