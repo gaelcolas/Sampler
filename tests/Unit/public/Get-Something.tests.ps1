@@ -4,6 +4,8 @@ $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
 $modulePath = "$here\..\..\.."
 $moduleName = Split-Path -Path $modulePath -Leaf
 
+Import-Module $moduleName
+
 InModuleScope $moduleName {
     Describe Get-Something {
         Mock Get-PrivateFunction { $PrivateData }

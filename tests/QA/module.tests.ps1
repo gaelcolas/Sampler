@@ -3,12 +3,12 @@ $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
 
 $modulePath = "$here\..\.."
 $moduleName = Split-Path -Path $modulePath -Leaf
-
+$modulePath = Join-Path $modulePath $moduleName
 
 Describe 'General module control' -Tags 'FunctionalQuality'  {
 
     It 'imports without errors' {
-        { Import-Module -Name $modulePath -Force -ErrorAction Stop } | Should Not Throw
+        { Import-Module -Name $moduleName -Force -ErrorAction Stop } | Should Not Throw
         Get-Module $moduleName | Should Not BeNullOrEmpty
     }
 
@@ -39,9 +39,9 @@ else {
 foreach ($function in $allModuleFunctions) {
     Describe "Quality for $($function.BaseName)" -Tags 'TestQuality' {
         It "$($function.BaseName) has a unit test" {
-            Get-ChildItem "$modulePath\tests\Unit\" -recurse -include "$($function.BaseName).tests.ps1" | Should Not BeNullOrEmpty
+            Get-ChildItem "tests\" -recurse -include "$($function.BaseName).tests.ps1" | Should Not BeNullOrEmpty
         }
-            
+
         if ($scriptAnalyzerRules) {
             It "Script Analyzer for $($function.BaseName)" {
                 forEach ($scriptAnalyzerRule in $scriptAnalyzerRules) {
@@ -69,7 +69,7 @@ foreach ($function in $allModuleFunctions) {
             }
 
             It 'Has at least 1 example' {
-                $FunctionHelp.Examples.Count | Should beGreaterThan 0 
+                $FunctionHelp.Examples.Count | Should beGreaterThan 0
                 $FunctionHelp.Examples[0] | Should match ([regex]::Escape($function.BaseName))
                 $FunctionHelp.Examples[0].Length | Should BeGreaterThan ($function.BaseName.Length + 10)
             }
@@ -83,4 +83,3 @@ foreach ($function in $allModuleFunctions) {
             }
     }
 }
-

@@ -1,6 +1,4 @@
 output/*
-BuildOutput/*
-DscBuildOutput/*
 modules/*
 .kitchen/*
 **.bak

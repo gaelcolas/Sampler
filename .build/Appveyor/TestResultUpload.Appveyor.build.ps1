@@ -1,6 +1,6 @@
 Param (
     [string]
-    $BuildOutput = (property BuildOutput 'BuildOutput'),
+    $OutputDirectory = (property OutputDirectory 'output'),
 
     [string]
     $ProjectName = (property ProjectName (Split-Path -Leaf $BuildRoot) ),
@@ -15,11 +15,11 @@ Param (
 # Synopsis: Uploading Unit Test results to AppVeyor
 task Upload_Unit_Test_Results_To_AppVeyor -If {(property BuildSystem 'unknown') -eq 'AppVeyor'} {
 
-    if (![io.path]::IsPathRooted($BuildOutput)) {
-        $BuildOutput = Join-Path -Path $BuildRoot -ChildPath $BuildOutput
+    if (![io.path]::IsPathRooted($OutputDirectory)) {
+        $OutputDirectory = Join-Path -Path $BuildRoot -ChildPath $OutputDirectory
     }
 
-    $TestOutputPath  = [system.io.path]::Combine($BuildOutput,'testResults','unit',$PesterOutputFormat)
+    $TestOutputPath  = [system.io.path]::Combine($OutputDirectory,'testResults','unit',$PesterOutputFormat)
     $TestResultFiles = Get-ChildItem -Path $TestOutputPath -Filter *.xml
     Write-Build Green "  Uploading test results [$($TestResultFiles.Name -join ', ')] to Appveyor"
     $TestResultFiles | Add-TestResultToAppveyor

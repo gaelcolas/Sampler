@@ -1,18 +1,22 @@
 @{
-    Path = "./Build.psd1"
-    OutputDirectory = "./output/SampleModule"
+    Path = "./SampleModule/SampleModule.psd1"
+    OutputDirectory      = "./output/SampleModule"
+
+    BuildWorkflow        = @{
+        '.' = @()
+    }
+
     'Resolve-Dependency' = @{
-        DependencyFile = './PSDepend.build.psd1'
-        PSDependTarget = './output/modules'
-        Scope = 'CurrentUser'
+        #PSDependTarget              = './output/modules'
         #Proxy = ''
         #ProxyCredential
-        Gallery = 'PSGallery'
-        AllowOldPowerShellGetModule = $false
+        Gallery                     = 'PSGallery'
+        # AllowOldPowerShellGetModule = $true
         #MinimumPSDependVersion = '0.3.0'
-        AllowPrerelease = $false
-        Verbose = $false
+        AllowPrerelease             = $false
+        Verbose                     = $false
     }
+
     TaskHeader = '
         param($Path)
         ""
@@ -24,6 +28,4 @@
         Write-Build DarkGray "  $($Task.InvocationInfo.ScriptName):$($Task.InvocationInfo.ScriptLineNumber)"
         ""
     '
-
-
 }
