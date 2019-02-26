@@ -8,7 +8,7 @@
     }
 
     ModuleBuilder        = 'latest'
-    # buildhelpers         = 'latest'
+    buildhelpers         = 'latest'
     invokeBuild          = 'latest'
     pester               = 'latest'
     PSScriptAnalyzer     = 'latest'
