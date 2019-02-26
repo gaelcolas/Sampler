@@ -135,5 +135,34 @@ task Pester_if_Code_Coverage_Under_Threshold {
     }
 }
 
+# Synopsis: Uploading Unit Test results to AppVeyor
+task Upload_Unit_Test_Results_To_AppVeyor -If {(property BuildSystem 'unknown') -eq 'AppVeyor'} {
+
+    if (![io.path]::IsPathRooted($OutputDirectory)) {
+        $OutputDirectory = Join-Path -Path $ProjectPath -ChildPath $OutputDirectory
+        Write-Build Yellow "Absolute path to Output Directory is $OutputDirectory"
+    }
+
+    if (![io.path]::IsPathRooted($PesterOutputFolder)) {
+        $PesterOutputFolder = Join-Path $OutputDirectory $PesterOutputFolder
+    }
+
+    if (!(Test-Path $PesterOutputFolder)) {
+        Write-Build Yellow "Creating folder $PesterOutputFolder"
+        $null = mkdir -force $PesterOutputFolder -ErrorAction Stop
+    }
+
+    $PSVersion = 'PSv.{0}' -f $PSVersionTable.PSVersion
+    $PesterOutputFileFileName = "{0}_v{1}.PSVersion.{2}.xml" -f $ProjectName, $ModuleVersion, $PSVersion
+    $PesterOutputFullPath = Join-Path $PesterOutputFolder "$($PesterOutputFormat)_$PesterOutputFileFileName"
+
+    $TestResultFile = Get-Item $PesterOutputFullPath -ErrorAction Ignore
+    if($TestResultFile) {
+        Write-Build Green "  Uploading test results $TestResultFiles to Appveyor"
+        $TestResultFiles | Add-TestResultToAppveyor
+        Write-Build Green "  Upload Complete"
+    }
+}
+
 # Synopsis: Meta task that runs Quality Tests, and fails if they're not successful
-task Pester_Tests_Stop_On_Fail Invoke_pester_tests, Fail_Build_if_Pester_Tests_failed
+task Pester_Tests_Stop_On_Fail Invoke_pester_tests, Upload_Unit_Test_Results_To_AppVeyor, Fail_Build_if_Pester_Tests_failed
