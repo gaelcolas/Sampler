@@ -33,6 +33,9 @@ function Get-Something {
             Write-Verbose ('Returning the data: {0}' -f $Data)
             Get-PrivateFunction -PrivateData $Data
         }
+        else {
+            Write-Verbose 'oh dear'
+        }
     }
 
 }

@@ -60,6 +60,7 @@ task Invoke_pester_tests {
         CodeCoverageOutputFileFormat = 'JaCoCo'
         CodeCoverage                 = @($moduleUnderTest.path)
         CodeCoverageOutputFile       = (Join-Path $PesterOutputFolder "CodeCov_$PesterOutputFileFileName")
+        #ExcludeTag                   = 'FunctionalQuality', 'TestQuality', 'helpQuality'
     }
 
     # Test folders is specified, do not run invoke-pester against $BuildRoot
@@ -99,7 +100,8 @@ task Fail_if_Last_Code_Coverage_is_Under_Threshold {
     "`tResult Folder    = $BuildOutput\Unit\"
     "`tMin Coverage     = $CodeCoverageThreshold %"
     ''
-    $moduleUnderTest = Import-Module $ProjectName -PassThru
+    $moduleUnderTest = Import-Module $ProjectName -PassThru -ErrorAction Stop
+    $CodeCoverageReport = (Join-Path $PesterOutputFolder "CodeCov_$PesterOutputFileFileName")
 
     if (![io.path]::IsPathRooted($BuildOutput)) {
         $BuildOutput = Join-Path -Path $BuildRoot -ChildPath $BuildOutput

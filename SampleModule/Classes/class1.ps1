@@ -7,6 +7,7 @@ Class class1 {
 
     [String] ToString()
     {
+        # Typo "calss" is intentional
         return ( 'This calss is {0}' -f $this.Name)
     }
 }
