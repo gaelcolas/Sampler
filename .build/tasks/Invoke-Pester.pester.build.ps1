@@ -136,7 +136,7 @@ task Pester_if_Code_Coverage_Under_Threshold {
 }
 
 # Synopsis: Uploading Unit Test results to AppVeyor
-task Upload_Unit_Test_Results_To_AppVeyor -If {(property BuildSystem 'unknown') -eq 'AppVeyor'} {
+task Upload_Test_Results_To_AppVeyor -If {(property BuildSystem 'unknown') -eq 'AppVeyor'} {
 
     if (![io.path]::IsPathRooted($OutputDirectory)) {
         $OutputDirectory = Join-Path -Path $ProjectPath -ChildPath $OutputDirectory
@@ -165,4 +165,4 @@ task Upload_Unit_Test_Results_To_AppVeyor -If {(property BuildSystem 'unknown') 
 }
 
 # Synopsis: Meta task that runs Quality Tests, and fails if they're not successful
-task Pester_Tests_Stop_On_Fail Invoke_pester_tests, Upload_Unit_Test_Results_To_AppVeyor, Fail_Build_if_Pester_Tests_failed
+task Pester_Tests_Stop_On_Fail Invoke_pester_tests, Upload_Test_Results_To_AppVeyor, Fail_Build_if_Pester_Tests_failed
