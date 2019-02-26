@@ -158,8 +158,8 @@ task Upload_Test_Results_To_AppVeyor -If {(property BuildSystem 'unknown') -eq '
 
     $TestResultFile = Get-Item $PesterOutputFullPath -ErrorAction Ignore
     if($TestResultFile) {
-        Write-Build Green "  Uploading test results $TestResultFiles to Appveyor"
-        $TestResultFiles | Add-TestResultToAppveyor
+        Write-Build Green "  Uploading test results $TestResultFile to Appveyor"
+        $TestResultFile | Add-TestResultToAppveyor
         Write-Build Green "  Upload Complete"
     }
 }
