@@ -3,10 +3,10 @@
     CopyDirectories          = @(
         'DscResources'
     )
-    SubModules = CopyDirectories          = @(
-        './DscResources/*'
-    )
-    Path                     = "./SampleModule.psd1"
+    # SubModules = CopyDirectories          = @(
+    #     './DscResources/*'
+    # )
+    Path                     = "./Sampler.psd1"
     VersionedOutputDirectory = $true
-    OutputDirectory          = "../output/SampleModule"
+    OutputDirectory          = "../output/Sampler"
 }

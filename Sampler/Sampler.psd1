@@ -2,13 +2,13 @@
 @{
 
 # Script module or binary module file associated with this manifest.
-RootModule = 'SampleModule.psm1'
+RootModule = 'Sampler.psm1'
 
 # Version number of this module.
 ModuleVersion = '0.0.1'
 
 # ID used to uniquely identify this module
-GUID = '6ca2c80d-984c-4012-9010-0f6dcd06d1cc'
+GUID = 'b59b8442-9cf9-4c4b-bc40-035336ace573'
 
 # Author of this module
 Author = 'Gael Colas'
@@ -20,7 +20,7 @@ CompanyName = 'SynEdgy Limited'
 Copyright = '(c) 2017 Gael Colas. All rights reserved.'
 
 # Description of the functionality provided by this module
-Description = 'Sample Module to illustrate Build mechanism.'
+Description = 'Sample Module with Pipeline scripts and its Plaster template to create a module following some of the best community practices.'
 
 # Minimum version of the Windows PowerShell engine required by this module
 # PowerShellVersion = ''
@@ -42,7 +42,6 @@ Description = 'Sample Module to illustrate Build mechanism.'
 
 # Modules that must be imported into the global environment prior to importing this module
 RequiredModules = @(
-    #@{ ModuleName = 'ProtectedData'; ModuleVersion = '4.1.0' }
 )
 
 # Assemblies that must be loaded prior to importing this module

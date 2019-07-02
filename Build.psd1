@@ -1,6 +1,6 @@
 @{
-    Path                 = "./SampleModule/SampleModule.psd1"
-    OutputDirectory      = "./output/SampleModule"
+    Path                 = "./Sampler/Sampler.psd1"
+    OutputDirectory      = "./output/Sampler"
 
     BuildWorkflow        = @{
         '.' = @('Clean',
