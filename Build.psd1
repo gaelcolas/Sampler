@@ -13,7 +13,7 @@
     }
 
     'Resolve-Dependency' = @{
-        #PSDependTarget              = './output/modules'
+        #PSDependTarget  = './output/modules'
         #Proxy = ''
         #ProxyCredential
         Gallery         = 'PSGallery'

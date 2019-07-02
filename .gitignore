@@ -5,3 +5,4 @@ modules/*
 .kitchen.local.yml
 
 !**/README.md
+DscResource.tests

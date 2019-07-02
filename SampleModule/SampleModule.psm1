@@ -21,7 +21,7 @@ Foreach($import in @($Public + $Private))
     Try
     {
         Write-Verbose "Importing $($Import.FullName)"
-        . $import.fullname
+        . $import.FullName
     }
     Catch
     {

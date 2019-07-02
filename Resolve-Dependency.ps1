@@ -1,4 +1,35 @@
+<#PSScriptInfo
 
+.VERSION 0.0.1
+
+.GUID fc162bd7-b649-4398-bff0-180bc473920f
+
+.AUTHOR Gael Colas
+
+.COMPANYNAME SynEdgy Ltd
+
+.COPYRIGHT SynEdgy All rights Reserved
+
+.TAGS bootstrap pipeline CI CI/CD
+
+.LICENSEURI
+
+.PROJECTURI
+
+.ICONURI
+
+.EXTERNALMODULEDEPENDENCIES
+
+.REQUIREDSCRIPTS
+
+.EXTERNALSCRIPTDEPENDENCIES
+
+.RELEASENOTES
+ # This is where the ChangeLog should be
+
+.PRIVATEDATA
+
+#>
 [CmdletBinding()]
 param(
 
@@ -13,7 +44,7 @@ param(
     [uri]$Proxy,
 
     # Credential to contact the Proxy when provided
-    [pscredential]$ProxyCredential,
+    [PSCredential]$ProxyCredential,
 
     # Scope to bootstrap the PackageProvider and PSGet if not available
     [ValidateSet('CurrentUser', 'AllUsers')]
@@ -33,7 +64,9 @@ param(
     # Allow you to specify a minimum version fo PSDepend, if you're after specific features.
     [String]$MinimumPSDependVersion,
 
-    [Switch]$AllowPrerelease
+    [Switch]$AllowPrerelease,
+
+    [Switch]$WithYAML
 )
 
 Write-Progress -Activity "Bootstrap:" -PercentComplete 0 -CurrentOperation "NuGet Bootstrap"
@@ -47,13 +80,19 @@ if (!(Get-PackageProvider -Name NuGet -ForceBootstrap -ErrorAction SilentlyConti
     }
 
     switch ($PSBoundParameters.Keys) {
-        'Proxy' { $providerBootstrapParams.Add('Proxy', $Proxy) }
-        'ProxyCredential' { $providerBootstrapParams.Add('ProxyCredential', $ProxyCredential) }
-        'Scope' { $providerBootstrapParams.Add('Scope', $Scope) }
+        'Proxy' {
+            $providerBootstrapParams.Add('Proxy', $Proxy)
+        }
+        'ProxyCredential' {
+            $providerBootstrapParams.Add('ProxyCredential', $ProxyCredential)
+        }
+        'Scope' {
+            $providerBootstrapParams.Add('Scope', $Scope)
+        }
     }
 
-    if($AllowPrerelease) {
-        $providerBootstrapParams.Add('AllowPrerelease',$true)
+    if ($AllowPrerelease) {
+        $providerBootstrapParams.Add('AllowPrerelease', $true)
     }
 
     Write-Information "Bootstrap: Installing NuGet Package Provider from the web (Make sure Microsoft addresses/ranges are allowed)"
@@ -87,9 +126,15 @@ if (!$PowerShellGetVersion -or ($PowerShellGetVersion -lt [System.version]'1.6.0
     }
 
     switch ($PSBoundParameters.Keys) {
-        'Proxy' { $InstallPSGetParam.Add('Proxy', $Proxy) }
-        'ProxyCredential' { $InstallPSGetParam.Add('ProxyCredential', $ProxyCredential) }
-        'GalleryCredential' { $InstallPSGetParam.Add('Credential', $GalleryCredential)}
+        'Proxy' {
+            $InstallPSGetParam.Add('Proxy', $Proxy)
+        }
+        'ProxyCredential' {
+            $InstallPSGetParam.Add('ProxyCredential', $ProxyCredential)
+        }
+        'GalleryCredential' {
+            $InstallPSGetParam.Add('Credential', $GalleryCredential)
+        }
     }
 
     Install-Module @InstallPSGetParam
@@ -118,7 +163,7 @@ catch {
     if ($PSDependTarget -in 'CurrentUser', 'AllUsers') {
         Write-Debug "PSDepend module not found. Attempting to install from Gallery $Gallery"
         Write-Verbose "Installing PSDepend in $PSDependTarget Scope"
-        $InstallPSdependParam = @{
+        $InstallPSDependParam = @{
             Name               = 'PSDepend'
             Repository         = $Gallery
             Force              = $true
@@ -128,26 +173,43 @@ catch {
         }
 
         if ($MinimumPSDependVersion) {
-            $InstallPSdependParam.add('MinimumVersion', $MinimumPSDependVersion)
+            $InstallPSDependParam.add('MinimumVersion', $MinimumPSDependVersion)
         }
 
         Write-Progress -Activity "Bootstrap:" -PercentComplete 75 -CurrentOperation "Installing PSDepend from $Gallery"
-        Install-Module @InstallPSdependParam
+        Install-Module @InstallPSDependParam
     }
     else {
         Write-Debug "PSDepend module not found. Attempting to Save from Gallery $Gallery to $PSDependTarget"
-        $SaveModuelParam = @{
+        $SaveModuleParam = @{
             Name       = 'PSDepend'
             Repository = $Gallery
             Path       = $PSDependTarget
         }
 
         if ($MinimumPSDependVersion) {
-            $SaveModuelParam.add('MinimumVersion', $MinimumPSDependVersion)
+            $SaveModuleParam.add('MinimumVersion', $MinimumPSDependVersion)
         }
 
         Write-Progress -Activity "Bootstrap:" -PercentComplete 75 -CurrentOperation "Saving & Importing PSDepend from $Gallery to $Scope"
-        Save-Module @SaveModuelParam
+        Save-Module @SaveModuleParam
+    }
+
+    if ($WithYAML) {
+        if (-Not (Get-Module -ListAvailable -Name 'PowerShell-Yaml')) {
+            Write-Debug "PowerShell-Yaml module not found. Attempting to Save from Gallery $Gallery to $PSDependTarget"
+            $SaveModuleParam = @{
+                Name       = 'PowerShell-Yaml'
+                Repository = $Gallery
+                Path       = $PSDependTarget
+            }
+
+            Save-Module @SaveModuleParam
+            Import-Module "PowerShell-Yaml"
+        }
+        else {
+            Write-Verbose "PowerShell-Yaml is already available"
+        }
     }
 }
 finally {
@@ -163,9 +225,9 @@ if (Test-Path $DependencyFile) {
         Path  = $DependencyFile
     }
 
-    if ($PSDependTarget) {
-        $PSDependParams.add('Target', $PSDependTarget)
-    }
+    # if ($PSDependTarget) {
+    #     $PSDependParams.add('Target', $PSDependTarget)
+    # }
 
     Invoke-PSDepend @PSDependParams
 }

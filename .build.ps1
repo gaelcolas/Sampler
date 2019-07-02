@@ -6,7 +6,7 @@ param(
 
     $BuildConfig = './Build.psd1',
 
-    # A Specific folder to build the artfeacts into.
+    # A Specific folder to build the artefact into.
     $OutputDirectory = 'output',
 
     # Can be a path (relative to $PSScriptRoot or absolute) to tell Resolve-Dependency & PSDepend where to save the required modules,
@@ -15,6 +15,7 @@ param(
     # This defaults to $OutputDirectory/modules (by default: ./output/modules)
     $RequiredModulesDirectory = $(Join-path $OutputDirectory 'RequiredModules'),
 
+    [Alias('bootstrap')]
     [switch]$ResolveDependency
 )
 
@@ -22,7 +23,7 @@ param(
 
 Process {
 
-    if ($MyInvocation.ScriptName -notlike '*Invoke-Build.ps1') {
+    if ($MyInvocation.ScriptName -notLike '*Invoke-Build.ps1') {
         # Only run this within InvokeBuild (Look at the Begin block at the bottom of this script)
         return
     }
@@ -72,7 +73,7 @@ Process {
 
         #     Upload_Unit_Test_Results_To_AppVeyor,
         #     Fail_Build_if_Unit_Test_Failed,
-        #     Fail_if_Last_Code_Converage_is_Under_Threshold,
+        #     Fail_if_Last_Code_Coverage_is_Under_Threshold,
         #     IntegrationTests,
         #     Deploy_with_PSDeploy
 
@@ -85,24 +86,24 @@ Process {
 Begin {
     # Bootstrapping the environment before using Invoke-Build as task runner
 
-    if ($MyInvocation.ScriptName -notlike '*Invoke-Build.ps1') {
+    if ($MyInvocation.ScriptName -notLike '*Invoke-Build.ps1') {
         Write-Host -foregroundColor Green "[pre-build] Starting Build Init"
         Push-Location $PSScriptRoot -StackName BuildModule
     }
 
     if ($RequiredModulesDirectory -in @('CurrentUser', 'AllUsers')) {
         # Installing modules instead of saving them
-        Write-Host -foregroundColor Green "[pre-build] Required Modules will be installed, not saved."
+        Write-Host -foregroundColor Green "[pre-build] Required Modules will be installed for $RequiredModulesDirectory, not saved."
         # Tell Resolve-Dependency to use provided scope as the -PSDependTarget if not overridden in Build.psd1
         $PSDependTarget = $RequiredModulesDirectory
     }
     else {
-        if (![io.path]::IsPathRooted($OutputDirectory)) {
+        if (-Not (Split-Path -IsAbsolute -Path $OutputDirectory)) {
             $OutputDirectory = Join-Path -Path $PSScriptRoot -ChildPath $OutputDirectory
         }
 
         # Resolving the absolute path to save the required modules to
-        if (![io.path]::IsPathRooted($RequiredModulesDirectory)) {
+        if (-Not (Split-Path -IsAbsolute -Path $RequiredModulesDirectory)) {
             $RequiredModulesDirectory = Join-Path -Path $PSScriptRoot -ChildPath $RequiredModulesDirectory
         }
 
@@ -113,23 +114,22 @@ Begin {
         }
         else {
             Write-Host -foregroundColor Green "[pre-build] Creating required modules directory $RequiredModulesDirectory."
-            $RequiredModulesPath = (mkdir -Force $RequiredModulesDirectory).FullName
+            $RequiredModulesPath = (New-Item -ItemType Directory -Force -Path $RequiredModulesDirectory).FullName
         }
 
 
         # Prepending $RequiredModulesPath folder to PSModulePath to resolve from this folder FIRST
-        if ($RequiredModulesDirectory -notin @('CurrentUser', 'AllUsers') -and
-            (($Env:PSModulePath -split ';') -notcontains $RequiredModulesDirectory)) {
+        if ($RequiredModulesDirectory -notIn @('CurrentUser', 'AllUsers') -and
+            (($Env:PSModulePath -split ';') -notContains $RequiredModulesDirectory)) {
             Write-Host -foregroundColor Green "[pre-build] Prepending '$RequiredModulesDirectory' folder to PSModulePath"
             $Env:PSModulePath = $RequiredModulesDirectory + ';' + $Env:PSModulePath
         }
 
         # Prepending $OutputDirectory folder to PSModulePath to resolve built module from this folder
-        if (($Env:PSModulePath -split ';') -notcontains $OutputDirectory) {
+        if (($Env:PSModulePath -split ';') -notContains $OutputDirectory) {
             Write-Host -foregroundColor Green "[pre-build] Prepending '$OutputDirectory' folder to PSModulePath"
             $Env:PSModulePath = $OutputDirectory + ';' + $Env:PSModulePath
         }
-
 
         # Tell Resolve-Dependency to use $RequiredModulesPath as -PSDependTarget if not overridden in Build.psd1
         $PSDependTarget = $RequiredModulesPath
@@ -176,11 +176,11 @@ Begin {
         .\Resolve-Dependency.ps1 @ResolveDependencyParams
     }
 
-    if ($MyInvocation.ScriptName -notlike '*Invoke-Build.ps1') {
+    if ($MyInvocation.ScriptName -notLike '*Invoke-Build.ps1') {
         Write-Verbose "Bootstrap completed. Handing back to InvokeBuild."
-        if ($PSboundParameters.ContainsKey('ResolveDependency')) {
+        if ($PSBoundParameters.ContainsKey('ResolveDependency')) {
             Write-Verbose "Dependency already resolved. Removing task"
-            $null = $PSboundParameters.Remove('ResolveDependency')
+            $null = $PSBoundParameters.Remove('ResolveDependency')
         }
         Write-Host -foregroundColor Green "[build] Starting build with InvokeBuild."
         Invoke-Build @PSBoundParameters -Task $Tasks $MyInvocation.MyCommand.Path
