@@ -4,27 +4,36 @@ param(
     [Parameter(Position = 0)]
     [string[]]$Tasks = '.',
 
+    [Parameter()]
     $BuildConfig = './Build.psd1',
 
     # A Specific folder to build the artefact into.
+    [Parameter()]
     $OutputDirectory = 'output',
 
     # Can be a path (relative to $PSScriptRoot or absolute) to tell Resolve-Dependency & PSDepend where to save the required modules,
     # or use CurrentUser, AllUsers to target where to install missing dependencies
     # You can override the value for PSDepend in the Build.psd1 build manifest
     # This defaults to $OutputDirectory/modules (by default: ./output/modules)
+    [Parameter()]
     $RequiredModulesDirectory = $(Join-path $OutputDirectory 'RequiredModules'),
 
+    [Parameter()]
     [Alias('bootstrap')]
-    [switch]$ResolveDependency
+    [switch]$ResolveDependency,
+
+    [parameter(DontShow)]
+    [AllowNull()]
+    $BuildInfo
 )
 
 # The BEGIN block (at the end of this file) handles the Bootstrap of the Environment before Invoke-Build can run the tasks
+# if the -ResolveDependency (aka Bootstrap) is specified, the modules are already available, and can be auto loaded
 
 Process {
 
     if ($MyInvocation.ScriptName -notLike '*Invoke-Build.ps1') {
-        # Only run this within InvokeBuild (Look at the Begin block at the bottom of this script)
+        # Only run the process block through InvokeBuild (Look at the Begin block at the bottom of this script)
         return
     }
 
@@ -34,14 +43,18 @@ Process {
     try {
         Write-Host -ForeGroundColor magenta "[build] Parsing defined tasks"
 
-        # The Build Configuration may be absent or invalid
-        try {
-            $BuildInfo = Import-PowerShellDataFile -Path $BuildConfig
-        }
-        catch {
-            $BuildInfo = @{}
+        # Load Default BuildInfo if not provided as parameter
+        # TODO: Replace with PoShCode/Configuration ~Get-DefaultParameter when available
+        if (!$BuildInfo) {
+            try {
+                $BuildInfo = Import-PowerShellDataFile -Path $BuildConfig
+            }
+            catch {
+                $BuildInfo = @{ }
+            }
         }
 
+        # If the Invoke-Build Task Header is specified in the Build Info, set it
         if ($BuildInfo.TaskHeader) {
             Set-BuildHeader ([scriptblock]::Create($BuildInfo.TaskHeader))
         }
@@ -52,10 +65,16 @@ Process {
             . $_.FullName
         }
 
-        # Synopsis: Empty task, useful to test the bootstrap process
-        task noop {}
+        if ($BuildInfo.ModuleBuildTasks) {
+            # TODO: Load Invoke-Build tasks from modules
+            # Maybe the tasks are exported in the Module's PSData
+            # Or we take a relative path to the ModuleBase
+        }
 
-        # Define
+        # Synopsis: Empty task, useful to test the bootstrap process
+        task noop { }
+
+        # Define default task sequence ("."), can be overridden in the $BuildInfo
         task .  Clean,
         Set_Build_Environment_Variables,
         Build_Module_ModuleBuilder,
@@ -63,7 +82,7 @@ Process {
         Pester_if_Code_Coverage_Under_Threshold
 
 
-        # Allow the BuildInfo to override the default Workflow (sequence of tasks)
+        # Load Invoke-Build task sequences/workflows from $BuildInfo
         foreach ($Workflow in $BuildInfo.BuildWorkflow.keys) {
             Write-Verbose "Creating Build Workflow '$Workflow' with tasks $($BuildInfo.BuildWorkflow.($Workflow) -join ', ')"
             task $Workflow $BuildInfo.BuildWorkflow.($Workflow)
@@ -71,6 +90,7 @@ Process {
 
         Write-Host -ForeGroundColor magenta "[build] Executing requested workflow: $($Tasks -join ', ')"
 
+        # TODO: Integrate Remaining tasks with this new build
         #     Upload_Unit_Test_Results_To_AppVeyor,
         #     Fail_Build_if_Unit_Test_Failed,
         #     Fail_if_Last_Code_Coverage_is_Under_Threshold,
@@ -117,7 +137,6 @@ Begin {
             $RequiredModulesPath = (New-Item -ItemType Directory -Force -Path $RequiredModulesDirectory).FullName
         }
 
-
         # Prepending $RequiredModulesPath folder to PSModulePath to resolve from this folder FIRST
         if ($RequiredModulesDirectory -notIn @('CurrentUser', 'AllUsers') -and
             (($Env:PSModulePath -split ';') -notContains $RequiredModulesDirectory)) {
@@ -136,31 +155,15 @@ Begin {
     }
 
     if ($ResolveDependency) {
-        Write-Host -foregroundColor Green "[pre-build] Resolving dependencies."
-        try {
-            Write-Host -foregroundColor Green "[pre-build] Importing Build Info from '$BuildConfig'."
-            $BuildInfo = Import-PowerShellDataFile -Path $BuildConfig
-        }
-        catch {
-            Write-Verbose "Error attempting to import $($BuildConfig): $($_.Exception.Message)."
-            # File does not exist or not valid PSD1. Assume no Build Manifest available
-            $BuildInfo = @{}
-        }
-
-        $ResolveDependencyParams = @{}
-        $ResolveDependencyAvailableParams = (get-command .\Resolve-Dependency.ps1).parameters.keys
+        Write-Host -Object "[pre-build] Resolving dependencies." -foregroundColor Green
+        $ResolveDependencyParams = @{ }
+        $ResolveDependencyAvailableParams = (get-command -Name '.\Resolve-Dependency.ps1').parameters.keys
         foreach ($CmdParameter in $ResolveDependencyAvailableParams) {
 
-            # The parameter has been explicitly used for calling the Build.ps1
+            # The parameter has been explicitly used for calling the .build.ps1
             if ($MyInvocation.BoundParameters.ContainsKey($CmdParameter)) {
                 $ParamValue = $MyInvocation.BoundParameters.ContainsKey($CmdParameter)
                 Write-Debug " adding  $CmdParameter :: $ParamValue [from user-provided parameters to Build.ps1]"
-                $ResolveDependencyParams.Add($CmdParameter, $ParamValue)
-            }
-            # The Parameter is defined in the Build manifest
-            elseif ($BuildInfo.'Resolve-Dependency' -and $BuildInfo.'Resolve-Dependency'.ContainsKey($CmdParameter)) {
-                $ParamValue = $BuildInfo.'Resolve-Dependency'.($CmdParameter)
-                Write-Debug " adding  $CmdParameter :: $ParamValue [from Build Manifest]"
                 $ResolveDependencyParams.Add($CmdParameter, $ParamValue)
             }
             # Use defaults parameter value from Build.ps1, if any

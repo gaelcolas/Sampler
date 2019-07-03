@@ -12,17 +12,6 @@
         'test' = @('Pester_Tests_Stop_On_Fail','Pester_if_Code_Coverage_Under_Threshold')
     }
 
-    'Resolve-Dependency' = @{
-        #PSDependTarget  = './output/modules'
-        #Proxy = ''
-        #ProxyCredential
-        Gallery         = 'PSGallery'
-        # AllowOldPowerShellGetModule = $true
-        #MinimumPSDependVersion = '0.3.0'
-        AllowPrerelease = $false
-        Verbose         = $false
-    }
-
     TaskHeader           = '
         param($Path)
         ""
