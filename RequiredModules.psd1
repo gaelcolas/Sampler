@@ -16,6 +16,8 @@
 
     #required for DSC authoring
     xDscResourceDesigner = 'latest'
+
+    # Git Clone Used to test DSC Resources (This needs to be ported to a module)
     'PowerShell/DscResource.Tests' = @{
         Target = '.'
         parameters = @{
