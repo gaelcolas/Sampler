@@ -9,7 +9,7 @@
             'Pester_Tests_Stop_On_Fail',
             'Pester_if_Code_Coverage_Under_Threshold'
             )
-        'test' = @('Pester_Tests_Stop_On_Fail','Pester_if_Code_Coverage_Under_Threshold')
+        'test' = @('Build_Module_ModuleBuilder','Pester_Tests_Stop_On_Fail','Pester_if_Code_Coverage_Under_Threshold')
     }
 
     TaskHeader           = '

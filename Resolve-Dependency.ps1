@@ -96,7 +96,7 @@ try {
     }
 }
 catch {
-    Write-Warning -Message "Error attempting to import  Bootstrap default parameters from $(Join-Path $PSScriptRoot '.\Resolve-Dependency.psd1'): $($_.Exception.Message)."
+    Write-Warning -Message "Error attempting to import Bootstrap's default parameters from $(Join-Path $PSScriptRoot '.\Resolve-Dependency.psd1'): $($_.Exception.Message)."
 }
 
 Write-Progress -Activity "Bootstrap:" -PercentComplete 0 -CurrentOperation "NuGet Bootstrap"
