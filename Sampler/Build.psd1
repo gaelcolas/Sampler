@@ -3,9 +3,13 @@
     CopyDirectories          = @(
         'DscResources',
         'HelperSubmodule',
-        '..\.build\tasks'
+        '..\.build\tasks',
+        'en',
+        'assets',
+        'PlasterTemplate'
     )
-    # SubModules = CopyDirectories          = @(
+    suffix = 'suffix.ps1'
+        # SubModules = CopyDirectories          = @(
     #     './DscResources/*'
     # )
     Path                     = "./Sampler.psd1"
