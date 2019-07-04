@@ -45,7 +45,7 @@ task Invoke_pester_tests {
 
     if (!(Test-Path $PesterOutputFolder)) {
         Write-Build Yellow "Creating folder $PesterOutputFolder"
-        $null = mkdir -force $PesterOutputFolder -ErrorAction Stop
+        $null = New-Item -ItemType Directory -force $PesterOutputFolder -ErrorAction Stop
     }
 
     $PSVersion = 'PSv.{0}' -f $PSVersionTable.PSVersion
@@ -149,7 +149,7 @@ task Upload_Test_Results_To_AppVeyor -If {(property BuildSystem 'unknown') -eq '
 
     if (!(Test-Path $PesterOutputFolder)) {
         Write-Build Yellow "Creating folder $PesterOutputFolder"
-        $null = mkdir -force $PesterOutputFolder -ErrorAction Stop
+        $null = New-Item -ItemType Directory -force $PesterOutputFolder -ErrorAction Stop
     }
 
     $PSVersion = 'PSv.{0}' -f $PSVersionTable.PSVersion

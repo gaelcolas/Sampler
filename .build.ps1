@@ -18,6 +18,8 @@ param(
     [Parameter()]
     $RequiredModulesDirectory = $(Join-path $OutputDirectory 'RequiredModules'),
 
+    $CodeCoverageThreshold = 80,
+
     [Parameter()]
     [Alias('bootstrap')]
     [switch]$ResolveDependency,
