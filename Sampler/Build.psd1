@@ -2,7 +2,8 @@
     RequiredModules          = "./RequiredModules.psd1"
     CopyDirectories          = @(
         'DscResources',
-        'HelperSubmodule'
+        'HelperSubmodule',
+        '..\.build\tasks'
     )
     # SubModules = CopyDirectories          = @(
     #     './DscResources/*'
