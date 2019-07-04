@@ -267,7 +267,7 @@ Begin {
             # Use defaults parameter value from Build.ps1, if any
             else {
                 if ($ParamValue = Get-Variable -Name $CmdParameter -ValueOnly -ErrorAction Ignore) {
-                    Write-Debug " adding  $CmdParameter :: $ParamValue [from default Build.ps1 variable]"
+                    Write-Host " adding  $CmdParameter :: $ParamValue [from default Build.ps1 variable]"
                     $ResolveDependencyParams.add($CmdParameter, $ParamValue)
                 }
             }

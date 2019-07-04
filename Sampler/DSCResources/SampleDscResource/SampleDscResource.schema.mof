@@ -1,0 +1,7 @@
+
+[ClassVersion("1.0.0.0"), FriendlyName("SampleDscResource")]
+class SampleDscResource : OMI_BaseResource
+{
+    [Read, Description("Says whether the thing is installed on the machine."), ValueMap{"Present","Absent"}, Values{"Present","Absent"}] String Ensure;
+    [Key, Description("At least one property of the DSC resource must be a key")] String InstallKey;
+};
