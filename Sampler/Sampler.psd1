@@ -69,7 +69,7 @@ CmdletsToExport = ''
 VariablesToExport = ''
 
 # Aliases to export from this module
-AliasesToExport =   ''
+AliasesToExport =   '*'
 
 # List of all modules packaged with this module
 # ModuleList = @()
