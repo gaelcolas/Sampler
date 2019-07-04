@@ -4,4 +4,5 @@ Get-ChildItem (Join-Path -Path $PSScriptRoot -ChildPath 'tasks') | ForEach-Objec
     $taskFileAliasName = "$($_.BaseName).$ModuleName.ib.tasks"
     Set-Alias -Name $taskFileAliasName -Value $_.FullName
     Export-ModuleMember -Alias $taskFileAliasName
+
 }
