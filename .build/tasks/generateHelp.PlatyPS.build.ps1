@@ -47,6 +47,6 @@ Task GenerateMamlFromMd {
     }
     $BuiltModuleFolder = [io.Path]::Combine($BuildOutput,$ProjectName)
 
-    New-ExternalHelp -Path "$ProjectPath\$SourceFolder\$HelpFolder" -OutputPath "$BuiltModuleFolder\$HelpCultureInfo" -Force
+    New-ExternalHelp -Path "$ProjectPath/$SourceFolder/$HelpFolder" -OutputPath "$(Join-Path $BuiltModuleFolder $HelpCultureInfo)" -Force
 
 }

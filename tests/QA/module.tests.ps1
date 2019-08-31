@@ -1,9 +1,11 @@
 $here = Split-Path -Parent $MyInvocation.MyCommand.Path
-$sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
 
-$modulePath = "$here\..\.."
+# Convert-path required for PS7 or Join-Path fails
+$modulePath = "$here/../.." | Convert-Path
 $moduleName = Split-Path -Path $modulePath -Leaf
-$modulePath = Join-Path $modulePath $moduleName
+$modulePath = Join-Path -Path $modulePath  -ChildPath $moduleName
+
+
 
 Describe 'General module control' -Tags 'FunctionalQuality'  {
 

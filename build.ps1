@@ -1,3 +1,35 @@
+
+<#PSScriptInfo
+
+.VERSION 0.1.0
+
+.GUID 2720e889-1287-4cab-8945-01a7f89b53cc
+
+.AUTHOR Gael Colas
+
+.COMPANYNAME SynEdgy Limited
+
+.COPYRIGHT (c) SynEdgy, All rights reserved
+
+.TAGS build powershell module bootstrap InvokeBuild tasks template
+
+.LICENSEURI
+
+.PROJECTURI https://github.com/gaelcolas/sampler
+
+.ICONURI
+
+.RELEASENOTES
+Initial version
+
+#>
+
+<#
+
+.DESCRIPTION
+ Bootstrap and build script for PowerShell module pipeline
+
+#>
 [CmdletBinding()]
 param(
 
@@ -5,7 +37,10 @@ param(
     [string[]]$Tasks = '.',
 
     [Parameter()]
-    $BuildConfig = './Build.psd1',
+    [validateScript(
+        { Test-Path -Path $_ }
+    )]
+    $BuildConfig = './Build.yaml',
 
     # A Specific folder to build the artefact into.
     [Parameter()]
@@ -18,7 +53,19 @@ param(
     [Parameter()]
     $RequiredModulesDirectory = $(Join-path $OutputDirectory 'RequiredModules'),
 
-    $CodeCoverageThreshold = 80,
+    # Filter which tags to run when invoking Pester tests
+    # This is used in the Invoke-Pester.pester.build.ps1 tasks
+    [string[]]
+    [parameter()]
+    $PesterTag,
+
+    # Filter which tags to exclude when invoking Pester tests
+    # This is used in the Invoke-Pester.pester.build.ps1 tasks
+    [string[]]
+    [parameter()]
+    $PesterExcludeTag,
+
+    $CodeCoverageThreshold = 0,
 
     [Parameter()]
     [Alias('bootstrap')]
@@ -46,13 +93,41 @@ Process {
         Write-Host -ForeGroundColor magenta "[build] Parsing defined tasks"
 
         # Load Default BuildInfo if not provided as parameter
-        # TODO: Replace with PoShCode/Configuration ~Get-DefaultParameter when available
         if (!$BuildInfo) {
             try {
-                $BuildInfo = Import-PowerShellDataFile -Path $BuildConfig
+                if (Test-Path $BuildConfig) {
+                    $ConfigFile = (Get-Item -Path $BuildConfig)
+                    $BuildInfo = switch -Regex ($ConfigFile.Extension) {
+                        # Native Support for PSD1
+                        '\.psd1' {
+                            Import-PowerShellDataFile -Path $BuildConfig
+                        }
+                        # Support for yaml when module PowerShell-Yaml is available
+                        '\.[yaml|yml]' {
+                            Import-Module -ErrorAction Stop -Name 'powershell-yaml'
+                            ConvertFrom-Yaml -Yaml (Get-Content -Raw $ConfigFile)
+                        }
+                        # Native Support for JSON and JSONC (by Removing comments)
+                        '\.[json|jsonc]' {
+                            $JSONC = (Get-Content -Raw -Path $ConfigFile)
+                            $JSON = $JSONC -replace '(?m)\s*//.*?$' -replace '(?ms)/\*.*?\*/'
+                            # This should probably be converted to hashtable for splatting
+                            $JSON | ConvertFrom-Json
+                        }
+                        default {
+                            Write-Error "Extension '$_' not supported. using @{}"
+                            @{ }
+                        }
+                    }
+                }
+                else {
+                    $BuildInfo = @{ }
+                }
             }
             catch {
+                Write-Host -Object "Error loading data from $ConfigFile" -ForegroundColor Red
                 $BuildInfo = @{ }
+                Write-Error $_.Exception.Message
             }
         }
 
@@ -61,28 +136,42 @@ Process {
             Set-BuildHeader ([scriptblock]::Create($BuildInfo.TaskHeader))
         }
 
-        # Loading Build Tasks defined in the .build/ folder
-        Get-ChildItem -Path ".build/" -Recurse -Include *.ps1 | Foreach-Object {
-            "Importing file $($_.BaseName)" | Write-Verbose
-            . $_.FullName
+        # Import Tasks from modules via their exported aliases when defined in BUild Manifest
+        # https://github.com/nightroman/Invoke-Build/tree/master/Tasks/Import#example-2-import-from-a-module-with-tasks
+        if ($BuildInfo.containsKey('ModuleBuildTasks')) {
+            foreach ($Module in $BuildInfo['ModuleBuildTasks'].Keys) {
+                try {
+                    $LoadedModule = Import-Module $Module -PassThru -ErrorAction Stop
+                    foreach ($TaskToExport in $BuildInfo['ModuleBuildTasks'][$Module]) {
+                        $LoadedModule.ExportedAliases.GetEnumerator().Where{
+                            # using -like to support wildcard
+                            $_.Key -like $TaskToExport
+                        }.ForEach{
+                            # Dot sourcing the Tasks via their exported aliases
+                            . (get-alias $_.Key)
+                        }
+                    }
+                }
+                catch {
+                    Write-Host -ForegroundColor Red -Object "Could not load tasks for module $Module."
+                    Write-Error $_
+                }
+            }
         }
 
-        if ($BuildInfo.ModuleBuildTasks) {
-            # TODO: Load Invoke-Build tasks from modules
-            # Maybe the tasks are exported in the Module's PSData
-            # Or we take a relative path to the ModuleBase
+        # Loading Build Tasks defined in the .build/ folder (will override the ones imported above if same task name)
+        Get-ChildItem -Path ".build/" -Recurse -Include *.ps1 -ErrorAction Ignore | Foreach-Object {
+            "Importing file $($_.BaseName)" | Write-Verbose
+            . $_.FullName
         }
 
         # Synopsis: Empty task, useful to test the bootstrap process
         task noop { }
 
         # Define default task sequence ("."), can be overridden in the $BuildInfo
-        task .  Clean,
-        Set_Build_Environment_Variables,
-        Build_Module_ModuleBuilder,
-        Pester_Tests_Stop_On_Fail,
-        Pester_if_Code_Coverage_Under_Threshold
-
+        task . {
+            Write-Build Yellow "No sequence currently defined for the default task"
+        }
 
         # Load Invoke-Build task sequences/workflows from $BuildInfo
         foreach ($Workflow in $BuildInfo.BuildWorkflow.keys) {
@@ -91,13 +180,6 @@ Process {
         }
 
         Write-Host -ForeGroundColor magenta "[build] Executing requested workflow: $($Tasks -join ', ')"
-
-        # TODO: Integrate Remaining tasks with this new build
-        #     Upload_Unit_Test_Results_To_AppVeyor,
-        #     Fail_Build_if_Unit_Test_Failed,
-        #     Fail_if_Last_Code_Coverage_is_Under_Threshold,
-        #     IntegrationTests,
-        #     Deploy_with_PSDeploy
 
     }
     finally {
@@ -141,15 +223,15 @@ Begin {
 
         # Prepending $RequiredModulesPath folder to PSModulePath to resolve from this folder FIRST
         if ($RequiredModulesDirectory -notIn @('CurrentUser', 'AllUsers') -and
-            (($Env:PSModulePath -split ';') -notContains $RequiredModulesDirectory)) {
+            (($Env:PSModulePath -split [io.path]::PathSeparator) -notContains $RequiredModulesDirectory)) {
             Write-Host -foregroundColor Green "[pre-build] Prepending '$RequiredModulesDirectory' folder to PSModulePath"
-            $Env:PSModulePath = $RequiredModulesDirectory + ';' + $Env:PSModulePath
+            $Env:PSModulePath = $RequiredModulesDirectory + [io.path]::PathSeparator + $Env:PSModulePath
         }
 
         # Prepending $OutputDirectory folder to PSModulePath to resolve built module from this folder
-        if (($Env:PSModulePath -split ';') -notContains $OutputDirectory) {
+        if (($Env:PSModulePath -split [io.path]::PathSeparator) -notContains $OutputDirectory) {
             Write-Host -foregroundColor Green "[pre-build] Prepending '$OutputDirectory' folder to PSModulePath"
-            $Env:PSModulePath = $OutputDirectory + ';' + $Env:PSModulePath
+            $Env:PSModulePath = $OutputDirectory + [io.path]::PathSeparator + $Env:PSModulePath
         }
 
         # Tell Resolve-Dependency to use $RequiredModulesPath as -PSDependTarget if not overridden in Build.psd1
@@ -159,6 +241,13 @@ Begin {
     if ($ResolveDependency) {
         Write-Host -Object "[pre-build] Resolving dependencies." -foregroundColor Green
         $ResolveDependencyParams = @{ }
+
+        # If BuildConfig is a Yaml file, bootstrap powershell-yaml via ResolveDependency
+        if ($BuildConfig -match '\.[yaml|yml]$') {
+            $ResolveDependencyParams.add('WithYaml', $True)
+        }
+
+        # TODO: 3 way merge: BoundParameter over BuildInfo over Scope variables (i.e. defaults from args)
         $ResolveDependencyAvailableParams = (get-command -Name '.\Resolve-Dependency.ps1').parameters.keys
         foreach ($CmdParameter in $ResolveDependencyAvailableParams) {
 
@@ -188,7 +277,7 @@ Begin {
             $null = $PSBoundParameters.Remove('ResolveDependency')
         }
         Write-Host -foregroundColor Green "[build] Starting build with InvokeBuild."
-        Invoke-Build @PSBoundParameters -Task $Tasks $MyInvocation.MyCommand.Path
+        Invoke-Build @PSBoundParameters -Task $Tasks -File $MyInvocation.MyCommand.Path
         Pop-Location -StackName BuildModule
         return
     }

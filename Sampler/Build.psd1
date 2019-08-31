@@ -1,5 +1,4 @@
 @{
-    RequiredModules          = "./RequiredModules.psd1"
     CopyDirectories          = @(
         'DscResources',
         'HelperSubmodule',

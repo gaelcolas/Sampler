@@ -1,14 +1,36 @@
-Path: ./SampleModule/SampleModule.psd1
-OutputDirectory: ./output/SampleModule
+---
+####################################################
+#          ModuleBuilder Configuration             #
+####################################################
+# Path to the Module Manifest to build (where path will be resolved from)
+Path: ./Sampler/Sampler.psd1
+# Output Directory where ModuleBuilder will build the Module
+OutputDirectory: ./output/Sampler
+CopyDirectories:
+  - DscResources
+  - HelperSubmodule
+  - ..\.build\tasks
+  - en
+  - assets
+  - PlasterTemplate
 
+# Suffix to add to Root module PSM1 after merge (here, the Set-Alias)
+suffix: suffix.ps1
+VersionedOutputDirectory: true
+
+####################################################
+#       Sampler Pipeline Configuration             #
+####################################################
+# Defining 'Workflows' (suite of InvkeBuild tasks) to be run using their alias
 BuildWorkflow:
-  . : # . is the default InvokeBuild workflow
-    - Clean,
-    - Set_Build_Environment_Variables,
-    - Build_Module_ModuleBuilder,
-    - Pester_Tests_Stop_On_Fail,
+  '.': # "." is the default Invoke-Build workflow. It is called when no -Tasks is specified to the build.ps1
+    - Clean
+    - Set_Build_Environment_Variables
+    - Build_Module_ModuleBuilder
+    - Pester_Tests_Stop_On_Fail
     - Pester_if_Code_Coverage_Under_Threshold
 
+  # defining test task to be run when invoking `./build.ps1 -Tasks test`
   test:
     - Pester_Tests_Stop_On_Fail
     - Pester_if_Code_Coverage_Under_Threshold
@@ -23,7 +45,12 @@ Resolve-Dependency: #Parameters for Resolve-Dependency
   AllowPrerelease: false
   Verbose: false
 
-TaskHeader: >
+ModuleBuildTasks:
+#   # - ModuleName: 'alias to search'
+#   - Sampler: *.ib.tasks' # this means: import (dot source) all aliases ending with .ib.tasks exported by sampler module
+
+# Invoke-Build Header to be used to 'decorate' the terminal output of the tasks.
+TaskHeader: |
   param($Path)
   ""
   "=" * 79

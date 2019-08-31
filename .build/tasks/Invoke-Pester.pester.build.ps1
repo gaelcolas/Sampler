@@ -17,12 +17,18 @@ Param (
 
     [string[]]$PesterExcludeTag = (property PesterExcludeTag @()),
 
-    [string]$ModuleVersion = (property ModuleVersion $(
+    [string]
+    $ModuleVersion = (property ModuleVersion $(
             if (Get-Command gitversion) {
+                Write-Verbose "Using  ModuleVersion as resolved by gitversion"
                 (gitversion | ConvertFrom-Json).InformationalVersion
             }
-            else { '0.0.1' }
+            else {
+                Write-Verbose "Command gitversion not found, defaulting to 0.0.1"
+                '0.0.1'
+            }
         )),
+
     [int]$CodeCoverageThreshold = (property CodeCoverageThreshold 100)
 )
 
@@ -32,7 +38,7 @@ task Invoke_pester_tests {
     "`tProject Name  = $ProjectName"
     "`tTests         = $($PesterScript -join ', ')"
     "`tTags          = $($PesterTag -join ', ')"
-    "`tExclude Tags  = $($PesterExcludeTags -join ', ')"
+    "`tExclude Tags  = $($PesterExcludeTag -join ', ')"
 
     if (![io.path]::IsPathRooted($OutputDirectory)) {
         $OutputDirectory = Join-Path -Path $ProjectPath -ChildPath $OutputDirectory
@@ -62,6 +68,14 @@ task Invoke_pester_tests {
         CodeCoverage                 = @($moduleUnderTest.path)
         CodeCoverageOutputFile       = (Join-Path $PesterOutputFolder "CodeCov_$PesterOutputFileFileName")
         #ExcludeTag                   = 'FunctionalQuality', 'TestQuality', 'helpQuality'
+    }
+
+    if ($PesterExcludeTag) {
+        $PesterParams.Add('ExcludeTag',$PesterExcludeTag)
+    }
+
+    if ($PesterTag) {
+        $PesterParams.Add('Tag',$PesterTag)
     }
 
     # Test folders is specified, do not run invoke-pester against $BuildRoot

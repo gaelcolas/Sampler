@@ -1,6 +1,6 @@
 <#PSScriptInfo
 
-.VERSION 0.0.1
+.VERSION 0.1.0
 
 .GUID fc162bd7-b649-4398-bff0-180bc473920f
 
@@ -14,20 +14,10 @@
 
 .LICENSEURI
 
-.PROJECTURI
-
-.ICONURI
-
-.EXTERNALMODULEDEPENDENCIES
-
-.REQUIREDSCRIPTS
-
-.EXTERNALSCRIPTDEPENDENCIES
+.PROJECTURI https://github.com/gaelcolas/sampler
 
 .RELEASENOTES
  # This is where the ChangeLog should be
-
-.PRIVATEDATA
 
 #>
 [CmdletBinding()]

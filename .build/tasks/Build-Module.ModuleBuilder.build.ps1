@@ -37,8 +37,5 @@ Task Build_Module_ModuleBuilder {
     #     BuildMetaData
     # }
     "Module version is $ModuleVersion"
-    "Git Version says: $((gitversion | ConvertFrom-Json).InformationalVersion)"
-
     Build-Module -SourcePath $SourcePath -SemVer $ModuleVersion
-
 }
