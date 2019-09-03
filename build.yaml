@@ -9,11 +9,11 @@ OutputDirectory: ./output/Sampler
 CopyDirectories:
   - DscResources
   - HelperSubmodule
-  - ..\.build\tasks
+  - ../.build/tasks
   - en
   - assets
   - PlasterTemplate
-
+verbose: true
 # Suffix to add to Root module PSM1 after merge (here, the Set-Alias)
 suffix: suffix.ps1
 VersionedOutputDirectory: true
@@ -23,10 +23,22 @@ VersionedOutputDirectory: true
 ####################################################
 # Defining 'Workflows' (suite of InvkeBuild tasks) to be run using their alias
 BuildWorkflow:
+  CopyPlaster: |
+    {
+      # Create a Build task from the Yaml (Because we dont want this task to be in the .build folder)
+      # so that it's not copied and made accessible in the Sampler Module.
+      $PlasterTemplateFolder = Get-Item ./output/Sampler/*/PlasterTemplate
+      $ToCopy = gci . -Exclude .git,output
+      foreach ($item in $toCopy) {
+        Copy-Item -recurse -Force -Path $item -Destination (Join-Path $PlasterTemplateFolder $item.Name)
+      }
+    }
+
   '.': # "." is the default Invoke-Build workflow. It is called when no -Tasks is specified to the build.ps1
     - Clean
     - Set_Build_Environment_Variables
     - Build_Module_ModuleBuilder
+    - CopyPlaster
     - Pester_Tests_Stop_On_Fail
     - Pester_if_Code_Coverage_Under_Threshold
 

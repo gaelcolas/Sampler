@@ -176,7 +176,11 @@ Process {
         # Load Invoke-Build task sequences/workflows from $BuildInfo
         foreach ($Workflow in $BuildInfo.BuildWorkflow.keys) {
             Write-Verbose "Creating Build Workflow '$Workflow' with tasks $($BuildInfo.BuildWorkflow.($Workflow) -join ', ')"
-            task $Workflow $BuildInfo.BuildWorkflow.($Workflow)
+            $WorkflowItem = $BuildInfo.BuildWorkflow.($Workflow)
+            if ($WorkflowItem.Trim() -match '^\{(?<sb>[\w\W]*)\}$') {
+                $WorkflowItem = [ScriptBlock]::Create($Matches['sb'])
+            }
+            task $Workflow $WorkflowItem
         }
 
         Write-Host -ForeGroundColor magenta "[build] Executing requested workflow: $($Tasks -join ', ')"
