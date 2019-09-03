@@ -7,6 +7,7 @@
 # Output Directory where ModuleBuilder will build the Module, relative to module manifest
 # OutputDirectory: ../output/Sampler
 CopyDirectories:
+<<<<<<< HEAD
   - DSCResources
   #- HelperSubmodule # This will be built as submodule instead
   - ../.build/tasks
@@ -15,6 +16,16 @@ CopyDirectories:
   - PlasterTemplate
 
 # Suffix to add to Root module PSM1 after merge (here, the Set-Alias exporting IB tasks)
+=======
+  - DscResources
+  - HelperSubmodule
+  - ../.build/tasks
+  - en
+  - assets
+  - PlasterTemplate
+verbose: true
+# Suffix to add to Root module PSM1 after merge (here, the Set-Alias)
+>>>>>>> adding create tasks from BuildInfo.BuildWorkflow
 suffix: suffix.ps1
 VersionedOutputDirectory: true
 
@@ -68,7 +79,10 @@ BuildWorkflow:
     - Clean
     - Set_Build_Environment_Variables
     - Build_Module_ModuleBuilder
+<<<<<<< HEAD
     - Build_NestedModules_ModuleBuilder
+=======
+>>>>>>> adding create tasks from BuildInfo.BuildWorkflow
     - CopyPlaster
     - Pester_Tests_Stop_On_Fail
     - Pester_if_Code_Coverage_Under_Threshold
