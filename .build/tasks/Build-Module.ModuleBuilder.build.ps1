@@ -3,7 +3,7 @@ Param (
     [string]
     $ProjectName = (property ProjectName (Split-Path -Leaf $BuildRoot) ),
 
-    $SourcePath = (property SourcePath (Join-path $BuildRoot "$Projectname/[Bb]uild.psd1")),
+    $SourcePath = (property SourcePath (Join-path $BuildRoot "$ProjectName/[Bb]uild.psd1")),
 
     [string]
     $SourceFolder = $ProjectName,

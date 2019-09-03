@@ -2,7 +2,7 @@
     CopyDirectories          = @(
         'DscResources',
         'HelperSubmodule',
-        '..\.build\tasks',
+        '../.build/tasks',
         'en',
         'assets',
         'PlasterTemplate'

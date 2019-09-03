@@ -10,5 +10,14 @@
     "powershell.codeFormatting.preset": "Custom",
     "files.trimTrailingWhitespace": true,
     "files.insertFinalNewline": true,
-    "powershell.scriptAnalysis.settingsPath": ".vscode\\analyzersettings.psd1"
+    "powershell.scriptAnalysis.settingsPath": ".vscode\\analyzersettings.psd1",
+    "powershell.scriptAnalysis.enable": true,
+    "files.associations": {
+        "*.ps1xml": "xml"
+    },
+    "cSpell.words": [
+        "buildhelpers",
+        "gitversion",
+        "pscmdlet"
+    ]
 }

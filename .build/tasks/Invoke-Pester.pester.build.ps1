@@ -95,8 +95,8 @@ task Invoke_pester_tests {
 
     $script:TestResults = Invoke-Pester @PesterParams -Verbose
 
-    $PesterResultObjectClixml = Join-Path $PesterOutputFolder "PesterObject_$PesterOutputFileFileName"
-    $null = $script:TestResults | Export-Clixml -Path $PesterResultObjectClixml -Force
+    $PesterResultObjectCliXml = Join-Path $PesterOutputFolder "PesterObject_$PesterOutputFileFileName"
+    $null = $script:TestResults | Export-CliXml -Path $PesterResultObjectCliXml -Force
 
 }
 

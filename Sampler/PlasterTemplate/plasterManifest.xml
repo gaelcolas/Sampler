@@ -3,10 +3,10 @@
   schemaVersion="1.0" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
   <metadata>
     <name>Sampler</name>
-    <id>e46ca074-08e9-4a4b-8c87-e927ffb8c98e</id>
+    <id>01ff2349-1b77-46dd-a247-ce056aae043c</id>
     <version>0.0.1</version>
     <title>Sampler Module Template</title>
-    <description>Sample Module Template with Build bootstrap</description>
+    <description>Sampler Module Template with bootstrap</description>
     <author>Gael Colas</author>
     <tags>Template, Build, Module</tags>
   </metadata>
@@ -59,6 +59,12 @@
       <choice label='&amp;None'
               help="No license specified."
               value="None" />
+    </parameter>
+
+    <parameter store="text" name="SourceDirectory" type="choice" prompt="What name do you give your source folder?" default="1" condition="">
+          <choice label="&amp;The Module's name (${PLASTER_PARAM_ModuleName})" value="${PLASTER_PARAM_ModuleName}" />
+          <choice label="&amp;source" value="source" />
+          <choice label="&amp;src" value="src" />
     </parameter>
 
     <parameter name="Features" type="multichoice" prompt="What feature would you like to add to your project?" default="0" condition='$PLASTER_PARAM_ModuleType -eq "CustomModule"' >
@@ -127,7 +133,7 @@
   <content>
     <!-- MODULES FOLDER SCAFFOLDING -->
     <file source=''
-          destination='${PLASTER_PARAM_ModuleName}/media'
+          destination='${PLASTER_PARAM_ModuleName}/assets'
           condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CustomModule","CompleteModule_NoBuild","SharedDscConfig")'
     />
 

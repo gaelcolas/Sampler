@@ -4,7 +4,6 @@
 
 This project is a Module and template for PowerShell module and DSC Resources with a PowerShell Build Pipeline.
 
-
 ## Goal
 
 The goal is to use my learnings from (and since) the [`gaelcolas/SampleModule`](https://github.com/gaelcolas/SampleModule/) experiment, and bring that up in a production-ready module and Plaster template, including DSC Resources, and implementing Build definition.

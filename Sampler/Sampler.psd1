@@ -17,13 +17,13 @@ Author = 'Gael Colas'
 CompanyName = 'SynEdgy Limited'
 
 # Copyright statement for this module
-Copyright = '(c) 2017 Gael Colas. All rights reserved.'
+Copyright = '(c) Gael Colas. All rights reserved.'
 
 # Description of the functionality provided by this module
-Description = 'Sample Module with Pipeline scripts and its Plaster template to create a module following some of the best community practices.'
+Description = 'Sample Module with Pipeline scripts and its Plaster template to create a module following some of the community accepted practices.'
 
 # Minimum version of the Windows PowerShell engine required by this module
-# PowerShellVersion = ''
+PowerShellVersion = '5.1'
 
 # Name of the Windows PowerShell host required by this module
 # PowerShellHostName = ''
@@ -42,6 +42,7 @@ Description = 'Sample Module with Pipeline scripts and its Plaster template to c
 
 # Modules that must be imported into the global environment prior to importing this module
 RequiredModules = @(
+    'Plaster'
 )
 
 # Assemblies that must be loaded prior to importing this module
@@ -83,13 +84,13 @@ PrivateData = @{
         PSData = @{
 
             # Tags applied to this module. These help with module discovery in online galleries.
-            Tags = @()
+            Tags = @('Template','pipeline','plaster','DesiredStateConfiguration', 'DSC', 'DSCResourceKit', 'DSCResource')
 
             # A URL to the license for this module.
-            LicenseUri = ''
+            LicenseUri = 'https://github.com/gaelcolas/Sampler/blob/master/LICENSE'
 
             # A URL to the main website for this project.
-            ProjectUri = ''
+            ProjectUri = 'https://github.com/gaelcolas/Sampler'
 
             # A URL to an icon representing this module.
             IconUri = ''
