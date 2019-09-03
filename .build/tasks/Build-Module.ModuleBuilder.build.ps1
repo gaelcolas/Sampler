@@ -39,3 +39,21 @@ Task Build_Module_ModuleBuilder {
     "Module version is $ModuleVersion"
     Build-Module -SourcePath $SourcePath -SemVer $ModuleVersion
 }
+
+Task Build_NestedModules_ModuleBuilder {
+    Import-Module ModuleBuilder
+
+    $NestedModule = $BuildInfo.NestedModule
+    foreach ($NestedModuleName in $NestedModule.Keys) {
+        Write-Build -color yellow "Doing $NestedModuleName"
+        $BuildModuleParam = $NestedModule[$NestedModuleName]
+        $ModuleVersion = $ModuleVersion -replace '-.*'
+        $BuildModuleParam['OutputDirectory'] = $ExecutionContext.InvokeCommand.ExpandString($BuildModuleParam['OutputDirectory'])
+        Write-Build -color yellow "OutputDirectory for $NestedModuleName : $($BuildModuleParam['OutputDirectory'])"
+        if (-Not (Split-Path -IsAbsolute $BuildModuleParam['OutputDirectory'])) {
+            $BuildModuleParam['OutputDirectory'] = Join-Path -Path $BuildRoot -ChildPath $BuildModuleParam['OutputDirectory']
+            Write-Build -color White "Absolute Path is: $($BuildModuleParam['OutputDirectory'])"
+        }
+        Build-Module @BuildModuleParam
+    }
+}

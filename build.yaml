@@ -8,15 +8,30 @@ Path: ./Sampler/Sampler.psd1
 OutputDirectory: ./output/Sampler
 CopyDirectories:
   - DscResources
-  - HelperSubmodule
+  #- HelperSubmodule # This will be built to target instead
   - ../.build/tasks
   - en
   - assets
   - PlasterTemplate
-verbose: true
+
 # Suffix to add to Root module PSM1 after merge (here, the Set-Alias)
 suffix: suffix.ps1
 VersionedOutputDirectory: true
+
+####################################################
+#      ModuleBuilder Submodules Configuration      #
+####################################################
+
+NestedModule:
+  HelperSubmodule: # This is the first submodule to build into the output
+    Path: ./Sampler/HelperSubmodule/HelperSubmodule.psd1
+    # $ModuleVersion is trimmed (remove -.*) and OutputDirectory expanded (the only one)
+    OutputDirectory: ./output/Sampler/$ModuleVersion/HelperSubmodule
+    VersionedOutputDirectory: false
+    # suffix:
+    # prefix:
+
+
 
 ####################################################
 #       Sampler Pipeline Configuration             #
@@ -38,6 +53,7 @@ BuildWorkflow:
     - Clean
     - Set_Build_Environment_Variables
     - Build_Module_ModuleBuilder
+    - Build_NestedModules_ModuleBuilder
     - CopyPlaster
     - Pester_Tests_Stop_On_Fail
     - Pester_if_Code_Coverage_Under_Threshold
