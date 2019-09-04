@@ -93,7 +93,7 @@ Process {
         Write-Host -ForeGroundColor magenta "[build] Parsing defined tasks"
 
         # Load Default BuildInfo if not provided as parameter
-        if (!$BuildInfo) {
+        if (!$PSBoundParameters.ContainsKey('BuildInfo')) {
             try {
                 if (Test-Path $BuildConfig) {
                     $ConfigFile = (Get-Item -Path $BuildConfig)
@@ -180,6 +180,7 @@ Process {
             if ($WorkflowItem.Trim() -match '^\{(?<sb>[\w\W]*)\}$') {
                 $WorkflowItem = [ScriptBlock]::Create($Matches['sb'])
             }
+            Write-Host -ForegroundColor DarkGray "Adding $Workflow"
             task $Workflow $WorkflowItem
         }
 
