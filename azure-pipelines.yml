@@ -4,7 +4,7 @@ trigger:
 pool:
   name: Default
 
-variables:
+#variables:
 
 steps:
 - task: GitVersion@5
