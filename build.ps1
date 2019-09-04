@@ -65,7 +65,7 @@ param(
     [parameter()]
     $PesterExcludeTag,
 
-    $CodeCoverageThreshold = 0,
+    $CodeCoverageThreshold = 50,
 
     [Parameter()]
     [Alias('bootstrap')]
