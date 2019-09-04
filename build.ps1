@@ -40,7 +40,7 @@ param(
     [validateScript(
         { Test-Path -Path $_ }
     )]
-    $BuildConfig = './Build.yaml',
+    $BuildConfig = './build.yaml',
 
     # A Specific folder to build the artefact into.
     [Parameter()]
