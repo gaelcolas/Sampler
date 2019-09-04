@@ -12,6 +12,12 @@ steps:
     runtime: 'core'
     configFilePath: 'GitVersion.yml'
 
+# - task: PowerShell@2
+#   inputs:
+#     targetType: 'inline'
+#     script: |
+#       $Env:ModuleVersion = $(GitVersion.)
+
 - task: PowerShell@2
   inputs:
     filePath: './build.ps1'
