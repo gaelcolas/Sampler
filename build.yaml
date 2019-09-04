@@ -10,7 +10,7 @@ CopyDirectories:
   - DSCResources
   #- HelperSubmodule # This will be built to target instead
   - ../.build/tasks
-  - en
+  - en-US
   - assets
   - PlasterTemplate
 
