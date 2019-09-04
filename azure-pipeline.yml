@@ -1,0 +1,10 @@
+- task: GitVersion@5
+  inputs:
+    runtime: 'core'
+    configFilePath: 'GitVersion.yml'
+
+- task: PowerShell@2
+  inputs:
+    filePath: './build.ps1'
+    arguments: '-ResolveDependency'
+    pwsh: true
