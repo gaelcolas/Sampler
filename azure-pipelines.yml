@@ -2,8 +2,7 @@ trigger:
 - master
 
 pool:
-  name: Default
-
+  vmImage: 'ubuntu-latest'
 #variables:
 
 steps:
