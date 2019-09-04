@@ -44,6 +44,8 @@ Task Build_Module_ModuleBuilder {
     $BuildModuleParams = @{}
 
     foreach ($ParamName in (Get-Command Build-Module).Parameters.Keys) {
+        # If Build-Module parameters are available in current session, use those
+        # otherwise use params from BuildInfo if specified
         if ($ValueFromBuildParam = Get-Variable -Name $ParamName -ValueOnly -ErrorAction SilentlyContinue) {
             Write-Build -Color DarkGray "Adding $ParamName with value $ValueFromBuildParam from current Variables"
             if ($ParamName -eq 'OutputDirectory') {
@@ -53,16 +55,14 @@ Task Build_Module_ModuleBuilder {
                 $BuildModuleParams.Add($ParamName, $ValueFromBuildParam)
             }
         }
-        elseif($ValueFromBuildInfo = $BuildInfo[$ParamName]) {
+        elseif ($ValueFromBuildInfo = $BuildInfo[$ParamName]) {
             Write-Build -Color DarkGray "Adding $ParamName with value $ValueFromBuildInfo from Build Info"
-            $BuildModuleParams.Add($ParamName,$ValueFromBuildInfo)
+            $BuildModuleParams.Add($ParamName, $ValueFromBuildInfo)
         }
         else {
             Write-Debug -Message "No value specified for $ParamName"
         }
     }
-    # If Build-Module parameters are available in current session, use those
-    # otherwise use params from BuildInfo if specified
 
     Write-Build -Color Green "Building Module to $($BuildModuleParams['OutputDirectory'])..."
     Build-Module @BuildModuleParams -SemVer $ModuleVersion
