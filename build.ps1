@@ -97,6 +97,7 @@ Process {
             try {
                 if (Test-Path $BuildConfig) {
                     $ConfigFile = (Get-Item -Path $BuildConfig)
+                    Write-Host "[pre-build] Loading Configuration from $ConfigFile"
                     $BuildInfo = switch -Regex ($ConfigFile.Extension) {
                         # Native Support for PSD1
                         '\.psd1' {
@@ -121,6 +122,7 @@ Process {
                     }
                 }
                 else {
+                    Write-Host -Object "Configuration file $BuildConfig not found" -ForegroundColor Red
                     $BuildInfo = @{ }
                 }
             }
