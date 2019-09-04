@@ -19,7 +19,7 @@ Param (
 
     [string]
     $ModuleVersion = (property ModuleVersion $(
-            if (Get-Command gitversion) {
+            if (Get-Command gitversion -ErrorAction SilentlyContinue) {
                 Write-Verbose "Using  ModuleVersion as resolved by gitversion"
                 (gitversion | ConvertFrom-Json).InformationalVersion
             }

@@ -24,4 +24,4 @@ steps:
     arguments: '-ResolveDependency'
     pwsh: true
   env:
-    ModuleVersion: $(GitVersion.SemVer)
+    ModuleVersion: $(GitVersion.Informationalversion)
