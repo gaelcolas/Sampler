@@ -1,12 +1,14 @@
 Param (
 
     [string]
-    $ProjectName = (property ProjectName (Split-Path -Leaf $BuildRoot) ),
-
-    $SourcePath = (property SourcePath (Join-path $BuildRoot "$ProjectName/[Bb]uild.psd1")),
+    $ProjectName = (property ProjectName $(
+            try { (Split-Path (git config --get remote.origin.url) -Leaf) -replace '\.git' }
+            catch { Split-Path -Path $BuildRoot -Leaf }
+        )
+    ),
 
     [string]
-    $SourceFolder = $ProjectName,
+    $SourcePath = (property SourcePath (Join-Path $BuildRoot $ProjectName)),
 
     [string]
     $OutputDirectory = (property OutputDirectory (Join-Path $BuildRoot "output")),
@@ -31,13 +33,12 @@ Param (
 
 # Synopsis: Build the Module based on its Build.psd1 definition
 Task Build_Module_ModuleBuilder {
-    " Project Name     = $ProjectName"
-    " Project Path     = $ProjectPath"
-    " ModuleVersion    = $ModuleVersion"
-    $SourcePath = (Get-Item $SourcePath).FullName
-    " Source Path      = $SourcePath"
-    "OutputDirectory   = $OutputDirectory"
-    "BuildModuleOutput = $BuildModuleOutput"
+    " Project Name      = $ProjectName"
+    " Project Path      = $ProjectPath"
+    " ModuleVersion     = $ModuleVersion"
+    " Source Path       = $SourcePath"
+    " OutputDirectory   = $OutputDirectory"
+    " BuildModuleOutput = $BuildModuleOutput"
 
     Import-Module ModuleBuilder
     $BuildModuleParams = @{}
@@ -49,7 +50,7 @@ Task Build_Module_ModuleBuilder {
                 $BuildModuleParams.add($ParamName, $BuildModuleOutput)
             }
             else {
-                $BuildModuleParams.Add($ParamName,$ValueFromBuildParam)
+                $BuildModuleParams.Add($ParamName, $ValueFromBuildParam)
             }
         }
         elseif($ValueFromBuildInfo = $BuildInfo[$ParamName]) {

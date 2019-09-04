@@ -7,7 +7,12 @@ Param (
 
     [string]$PesterOutputFolder = (property PesterOutputFolder 'testResults'),
 
-    [string]$ProjectName = (property ProjectName (Split-Path -Leaf $BuildRoot)),
+    [string]
+    $ProjectName = (property ProjectName $(
+            try { (Split-Path (git config --get remote.origin.url) -Leaf) -replace '\.git' }
+            catch { Split-Path -Path $BuildRoot -Leaf }
+        )
+    ),
 
     [string]$PesterOutputFormat = (property PesterOutputFormat 'NUnitXml'),
 

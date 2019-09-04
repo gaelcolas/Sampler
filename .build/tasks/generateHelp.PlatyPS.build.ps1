@@ -3,7 +3,11 @@ Param (
     $ProjectPath = (property ProjectPath (Join-Path $PSScriptRoot '../..' -Resolve -ErrorAction SilentlyContinue)),
 
     [string]
-    $ProjectName = (property ProjectName (Split-Path -Leaf (Join-Path $PSScriptRoot '../..')) ),
+    $ProjectName = (property ProjectName $(
+            try { (Split-Path (git config --get remote.origin.url) -Leaf) -replace '\.git' }
+            catch { Split-Path -Path $BuildRoot -Leaf }
+        )
+    ),
 
     [string]
     $SourceFolder = $ProjectName,

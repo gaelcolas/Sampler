@@ -3,7 +3,11 @@ Param (
     $BuildOutput = (property BuildOutput 'BuildOutput'),
 
     [string]
-    $ProjectName = (property ProjectName (Split-Path -Leaf $BuildRoot) ),
+    $ProjectName = (property ProjectName $(
+            try { (Split-Path (git config --get remote.origin.url) -Leaf) -replace '\.git' }
+            catch { Split-Path -Path $BuildRoot -Leaf }
+        )
+    ),
 
     [string]
     $PesterOutputFormat = (property PesterOutputFormat 'NUnitXml'),
@@ -24,9 +28,9 @@ task Deploy_with_PSDeploy {
     }
 
     $DeployFile =  [io.path]::Combine($BuildRoot, $DeployConfig)
-    
+
     "Deploying Module based on $DeployConfig config"
-    
+
     $InvokePSDeployArgs = @{
         Path    = $DeployFile
         Force   = $true
@@ -35,7 +39,7 @@ task Deploy_with_PSDeploy {
     if($DeploymentTags) {
         $null = $InvokePSDeployArgs.Add('Tags',$DeploymentTags)
     }
-    
+
     Import-Module PSDeploy
     Invoke-PSDeploy @InvokePSDeployArgs
 }
