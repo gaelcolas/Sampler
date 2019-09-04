@@ -1,7 +1,7 @@
 $here = Split-Path -Parent $MyInvocation.MyCommand.Path
 
 # Convert-path required for PS7 or Join-Path fails
-$modulePath = "$here\..\..\.." | Convert-Path
+$modulePath = "$here\..\.." | Convert-Path
 if (!$ProjectName) {
     $ProjectName = $(
         try {
@@ -29,8 +29,8 @@ Describe 'General module control' -Tags 'FunctionalQuality'  {
 #$PrivateFunctions = Get-ChildItem -Path "$modulePath\Private\*.ps1"
 #$PublicFunctions =  Get-ChildItem -Path "$modulePath\Public\*.ps1"
 $allModuleFunctions = @()
-$allModuleFunctions += Get-ChildItem -Path "$modulePath\Private\*.ps1"
-$allModuleFunctions += Get-ChildItem -Path "$modulePath\Public\*.ps1"
+$allModuleFunctions += Get-ChildItem -Path "$modulePath\$ProjectName\Private\*.ps1"
+$allModuleFunctions += Get-ChildItem -Path "$modulePath\$ProjectName\Public\*.ps1"
 
 if (Get-Command Invoke-ScriptAnalyzer -ErrorAction SilentlyContinue) {
     $scriptAnalyzerRules = Get-ScriptAnalyzerRule
