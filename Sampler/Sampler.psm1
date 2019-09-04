@@ -1,14 +1,8 @@
 <# INSERT HEADER ABOVE #>
 ##Import Classes
-if (Test-Path "$PSScriptRoot\Classes\classes.psd1") {
-    $ClassLoadOrder = Import-PowerShellDataFile -Path "$PSScriptRoot\Classes\classes.psd1" -ErrorAction SilentlyContinue
-}
 
-foreach ($class in $ClassLoadOrder.order) {
-    $path = '{0}\classes\{1}.ps1' -f $PSScriptRoot, $class
-    if (Test-Path $path) {
-        . $path
-    }
+foreach ($class in (Get-ChildItem "$PSScriptRoot\Classes")) {
+    . $Class
 }
 
 #Get public and private function definition files.

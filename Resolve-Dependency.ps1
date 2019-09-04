@@ -28,7 +28,7 @@ param(
     # Path for PSDepend to be bootstrapped and save other dependencies.
     # Can also be CurrentUser or AllUsers if you wish to install the modules in such scope
     # Default to $PWD.Path/output/modules
-    $PSDependTarget = (Join-Path $PWD.path './output/modules'),
+    $PSDependTarget = (Join-Path $PSScriptRoot './output/RequiredModules'),
 
     # URI to use for Proxy when attempting to Bootstrap PackageProvider & PowerShellGet
     [uri]$Proxy,
@@ -40,7 +40,7 @@ param(
     [ValidateSet('CurrentUser', 'AllUsers')]
     $Scope = 'CurrentUser',
 
-    # Gallery to use when bootstrapping PackageProvider, PSGet and when calling PSDepend (can be overriden in Dependency files)
+    # Gallery to use when bootstrapping PackageProvider, PSGet and when calling PSDepend (can be overridden in Dependency files)
     [String]$Gallery = 'PSGallery',
 
     # Credentials to use with the Gallery specified above
@@ -183,7 +183,7 @@ try {
         # PSDepend module not found, installing or saving it
         if ($PSDependTarget -in 'CurrentUser', 'AllUsers') {
             Write-Debug "PSDepend module not found. Attempting to install from Gallery $Gallery"
-            Write-Verbose "Installing PSDepend in $PSDependTarget Scope"
+            Write-Warning "Installing PSDepend in $PSDependTarget Scope"
             $InstallPSDependParam = @{
                 Name               = 'PSDepend'
                 Repository         = $Gallery
@@ -215,28 +215,28 @@ try {
             Write-Progress -Activity "Bootstrap:" -PercentComplete 75 -CurrentOperation "Saving & Importing PSDepend from $Gallery to $Scope"
             Save-Module @SaveModuleParam
         }
-
-        if ($WithYAML) {
-            if (-Not (Get-Module -ListAvailable -Name 'PowerShell-Yaml')) {
-                Write-Debug "PowerShell-Yaml module not found. Attempting to Save from Gallery $Gallery to $PSDependTarget"
-                $SaveModuleParam = @{
-                    Name       = 'PowerShell-Yaml'
-                    Repository = $Gallery
-                    Path       = $PSDependTarget
-                }
-
-                Save-Module @SaveModuleParam
-                Import-Module "PowerShell-Yaml"
-            }
-            else {
-                Write-Verbose "PowerShell-Yaml is already available"
-            }
-        }
     }
     finally {
         Write-Progress -Activity "Bootstrap:" -PercentComplete 100 -CurrentOperation "Loading PSDepend"
         # We should have successfully bootstrapped PSDepend. Fail if not available
         Import-Module PSDepend -ErrorAction Stop
+    }
+
+    if ($WithYAML) {
+        if (-Not (Get-Module -ListAvailable -Name 'PowerShell-Yaml')) {
+            Write-Verbose "PowerShell-Yaml module not found. Attempting to Save from Gallery $Gallery to $PSDependTarget"
+            $SaveModuleParam = @{
+                Name       = 'PowerShell-Yaml'
+                Repository = $Gallery
+                Path       = $PSDependTarget
+            }
+
+            Save-Module @SaveModuleParam
+            Import-Module "PowerShell-Yaml" -ErrorAction Stop
+        }
+        else {
+            Write-Verbose "PowerShell-Yaml is already available"
+        }
     }
 
     Write-Progress -Activity "PSDepend:" -PercentComplete 0 -CurrentOperation "Restoring Build Dependencies"
@@ -245,10 +245,6 @@ try {
             Force = $true
             Path  = $DependencyFile
         }
-
-        # if ($PSDependTarget) {
-        #     $PSDependParams.add('Target', $PSDependTarget)
-        # }
 
         # TODO: Handle when the Dependency file is in YAML, and -WithYAML is specified
         Invoke-PSDepend @PSDependParams

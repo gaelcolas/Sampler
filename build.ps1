@@ -51,7 +51,7 @@ param(
     # You can override the value for PSDepend in the Build.psd1 build manifest
     # This defaults to $OutputDirectory/modules (by default: ./output/modules)
     [Parameter()]
-    $RequiredModulesDirectory = $(Join-path $OutputDirectory 'RequiredModules'),
+    $RequiredModulesDirectory = $(Join-Path 'output' 'RequiredModules'),
 
     # Filter which tags to run when invoking Pester tests
     # This is used in the Invoke-Pester.pester.build.ps1 tasks
@@ -267,7 +267,7 @@ Begin {
             # Use defaults parameter value from Build.ps1, if any
             else {
                 if ($ParamValue = Get-Variable -Name $CmdParameter -ValueOnly -ErrorAction Ignore) {
-                    Write-Debug " adding  $CmdParameter :: $ParamValue [from default Build.ps1 variable]"
+                    Write-Host " adding  $CmdParameter :: $ParamValue [from default Build.ps1 variable]"
                     $ResolveDependencyParams.add($CmdParameter, $ParamValue)
                 }
             }

@@ -3,9 +3,9 @@
 #          ModuleBuilder Configuration             #
 ####################################################
 # Path to the Module Manifest to build (where path will be resolved from)
-Path: ./Sampler/Sampler.psd1
-# Output Directory where ModuleBuilder will build the Module
-OutputDirectory: ./output/Sampler
+# SourcePath: ./Sampler/Sampler.psd1
+# Output Directory where ModuleBuilder will build the Module, relative to module manifest
+# OutputDirectory: ../output/Sampler
 CopyDirectories:
   - DscResources
   #- HelperSubmodule # This will be built to target instead

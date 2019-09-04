@@ -9,7 +9,10 @@ Param (
     $SourceFolder = $ProjectName,
 
     [string]
-    $OutputDirectory = (property OutputDirectory (Join-Path $BuildRoot 'output')),
+    $OutputDirectory = (property OutputDirectory (Join-Path $BuildRoot "output")),
+
+    [string]
+    $BuildModuleOutput = (property BuildModuleOutput (Join-Path $OutputDirectory $ProjectName)),
 
     [string]
     $ModuleVersion = (property ModuleVersion $(
@@ -28,18 +31,40 @@ Param (
 
 # Synopsis: Build the Module based on its Build.psd1 definition
 Task Build_Module_ModuleBuilder {
-    Import-Module ModuleBuilder
+    " Project Name     = $ProjectName"
+    " Project Path     = $ProjectPath"
+    " ModuleVersion    = $ModuleVersion"
+    $SourcePath = (Get-Item $SourcePath).FullName
+    " Source Path      = $SourcePath"
+    "OutputDirectory   = $OutputDirectory"
+    "BuildModuleOutput = $BuildModuleOutput"
 
-    # $BuildModuleParams = @{
-    #     SourcePath
-    #     OutputDirectory
-    #     SemVer
-    #     Version
-    #     Prerelease
-    #     BuildMetaData
-    # }
-    "Module version is $ModuleVersion"
-    Build-Module -SourcePath $SourcePath -SemVer $ModuleVersion
+    Import-Module ModuleBuilder
+    $BuildModuleParams = @{}
+
+    foreach ($ParamName in (Get-Command Build-Module).Parameters.Keys) {
+        if ($ValueFromBuildParam = Get-Variable -Name $ParamName -ValueOnly -ErrorAction SilentlyContinue) {
+            Write-Build -Color DarkGray "Adding $ParamName with value $ValueFromBuildParam from current Variables"
+            if ($ParamName -eq 'OutputDirectory') {
+                $BuildModuleParams.add($ParamName, $BuildModuleOutput)
+            }
+            else {
+                $BuildModuleParams.Add($ParamName,$ValueFromBuildParam)
+            }
+        }
+        elseif($ValueFromBuildInfo = $BuildInfo[$ParamName]) {
+            Write-Build -Color DarkGray "Adding $ParamName with value $ValueFromBuildInfo from Build Info"
+            $BuildModuleParams.Add($ParamName,$ValueFromBuildInfo)
+        }
+        else {
+            Write-Debug -Message "No value specified for $ParamName"
+        }
+    }
+    # If Build-Module parameters are available in current session, use those
+    # otherwise use params from BuildInfo if specified
+
+    Write-Build -Color Green "Building Module to $($BuildModuleParams['OutputDirectory'])..."
+    Build-Module @BuildModuleParams -SemVer $ModuleVersion
 }
 
 Task Build_NestedModules_ModuleBuilder {
