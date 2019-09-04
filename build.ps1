@@ -182,10 +182,7 @@ Process {
             if ($WorkflowItem.Trim() -match '^\{(?<sb>[\w\W]*)\}$') {
                 $WorkflowItem = [ScriptBlock]::Create($Matches['sb'])
             }
-<<<<<<< HEAD
             Write-Host -ForegroundColor DarkGray "Adding $Workflow"
-=======
->>>>>>> adding create tasks from BuildInfo.BuildWorkflow
             task $Workflow $WorkflowItem
         }
 
