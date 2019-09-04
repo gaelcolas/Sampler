@@ -1,22 +1,28 @@
 $here = Split-Path -Parent $MyInvocation.MyCommand.Path
 
 # Convert-path required for PS7 or Join-Path fails
-$modulePath = "$here/../.." | Convert-Path
-$moduleName = Split-Path -Path $modulePath -Leaf
-$modulePath = Join-Path -Path $modulePath  -ChildPath $moduleName
-
-
+$modulePath = "$here\..\..\.." | Convert-Path
+if (!$ProjectName) {
+    $ProjectName = $(
+        try {
+            (Split-Path (git config --get remote.origin.url) -Leaf) -replace '\.git'
+        }
+        catch {
+            Split-Path -Path $modulePath -Leaf
+        }
+    )
+}
 
 Describe 'General module control' -Tags 'FunctionalQuality'  {
 
     It 'imports without errors' {
-        { Import-Module -Name $moduleName -Force -ErrorAction Stop } | Should Not Throw
-        Get-Module $moduleName | Should Not BeNullOrEmpty
+        { Import-Module -Name $ProjectName -Force -ErrorAction Stop } | Should Not Throw
+        Get-Module $ProjectName | Should Not BeNullOrEmpty
     }
 
     It 'Removes without error' {
-        { Remove-Module -Name $moduleName -ErrorAction Stop} | Should not Throw
-        Get-Module $moduleName | Should beNullOrEmpty
+        { Remove-Module -Name $ProjectName -ErrorAction Stop} | Should not Throw
+        Get-Module $ProjectName | Should beNullOrEmpty
     }
 }
 

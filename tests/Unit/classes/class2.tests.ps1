@@ -1,12 +1,21 @@
 $here = $PSScriptRoot
 $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
 
-$modulePath = "$here\..\..\.."
-$moduleName = Split-Path -Path $modulePath -Leaf
+$modulePath = "$here\..\..\.." | Convert-Path
+if (!$ProjectName) {
+    $ProjectName = $(
+        try {
+            (Split-Path (git config --get remote.origin.url) -Leaf) -replace '\.git'
+        }
+        catch {
+            Split-Path -Path $modulePath -Leaf
+        }
+    )
+}
 
-Import-Module $moduleName
+Import-Module $ProjectName
 
-InModuleScope $moduleName {
+InModuleScope $ProjectName {
     Describe class2 {
         Context 'Type creation' {
             It 'Has created a type named class2' {
