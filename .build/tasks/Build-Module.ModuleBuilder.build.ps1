@@ -21,7 +21,9 @@ Param (
                 Write-Verbose "Command gitversion not found, defaulting to 0.0.1"
                 '0.0.1'
             }
-        ))
+        )),
+
+    $BuildInfo = (property BuildInfo @{})
 )
 
 # Synopsis: Build the Module based on its Build.psd1 definition
