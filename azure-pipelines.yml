@@ -2,14 +2,8 @@ trigger:
 - master
 
 pool:
-<<<<<<< HEAD
   vmImage: 'ubuntu 16.04'
 #variables:
-=======
-  name: Default
-
-variables:
->>>>>>> fixing AZDO yml structure
 
 steps:
 - task: GitVersion@5
