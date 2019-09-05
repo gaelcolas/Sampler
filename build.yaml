@@ -8,7 +8,7 @@
 # OutputDirectory: ../output/Sampler
 CopyDirectories:
   - DSCResources
-  #- HelperSubmodule # This will be built to target instead
+  #- HelperSubmodule # This will be built as submodule instead
   - ../.build/tasks
   - en-US
   - assets

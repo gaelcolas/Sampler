@@ -1,17 +1,12 @@
 $here = $PSScriptRoot
 $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
 
-$modulePath = "$here\..\..\.." | Convert-Path
-if (!$ProjectName) {
-    $ProjectName = $(
-        try {
-            (Split-Path (git config --get remote.origin.url) -Leaf) -replace '\.git'
-        }
-        catch {
-            Split-Path -Path $modulePath -Leaf
-        }
-    )
-}
+$ProjectPath = "$here\..\..\.." | Convert-Path
+$ProjectName = (Get-ChildItem $ProjectPath\*\*.psd1 | Where-Object {
+        ($_.Directory.Name -match 'source|src' -or $_.Directory.Name -eq $_.BaseName) -and
+        ($moduleManifest = Test-ModuleManifest $_.FullName -ErrorAction SilentlyContinue) }
+    ).BaseName
+
 Import-Module $ProjectName
 
 InModuleScope $ProjectName {

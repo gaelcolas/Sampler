@@ -2,8 +2,11 @@ Param (
 
     [string]
     $ProjectName = (property ProjectName $(
-            try { (Split-Path (git config --get remote.origin.url) -Leaf) -replace '\.git' }
-            catch { Split-Path -Path $BuildRoot -Leaf }
+            #Find the module manifest to deduce the Project Name
+            (Get-ChildItem $BuildRoot\*\*.psd1 | Where-Object {
+                ($_.Directory.Name -match 'source|src' -or $_.Directory.Name -eq $_.BaseName) -and
+                ($moduleManifest = Test-ModuleManifest $_.FullName -ErrorAction SilentlyContinue) }
+            ).BaseName
         )
     ),
 
