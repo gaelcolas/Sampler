@@ -14,7 +14,7 @@ CopyDirectories:
   - assets
   - PlasterTemplate
 
-# Suffix to add to Root module PSM1 after merge (here, the Set-Alias)
+# Suffix to add to Root module PSM1 after merge (here, the Set-Alias exporting IB tasks)
 suffix: suffix.ps1
 VersionedOutputDirectory: true
 
@@ -24,9 +24,9 @@ VersionedOutputDirectory: true
 
 NestedModule:
   HelperSubmodule: # This is the first submodule to build into the output
-    Path: ./Sampler/HelperSubmodule/HelperSubmodule.psd1
+    Path: ./Sampler/Modules/HelperSubmodule/HelperSubmodule.psd1
     # $ModuleVersion is trimmed (remove -.*) and OutputDirectory expanded (the only one)
-    OutputDirectory: ./output/Sampler/$ModuleVersion/HelperSubmodule
+    OutputDirectory: ./output/Sampler/$ModuleVersion/Modules/HelperSubmodule
     VersionedOutputDirectory: false
     # suffix:
     # prefix:
@@ -57,6 +57,13 @@ BuildWorkflow:
     - CopyPlaster
     - Pester_Tests_Stop_On_Fail
     - Pester_if_Code_Coverage_Under_Threshold
+
+  build:
+    - Clean
+    - Set_Build_Environment_Variables
+    - Build_Module_ModuleBuilder
+    - Build_NestedModules_ModuleBuilder
+    - CopyPlaster
 
   # defining test task to be run when invoking `./build.ps1 -Tasks test`
   test:
