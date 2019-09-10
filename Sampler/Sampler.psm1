@@ -1,7 +1,13 @@
-<# INSERT HEADER ABOVE #>
+# This file is not needed, a COMPILED version will be built by ModuleBuilder
+##Import Enums
+
+foreach ($Enum in (Get-ChildItem "$PSScriptRoot\Enums" -ErrorAction SilentlyContinue)) {
+    . $Enum
+}
+
 ##Import Classes
 
-foreach ($class in (Get-ChildItem "$PSScriptRoot\Classes")) {
+foreach ($class in (Get-ChildItem "$PSScriptRoot\Classes" -ErrorAction SilentlyContinue)) {
     . $Class
 }
 
@@ -19,9 +25,8 @@ Foreach($import in @($Public + $Private))
     }
     Catch
     {
-        Write-Error -Message "Failed to import function $($import.fullname): $_"
+        Write-Error -Message "Failed to import function $($import.fullName): $_"
     }
 }
 
 Export-ModuleMember -Function $Public.Basename
-<# INSERT FOOTER BELOW #>

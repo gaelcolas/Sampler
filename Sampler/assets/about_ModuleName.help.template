@@ -1,0 +1,27 @@
+TOPIC
+<%
+"    about_{0}" -f $PLASTER_PARAM_ModuleName
+%>
+
+SHORT DESCRIPTION
+<%
+"    {0}" -f $PLASTER_PARAM_ModuleDescription
+%>
+
+LONG DESCRIPTION
+    {{ Add Long description here }}
+
+EXAMPLES
+    PS C:\> {{ add examples here }}
+
+NOTE:
+    Thank you to all those who contributed to this module, by writing code, sharing opinions, and provided feedback.
+
+TROUBLESHOOTING NOTE:
+    Look out on the Github repository for issues and new releases.
+
+SEE ALSO
+  - {{ Please add Project URI such as github }}}
+
+KEYWORDS
+      {{ Add coma separated keywords here }}

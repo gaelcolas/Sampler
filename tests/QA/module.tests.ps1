@@ -2,13 +2,15 @@ $here = Split-Path -Parent $MyInvocation.MyCommand.Path
 
 # Convert-path required for PS7 or Join-Path fails
 $ProjectPath = "$here\..\.." | Convert-Path
-$ProjectName = $(
-    (Get-ChildItem $BuildRoot\*\*.psd1 | Where-Object {
-        ($_.Directory.Name -match 'source|src' -or $_.Directory.Name -eq $_.BaseName) -and
-        ($moduleManifest = Test-ModuleManifest $_.FullName -ErrorAction SilentlyContinue) }
-    ).BaseName
-)
+$ProjectName = (Get-ChildItem $ProjectPath\*\*.psd1 | Where-Object {
+    ($_.Directory.Name -match 'source|src' -or $_.Directory.Name -eq $_.BaseName) -and
+    $(try { Test-ModuleManifest $_.FullName -ErrorAction Stop }catch{$false}) }
+).BaseName
 
+$SourcePath = (Get-ChildItem $BuildRoot\*\*.psd1 | Where-Object {
+        ($_.Directory.Name -match 'source|src' -or $_.Directory.Name -eq $_.BaseName) -and
+        $(try { Test-ModuleManifest $_.FullName -ErrorAction Stop }catch { $false }) }
+    ).Directory.FullName
 
 Describe 'General module control' -Tags 'FunctionalQuality'  {
 
@@ -26,8 +28,8 @@ Describe 'General module control' -Tags 'FunctionalQuality'  {
 #$PrivateFunctions = Get-ChildItem -Path "$ProjectPath\Private\*.ps1"
 #$PublicFunctions =  Get-ChildItem -Path "$ProjectPath\Public\*.ps1"
 $allModuleFunctions = @()
-$allModuleFunctions += Get-ChildItem -Path "$ProjectPath\$ProjectName\Private\*.ps1"
-$allModuleFunctions += Get-ChildItem -Path "$ProjectPath\$ProjectName\Public\*.ps1"
+$allModuleFunctions += Get-ChildItem -Path "$SourcePath/Private/*.ps1"
+$allModuleFunctions += Get-ChildItem -Path "$SourcePath/Public/*.ps1"
 
 if (Get-Command Invoke-ScriptAnalyzer -ErrorAction SilentlyContinue) {
     $scriptAnalyzerRules = Get-ScriptAnalyzerRule

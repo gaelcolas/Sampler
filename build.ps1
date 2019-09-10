@@ -97,7 +97,7 @@ Process {
             try {
                 if (Test-Path $BuildConfig) {
                     $ConfigFile = (Get-Item -Path $BuildConfig)
-                    Write-Host "[pre-build] Loading Configuration from $ConfigFile"
+                    Write-Host "[build] Loading Configuration from $ConfigFile"
                     $BuildInfo = switch -Regex ($ConfigFile.Extension) {
                         # Native Support for PSD1
                         '\.psd1' {
@@ -144,7 +144,7 @@ Process {
             foreach ($Module in $BuildInfo['ModuleBuildTasks'].Keys) {
                 try {
                     $LoadedModule = Import-Module $Module -PassThru -ErrorAction Stop
-                    foreach ($TaskToExport in $BuildInfo['ModuleBuildTasks'][$Module]) {
+                    foreach ($TaskToExport in $BuildInfo['ModuleBuildTasks'].($Module)) {
                         $LoadedModule.ExportedAliases.GetEnumerator().Where{
                             # using -like to support wildcard
                             $_.Key -like $TaskToExport
@@ -267,7 +267,7 @@ Begin {
             # Use defaults parameter value from Build.ps1, if any
             else {
                 if ($ParamValue = Get-Variable -Name $CmdParameter -ValueOnly -ErrorAction Ignore) {
-                    Write-Host " adding  $CmdParameter :: $ParamValue [from default Build.ps1 variable]"
+                    Write-Debug " adding  $CmdParameter :: $ParamValue [from default Build.ps1 variable]"
                     $ResolveDependencyParams.add($CmdParameter, $ParamValue)
                 }
             }

@@ -6,13 +6,17 @@ Param (
     $ProjectName = (property ProjectName $(
             (Get-ChildItem $BuildRoot\*\*.psd1 | Where-Object {
                 ($_.Directory.Name -match 'source|src' -or $_.Directory.Name -eq $_.BaseName) -and
-                ($moduleManifest = Test-ModuleManifest $_.FullName -ErrorAction SilentlyContinue) }
+                $(try { Test-ModuleManifest $_.FullName -ErrorAction Stop }catch{$false}) }
             ).BaseName
         )
     ),
 
     [string]
-    $SourceFolder = $ProjectName,
+    $SourcePath = (property SourcePath ((Get-ChildItem $BuildRoot\*\*.psd1 | Where-Object {
+                    ($_.Directory.Name -match 'source|src' -or $_.Directory.Name -eq $_.BaseName) -and
+                    $(try { Test-ModuleManifest $_.FullName -ErrorAction Stop }catch { $false }) }
+            ).Directory.FullName)
+    ),
 
     [string]
     $HelpFolder = (property HelpFolder 'docs'),
@@ -33,12 +37,16 @@ Task UpdateHelp{
     "`t`t`t UPDATE HELP MARKDOWN FILE"
     $LineSeparation
 
-    if (![io.path]::IsPathRooted($BuildOutput)) {
+    if (!(Split-Path -IsAbsolute $BuildOutput)) {
         $BuildOutput = Join-Path -Path $ProjectPath.FullName -ChildPath $BuildOutput
     }
-    $HelpFolder = [io.Path]::Combine($ProjectPath,$SourceFolder,$HelpFolder)
 
-    import-module -Force ([io.DirectoryInfo][io.Path]::Combine($ProjectPath,$SourceFolder,"$ProjectName.psd1")).ToString()
+    if (!(Split-Path -IsAbsolute $HelpFolder)) {
+        $HelpFolder = Join-Path $SourcePath $HelpFolder
+    }
+
+
+    import-module -Force $ProjectName
     Update-MarkdownHelpModule -Path $HelpFolder
 }
 
@@ -48,11 +56,18 @@ Task GenerateMamlFromMd {
     "`t`t`t GENERATE MAML IN BUILD OUTPUT"
     $LineSeparation
 
-    if (![io.path]::IsPathRooted($BuildOutput)) {
+    if (!(Split-Path -IsAbsolute $BuildOutput)) {
         $BuildOutput = Join-Path -Path $ProjectPath.FullName -ChildPath $BuildOutput
     }
-    $BuiltModuleFolder = [io.Path]::Combine($BuildOutput,$ProjectName)
 
-    New-ExternalHelp -Path "$ProjectPath/$SourceFolder/$HelpFolder" -OutputPath "$(Join-Path $BuiltModuleFolder $HelpCultureInfo)" -Force
+    if (!(Split-Path -IsAbsolute $HelpFolder)) {
+        $HelpFolder = Join-Path $SourcePath $HelpFolder
+    }
+
+
+    $BuiltModuleFolder = Join-Path $BuildOutput $ProjectName
+
+    $HelpFolder = Join-Path $SourcePath $HelpFolder
+    New-ExternalHelp -Path $HelpFolder -OutputPath "$(Join-Path $BuiltModuleFolder $HelpCultureInfo)" -Force
 
 }

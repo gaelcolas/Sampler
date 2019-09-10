@@ -5,13 +5,17 @@ Param (
             #Find the module manifest to deduce the Project Name
             (Get-ChildItem $BuildRoot\*\*.psd1 | Where-Object {
                 ($_.Directory.Name -match 'source|src' -or $_.Directory.Name -eq $_.BaseName) -and
-                ($moduleManifest = Test-ModuleManifest $_.FullName -ErrorAction SilentlyContinue) }
+                $(try { Test-ModuleManifest $_.FullName -ErrorAction Stop }catch{$false}) }
             ).BaseName
         )
     ),
 
     [string]
-    $SourcePath = (property SourcePath (Join-Path $BuildRoot $ProjectName)),
+    $SourcePath = (property SourcePath ((Get-ChildItem $BuildRoot\*\*.psd1 | Where-Object {
+                    ($_.Directory.Name -match 'source|src' -or $_.Directory.Name -eq $_.BaseName) -and
+                    $(try { Test-ModuleManifest $_.FullName -ErrorAction Stop }catch { $false }) }
+            ).Directory.FullName)
+    ),
 
     [string]
     $OutputDirectory = (property OutputDirectory (Join-Path $BuildRoot "output")),
@@ -21,13 +25,12 @@ Param (
 
     [string]
     $ModuleVersion = (property ModuleVersion $(
-            if (Get-Command gitversion -ErrorAction SilentlyContinue) {
-                Write-Verbose "Using  ModuleVersion as resolved by gitversion"
-                (gitversion | ConvertFrom-Json).InformationalVersion
+            try {
+                (gitversion | ConvertFrom-Json -ErrorAction Stop).InformationalVersion
             }
-            else {
-                Write-Verbose "Command gitversion not found, defaulting to 0.0.1"
-                '0.0.1'
+            catch {
+                Write-Verbose "Error attempting to use GitVersion $($_)"
+                ''
             }
         )),
 
