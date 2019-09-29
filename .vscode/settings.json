@@ -16,6 +16,11 @@
         "*.ps1xml": "xml"
     },
     "cSpell.words": [
+        "COMPANYNAME",
+        "ICONURI",
+        "LICENSEURI",
+        "PROJECTURI",
+        "RELEASENOTES",
         "buildhelpers",
         "gitversion",
         "pscmdlet"

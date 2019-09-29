@@ -7,7 +7,7 @@ $ProjectName = (Get-ChildItem $ProjectPath\*\*.psd1 | Where-Object {
     $(try { Test-ModuleManifest $_.FullName -ErrorAction Stop }catch{$false}) }
 ).BaseName
 
-$SourcePath = (Get-ChildItem $BuildRoot\*\*.psd1 | Where-Object {
+$SourcePath = (Get-ChildItem $ProjectPath\*\*.psd1 | Where-Object {
         ($_.Directory.Name -match 'source|src' -or $_.Directory.Name -eq $_.BaseName) -and
         $(try { Test-ModuleManifest $_.FullName -ErrorAction Stop }catch { $false }) }
     ).Directory.FullName

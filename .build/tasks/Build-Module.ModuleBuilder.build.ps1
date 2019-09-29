@@ -40,7 +40,6 @@ Param (
 # Synopsis: Build the Module based on its Build.psd1 definition
 Task Build_Module_ModuleBuilder {
     " Project Name      = $ProjectName"
-    " Project Path      = $ProjectPath"
     " ModuleVersion     = $ModuleVersion"
     " Source Path       = $SourcePath"
     " OutputDirectory   = $OutputDirectory"

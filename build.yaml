@@ -31,6 +31,21 @@ NestedModule:
     # suffix:
     # prefix:
 
+####################################################
+#       PESTER  Configuration                      #
+####################################################
+
+Pester:
+  # OutputFolder:
+  OutputFormat: NUnitXML
+  # Will look at every *.ps1 & *.psm1 under ModulePath, excepts when $_.FullName -match (Join-Path $ProjectPath $ExcludeFromCodeCoverageItem)
+  ExcludeFromCodeCoverage:
+  # Default is to use the tests folder in the project folder or source folder (if present)
+  # can use it to prioritize: tests/QA, tests/Unit, tests/Integration
+  Script:
+  ExcludeTag:
+  Tag:
+  CodeCoverageThreshold: 50 # Set to 0 to bypass
 
 
 ####################################################

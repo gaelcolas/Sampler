@@ -1,6 +1,6 @@
 Param (
     [io.DirectoryInfo]
-    $ProjectPath = (property ProjectPath (Join-Path $PSScriptRoot '../..' -Resolve -ErrorAction SilentlyContinue)),
+    $ProjectPath = (property ProjectPath $BuildRoot),
 
     [string]
     $ProjectName = (property ProjectName $(

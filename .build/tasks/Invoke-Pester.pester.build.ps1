@@ -5,8 +5,6 @@ Param (
     # Base directory of all output (default to 'output')
     [string]$OutputDirectory = (property OutputDirectory (Join-Path $BuildRoot 'output')),
 
-    [string]$PesterOutputFolder = (property PesterOutputFolder 'testResults'),
-
     [string]
     $ProjectName = (property ProjectName $(
             (Get-ChildItem $BuildRoot\*\*.psd1 | Where-Object {
@@ -15,14 +13,6 @@ Param (
             ).BaseName
         )
     ),
-
-    [string]$PesterOutputFormat = (property PesterOutputFormat 'NUnitXml'),
-
-    [string[]]$PesterScript = (property PesterScript 'tests', (Join-Path $ProjectName 'tests')),
-
-    [string[]]$PesterTag = (property PesterTag @()),
-
-    [string[]]$PesterExcludeTag = (property PesterExcludeTag @()),
 
     [string]
     $ModuleVersion = (property ModuleVersion $(
@@ -35,7 +25,20 @@ Param (
             }
         )),
 
-    [int]$CodeCoverageThreshold = (property CodeCoverageThreshold 100)
+    [string]$PesterOutputFolder = (property PesterOutputFolder 'testResults'),
+
+    [string]$PesterOutputFormat = (property PesterOutputFormat 'NUnitXml'),
+
+    [string[]]$PesterScript = (property PesterScript 'tests', (Join-Path $ProjectName 'tests')),
+
+    [string[]]$PesterTag = (property PesterTag @()),
+
+    [string[]]$PesterExcludeTag = (property PesterExcludeTag @()),
+
+    [int]$CodeCoverageThreshold = (property CodeCoverageThreshold 100),
+
+    # Build Configuration object
+    $BuildInfo = (property BuildInfo @{})
 )
 
 # Synopsis: Making sure the Module meets some quality standard (help, tests)
@@ -65,13 +68,26 @@ task Invoke_pester_tests {
     $PesterOutputFullPath = Join-Path $PesterOutputFolder "$($PesterOutputFormat)_$PesterOutputFileFileName"
 
     $moduleUnderTest = Import-Module $ProjectName -PassThru
+    $ExcludeFromCodeCoverage = @('tasks','PlasterTemplate')
+    $CodeCoverageFiles = (Get-ChildItem -Path $moduleUnderTest.ModuleBase -Include *.psm1, *.ps1 -Recurse).Where{
+        $result = $true
+        foreach ($ExclPath in $ExcludeFromCodeCoverage) {
+            if (!(Split-Path -IsAbsolute $ExclPath)) {
+                $ExclPath = Join-Path $moduleUnderTest.ModuleBase $ExclPath
+            }
+            if ($_.FullName -Match ([regex]::Escape($ExclPath))) {
+                $result = $false
+            }
+        }
+        $result
+    }
 
     $PesterParams = @{
         OutputFormat                 = $PesterOutputFormat
         OutputFile                   = $PesterOutputFullPath
         PassThru                     = $true
         CodeCoverageOutputFileFormat = 'JaCoCo'
-        CodeCoverage                 = @($moduleUnderTest.path)
+        CodeCoverage                 = $CodeCoverageFiles
         CodeCoverageOutputFile       = (Join-Path $PesterOutputFolder "CodeCov_$PesterOutputFileFileName")
         #ExcludeTag                   = 'FunctionalQuality', 'TestQuality', 'helpQuality'
     }
@@ -133,7 +149,7 @@ task Pester_if_Code_Coverage_Under_Threshold {
 
     if (-Not (Test-Path $PesterResultObjectClixml)) {
         if ( $CodeCoverageThreshold -eq 0 ) {
-            Write-Host "Code Coverage SUCCESS with value of 0%. No Pester output found." -ForegroundColor Magenta
+            Write-Build Green "Pester run and Coverage bypassed. No Pester output found but allowed."
             return
         }
         else {
