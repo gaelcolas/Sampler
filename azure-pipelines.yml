@@ -12,48 +12,46 @@ steps:
     runtime: 'core'
     configFilePath: 'GitVersion.yml'
 
-- powershell: |
-    $moduleName = (Get-ChildItem "$(Build.SourcesDirectory)/*/*.psd1" | Where-Object {
-              ($_.Directory.Name -match 'source|src' -or $_.Directory.Name -eq $_.BaseName) -and
-              $(try { Test-ModuleManifest $_.FullName -ErrorAction Stop }catch{$false}) }
-          ).BaseName
-    Write-Host "##vso[task.setvariable variable=ModuleName;isOutput=true]$moduleName"
-  name: GetModuleName
+# - powershell: |
+#     $moduleName = (Get-ChildItem "$(Build.SourcesDirectory)/*/*.psd1" | Where-Object {
+#               ($_.Directory.Name -match 'source|src' -or $_.Directory.Name -eq $_.BaseName) -and
+#               $(try { Test-ModuleManifest $_.FullName -ErrorAction Stop }catch{$false}) }
+#           ).BaseName
+#     Write-Host "##vso[task.setvariable variable=ModuleName;isOutput=true]$moduleName"
+#   name: GetModuleName
 
 - task: PowerShell@2
-  name: BuildModule
+  name: Build
   inputs:
     filePath: './build.ps1'
-    arguments: '-ResolveDependency'
+    arguments: '-ResolveDependency -tasks build'
+    pwsh: true
+  env:
+    ModuleVersion: $(GitVersion.Informationalversion)
+
+- task: PowerShell@2
+  name: Test
+  inputs:
+    filePath: './build.ps1'
+    arguments: '-tasks test'
     pwsh: true
   env:
     ModuleVersion: $(GitVersion.Informationalversion)
 
 - task: PublishTestResults@2
   inputs:
-    testResultsFormat: 'NUnit' # Options: JUnit, NUnit, VSTest, xUnit, cTest
+    testResultsFormat: 'NUnit'
     testResultsFiles: 'output/testResults/NUnit*.xml'
-    #searchFolder: '$(System.DefaultWorkingDirectory)' # Optional
-    #mergeTestResults: false # Optional
-    #failTaskOnFailedTests: false # Optional
-    #testRunTitle: # Optional
-    #buildPlatform: # Optional
-    #buildConfiguration: # Optional
-    #publishRunAttachments: true # Optional
+
 
 # Publish code coverage results
-# Publish Cobertura or JaCoCo code coverage results from a build
 - task: PublishCodeCoverageResults@1
   inputs:
-    codeCoverageTool: 'JaCoCo' # Options: cobertura, jaCoCo
+    codeCoverageTool: 'JaCoCo'
     summaryFileLocation: 'output/testResults/CodeCov*.xml'
-    #pathToSources: # Optional
-    #reportDirectory: # Optional
-    #additionalCodeCoverageFiles: # Optional
-    #failIfCoverageEmpty: false # Optional
 
 - task: PublishBuildArtifacts@1
   inputs:
-    PathtoPublish: 'output/$(GetModuleName.ModuleName)'
+    PathtoPublish: 'output/'
     ArtifactName: 'BuiltModule'
     publishLocation: 'Container'
