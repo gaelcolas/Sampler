@@ -208,7 +208,7 @@ task Upload_Test_Results_To_AppVeyor -If {(property BuildSystem 'unknown') -eq '
         $null = New-Item -ItemType Directory -force $PesterOutputFolder -ErrorAction Stop
     }
 
-    $os = if($isWindows) {
+    $os = if($isWindows -or $PSVersionTable.PSVersion.Major -le 5) {
         'Windows'
     }
     elseif($isMacOS) {

@@ -31,13 +31,21 @@ stages:
               ArtifactName: 'output'
               publishLocation: 'Container'
 
-  - stage: test_linux
+  - stage: test_module
     dependsOn: Build_artefact
     jobs:
-      - job: TestdModuleJob
+      - job: test_linux
+        variables:
+          ModuleVersion:
         pool:
           vmImage: 'ubuntu 16.04'
         steps:
+          - task: GitVersion@5
+            name: gitversion
+            inputs:
+              runtime: 'core'
+              configFilePath: 'GitVersion.yml'
+
           - task: DownloadBuildArtifacts@0
             inputs:
               buildType: 'current'
@@ -65,14 +73,16 @@ stages:
             inputs:
               codeCoverageTool: 'JaCoCo'
               summaryFileLocation: 'output/testResults/CodeCov*.xml'
-
-  - stage: test_windows_core
-    dependsOn: Build_artefact
-    jobs:
-      - job: TestdModuleJob
+      - job: test_windows_core
         pool:
           vmImage: 'win1803'
         steps:
+          - task: GitVersion@5
+            name: gitversion
+            inputs:
+              runtime: 'core'
+              configFilePath: 'GitVersion.yml'
+
           - task: DownloadBuildArtifacts@0
             inputs:
               buildType: 'current'
@@ -100,15 +110,16 @@ stages:
             inputs:
               codeCoverageTool: 'JaCoCo'
               summaryFileLocation: 'output/testResults/CodeCov*.xml'
-
-
-  - stage: test_windows_ps
-    dependsOn: Build_artefact
-    jobs:
-      - job: TestdModuleJob
+      - job: test_windows_ps
         pool:
           vmImage: 'win1803'
         steps:
+          - task: GitVersion@5
+            name: gitversion
+            inputs:
+              runtime: 'core'
+              configFilePath: 'GitVersion.yml'
+
           - task: DownloadBuildArtifacts@0
             inputs:
               buildType: 'current'
@@ -136,14 +147,16 @@ stages:
             inputs:
               codeCoverageTool: 'JaCoCo'
               summaryFileLocation: 'output/testResults/CodeCov*.xml'
-
-  - stage: test_macos
-    dependsOn: Build_artefact
-    jobs:
-      - job: TestdModuleJob
+      - job: test_macos
         pool:
           vmImage: 'macos-latest'
         steps:
+          - task: GitVersion@5
+            name: gitversion
+            inputs:
+              runtime: 'core'
+              configFilePath: 'GitVersion.yml'
+
           - task: DownloadBuildArtifacts@0
             inputs:
               buildType: 'current'
