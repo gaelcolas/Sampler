@@ -16,7 +16,7 @@ steps:
   name: GetModuleName
   inputs:
     script: |
-      $moduleName = (Get-ChildItem $BuildRoot\*\*.psd1 | Where-Object {
+      $moduleName = (Get-ChildItem $(Build.SourcesDirectory)/*/*.psd1 | Where-Object {
                 ($_.Directory.Name -match 'source|src' -or $_.Directory.Name -eq $_.BaseName) -and
                 $(try { Test-ModuleManifest $_.FullName -ErrorAction Stop }catch{$false}) }
             ).BaseName
