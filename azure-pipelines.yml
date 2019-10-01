@@ -42,3 +42,9 @@ steps:
     #reportDirectory: # Optional
     #additionalCodeCoverageFiles: # Optional
     #failIfCoverageEmpty: false # Optional
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: 'output/$(Build.Repository.Name)'
+    ArtifactName: 'BuiltModule'
+    publishLocation: 'Container'
