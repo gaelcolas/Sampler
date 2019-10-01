@@ -28,7 +28,7 @@ stages:
           - task: PublishBuildArtifacts@1
             inputs:
               PathtoPublish: 'output/'
-              ArtifactName: 'BuiltModule'
+              ArtifactName: 'output'
               publishLocation: 'Container'
 
   - stage: test_linux
@@ -42,8 +42,8 @@ stages:
             inputs:
               buildType: 'current'
               downloadType: 'single'
-              artifactName: 'BuiltModule'
-              downloadPath: 'output/'
+              artifactName: 'output'
+              downloadPath: ''
 
           - task: PowerShell@2
             name: Test
