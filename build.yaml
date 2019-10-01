@@ -7,7 +7,7 @@
 # Output Directory where ModuleBuilder will build the Module, relative to module manifest
 # OutputDirectory: ../output/Sampler
 CopyDirectories:
-  - DSCResources
+  #- DSCResources
   #- HelperSubmodule # This will be built as submodule instead
   - ../.build/tasks
   - en-US
