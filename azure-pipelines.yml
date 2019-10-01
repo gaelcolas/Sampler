@@ -12,16 +12,14 @@ steps:
     runtime: 'core'
     configFilePath: 'GitVersion.yml'
 
-- task: PowerShell@2
+- powershell: |
+    $moduleName = (Get-ChildItem "$(Build.SourcesDirectory)/*/*.psd1" | Where-Object {
+              ($_.Directory.Name -match 'source|src' -or $_.Directory.Name -eq $_.BaseName) -and
+              $(try { Test-ModuleManifest $_.FullName -ErrorAction Stop }catch{$false}) }
+          ).BaseName
+    Write-Host "##vso[task.setvariable variable=ModuleName;isOutput=true]$moduleName"
   name: GetModuleName
-  inputs:
-    script: |
-      $moduleName = (Get-ChildItem $(Build.SourcesDirectory)/*/*.psd1 | Where-Object {
-                ($_.Directory.Name -match 'source|src' -or $_.Directory.Name -eq $_.BaseName) -and
-                $(try { Test-ModuleManifest $_.FullName -ErrorAction Stop }catch{$false}) }
-            ).BaseName
-      echo "##vso[task.setvariable variable=myOutputVar;isOutput=true]$moduleName"
-    pwsh: true
+  pwsh: true
 
 - task: PowerShell@2
   name: BuildModule
