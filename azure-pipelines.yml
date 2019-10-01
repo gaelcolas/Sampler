@@ -43,7 +43,7 @@ stages:
               buildType: 'current'
               downloadType: 'single'
               artifactName: 'output'
-              downloadPath: ''
+              downloadPath: '$(Build.SourcesDirectory)'
 
           - task: PowerShell@2
             name: Test
