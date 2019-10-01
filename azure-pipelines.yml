@@ -19,7 +19,6 @@ steps:
           ).BaseName
     Write-Host "##vso[task.setvariable variable=ModuleName;isOutput=true]$moduleName"
   name: GetModuleName
-  pwsh: true
 
 - task: PowerShell@2
   name: BuildModule
