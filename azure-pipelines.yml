@@ -102,10 +102,76 @@ stages:
               summaryFileLocation: 'output/testResults/CodeCov*.xml'
 
 
-  # - stage: test_windows_ps
-  #   dependsOn: Build_artefact
-  # - stage: test_macos
-  #   dependsOn: Build_artefact
+  - stage: test_windows_ps
+    dependsOn: Build_artefact
+    jobs:
+      - job: TestdModuleJob
+        pool:
+          vmImage: 'win1803'
+        steps:
+          - task: DownloadBuildArtifacts@0
+            inputs:
+              buildType: 'current'
+              downloadType: 'single'
+              artifactName: 'output'
+              downloadPath: '$(Build.SourcesDirectory)'
+
+          - task: PowerShell@2
+            name: Test
+            inputs:
+              filePath: './build.ps1'
+              arguments: '-tasks test'
+              pwsh: false
+            env:
+              ModuleVersion: $(GitVersion.Informationalversion)
+
+          - task: PublishTestResults@2
+            inputs:
+              testResultsFormat: 'NUnit'
+              testResultsFiles: 'output/testResults/NUnit*.xml'
+
+
+          # Publish code coverage results
+          - task: PublishCodeCoverageResults@1
+            inputs:
+              codeCoverageTool: 'JaCoCo'
+              summaryFileLocation: 'output/testResults/CodeCov*.xml'
+
+  - stage: test_macos
+    dependsOn: Build_artefact
+    jobs:
+      - job: TestdModuleJob
+        pool:
+          vmImage: 'macos-latest'
+        steps:
+          - task: DownloadBuildArtifacts@0
+            inputs:
+              buildType: 'current'
+              downloadType: 'single'
+              artifactName: 'output'
+              downloadPath: '$(Build.SourcesDirectory)'
+
+          - task: PowerShell@2
+            name: Test
+            inputs:
+              filePath: './build.ps1'
+              arguments: '-tasks test'
+              pwsh: true
+            env:
+              ModuleVersion: $(GitVersion.Informationalversion)
+
+          - task: PublishTestResults@2
+            inputs:
+              testResultsFormat: 'NUnit'
+              testResultsFiles: 'output/testResults/NUnit*.xml'
+
+
+          # Publish code coverage results
+          - task: PublishCodeCoverageResults@1
+            inputs:
+              codeCoverageTool: 'JaCoCo'
+              summaryFileLocation: 'output/testResults/CodeCov*.xml'
+
   # - stage: release_on_sucess
   #   dependsOn:
   #   - test_linux

@@ -63,8 +63,18 @@ task Invoke_pester_tests {
         $null = New-Item -ItemType Directory -force $PesterOutputFolder -ErrorAction Stop
     }
 
+    $os = if($isWindows) {
+        'Windows'
+    }
+    elseif($isMacOS) {
+        'MacOS'
+    }
+    else {
+        'Linux'
+    }
+
     $PSVersion = 'PSv.{0}' -f $PSVersionTable.PSVersion
-    $PesterOutputFileFileName = "{0}_v{1}.PSVersion.{2}.xml" -f $ProjectName, $ModuleVersion, $PSVersion
+    $PesterOutputFileFileName = "{0}_v{1}.{2}.{3}.xml" -f $ProjectName, $ModuleVersion, $os, $PSVersion
     $PesterOutputFullPath = Join-Path $PesterOutputFolder "$($PesterOutputFormat)_$PesterOutputFileFileName"
 
     $moduleUnderTest = Import-Module $ProjectName -PassThru
@@ -141,8 +151,18 @@ task Pester_if_Code_Coverage_Under_Threshold {
         $PesterOutputFolder = Join-Path $OutputDirectory $PesterOutputFolder
     }
 
+    $os = if($isWindows) {
+        'Windows'
+    }
+    elseif($isMacOS) {
+        'MacOS'
+    }
+    else {
+        'Linux'
+    }
+
     $PSVersion = 'PSv.{0}' -f $PSVersionTable.PSVersion
-    $PesterOutputFileFileName = "{0}_v{1}.PSVersion.{2}.xml" -f $ProjectName, $ModuleVersion, $PSVersion
+    $PesterOutputFileFileName = "{0}_v{1}.{2}.{3}.xml" -f $ProjectName, $ModuleVersion, $os, $PSVersion
     $PesterResultObjectClixml = Join-Path $PesterOutputFolder "PesterObject_$PesterOutputFileFileName"
     Write-Build White "`tPester Output Object = $PesterResultObjectClixml"
 
@@ -188,8 +208,18 @@ task Upload_Test_Results_To_AppVeyor -If {(property BuildSystem 'unknown') -eq '
         $null = New-Item -ItemType Directory -force $PesterOutputFolder -ErrorAction Stop
     }
 
+    $os = if($isWindows) {
+        'Windows'
+    }
+    elseif($isMacOS) {
+        'MacOS'
+    }
+    else {
+        'Linux'
+    }
+
     $PSVersion = 'PSv.{0}' -f $PSVersionTable.PSVersion
-    $PesterOutputFileFileName = "{0}_v{1}.PSVersion.{2}.xml" -f $ProjectName, $ModuleVersion, $PSVersion
+    $PesterOutputFileFileName = "{0}_v{1}.{2}.{3}.xml" -f $ProjectName, $ModuleVersion, $os, $PSVersion
     $PesterOutputFullPath = Join-Path $PesterOutputFolder "$($PesterOutputFormat)_$PesterOutputFileFileName"
 
     $TestResultFile = Get-Item $PesterOutputFullPath -ErrorAction Ignore
