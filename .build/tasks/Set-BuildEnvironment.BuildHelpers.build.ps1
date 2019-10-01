@@ -1,6 +1,10 @@
 Param (
+    # Project path
     [string]
-    $VariableNamePrefix =  (property VariableNamePrefix ''),
+    $ProjectPath = (property ProjectPath $BuildRoot),
+
+    [string]
+    $VariableNamePrefix = (property VariableNamePrefix ''),
 
     [switch]
     $ForceEnvironmentVariables = (property ForceEnvironmentVariables $false)
@@ -13,6 +17,7 @@ task Set_Build_Environment_Variables {
         ErrorVariable      = 'err'
         ErrorAction        = 'SilentlyContinue'
         Force              = $ForceEnvironmentVariables
+        Path               = $ProjectPath
     }
 
     Set-BuildEnvironment @BH_Params
