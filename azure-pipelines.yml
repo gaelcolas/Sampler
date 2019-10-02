@@ -35,17 +35,9 @@ stages:
     dependsOn: Build_artefact
     jobs:
       - job: test_linux
-        variables:
-          ModuleVersion:
         pool:
           vmImage: 'ubuntu 16.04'
         steps:
-          - task: GitVersion@5
-            name: gitversion
-            inputs:
-              runtime: 'core'
-              configFilePath: 'GitVersion.yml'
-
           - task: DownloadBuildArtifacts@0
             inputs:
               buildType: 'current'
@@ -58,9 +50,6 @@ stages:
             inputs:
               filePath: './build.ps1'
               arguments: '-tasks test'
-              pwsh: true
-            env:
-              ModuleVersion: $(GitVersion.Informationalversion)
 
           - task: PublishTestResults@2
             inputs:
@@ -77,12 +66,6 @@ stages:
         pool:
           vmImage: 'win1803'
         steps:
-          - task: GitVersion@5
-            name: gitversion
-            inputs:
-              runtime: 'core'
-              configFilePath: 'GitVersion.yml'
-
           - task: DownloadBuildArtifacts@0
             inputs:
               buildType: 'current'
@@ -96,8 +79,6 @@ stages:
               filePath: './build.ps1'
               arguments: '-tasks test'
               pwsh: true
-            env:
-              ModuleVersion: $(GitVersion.Informationalversion)
 
           - task: PublishTestResults@2
             inputs:
@@ -114,12 +95,6 @@ stages:
         pool:
           vmImage: 'win1803'
         steps:
-          - task: GitVersion@5
-            name: gitversion
-            inputs:
-              runtime: 'core'
-              configFilePath: 'GitVersion.yml'
-
           - task: DownloadBuildArtifacts@0
             inputs:
               buildType: 'current'
@@ -133,8 +108,6 @@ stages:
               filePath: './build.ps1'
               arguments: '-tasks test'
               pwsh: false
-            env:
-              ModuleVersion: $(GitVersion.Informationalversion)
 
           - task: PublishTestResults@2
             inputs:
@@ -151,12 +124,6 @@ stages:
         pool:
           vmImage: 'macos-latest'
         steps:
-          - task: GitVersion@5
-            name: gitversion
-            inputs:
-              runtime: 'core'
-              configFilePath: 'GitVersion.yml'
-
           - task: DownloadBuildArtifacts@0
             inputs:
               buildType: 'current'
@@ -170,14 +137,11 @@ stages:
               filePath: './build.ps1'
               arguments: '-tasks test'
               pwsh: true
-            env:
-              ModuleVersion: $(GitVersion.Informationalversion)
 
           - task: PublishTestResults@2
             inputs:
               testResultsFormat: 'NUnit'
               testResultsFiles: 'output/testResults/NUnit*.xml'
-
 
           # Publish code coverage results
           - task: PublishCodeCoverageResults@1

@@ -48,6 +48,7 @@ task Invoke_pester_tests {
     "`tTests         = $($PesterScript -join ', ')"
     "`tTags          = $($PesterTag -join ', ')"
     "`tExclude Tags  = $($PesterExcludeTag -join ', ')"
+    "`tModuleVersion = $ModuleVersion"
 
     if (![io.path]::IsPathRooted($OutputDirectory)) {
         $OutputDirectory = Join-Path -Path $ProjectPath -ChildPath $OutputDirectory
@@ -63,7 +64,17 @@ task Invoke_pester_tests {
         $null = New-Item -ItemType Directory -force $PesterOutputFolder -ErrorAction Stop
     }
 
-    $os = if($isWindows) {
+    if ([String]::IsNullOrEmpty($ModuleVersion)) {
+        $ModuleInfo = Import-PowerShellDataFile "$OutputDirectory/$ProjectName/*/$ProjectName.psd1" -ErrorAction Stop
+        if($ModuleInfo.PrivateData.PSData.Prerelease) {
+            $ModuleVersion = $ModuleInfo.ModuleVersion + "-" + $ModuleInfo.PrivateData.PSData.Prerelease
+        }
+        else {
+            $ModuleInfo.ModuleVersion
+        }
+    }
+
+    $os = if($isWindows -or $PSVersionTable.PSVersion.Major -le 5) {
         'Windows'
     }
     elseif($isMacOS) {
@@ -151,7 +162,7 @@ task Pester_if_Code_Coverage_Under_Threshold {
         $PesterOutputFolder = Join-Path $OutputDirectory $PesterOutputFolder
     }
 
-    $os = if($isWindows) {
+    $os = if($isWindows -or $PSVersionTable.PSVersion.Major -le 5) {
         'Windows'
     }
     elseif($isMacOS) {
@@ -159,6 +170,16 @@ task Pester_if_Code_Coverage_Under_Threshold {
     }
     else {
         'Linux'
+    }
+
+    if ([String]::IsNullOrEmpty($ModuleVersion)) {
+        $ModuleInfo = Import-PowerShellDataFile "$OutputDirectory/$ProjectName/*/$ProjectName.psd1" -ErrorAction Stop
+        if($ModuleInfo.PrivateData.PSData.Prerelease) {
+            $ModuleVersion = $ModuleInfo.ModuleVersion + "-" + $ModuleInfo.PrivateData.PSData.Prerelease
+        }
+        else {
+            $ModuleInfo.ModuleVersion
+        }
     }
 
     $PSVersion = 'PSv.{0}' -f $PSVersionTable.PSVersion
@@ -216,6 +237,16 @@ task Upload_Test_Results_To_AppVeyor -If {(property BuildSystem 'unknown') -eq '
     }
     else {
         'Linux'
+    }
+
+    if ([String]::IsNullOrEmpty($ModuleVersion)) {
+        $ModuleInfo = Import-PowerShellDataFile "$OutputDirectory/$ProjectName/*/$ProjectName.psd1" -ErrorAction Stop
+        if($ModuleInfo.PrivateData.PSData.Prerelease) {
+            $ModuleVersion = $ModuleInfo.ModuleVersion + "-" + $ModuleInfo.PrivateData.PSData.Prerelease
+        }
+        else {
+            $ModuleInfo.ModuleVersion
+        }
     }
 
     $PSVersion = 'PSv.{0}' -f $PSVersionTable.PSVersion
