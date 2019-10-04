@@ -48,6 +48,7 @@ task Invoke_pester_tests {
     "`tTests         = $($PesterScript -join ', ')"
     "`tTags          = $($PesterTag -join ', ')"
     "`tExclude Tags  = $($PesterExcludeTag -join ', ')"
+    "`tModuleVersion = $ModuleVersion"
 
     if (![io.path]::IsPathRooted($OutputDirectory)) {
         $OutputDirectory = Join-Path -Path $ProjectPath -ChildPath $OutputDirectory
@@ -63,8 +64,28 @@ task Invoke_pester_tests {
         $null = New-Item -ItemType Directory -force $PesterOutputFolder -ErrorAction Stop
     }
 
+    if ([String]::IsNullOrEmpty($ModuleVersion)) {
+        $ModuleInfo = Import-PowerShellDataFile "$OutputDirectory/$ProjectName/*/$ProjectName.psd1" -ErrorAction Stop
+        if($ModuleInfo.PrivateData.PSData.Prerelease) {
+            $ModuleVersion = $ModuleInfo.ModuleVersion + "-" + $ModuleInfo.PrivateData.PSData.Prerelease
+        }
+        else {
+            $ModuleInfo.ModuleVersion
+        }
+    }
+
+    $os = if($isWindows -or $PSVersionTable.PSVersion.Major -le 5) {
+        'Windows'
+    }
+    elseif($isMacOS) {
+        'MacOS'
+    }
+    else {
+        'Linux'
+    }
+
     $PSVersion = 'PSv.{0}' -f $PSVersionTable.PSVersion
-    $PesterOutputFileFileName = "{0}_v{1}.PSVersion.{2}.xml" -f $ProjectName, $ModuleVersion, $PSVersion
+    $PesterOutputFileFileName = "{0}_v{1}.{2}.{3}.xml" -f $ProjectName, $ModuleVersion, $os, $PSVersion
     $PesterOutputFullPath = Join-Path $PesterOutputFolder "$($PesterOutputFormat)_$PesterOutputFileFileName"
 
     $moduleUnderTest = Import-Module $ProjectName -PassThru
@@ -141,8 +162,28 @@ task Pester_if_Code_Coverage_Under_Threshold {
         $PesterOutputFolder = Join-Path $OutputDirectory $PesterOutputFolder
     }
 
+    $os = if($isWindows -or $PSVersionTable.PSVersion.Major -le 5) {
+        'Windows'
+    }
+    elseif($isMacOS) {
+        'MacOS'
+    }
+    else {
+        'Linux'
+    }
+
+    if ([String]::IsNullOrEmpty($ModuleVersion)) {
+        $ModuleInfo = Import-PowerShellDataFile "$OutputDirectory/$ProjectName/*/$ProjectName.psd1" -ErrorAction Stop
+        if($ModuleInfo.PrivateData.PSData.Prerelease) {
+            $ModuleVersion = $ModuleInfo.ModuleVersion + "-" + $ModuleInfo.PrivateData.PSData.Prerelease
+        }
+        else {
+            $ModuleInfo.ModuleVersion
+        }
+    }
+
     $PSVersion = 'PSv.{0}' -f $PSVersionTable.PSVersion
-    $PesterOutputFileFileName = "{0}_v{1}.PSVersion.{2}.xml" -f $ProjectName, $ModuleVersion, $PSVersion
+    $PesterOutputFileFileName = "{0}_v{1}.{2}.{3}.xml" -f $ProjectName, $ModuleVersion, $os, $PSVersion
     $PesterResultObjectClixml = Join-Path $PesterOutputFolder "PesterObject_$PesterOutputFileFileName"
     Write-Build White "`tPester Output Object = $PesterResultObjectClixml"
 
@@ -188,8 +229,28 @@ task Upload_Test_Results_To_AppVeyor -If {(property BuildSystem 'unknown') -eq '
         $null = New-Item -ItemType Directory -force $PesterOutputFolder -ErrorAction Stop
     }
 
+    $os = if($isWindows -or $PSVersionTable.PSVersion.Major -le 5) {
+        'Windows'
+    }
+    elseif($isMacOS) {
+        'MacOS'
+    }
+    else {
+        'Linux'
+    }
+
+    if ([String]::IsNullOrEmpty($ModuleVersion)) {
+        $ModuleInfo = Import-PowerShellDataFile "$OutputDirectory/$ProjectName/*/$ProjectName.psd1" -ErrorAction Stop
+        if($ModuleInfo.PrivateData.PSData.Prerelease) {
+            $ModuleVersion = $ModuleInfo.ModuleVersion + "-" + $ModuleInfo.PrivateData.PSData.Prerelease
+        }
+        else {
+            $ModuleInfo.ModuleVersion
+        }
+    }
+
     $PSVersion = 'PSv.{0}' -f $PSVersionTable.PSVersion
-    $PesterOutputFileFileName = "{0}_v{1}.PSVersion.{2}.xml" -f $ProjectName, $ModuleVersion, $PSVersion
+    $PesterOutputFileFileName = "{0}_v{1}.{2}.{3}.xml" -f $ProjectName, $ModuleVersion, $os, $PSVersion
     $PesterOutputFullPath = Join-Path $PesterOutputFolder "$($PesterOutputFormat)_$PesterOutputFileFileName"
 
     $TestResultFile = Get-Item $PesterOutputFullPath -ErrorAction Ignore
