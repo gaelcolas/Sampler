@@ -1,16 +1,34 @@
 assembly-versioning-scheme: MajorMinorPatchTag
 assembly-informational-format: '{NuGetVersionV2}+Sha.{Sha}.Date.{CommitDate}'
-mode: Mainline
+mode: ContinuousDelivery
 next-version: 0.1.0
 commit-message-incrementing: MergeMessageOnly
 branches:
   master:
-    tag: preview
     increment: Minor
+    tag: preview
   features:
     increment: patch
     regex: features?[/-]
     source-branches:
     - master
+  pull-request:
+    mode: ContinuousDelivery
+    tag: PR
+    increment: Inherit
+    prevent-increment-of-merged-branch-version: false
+    tag-number-pattern: '[/-](?<number>\d+)'
+    track-merge-target: false
+    regex: (pull|pull\-requests|pr)[/-]
+    source-branches:
+    - develop
+    - master
+    - release
+    - feature
+    - support
+    - hotfix
+    tracks-release-branches: false
+    is-release-branch: false
+    is-mainline: false
 ignore:
   sha: []
