@@ -70,6 +70,7 @@ BuildWorkflow:
     - Build_Module_ModuleBuilder
     - Build_NestedModules_ModuleBuilder
     - CopyPlaster
+    - package_module_nupkg
     - Pester_Tests_Stop_On_Fail
     - Pester_if_Code_Coverage_Under_Threshold
 
@@ -79,6 +80,7 @@ BuildWorkflow:
     - Build_Module_ModuleBuilder
     - Build_NestedModules_ModuleBuilder
     - CopyPlaster
+    - package_module_nupkg
 
   # defining test task to be run when invoking `./build.ps1 -Tasks test`
   test:
