@@ -149,9 +149,16 @@ stages:
               codeCoverageTool: 'JaCoCo'
               summaryFileLocation: 'output/testResults/CodeCov*.xml'
 
-  # - stage: release_on_sucess
-  #   dependsOn:
-  #   - test_linux
-  #   - test_windows_core
-  #   - test_windows_ps
-  #   - test_macos
+  - stage: Deploy
+    dependsOn: test_module
+    jobs:
+      - job: Deploy to PSGallery
+        pool:
+          vmImage: 'ubuntu 16.04'
+        steps:
+          - task: DownloadBuildArtifacts@0
+            inputs:
+              buildType: 'current'
+              downloadType: 'single'
+              artifactName: 'output'
+              downloadPath: '$(Build.SourcesDirectory)'
