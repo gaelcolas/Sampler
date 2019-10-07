@@ -151,6 +151,8 @@ stages:
 
   - stage: Deploy
     dependsOn: test_module
+    # Only execute deploy stage if we're on master and previous stage succeeded
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
     jobs:
       - job: Deploy to PSGallery
         pool:
@@ -162,3 +164,11 @@ stages:
               downloadType: 'single'
               artifactName: 'output'
               downloadPath: '$(Build.SourcesDirectory)'
+          - task: PowerShell@2
+            name: github_pre_release
+            inputs:
+              filePath: './build.ps1'
+              arguments: '-tasks Publish_release_to_GitHub'
+              pwsh: true
+            env:
+              GitHubToken: $(GitHubToken)

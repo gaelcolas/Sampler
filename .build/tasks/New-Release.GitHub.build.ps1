@@ -26,7 +26,7 @@ param(
         )),
 
     [string]
-    $GitHubToken = (property GitHubToken '')
+    $GitHubToken = (property GitHubToken '') # retrieves from Environment variable
 )
 
 # Synopsis: Packaging the module by Publishing to output folder (incl dependencies)
