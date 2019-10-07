@@ -70,7 +70,7 @@ task Invoke_pester_tests {
             $ModuleVersion = $ModuleInfo.ModuleVersion + "-" + $ModuleInfo.PrivateData.PSData.Prerelease
         }
         else {
-            $ModuleInfo.ModuleVersion
+            $ModuleVersion = $ModuleInfo.ModuleVersion
         }
     }
 

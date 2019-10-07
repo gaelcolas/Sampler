@@ -1,34 +1,29 @@
 assembly-versioning-scheme: MajorMinorPatchTag
 assembly-informational-format: '{NuGetVersionV2}+Sha.{Sha}.Date.{CommitDate}'
-mode: ContinuousDelivery
+mode: ContinuousDeployment
 next-version: 0.1.0
-commit-message-incrementing: MergeMessageOnly
+commit-message-incrementing: enabled
+major-version-bump-message: '\+semver:\s?(breaking|major)|BREAKING\s*CHANGE'
+minor-version-bump-message: '\+semver:\s?(feature|minor|f)'
+patch-version-bump-message: '\+semver:\s?(fix|patch)'
+patch-version-bump-message: '.*'
+increment: Patch
 branches:
   master:
-    increment: Minor
     tag: preview
-  features:
-    increment: patch
-    regex: features?[/-]
-    source-branches:
-    - master
+    increment: Inherit
+    is-mainline: true
+  feature:
+    increment: Minor
+    tag: useBranchName
+  hotfix:
+    tag: fix
+    increment: Patch
+    regex: (hot)?fix(es)?[/-]
   pull-request:
-    mode: ContinuousDelivery
     tag: PR
     increment: Inherit
-    prevent-increment-of-merged-branch-version: false
     tag-number-pattern: '[/-](?<number>\d+)'
-    track-merge-target: false
     regex: (pull|pull\-requests|pr)[/-]
-    source-branches:
-    - develop
-    - master
-    - release
-    - feature
-    - support
-    - hotfix
-    tracks-release-branches: false
-    is-release-branch: false
-    is-mainline: false
 ignore:
   sha: []
