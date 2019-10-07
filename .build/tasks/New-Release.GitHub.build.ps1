@@ -83,6 +83,16 @@ task package_module_nupkg {
 }
 
 task Publish_release_to_GitHub -if ($GitHubToken) {
+
+    if ([String]::IsNullOrEmpty($ModuleVersion)) {
+        $ModuleInfo = Import-PowerShellDataFile "$OutputDirectory/$ProjectName/*/$ProjectName.psd1" -ErrorAction Stop
+        if ($ModuleInfo.PrivateData.PSData.Prerelease) {
+            $ModuleVersion = $ModuleInfo.ModuleVersion + "-" + $ModuleInfo.PrivateData.PSData.Prerelease
+        }
+        else {
+            $ModuleVersion = $ModuleInfo.ModuleVersion
+        }
+    }
     # Remove metadata from ModuleVersion
     $PSModuleVersion, $PreReleaseTag = ($ModuleVersion -split '\+',2)
     # find Module's nupkg
