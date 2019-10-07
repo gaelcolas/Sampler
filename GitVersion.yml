@@ -1,12 +1,12 @@
 assembly-versioning-scheme: MajorMinorPatchTag
 assembly-informational-format: '{NuGetVersionV2}+Sha.{Sha}.Date.{CommitDate}'
-mode: Mainline
+mode: ContinuousDelivery
 next-version: 0.1.0
 commit-message-incrementing: MergeMessageOnly
 branches:
   master:
-    tag: preview
     increment: Minor
+    tag: preview
   features:
     increment: patch
     regex: features?[/-]
