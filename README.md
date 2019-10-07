@@ -40,7 +40,7 @@ This is the beginning of the build process so that anyone doing a git clone can 
   >
   > `C:\ > .build.ps1 -Tasks noop`
 
-- [ ] Configure & Import the InvokeBuild tasks and workflow. Handled by the `.build.ps1`'s **PROCESS** block:
+- [X] Configure & Import the InvokeBuild tasks and workflow. Handled by the `.build.ps1`'s **PROCESS** block:
 
   - Only execute the PROCESS block through InvokeBuild task runner
   - Load Build Configuration Data from `.\build.psd1`
