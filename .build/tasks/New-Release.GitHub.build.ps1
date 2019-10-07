@@ -2,7 +2,7 @@ param(
     # Base directory of all output (default to 'output')
     [string]$OutputDirectory = (property OutputDirectory (Join-Path $BuildRoot 'output')),
 
-    $ChangelogPath = (property ChangelogPath './CHANGELOG.md'),
+    $ChangelogPath = (property ChangelogPath 'CHANGELOG.md'),
 
     [string]
     $ProjectName = (property ProjectName $(
@@ -26,15 +26,13 @@ param(
         )),
 
     [string]
-    $GitHubToken,
-
-    [string]
-    $Repository
+    $GitHubToken = (property GitHubToken '')
 )
 
 # Synopsis: Packaging the module by Publishing to output folder (incl dependencies)
 task package_module_nupkg {
 
+    # Force registering the output repository mapping to the Project's output path
     $null = Unregister-PSRepository -Name output -ErrorAction SilentlyContinue
     $RepositoryParams = @{
         Name            = 'output'
@@ -45,17 +43,20 @@ task package_module_nupkg {
 
     $null = Register-PSRepository @RepositoryParams
 
-    $moduleToRemove = Find-Module -Repository output -Name $ProjectName -ErrorAction SilentlyContinue
-
-    if ($moduleToRemove) {
+    # Cleaning up existing packaged module
+    if ($ModuleToRemove = Get-ChildItem (Join-Path $OutputDirectory "$ProjectName.*.nupkg")) {
         Write-Build DarkGray "  Remove existing $ProjectName package"
-        remove-item -force -Path (Join-Path $moduleToRemove.RepositorySourceLocation "$ProjectName.*.nupkg") -ErrorAction Stop
+        remove-item -force -Path $ModuleToRemove -ErrorAction Stop
     }
 
+    # find Module manifest
     $BuiltModuleManifest = (Get-ChildItem (Join-Path $OutputDirectory $ProjectName) -Depth 2 -Filter "$ProjectName.psd1").FullName
     Write-Build DarkGray "  Built module's Manifest found at $BuiltModuleManifest"
 
+    # load module manifest
     $ModuleInfo = Import-PowerShellDataFile -Path $BuiltModuleManifest
+
+    # Publish dependencies (from environment) so we can publish the built module
     foreach ($module in $ModuleInfo.RequiredModules) {
         if(!(Find-Module -repository output -Name $Module -ErrorAction SilentlyContinue)) {
             # Replace the module by first (path & version) resolved in PSModulePath
@@ -73,34 +74,68 @@ task package_module_nupkg {
         Repository = 'output'
         Force      = $true
         ErrorAction = 'Stop'
-        # ProjectUri =
-        # ReleaseNotes =
-        # FormatVersion =
-        # Tags =
     }
     Publish-Module @PublishModuleParams
     Write-Build Green "`n  Packaged $ProjectName NuGet package `n"
     Write-Build DarkGray "  Cleaning up"
 
-    # find Module manifest
-    # load module manifest
-    # Publish dependencies
-
     $null = Unregister-PSRepository -Name output -ErrorAction SilentlyContinue
 }
 
-task Publish_release_to_GitHub {
-    # find ProjectName nupkg
+task Publish_release_to_GitHub -if ($GitHubToken) {
+    # Remove metadata from ModuleVersion
+    $PSModuleVersion, $PreReleaseTag = ($ModuleVersion -split '\+',2)
+    # find Module's nupkg
+    $PackageToRelease = Get-ChildItem (Join-Path $OutputDirectory "$ProjectName.$PSModuleVersion.nupkg")
+    $ReleaseTag = "v$PSModuleVersion"
+
+    Write-Build DarkGray "About to release $PackageToRelease"
+    $remoteURL = git remote get-url origin
+
+    if($remoteURL -notMatch 'github') {
+        return
+    }
+
     # find owner repository / remote
-    # $Tag = v$Version
+    $Repo = GetHumanishRepositoryDetails -RemoteUrl $remoteURL
+
     # Prerelease label?
+    if ($PreReleaseTag) {
+        $Prerelease = $true
+    }
+
     # compile changelog for that version
-    # ((gc -raw .\CHANGELOG.md) -match '\[Unreleased\](?<changeLog>[.\s\w\W]*)\n## \['); $matches.changeLog
+    if(!(Split-Path $ChangelogPath -isAbsolute)) {
+        $ChangelogPath = Join-Path $BuildRoot $ChangelogPath | Convert-Path
+    }
+
+    # Parse the Changelog and extract unreleased
+    if ((Get-Content -raw $ChangelogPath -ErrorAction SilentlyContinue) -match '\[Unreleased\](?<changeLog>[.\s\w\W]*)\n## \[') {
+        $ChangeLog = $matches.ChangeLog
+    }
+    else {
+        $ChangeLog = Get-Content -raw $ChangelogPath -ErrorAction SilentlyContinue
+    }
+
     # create release
     # upload artefacts
+
+    $releaseParams = @{
+        Owner = $Repo.Owner
+        Repository = $Repo.Repository
+        Tag = $ReleaseTag
+        ReleaseName = $ReleaseTag
+        # Branch = "release/$PSModuleVersion"
+        AssetPath = $PackageToRelease
+        Prerelease = [bool]($PreReleaseTag)
+        Description = $ChangeLog
+        GitHubToken = $GitHubToken
+    }
+    $APIResponse = Publish-GitHubRelease @releaseParams
+    Write-Build Green "Release Created. Follow the link -> $($APIResponse.html_url)"
 }
 
-task Publish_npkg_to_GitHub_feed {
+task Publish_nupkg_to_GitHub_feed {
 
 }
 
@@ -144,8 +179,7 @@ task Publish_npkg_to_GitHub_feed {
 # from https://github.com/PowerShell/vscode-powershell/blob/master/tools/GitHubTools.psm1
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # Licensed under the MIT License.
-function Publish-GitHubRelease
-{
+function Publish-GitHubRelease {
     param(
         [Parameter(Mandatory)]
         [string]
@@ -188,22 +222,21 @@ function Publish-GitHubRelease
     )
 
     $restParams = @{
-        tag_name = $Tag
-        name = $ReleaseName
-        body = $Description
-        draft = [bool]$Draft
+        tag_name   = $Tag
+        name       = $ReleaseName
+        body       = $Description
+        draft      = [bool]$Draft
         prerelease = [bool]$Prerelease
     }
 
-    if ($Commitish)
-    {
+    if ($Commitish) {
         $restParams.target_commitish = $Commitish
     }
 
     $restBody = ConvertTo-Json -InputObject $restParams
     $uri = "https://api.github.com/repos/$Owner/$Repository/releases"
     $headers = @{
-        Accept = 'application/vnd.github.v3+json'
+        Accept        = 'application/vnd.github.v3+json'
         Authorization = "token $GitHubToken"
     }
 
@@ -211,21 +244,17 @@ function Publish-GitHubRelease
 
     $releaseId = $response.id
     $assetBaseUri = "https://uploads.github.com/repos/$Owner/$Repository/releases/$releaseId/assets"
-    foreach ($asset in $AssetPath)
-    {
+    foreach ($asset in $AssetPath) {
         $extension = [System.IO.Path]::GetExtension($asset)
         $fileName = [uri]::EscapeDataString([System.IO.Path]::GetFileName($asset))
         $contentType = 'text/plain'
-        switch ($extension)
-        {
-            { $_ -in '.zip','.vsix','nupkg' }
-            {
+        switch ($extension) {
+            { $_ -in '.zip', '.vsix', 'nupkg' } {
                 $contentType = 'application/zip'
                 break
             }
 
-            '.json'
-            {
+            '.json' {
                 $contentType = 'application/json'
                 break
             }
@@ -240,4 +269,34 @@ function Publish-GitHubRelease
     }
 
     return $response
+}
+
+# from https://github.com/PowerShell/vscode-powershell/blob/master/tools/GitHubTools.psm1
+# Copyright (c) Microsoft Corporation. All rights reserved.
+# Licensed under the MIT License.
+filter GetHumanishRepositoryDetails
+{
+    param(
+        [string]
+        $RemoteUrl
+    )
+
+    if ($RemoteUrl.EndsWith('.git'))
+    {
+        $RemoteUrl = $RemoteUrl.Substring(0, $RemoteUrl.Length - 4)
+    }
+    else
+    {
+        $RemoteUrl = $RemoteUrl.Trim('/')
+    }
+
+    $lastSlashIdx = $RemoteUrl.LastIndexOf('/')
+    $repository =  $RemoteUrl.Substring($lastSlashIdx + 1)
+    $secondLastSlashIdx = $RemoteUrl.LastIndexOfAny(('/', ':'), $lastSlashIdx - 1)
+    $Owner = $RemoteUrl.Substring($secondLastSlashIdx + 1, $lastSlashIdx - $secondLastSlashIdx - 1)
+
+    return @{
+        Owner = $Owner
+        Repository = $repository
+    }
 }
