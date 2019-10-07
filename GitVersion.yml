@@ -8,10 +8,14 @@ branches:
     increment: Minor
     tag: preview
   features:
-    increment: patch
-    regex: features?[/-]
+    increment: Minor
+    regex: (feature(s)?)?[/-]?
     source-branches:
     - master
+  hotfix:
+    increment: patch
+    regex: (hot)?fix(es)?[/-]
+    tag: fix
   pull-request:
     mode: ContinuousDelivery
     tag: PR
@@ -25,7 +29,6 @@ branches:
     - master
     - release
     - feature
-    - support
     - hotfix
     tracks-release-branches: false
     is-release-branch: false
