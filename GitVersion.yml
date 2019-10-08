@@ -1,26 +1,30 @@
 mode: Mainline
 next-version: 0.85
-branches: {}
-ignore:
-  sha: []
-  # commits-before: 2019-10-07T11:00:00
-merge-message-formats: {}
-
 major-version-bump-message: '\s?(breaking|major|breaking\schange)'
 minor-version-bump-message: '\s?(add|feature|minor)'
 patch-version-bump-message: '\s?(fix|patch)'
 no-bump-message: '\+semver:\s?(none|skip)'
+assembly-informational-format: '{NuGetVersionV2}+Sha.{Sha}.Date.{CommitDate}'
 
-# pull-request:
-#   tag: PR
-#   increment: Inherit
-#   source-branches: ['master']
-# master:
-#   prevent-increment-of-merged-branch-version: false
-#   tag: ''
-#   increment: Minor
-#   is-release-branch: true
-#   is-mainline: true
+branches:
+  pull-request:
+    tag: PR
+  feature:
+    tag: useBranchName
+    increment: Minor
+    regex: f(eature(s)?)?[/-]
+    source-branches: ['master']
+  hotfix:
+    tag: fix
+    increment: Patch
+    regex: (hot)?fix(es)?[/-]
+    source-branches: ['master']
+
+ignore:
+  sha: []
+merge-message-formats: {}
+
+
 # feature:
 #   tag: useBranchName
 #   increment: Minor
