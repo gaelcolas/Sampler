@@ -50,12 +50,12 @@ task Invoke_pester_tests {
     "`tExclude Tags  = $($PesterExcludeTag -join ', ')"
     "`tModuleVersion = $ModuleVersion"
 
-    if (![io.path]::IsPathRooted($OutputDirectory)) {
+    if (!(Split-path -isAbsolute $OutputDirectory)) {
         $OutputDirectory = Join-Path -Path $ProjectPath -ChildPath $OutputDirectory
         Write-Build Yellow "Absolute path to Output Directory is $OutputDirectory"
     }
 
-    if (![io.path]::IsPathRooted($PesterOutputFolder)) {
+    if (!(Split-path -isAbsolute $PesterOutputFolder)) {
         $PesterOutputFolder = Join-Path $OutputDirectory $PesterOutputFolder
     }
 
@@ -66,12 +66,16 @@ task Invoke_pester_tests {
 
     if ([String]::IsNullOrEmpty($ModuleVersion)) {
         $ModuleInfo = Import-PowerShellDataFile "$OutputDirectory/$ProjectName/*/$ProjectName.psd1" -ErrorAction Stop
-        if($ModuleInfo.PrivateData.PSData.Prerelease) {
+        if ($ModuleInfo.PrivateData.PSData.Prerelease) {
             $ModuleVersion = $ModuleInfo.ModuleVersion + "-" + $ModuleInfo.PrivateData.PSData.Prerelease
         }
         else {
             $ModuleVersion = $ModuleInfo.ModuleVersion
         }
+    }
+    else {
+        $ModuleVersion, $BuildMetadata = $ModuleVersion -split '\+', 2
+        $ModuleVersionFolder, $PreReleaseTag = $ModuleVersion -split '\-', 2
     }
 
     $os = if($isWindows -or $PSVersionTable.PSVersion.Major -le 5) {
@@ -125,7 +129,7 @@ task Invoke_pester_tests {
     if ($PesterScript.count -gt 0) {
         $PesterParams.Add('Script', @())
         foreach ($TestFolder in $PesterScript) {
-            if (![io.path]::IsPathRooted($TestFolder)) {
+            if (!(Split-path -isAbsolute $TestFolder)) {
                 $TestFolder = Join-Path $ProjectPath $TestFolder
             }
 
@@ -146,19 +150,13 @@ task Invoke_pester_tests {
 # Synopsis: This task ensures the build job fails if the test aren't successful.
 task Fail_Build_if_Pester_Tests_failed -If ($CodeCoverageThreshold -ne 0) {
     "Asserting that no test failed"
-    assert ($script:TestResults.FailedCount -eq 0) ('Failed {0} Quality tests. Aborting Build' -f $script:TestResults.FailedCount)
-}
 
-
-# Synopsis: Fails the build if the code coverage is under predefined threshold
-task Pester_if_Code_Coverage_Under_Threshold {
-
-    if (![io.path]::IsPathRooted($OutputDirectory)) {
+    if (!(Split-path -isAbsolute $OutputDirectory)) {
         $OutputDirectory = Join-Path -Path $ProjectPath -ChildPath $OutputDirectory
         Write-Build Yellow "Absolute path to Output Directory is $OutputDirectory"
     }
 
-    if (![io.path]::IsPathRooted($PesterOutputFolder)) {
+    if (!(Split-path -isAbsolute $PesterOutputFolder)) {
         $PesterOutputFolder = Join-Path $OutputDirectory $PesterOutputFolder
     }
 
@@ -180,6 +178,69 @@ task Pester_if_Code_Coverage_Under_Threshold {
         else {
             $ModuleInfo.ModuleVersion
         }
+    }
+    else {
+        $ModuleVersion, $BuildMetadata = $ModuleVersion -split '\+', 2
+        $ModuleVersionFolder, $PreReleaseTag = $ModuleVersion -split '\-', 2
+    }
+
+    $PSVersion = 'PSv.{0}' -f $PSVersionTable.PSVersion
+    $PesterOutputFileFileName = "{0}_v{1}.{2}.{3}.xml" -f $ProjectName, $ModuleVersion, $os, $PSVersion
+    $PesterResultObjectClixml = Join-Path $PesterOutputFolder "PesterObject_$PesterOutputFileFileName"
+    Write-Build White "`tPester Output Object = $PesterResultObjectClixml"
+
+
+    if (-Not (Test-Path $PesterResultObjectClixml)) {
+        if ( $CodeCoverageThreshold -eq 0 ) {
+            Write-Build Green "Pester run and Coverage bypassed. No Pester output found but allowed."
+            return
+        }
+        else {
+            Throw "No command were tested. Threshold of $CodeCoverageThreshold % not met"
+        }
+    }
+    else {
+        $PesterObject = Import-Clixml -Path $PesterResultObjectClixml
+    }
+
+    assert ($PesterObject.FailedCount -eq 0) ('Failed {0} Quality tests. Aborting Build' -f $PesterObject.FailedCount)
+}
+
+
+# Synopsis: Fails the build if the code coverage is under predefined threshold
+task Pester_if_Code_Coverage_Under_Threshold {
+
+    if (!(Split-path -isAbsolute $OutputDirectory)) {
+        $OutputDirectory = Join-Path -Path $ProjectPath -ChildPath $OutputDirectory
+        Write-Build Yellow "Absolute path to Output Directory is $OutputDirectory"
+    }
+
+    if (!(Split-path -isAbsolute $PesterOutputFolder)) {
+        $PesterOutputFolder = Join-Path $OutputDirectory $PesterOutputFolder
+    }
+
+    $os = if($isWindows -or $PSVersionTable.PSVersion.Major -le 5) {
+        'Windows'
+    }
+    elseif($isMacOS) {
+        'MacOS'
+    }
+    else {
+        'Linux'
+    }
+
+    if ([String]::IsNullOrEmpty($ModuleVersion)) {
+        $ModuleInfo = Import-PowerShellDataFile "$OutputDirectory/$ProjectName/*/$ProjectName.psd1" -ErrorAction Stop
+        if($ModuleInfo.PrivateData.PSData.Prerelease) {
+            $ModuleVersion = $ModuleInfo.ModuleVersion + "-" + $ModuleInfo.PrivateData.PSData.Prerelease
+        }
+        else {
+            $ModuleInfo.ModuleVersion
+        }
+    }
+    else {
+        $ModuleVersion, $BuildMetadata = $ModuleVersion -split '\+', 2
+        $ModuleVersionFolder, $PreReleaseTag = $ModuleVersion -split '\-', 2
     }
 
     $PSVersion = 'PSv.{0}' -f $PSVersionTable.PSVersion
@@ -215,12 +276,12 @@ task Pester_if_Code_Coverage_Under_Threshold {
 # Synopsis: Uploading Unit Test results to AppVeyor
 task Upload_Test_Results_To_AppVeyor -If {(property BuildSystem 'unknown') -eq 'AppVeyor'} {
 
-    if (![io.path]::IsPathRooted($OutputDirectory)) {
+    if (!(Split-path -isAbsolute $OutputDirectory)) {
         $OutputDirectory = Join-Path -Path $ProjectPath -ChildPath $OutputDirectory
         Write-Build Yellow "Absolute path to Output Directory is $OutputDirectory"
     }
 
-    if (![io.path]::IsPathRooted($PesterOutputFolder)) {
+    if (!(Split-path -isAbsolute $PesterOutputFolder)) {
         $PesterOutputFolder = Join-Path $OutputDirectory $PesterOutputFolder
     }
 
@@ -247,6 +308,10 @@ task Upload_Test_Results_To_AppVeyor -If {(property BuildSystem 'unknown') -eq '
         else {
             $ModuleInfo.ModuleVersion
         }
+    }
+    else {
+        $ModuleVersion, $BuildMetadata = $ModuleVersion -split '\+', 2
+        $ModuleVersionFolder, $PreReleaseTag = $ModuleVersion -split '\-', 2
     }
 
     $PSVersion = 'PSv.{0}' -f $PSVersionTable.PSVersion
