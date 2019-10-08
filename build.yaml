@@ -25,8 +25,8 @@ VersionedOutputDirectory: true
 NestedModule:
   HelperSubmodule: # This is the first submodule to build into the output
     Path: ./Sampler/Modules/HelperSubmodule/HelperSubmodule.psd1
-    # $ModuleVersion is trimmed (remove -.*) and OutputDirectory expanded (the only one)
-    OutputDirectory: ./output/Sampler/$ModuleVersion/Modules/HelperSubmodule
+    # $ModuleVersionFolder is trimmed (remove metadata & Prerelease tag) and OutputDirectory expanded (the only one)
+    OutputDirectory: ./output/Sampler/$ModuleVersionFolder/Modules/HelperSubmodule
     VersionedOutputDirectory: false
     # suffix:
     # prefix:
