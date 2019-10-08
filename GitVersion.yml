@@ -1,29 +1,33 @@
-assembly-versioning-scheme: MajorMinorPatchTag
-assembly-informational-format: '{NuGetVersionV2}+Sha.{Sha}.Date.{CommitDate}'
-mode: ContinuousDeployment
-next-version: 0.1.0
-commit-message-incrementing: enabled
-major-version-bump-message: '\+semver:\s?(breaking|major)|BREAKING\s*CHANGE'
-minor-version-bump-message: '\+semver:\s?(feature|minor|f)'
-patch-version-bump-message: '\+semver:\s?(fix|patch)'
-patch-version-bump-message: '.*'
-increment: Patch
-branches:
-  master:
-    tag: preview
-    increment: Inherit
-    is-mainline: true
-  feature:
-    increment: Minor
-    tag: useBranchName
-  hotfix:
-    tag: fix
-    increment: Patch
-    regex: (hot)?fix(es)?[/-]
-  pull-request:
-    tag: PR
-    increment: Inherit
-    tag-number-pattern: '[/-](?<number>\d+)'
-    regex: (pull|pull\-requests|pr)[/-]
+mode: Mainline
+next-version: 0.85
+branches: {}
 ignore:
   sha: []
+  # commits-before: 2019-10-07T11:00:00
+merge-message-formats: {}
+
+major-version-bump-message: '\s?(breaking|major|breaking\schange)'
+minor-version-bump-message: '\s?(add|feature|minor)'
+patch-version-bump-message: '\s?(fix|patch)'
+no-bump-message: '\+semver:\s?(none|skip)'
+
+# pull-request:
+#   tag: PR
+#   increment: Inherit
+#   source-branches: ['master']
+# master:
+#   prevent-increment-of-merged-branch-version: false
+#   tag: ''
+#   increment: Minor
+#   is-release-branch: true
+#   is-mainline: true
+# feature:
+#   tag: useBranchName
+#   increment: Minor
+#   regex: f(eature(s)?)?[/-]
+#   source-branches: ['master']
+# hotfix:
+#   tag: fix
+#   increment: Patch
+#   regex: (hot)?fix(es)?[/-]
+#   source-branches: ['master']
