@@ -94,7 +94,8 @@ task Publish_release_to_GitHub -if ($GitHubToken) {
         }
     }
     # Remove metadata from ModuleVersion
-    $PSModuleVersion, $PreReleaseTag = ($ModuleVersion -split '\+',2)
+    $PSModuleVersion, $metadata = ($ModuleVersion -split '\+', 2)
+    $PSModuleVersion, $PreReleaseTag = ($PSModuleVersion -split '\-',2)
     # find Module's nupkg
     $PackageToRelease = Get-ChildItem (Join-Path $OutputDirectory "$ProjectName.$PSModuleVersion.nupkg")
     $ReleaseTag = "v$PSModuleVersion"
