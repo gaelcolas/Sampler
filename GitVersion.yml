@@ -1,29 +1,30 @@
-assembly-versioning-scheme: MajorMinorPatchTag
+assembly-versioning-scheme: MajorMinorPatch
 assembly-informational-format: '{NuGetVersionV2}+Sha.{Sha}.Date.{CommitDate}'
-mode: ContinuousDeployment
+mode: mainline
 next-version: 0.1.0
-commit-message-incrementing: enabled
-major-version-bump-message: '\+semver:\s?(breaking|major)|BREAKING\s*CHANGE'
-minor-version-bump-message: '\+semver:\s?(feature|minor|f)'
-patch-version-bump-message: '\+semver:\s?(fix|patch)'
-patch-version-bump-message: '.*'
-increment: Patch
-branches:
-  master:
-    tag: preview
-    increment: Inherit
-    is-mainline: true
-  feature:
-    increment: Minor
-    tag: useBranchName
-  hotfix:
-    tag: fix
-    increment: Patch
-    regex: (hot)?fix(es)?[/-]
-  pull-request:
-    tag: PR
-    increment: Inherit
-    tag-number-pattern: '[/-](?<number>\d+)'
-    regex: (pull|pull\-requests|pr)[/-]
+#commit-message-incrementing: enabled
+#major-version-bump-message: '\+semver:\s?(breaking|major)|BREAKING\s*CHANGE'
+#minor-version-bump-message: '\+semver:\s?(feature|minor|f)'
+#patch-version-bump-message: '\+semver:\s?(fix|patch)'
+#patch-version-bump-message: '.*'
+#increment: Patch
+# branches:
+#   master:
+#     #tag: none
+#     increment: Inherit
+#     is-mainline: true
+#   feature:
+#     #mode: mainline
+#     increment: Minor
+#     #tag: useBranchName
+#   hotfix:
+#     #tag: fix
+#     increment: Patch
+#     regex: (hot)?fix(es)?[/-]
+#   pull-request:
+#     tag: PR
+#     increment: Inherit
+#     tag-number-pattern: '[/-](?<number>\d+)'
+#     regex: (pull|pull\-requests|pr)[/-]
 ignore:
   sha: []
