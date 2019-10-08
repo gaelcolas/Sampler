@@ -79,8 +79,10 @@ Task Build_NestedModules_ModuleBuilder {
     $NestedModule = $BuildInfo.NestedModule
     foreach ($NestedModuleName in $NestedModule.Keys) {
         Write-Build -color yellow "Doing $NestedModuleName"
+        $ModuleVersion, $VersionMetadata = $ModuleVersion -split '\+', 2
+        $ModuleVersionFolder, $PrereleaseTag = $ModuleVersion -split '\-', 2
         $BuildModuleParam = $NestedModule[$NestedModuleName]
-        $ModuleVersion = $ModuleVersion -replace '-.*'
+
         $BuildModuleParam['OutputDirectory'] = $ExecutionContext.InvokeCommand.ExpandString($BuildModuleParam['OutputDirectory'])
         Write-Build -color yellow "OutputDirectory for $NestedModuleName : $($BuildModuleParam['OutputDirectory'])"
         if (-Not (Split-Path -IsAbsolute $BuildModuleParam['OutputDirectory'])) {
