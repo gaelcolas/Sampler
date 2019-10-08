@@ -176,7 +176,7 @@ task Fail_Build_if_Pester_Tests_failed -If ($CodeCoverageThreshold -ne 0) {
             $ModuleVersion = $ModuleInfo.ModuleVersion + "-" + $ModuleInfo.PrivateData.PSData.Prerelease
         }
         else {
-            $ModuleInfo.ModuleVersion
+            $ModuleVersion = $ModuleInfo.ModuleVersion
         }
     }
     else {
@@ -200,10 +200,10 @@ task Fail_Build_if_Pester_Tests_failed -If ($CodeCoverageThreshold -ne 0) {
         }
     }
     else {
-        $PesterObject = Import-Clixml -Path $PesterResultObjectClixml
+        $PesterObject = Import-Clixml -Path $PesterResultObjectClixml -ErrorAction Stop
+        assert ($PesterObject.FailedCount -eq 0) ('Failed {0} tests. Aborting Build' -f $PesterObject.FailedCount)
     }
 
-    assert ($PesterObject.FailedCount -eq 0) ('Failed {0} Quality tests. Aborting Build' -f $PesterObject.FailedCount)
 }
 
 
@@ -235,7 +235,7 @@ task Pester_if_Code_Coverage_Under_Threshold {
             $ModuleVersion = $ModuleInfo.ModuleVersion + "-" + $ModuleInfo.PrivateData.PSData.Prerelease
         }
         else {
-            $ModuleInfo.ModuleVersion
+            $ModuleVersion = $ModuleInfo.ModuleVersion
         }
     }
     else {
@@ -306,7 +306,7 @@ task Upload_Test_Results_To_AppVeyor -If {(property BuildSystem 'unknown') -eq '
             $ModuleVersion = $ModuleInfo.ModuleVersion + "-" + $ModuleInfo.PrivateData.PSData.Prerelease
         }
         else {
-            $ModuleInfo.ModuleVersion
+            $ModuleVersion = $ModuleInfo.ModuleVersion
         }
     }
     else {
