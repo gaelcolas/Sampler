@@ -93,8 +93,13 @@ task Publish_release_to_GitHub -if ($GitHubToken) {
             $ModuleVersion = $ModuleInfo.ModuleVersion
         }
     }
-    # Remove metadata from ModuleVersion
-    $PSModuleVersion, $PreReleaseTag = ($ModuleVersion -split '\+',2)
+    else {
+        # Remove metadata from ModuleVersion
+        $ModuleVersion, $BuildMetadata = $ModuleVersion -split '\+', 2
+        # Remove Prerelease tag from ModuleVersionFolder
+        $ModuleVersionFolder, $PreReleaseTag = $ModuleVersion -split '\-', 2
+    }
+
     # find Module's nupkg
     $PackageToRelease = Get-ChildItem (Join-Path $OutputDirectory "$ProjectName.$PSModuleVersion.nupkg")
     $ReleaseTag = "v$PSModuleVersion"
@@ -145,9 +150,9 @@ task Publish_release_to_GitHub -if ($GitHubToken) {
     Write-Build Green "Release Created. Follow the link -> $($APIResponse.html_url)"
 }
 
-task Publish_nupkg_to_GitHub_feed {
+# task Publish_nupkg_to_GitHub_feed {
 
-}
+# }
 
 
 # function GetDescriptionFromChangelog
