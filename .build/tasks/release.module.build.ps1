@@ -132,7 +132,6 @@ task publish_module_to_gallery -if ((!(Get-Command nuget -ErrorAction SilentlyCo
         NuGetApiKey = $GalleryApiToken
         Repository =  $PSModuleFeed
         ErrorAction = 'Stop'
-        AllowPrerelease = $true
     }
     Publish-Module @PublishModuleParams
 
