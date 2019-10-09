@@ -87,6 +87,11 @@ BuildWorkflow:
     - Pester_Tests_Stop_On_Fail
     - Pester_if_Code_Coverage_Under_Threshold
 
+  publish:
+    - Publish_release_to_GitHub
+    - publish_nupkg_to_gallery  # runs if nuget is available (prefered)
+    - publish_module_to_gallery # runs if nuget is not available
+
 Resolve-Dependency: #Parameters for Resolve-Dependency
   #PSDependTarget: ./output/modules
   #Proxy: ''

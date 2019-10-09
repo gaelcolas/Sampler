@@ -29,59 +29,6 @@ param(
     $GitHubToken = (property GitHubToken '') # retrieves from Environment variable
 )
 
-# Synopsis: Packaging the module by Publishing to output folder (incl dependencies)
-task package_module_nupkg {
-
-    # Force registering the output repository mapping to the Project's output path
-    $null = Unregister-PSRepository -Name output -ErrorAction SilentlyContinue
-    $RepositoryParams = @{
-        Name            = 'output'
-        SourceLocation  = $OutputDirectory
-        PublishLocation = $OutputDirectory
-        ErrorAction     = 'Stop'
-    }
-
-    $null = Register-PSRepository @RepositoryParams
-
-    # Cleaning up existing packaged module
-    if ($ModuleToRemove = Get-ChildItem (Join-Path $OutputDirectory "$ProjectName.*.nupkg")) {
-        Write-Build DarkGray "  Remove existing $ProjectName package"
-        remove-item -force -Path $ModuleToRemove -ErrorAction Stop
-    }
-
-    # find Module manifest
-    $BuiltModuleManifest = (Get-ChildItem (Join-Path $OutputDirectory $ProjectName) -Depth 2 -Filter "$ProjectName.psd1").FullName
-    Write-Build DarkGray "  Built module's Manifest found at $BuiltModuleManifest"
-
-    # load module manifest
-    $ModuleInfo = Import-PowerShellDataFile -Path $BuiltModuleManifest
-
-    # Publish dependencies (from environment) so we can publish the built module
-    foreach ($module in $ModuleInfo.RequiredModules) {
-        if(!(Find-Module -repository output -Name $Module -ErrorAction SilentlyContinue)) {
-            # Replace the module by first (path & version) resolved in PSModulePath
-            $module = Get-Module -ListAvailable $module | Select-Object -First 1
-            if ($Prerelease = $module.PrivateData.PSData.Prerelease) {
-                $Prerelease = "-" + $Prerelease
-            }
-            Write-Build Yellow ("  Packaging Required Module {0} v{1}{2}" -f $Module.Name,$Module.Version.ToString(),$Prerelease)
-            Publish-Module -Repository output -ErrorAction SilentlyContinue -Path $module.ModuleBase
-        }
-    }
-
-    $PublishModuleParams = @{
-        Path       = (Join-Path $OutputDirectory $ProjectName)
-        Repository = 'output'
-        Force      = $true
-        ErrorAction = 'Stop'
-    }
-    Publish-Module @PublishModuleParams
-    Write-Build Green "`n  Packaged $ProjectName NuGet package `n"
-    Write-Build DarkGray "  Cleaning up"
-
-    $null = Unregister-PSRepository -Name output -ErrorAction SilentlyContinue
-}
-
 task Publish_release_to_GitHub -if ($GitHubToken) {
 
     if ([String]::IsNullOrEmpty($ModuleVersion)) {
@@ -93,8 +40,13 @@ task Publish_release_to_GitHub -if ($GitHubToken) {
             $ModuleVersion = $ModuleInfo.ModuleVersion
         }
     }
-    # Remove metadata from ModuleVersion
-    $PSModuleVersion, $PreReleaseTag = ($ModuleVersion -split '\+',2)
+    else {
+        # Remove metadata from ModuleVersion
+        $ModuleVersion, $BuildMetadata = $ModuleVersion -split '\+', 2
+        # Remove Prerelease tag from ModuleVersionFolder
+        $ModuleVersionFolder, $PreReleaseTag = $ModuleVersion -split '\-', 2
+    }
+
     # find Module's nupkg
     $PackageToRelease = Get-ChildItem (Join-Path $OutputDirectory "$ProjectName.$PSModuleVersion.nupkg")
     $ReleaseTag = "v$PSModuleVersion"
@@ -145,9 +97,9 @@ task Publish_release_to_GitHub -if ($GitHubToken) {
     Write-Build Green "Release Created. Follow the link -> $($APIResponse.html_url)"
 }
 
-task Publish_nupkg_to_GitHub_feed {
+# task Publish_nupkg_to_GitHub_feed {
 
-}
+# }
 
 
 # function GetDescriptionFromChangelog
