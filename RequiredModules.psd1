@@ -13,7 +13,8 @@
     Plaster              = 'latest'
     ModuleBuilder        = 'latest'
     buildhelpers         = 'latest'
-    PSDeploy             = 'latest'
+    # PSDeploy             = 'latest'
+    ChangelogManagement  = 'latest'
 
     #required for DSC authoring
     xDscResourceDesigner = 'latest'

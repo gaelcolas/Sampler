@@ -165,10 +165,11 @@ stages:
               artifactName: 'output'
               downloadPath: '$(Build.SourcesDirectory)'
           - task: PowerShell@2
-            name: github_pre_release
+            name: publish_prerelease
             inputs:
               filePath: './build.ps1'
-              arguments: '-tasks Publish_release_to_GitHub'
+              arguments: '-tasks publish'
               pwsh: true
             env:
               GitHubToken: $(GitHubToken)
+              GalleryApiToken: $(GalleryApiToken)
