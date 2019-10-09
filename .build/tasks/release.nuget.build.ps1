@@ -63,6 +63,6 @@ task publish_nupkg_to_gallery -if ((Get-Command nuget) -and $GalleryApiToken) {
     $ReleaseTag = "v$PSModuleVersion"
 
     Write-Build DarkGray "About to release $PackageToRelease"
-    $response = nuget push $PackageToRelease -source $nugetPublishSource -ApiKey $GalleryApiToken
+    $response = &nuget push $PackageToRelease -source $nugetPublishSource -ApiKey $GalleryApiToken
     Write-Build Green $response
 }
