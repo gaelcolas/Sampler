@@ -48,10 +48,10 @@ task Publish_release_to_GitHub -if ($GitHubToken) {
     }
 
     # find Module's nupkg
-    $PackageToRelease = Get-ChildItem (Join-Path $OutputDirectory "$ProjectName.$PSModuleVersion.nupkg")
-    $ReleaseTag = "v$PSModuleVersion"
+    $PackageToRelease = Get-ChildItem (Join-Path $OutputDirectory "$ProjectName.$ModuleVersion.nupkg")
+    $ReleaseTag = "v$ModuleVersion"
 
-    Write-Build DarkGray "About to release $PackageToRelease"
+    Write-Build DarkGray "About to release $PackageToRelease v$ModuleVersion"
     $remoteURL = git remote get-url origin
 
     if($remoteURL -notMatch 'github') {
@@ -87,7 +87,7 @@ task Publish_release_to_GitHub -if ($GitHubToken) {
         Repository = $Repo.Repository
         Tag = $ReleaseTag
         ReleaseName = $ReleaseTag
-        # Branch = "release/$PSModuleVersion"
+        # Branch = "release/$ModuleVersion"
         AssetPath = $PackageToRelease
         Prerelease = [bool]($PreReleaseTag)
         Description = $ChangeLog
