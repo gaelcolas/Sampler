@@ -101,9 +101,3 @@ $SourcePath = (Get-ChildItem $ProjectPath\*\*.psd1 | Where-Object {
             }
         }
     }
-                    $FunctionHelp.Parameters.($parameter.ToUpper()) | Should Not BeNullOrEmpty
-                    $FunctionHelp.Parameters.($parameter.ToUpper()).Length | Should BeGreaterThan 25
-                }
-            }
-        }
-    }
