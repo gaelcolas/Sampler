@@ -15,7 +15,10 @@ $SourcePath = (Get-ChildItem $ProjectPath\*\*.psd1 | Where-Object {
     Describe 'Changelog Management' -Tag 'Changelog' {
         It 'Changelog has been updated' -skip:(![bool](Get-Command git -EA SilentlyContinue)) {
             $filesChanged = &git diff master.. --name-only # Get the list of changed files compared with master
-            $filesChanged.Where{ (Split-Path $_ -Leaf) -match '^changelog' } | Should -Not -BeNullOrEmpty
+            $currentBranch = &git rev-parse --abbrev-ref HEAD
+            if($currentBranch -ne 'master') {
+                $filesChanged.Where{ (Split-Path $_ -Leaf) -match '^changelog' } | Should -Not -BeNullOrEmpty
+            }
         }
 
         It 'Changelog format compliant with keepachangelog format' -skip:(![bool](Get-Command git -EA SilentlyContinue)) {
