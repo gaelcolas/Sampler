@@ -30,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - fixing versioning by reverting to gitversions' continuousDeployment mode
 - fixed #22: marking github releases as pre-release when there's a PreReleaseTag
+- fix call to add assets to GH release.
 - for any bug fixes.
 
 ### Removed

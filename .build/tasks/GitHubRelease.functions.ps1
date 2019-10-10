@@ -77,13 +77,14 @@ function Publish-GitHubRelease {
     $response | Add-Member @AddMemberParams
 
     if ($AssetPath) {
-        $AddAssetToGitHubReleaseParams = @{
+        $AddGitHubAssetToRelease = @{
             Owner       = $Owner
             Repository  = $Repository
             GitHubToken = $GitHubToken
             AssetPath   = $AssetPath
+            ReleaseID   = $response.id
         }
-        $null = Add-AssetToGitHubRelease @AddAssetToGitHubReleaseParams
+        $null = Add-GitHubAssetToRelease @AddGitHubAssetToRelease
 
         $GetGitHubReleaseParams = @{
             Owner       = $Owner
