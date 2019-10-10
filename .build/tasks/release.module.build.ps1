@@ -123,17 +123,23 @@ task package_module_nupkg {
 }
 
 task publish_module_to_gallery -if ((!(Get-Command nuget -ErrorAction SilentlyContinue)) -and $GalleryApiToken) {
-    $ModuleManifestPath = Get-Item "$OutputDirectory/$ProjectName/*/$ProjectName.psd1" -ErrorAction Stop
+    if (!(Split-Path $OutputDirectory -IsAbsolute)) {
+        $OutputDirectory = Join-Path $BuildRoot $OutputDirectory
+    }
 
-    Write-Build DarkGray "`nAbout to release $ModuleManifestPath"
+    $null = Test-ModuleManifest "$OutputDirectory/$ProjectName/*/$ProjectName.psd1" -ErrorAction Stop
+    $ModulePath = Join-Path $OutputDirectory $ProjectName
+
+    Write-Build DarkGray "`nAbout to release $ModulePath"
 
     $PublishModuleParams = @{
-        Path = $ModuleManifestPath
+        Path        = $ModulePath
         NuGetApiKey = $GalleryApiToken
-        Repository =  $PSModuleFeed
+        Repository  = $PSModuleFeed
         ErrorAction = 'Stop'
     }
     Publish-Module @PublishModuleParams
 
     Write-Build Green "Package Published to PSGallery"
+
 }
