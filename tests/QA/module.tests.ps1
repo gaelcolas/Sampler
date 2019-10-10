@@ -12,6 +12,17 @@ $SourcePath = (Get-ChildItem $ProjectPath\*\*.psd1 | Where-Object {
         $(try { Test-ModuleManifest $_.FullName -ErrorAction Stop }catch { $false }) }
     ).Directory.FullName
 
+Describe 'Changelog Management' -Tag 'Changelog' {
+    It 'Changelog has been updated' -skip:(![bool](Get-Command git -EA SilentlyContinue)) {
+        $filesChanged = &git diff master.. --name-only
+        $filesChanged.Where{ (Split-Path $_ -Leaf)  -match '^changelog' } | Should -Not -BeNullOrEmpty
+    }
+
+    It 'Changelog must be of keepachangelog format' -skip:(![bool](Get-Command git -EA SilentlyContinue)) {
+        {Get-ChangelogData "$ProjectPath\changelog*" -ErrorAction Stop} | Should -Not -Throw
+    }
+}
+
 Describe 'General module control' -Tags 'FunctionalQuality'  {
 
     It 'imports without errors' {
