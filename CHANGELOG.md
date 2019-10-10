@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - for changes in existing functionality.
+- changed continuous deployment to continuous delivery in gitversion
 
 ### Deprecated
 
