@@ -1,6 +1,10 @@
 trigger:
-- master
-
+  branches:
+    include:
+    - master
+  tags:
+    exclude:
+    - "*-*"
 #variables:
 
 stages:
