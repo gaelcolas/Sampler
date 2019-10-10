@@ -46,8 +46,8 @@ param(
 task publish_nupkg_to_gallery -if ((Get-Command nuget -ErrorAction SilentlyContinue) -and $GalleryApiToken) {
     if ([String]::IsNullOrEmpty($ModuleVersion)) {
         $ModuleInfo = Import-PowerShellDataFile "$OutputDirectory/$ProjectName/*/$ProjectName.psd1" -ErrorAction Stop
-        if ($ModuleInfo.PrivateData.PSData.Prerelease) {
-            $ModuleVersion = $ModuleInfo.ModuleVersion + "-" + $ModuleInfo.PrivateData.PSData.Prerelease
+        if ($PreReleaseTag = $ModuleInfo.PrivateData.PSData.Prerelease) {
+            $ModuleVersion = $ModuleInfo.ModuleVersion + "-" + $PreReleaseTag
         }
         else {
             $ModuleVersion = $ModuleInfo.ModuleVersion

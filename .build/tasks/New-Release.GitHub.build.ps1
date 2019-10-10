@@ -8,8 +8,13 @@ param(
     $ProjectName = (property ProjectName $(
             #Find the module manifest to deduce the Project Name
             (Get-ChildItem $BuildRoot\*\*.psd1 | Where-Object {
-                ($_.Directory.Name -match 'source|src' -or $_.Directory.Name -eq $_.BaseName) -and
-                $(try { Test-ModuleManifest $_.FullName -ErrorAction Stop }catch{$false}) }
+                    ($_.Directory.Name -match 'source|src' -or $_.Directory.Name -eq $_.BaseName) -and
+                    $(try {
+                            Test-ModuleManifest $_.FullName -ErrorAction Stop
+                        }
+                        catch {
+                            $false
+                        }) }
             ).BaseName
         )
     ),
@@ -26,15 +31,18 @@ param(
         )),
 
     [string]
-    $GitHubToken = (property GitHubToken '') # retrieves from Environment variable
+    $GitHubToken = (property GitHubToken ''), # retrieves from Environment variable
+
+    [string]
+    $ReleaseBranch = (property ReleaseBranch 'master')
 )
 
 task Publish_release_to_GitHub -if ($GitHubToken) {
 
     if ([String]::IsNullOrEmpty($ModuleVersion)) {
         $ModuleInfo = Import-PowerShellDataFile "$OutputDirectory/$ProjectName/*/$ProjectName.psd1" -ErrorAction Stop
-        if ($ModuleInfo.PrivateData.PSData.Prerelease) {
-            $ModuleVersion = $ModuleInfo.ModuleVersion + "-" + $ModuleInfo.PrivateData.PSData.Prerelease
+        if ($PreReleaseTag = $ModuleInfo.PrivateData.PSData.Prerelease) {
+            $ModuleVersion = $ModuleInfo.ModuleVersion + "-" + $PreReleaseTag
         }
         else {
             $ModuleVersion = $ModuleInfo.ModuleVersion
@@ -54,7 +62,7 @@ task Publish_release_to_GitHub -if ($GitHubToken) {
     Write-Build DarkGray "About to release $PackageToRelease v$ModuleVersion"
     $remoteURL = git remote get-url origin
 
-    if($remoteURL -notMatch 'github') {
+    if ($remoteURL -notMatch 'github') {
         return
     }
 
@@ -67,7 +75,7 @@ task Publish_release_to_GitHub -if ($GitHubToken) {
     }
 
     # compile changelog for that version
-    if(!(Split-Path $ChangelogPath -isAbsolute)) {
+    if (!(Split-Path $ChangelogPath -isAbsolute)) {
         $ChangelogPath = Join-Path $BuildRoot $ChangelogPath | Convert-Path
     }
 
@@ -79,17 +87,17 @@ task Publish_release_to_GitHub -if ($GitHubToken) {
         $ChangeLog = Get-Content -raw $ChangelogPath -ErrorAction SilentlyContinue
     }
 
-    # create release
-    # upload artefacts
+    # if you want to create the tag on /release/v$ModuleVersion branch (default to master)
+    $ReleaseBranch = $ExecutionContext.InvokeCommand.ExpandString($ReleaseBranch)
 
     $releaseParams = @{
-        Owner = $Repo.Owner
-        Repository = $Repo.Repository
-        Tag = $ReleaseTag
+        Owner       = $Repo.Owner
+        Repository  = $Repo.Repository
+        Tag         = $ReleaseTag
         ReleaseName = $ReleaseTag
-        # Branch = "release/$ModuleVersion"
-        AssetPath = $PackageToRelease
-        Prerelease = [bool]($PreReleaseTag)
+        Branch      = $ReleaseBranch
+        AssetPath   = $PackageToRelease
+        Prerelease  = [bool]($PreReleaseTag)
         Description = $ChangeLog
         GitHubToken = $GitHubToken
     }
@@ -236,29 +244,26 @@ function Publish-GitHubRelease {
 # from https://github.com/PowerShell/vscode-powershell/blob/master/tools/GitHubTools.psm1
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # Licensed under the MIT License.
-filter GetHumanishRepositoryDetails
-{
+filter GetHumanishRepositoryDetails {
     param(
         [string]
         $RemoteUrl
     )
 
-    if ($RemoteUrl.EndsWith('.git'))
-    {
+    if ($RemoteUrl.EndsWith('.git')) {
         $RemoteUrl = $RemoteUrl.Substring(0, $RemoteUrl.Length - 4)
     }
-    else
-    {
+    else {
         $RemoteUrl = $RemoteUrl.Trim('/')
     }
 
     $lastSlashIdx = $RemoteUrl.LastIndexOf('/')
-    $repository =  $RemoteUrl.Substring($lastSlashIdx + 1)
+    $repository = $RemoteUrl.Substring($lastSlashIdx + 1)
     $secondLastSlashIdx = $RemoteUrl.LastIndexOfAny(('/', ':'), $lastSlashIdx - 1)
     $Owner = $RemoteUrl.Substring($secondLastSlashIdx + 1, $lastSlashIdx - $secondLastSlashIdx - 1)
 
     return @{
-        Owner = $Owner
+        Owner      = $Owner
         Repository = $repository
     }
 }
