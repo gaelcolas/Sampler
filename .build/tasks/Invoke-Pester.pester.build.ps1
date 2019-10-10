@@ -66,8 +66,8 @@ task Invoke_pester_tests {
 
     if ([String]::IsNullOrEmpty($ModuleVersion)) {
         $ModuleInfo = Import-PowerShellDataFile "$OutputDirectory/$ProjectName/*/$ProjectName.psd1" -ErrorAction Stop
-        if ($ModuleInfo.PrivateData.PSData.Prerelease) {
-            $ModuleVersion = $ModuleInfo.ModuleVersion + "-" + $ModuleInfo.PrivateData.PSData.Prerelease
+        if ($PreReleaseTag = $ModuleInfo.PrivateData.PSData.Prerelease) {
+            $ModuleVersion = $ModuleInfo.ModuleVersion + "-" + $PreReleaseTag
         }
         else {
             $ModuleVersion = $ModuleInfo.ModuleVersion
@@ -172,8 +172,8 @@ task Fail_Build_if_Pester_Tests_failed -If ($CodeCoverageThreshold -ne 0) {
 
     if ([String]::IsNullOrEmpty($ModuleVersion)) {
         $ModuleInfo = Import-PowerShellDataFile "$OutputDirectory/$ProjectName/*/$ProjectName.psd1" -ErrorAction Stop
-        if($ModuleInfo.PrivateData.PSData.Prerelease) {
-            $ModuleVersion = $ModuleInfo.ModuleVersion + "-" + $ModuleInfo.PrivateData.PSData.Prerelease
+        if($PreReleaseTag = $ModuleInfo.PrivateData.PSData.Prerelease) {
+            $ModuleVersion = $ModuleInfo.ModuleVersion + "-" + $PreReleaseTag
         }
         else {
             $ModuleVersion = $ModuleInfo.ModuleVersion
@@ -231,8 +231,8 @@ task Pester_if_Code_Coverage_Under_Threshold {
 
     if ([String]::IsNullOrEmpty($ModuleVersion)) {
         $ModuleInfo = Import-PowerShellDataFile "$OutputDirectory/$ProjectName/*/$ProjectName.psd1" -ErrorAction Stop
-        if($ModuleInfo.PrivateData.PSData.Prerelease) {
-            $ModuleVersion = $ModuleInfo.ModuleVersion + "-" + $ModuleInfo.PrivateData.PSData.Prerelease
+        if($PreReleaseTag = $ModuleInfo.PrivateData.PSData.Prerelease) {
+            $ModuleVersion = $ModuleInfo.ModuleVersion + "-" + $PreReleaseTag
         }
         else {
             $ModuleVersion = $ModuleInfo.ModuleVersion
@@ -302,8 +302,8 @@ task Upload_Test_Results_To_AppVeyor -If {(property BuildSystem 'unknown') -eq '
 
     if ([String]::IsNullOrEmpty($ModuleVersion)) {
         $ModuleInfo = Import-PowerShellDataFile "$OutputDirectory/$ProjectName/*/$ProjectName.psd1" -ErrorAction Stop
-        if($ModuleInfo.PrivateData.PSData.Prerelease) {
-            $ModuleVersion = $ModuleInfo.ModuleVersion + "-" + $ModuleInfo.PrivateData.PSData.Prerelease
+        if ($PreReleaseTag = $ModuleInfo.PrivateData.PSData.Prerelease) {
+            $ModuleVersion = $ModuleInfo.ModuleVersion + "-" + $PreReleaseTag
         }
         else {
             $ModuleVersion = $ModuleInfo.ModuleVersion
