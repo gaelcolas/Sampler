@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- fixing versioning by reverting to gitversions' continuousDeployment mode
 - fixed #22: marking github releases as pre-release when there's a PreReleaseTag
 - for any bug fixes.
 
