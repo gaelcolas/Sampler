@@ -12,70 +12,70 @@ $SourcePath = (Get-ChildItem $ProjectPath\*\*.psd1 | Where-Object {
         $(try { Test-ModuleManifest $_.FullName -ErrorAction Stop }catch { $false }) }
     ).Directory.FullName
 
-Describe 'Changelog Management' -Tag 'Changelog' {
-    It 'Changelog has been updated' -skip:(![bool](Get-Command git -EA SilentlyContinue)) {
-        $filesChanged = &git diff master.. --name-only
-        $filesChanged.Where{ (Split-Path $_ -Leaf)  -match '^changelog' } | Should -Not -BeNullOrEmpty
-    }
-
-    It 'Changelog must be of keepachangelog format' -skip:(![bool](Get-Command git -EA SilentlyContinue)) {
-        {Get-ChangelogData "$ProjectPath\changelog*" -ErrorAction Stop} | Should -Not -Throw
-    }
-}
-
-Describe 'General module control' -Tags 'FunctionalQuality'  {
-
-    It 'imports without errors' {
-        { Import-Module -Name $ProjectName -Force -ErrorAction Stop } | Should Not Throw
-        Get-Module $ProjectName | Should Not BeNullOrEmpty
-    }
-
-    It 'Removes without error' {
-        { Remove-Module -Name $ProjectName -ErrorAction Stop} | Should not Throw
-        Get-Module $ProjectName | Should beNullOrEmpty
-    }
-}
-
-#$PrivateFunctions = Get-ChildItem -Path "$ProjectPath\Private\*.ps1"
-#$PublicFunctions =  Get-ChildItem -Path "$ProjectPath\Public\*.ps1"
-$allModuleFunctions = @()
-$allModuleFunctions += Get-ChildItem -Path "$SourcePath/Private/*.ps1"
-$allModuleFunctions += Get-ChildItem -Path "$SourcePath/Public/*.ps1"
-
-if (Get-Command Invoke-ScriptAnalyzer -ErrorAction SilentlyContinue) {
-    $scriptAnalyzerRules = Get-ScriptAnalyzerRule
-}
-else {
-    if($ErrorActionPreference -ne 'Stop') {
-        Write-Warning "ScriptAnalyzer not found!"
-    }
-    else {
-        Throw "ScriptAnalyzer not found!"
-    }
-}
-
-foreach ($function in $allModuleFunctions) {
-    Describe "Quality for $($function.BaseName)" -Tags 'TestQuality' {
-        It "$($function.BaseName) has a unit test" {
-            Get-ChildItem "tests\" -recurse -include "$($function.BaseName).tests.ps1" | Should Not BeNullOrEmpty
+    Describe 'Changelog Management' -Tag 'Changelog' {
+        It 'Changelog has been updated' -skip:(![bool](Get-Command git -EA SilentlyContinue)) {
+            $filesChanged = &git diff master.. --name-only # Get the list of changed files compared with master
+            $filesChanged.Where{ (Split-Path $_ -Leaf) -match '^changelog' } | Should -Not -BeNullOrEmpty
         }
 
-        if ($scriptAnalyzerRules) {
-            It "Script Analyzer for $($function.BaseName)" {
-                forEach ($scriptAnalyzerRule in $scriptAnalyzerRules) {
-                    $PSSAResult = (Invoke-ScriptAnalyzer -Path $function.FullName -IncludeRule $scriptAnalyzerRule)
-                    ($PSSAResult | Select-Object Message,Line | Out-String) | Should -BeNullOrEmpty
+        It 'Changelog format compliant with keepachangelog format' -skip:(![bool](Get-Command git -EA SilentlyContinue)) {
+            { Get-ChangelogData "$ProjectPath\changelog*" -ErrorAction Stop } | Should -Not -Throw
+        }
+    }
+
+    Describe 'General module control' -Tags 'FunctionalQuality' {
+
+        It 'imports without errors' {
+            { Import-Module -Name $ProjectName -Force -ErrorAction Stop } | Should Not Throw
+            Get-Module $ProjectName | Should Not BeNullOrEmpty
+        }
+
+        It 'Removes without error' {
+            { Remove-Module -Name $ProjectName -ErrorAction Stop } | Should not Throw
+            Get-Module $ProjectName | Should beNullOrEmpty
+        }
+    }
+
+    #$PrivateFunctions = Get-ChildItem -Path "$ProjectPath\Private\*.ps1"
+    #$PublicFunctions =  Get-ChildItem -Path "$ProjectPath\Public\*.ps1"
+    $allModuleFunctions = @()
+    $allModuleFunctions += Get-ChildItem -Path "$SourcePath/Private/*.ps1"
+    $allModuleFunctions += Get-ChildItem -Path "$SourcePath/Public/*.ps1"
+
+    if (Get-Command Invoke-ScriptAnalyzer -ErrorAction SilentlyContinue) {
+        $scriptAnalyzerRules = Get-ScriptAnalyzerRule
+    }
+    else {
+        if ($ErrorActionPreference -ne 'Stop') {
+            Write-Warning "ScriptAnalyzer not found!"
+        }
+        else {
+            Throw "ScriptAnalyzer not found!"
+        }
+    }
+
+    foreach ($function in $allModuleFunctions) {
+        Describe "Quality for $($function.BaseName)" -Tags 'TestQuality' {
+            It "$($function.BaseName) has a unit test" {
+                Get-ChildItem "tests\" -recurse -include "$($function.BaseName).tests.ps1" | Should Not BeNullOrEmpty
+            }
+
+            if ($scriptAnalyzerRules) {
+                It "Script Analyzer for $($function.BaseName)" {
+                    forEach ($scriptAnalyzerRule in $scriptAnalyzerRules) {
+                        $PSSAResult = (Invoke-ScriptAnalyzer -Path $function.FullName -IncludeRule $scriptAnalyzerRule)
+                        ($PSSAResult | Select-Object Message, Line | Out-String) | Should -BeNullOrEmpty
+                    }
                 }
             }
         }
-    }
 
-    Describe "Help for $($function.BaseName)" -Tags 'helpQuality' {
+        Describe "Help for $($function.BaseName)" -Tags 'helpQuality' {
             $AbstractSyntaxTree = [System.Management.Automation.Language.Parser]::
-                ParseInput((Get-Content -raw $function.FullName), [ref]$null, [ref]$null)
-                $AstSearchDelegate = { $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] }
-                $ParsedFunction = $AbstractSyntaxTree.FindAll( $AstSearchDelegate,$true )   |
-                                    ? Name -eq $function.BaseName
+            ParseInput((Get-Content -raw $function.FullName), [ref]$null, [ref]$null)
+            $AstSearchDelegate = { $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] }
+            $ParsedFunction = $AbstractSyntaxTree.FindAll( $AstSearchDelegate, $true ) |
+                ? Name -eq $function.BaseName
             $FunctionHelp = $ParsedFunction.GetHelpContent()
 
             It 'Has a SYNOPSIS' {
@@ -92,12 +92,18 @@ foreach ($function in $allModuleFunctions) {
                 $FunctionHelp.Examples[0].Length | Should BeGreaterThan ($function.BaseName.Length + 10)
             }
 
-            $parameters = $ParsedFunction.Body.ParamBlock.Parameters.name.VariablePath.Foreach{$_.ToString() }
+            $parameters = $ParsedFunction.Body.ParamBlock.Parameters.name.VariablePath.Foreach{ $_.ToString() }
             foreach ($parameter in $parameters) {
                 It "Has help for Parameter: $parameter" {
-                    $FunctionHelp.Parameters.($parameter.ToUpper())        | Should Not BeNullOrEmpty
+                    $FunctionHelp.Parameters.($parameter.ToUpper()) | Should Not BeNullOrEmpty
                     $FunctionHelp.Parameters.($parameter.ToUpper()).Length | Should BeGreaterThan 25
                 }
             }
+        }
     }
-}
+                    $FunctionHelp.Parameters.($parameter.ToUpper()) | Should Not BeNullOrEmpty
+                    $FunctionHelp.Parameters.($parameter.ToUpper()).Length | Should BeGreaterThan 25
+                }
+            }
+        }
+    }
