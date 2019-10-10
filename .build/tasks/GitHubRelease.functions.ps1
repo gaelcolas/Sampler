@@ -67,7 +67,14 @@ function Publish-GitHubRelease {
     }
 
     $response = Invoke-RestMethod -Method Post -Uri $uri -Body $restBody -Headers $headers
-    $response | Add-Member -MemberType NoteProperty -Name ReleaseID -Value $response.id -TypeName 'GitHub.Release.Created'
+    $AddMemberParams = @{
+        MemberType = 'NoteProperty'
+        Name = 'ReleaseID'
+        Value = $response.id
+        TypeName = 'GitHub.Release.Created'
+        ErrorAction = 'SilentlyContinue'
+    }
+    $response | Add-Member @AddMemberParams
 
     if ($AssetPath) {
         $AddAssetToGitHubReleaseParams = @{
@@ -117,7 +124,14 @@ function Get-GitHubReleaseFromTagName {
     }
 
     $response = Invoke-RestMethod -Method Get -Uri $uri -Headers $headers
-    $response | Add-Member -MemberType NoteProperty -Name ReleaseID -Value $response.id -TypeName 'GitHub.Release'
+    $AddMemberParams = @{
+        MemberType = 'NoteProperty'
+        Name = 'ReleaseID'
+        Value = $response.id
+        TypeName = 'GitHub.Release'
+        ErrorAction = 'SilentlyContinue'
+    }
+    $response | Add-Member @AddMemberParams
 
     return $response
 }
@@ -149,7 +163,14 @@ function Get-GitHubReleaseFromReleaseID {
     }
 
     $response = Invoke-RestMethod -Method Get -Uri $uri -Headers $headers
-    $response | Add-Member -MemberType NoteProperty -Name ReleaseID -Value $response.id -TypeName 'GitHub.Release'
+    $AddMemberParams = @{
+        MemberType = 'NoteProperty'
+        Name = 'ReleaseID'
+        Value = $response.id
+        TypeName = 'GitHub.Release'
+        ErrorAction = 'SilentlyContinue'
+    }
+    $response | Add-Member @AddMemberParams
 
     return $response
 }
@@ -233,7 +254,14 @@ function Set-GitHubRelease {
     }
 
     $response = Invoke-RestMethod -Method Patch -Uri $uri -Body $restBody -Headers $headers
-    $response | Add-Member -MemberType NoteProperty -Name ReleaseID -Value $response.id -TypeName 'GitHub.Release'
+    $AddMemberParams = @{
+        MemberType = 'NoteProperty'
+        Name = 'ReleaseID'
+        Value = $response.id
+        TypeName = 'GitHub.Release'
+        ErrorAction = 'SilentlyContinue'
+    }
+    $response | Add-Member @AddMemberParams
 
     return $response
 }
@@ -305,6 +333,7 @@ function Add-GitHubAssetToRelease {
         # This can be very slow, but it does work
         $null = Invoke-RestMethod -Method Post -Uri $assetUri -InFile $asset -ContentType $contentType -Headers $headers
     }
+
     $GetGitHubReleaseParams = @{
         Owner       = $Owner
         Repository  = $Repository
