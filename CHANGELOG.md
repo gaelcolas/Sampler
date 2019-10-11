@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Changed the Tags trigger to include "v*" but still exclude "*-*"
+
+## [v0.91.6] - 2019-10-11
+
 ### Added
 
 - Packaging module to nupkg
