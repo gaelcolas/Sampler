@@ -123,4 +123,4 @@ GitHubConfig:
     - 'CHANGELOG.md'
   GitHubConfigUserName: gaelcolas
   GitHubConfigUserEmail: gaelcolas@synedgy.com
-  UpdateChangelogOnPrerelease: true
+  UpdateChangelogOnPrerelease: false

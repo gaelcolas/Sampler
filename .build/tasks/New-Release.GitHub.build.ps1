@@ -143,7 +143,7 @@ task Create_ChangeLog_GitHub_PR -if ($GitHubToken) {
     $TagsAtCurrentPoint = git tag -l --points-at (git rev-parse origin/master)
     # Only Update changelog if last commit is a full release
     if ($UpdateChangelogOnPrerelease) {
-        $TagVersion = $TagsAtCurrentPoint[0]
+        $TagVersion = $TagsAtCurrentPoint | Select-Object -First 1
         Write-Build Green "Updating Changelog for PRE-Release $TagVersion"
     }
     elseif($TagVersion = $TagsAtCurrentPoint.Where{ $_ -notMatch 'v.*\-' }) {
@@ -154,12 +154,10 @@ task Create_ChangeLog_GitHub_PR -if ($GitHubToken) {
         return
     }
 
-    $TagVersion = $TagsAtCurrentPoint
-    Write-Build DarkGray "Updating Changelog since Tag $TagVersion"
     $BranchName = "updateChangelogAfter$TagVersion"
     git checkout -B $BranchName
     try {
-        Update-Changelog -ReleaseVersion ($TagVersion -replace '^v') -LinkMode None -OutputPath .\CHANGELOG.md -Path .\CHANGELOG.md -ErrorAction SilentlyContinue
+        Update-Changelog -ReleaseVersion ($TagVersion -replace '^v') -LinkMode None -Path .\CHANGELOG.md -ErrorAction Stop
         git add $GitHubFilesToAdd
         git config user.name $GitHubConfigUserName
         git config user.email $GitHubConfigUserEmail
