@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixing GitHub config for creating Changelog PR
+
 ### Changed
 
 - Changed the Tags trigger to include "v*" but still exclude "*-*"
