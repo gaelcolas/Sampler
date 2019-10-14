@@ -117,3 +117,10 @@ TaskHeader: |
   Write-Build DarkGray "  $Path"
   Write-Build DarkGray "  $($Task.InvocationInfo.ScriptName):$($Task.InvocationInfo.ScriptLineNumber)"
   ""
+
+GitHubConfig:
+  GitHubFilesToAdd:
+    - 'CHANGELOG.md'
+  GitHubConfigUserName: gaelcolas
+  GitHubConfigUserEmail: gaelcolas@synedgy.com
+  UpdateChangelogOnPrerelease: true

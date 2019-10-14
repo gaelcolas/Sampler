@@ -34,8 +34,21 @@ param(
     $GitHubToken = (property GitHubToken ''), # retrieves from Environment variable
 
     [string]
-    $ReleaseBranch = (property ReleaseBranch 'master')
+    $ReleaseBranch = (property ReleaseBranch 'master'),
+
+    [string]
+    $GitHubConfigUserEmail = (property GitHubConfigUserEmail ''),
+
+    [string]
+    $GitHubConfigUserName = (property GitHubConfigUserName ''),
+
+    $GitHubFilesToAdd = (property GitHubFilesToAdd ''),
+
+    $BuildInfo = (property BuildInfo @{})
 )
+
+# Until I can use a third party module
+. $PSScriptRoot/GitHubRelease.functions.ps1
 
 task Publish_release_to_GitHub -if ($GitHubToken) {
 
@@ -63,6 +76,7 @@ task Publish_release_to_GitHub -if ($GitHubToken) {
     $remoteURL = git remote get-url origin
 
     if ($remoteURL -notMatch 'github') {
+        Write-Build Yellow "Skipping Publish GitHub release to $RemoteURL"
         return
     }
 
@@ -105,47 +119,76 @@ task Publish_release_to_GitHub -if ($GitHubToken) {
     Write-Build Green "Release Created. Follow the link -> $($APIResponse.html_url)"
 }
 
-# task Publish_nupkg_to_GitHub_feed {
+task Create_ChangeLog_GitHub_PR -if ($GitHubToken) {
+    # # This is how AzDO setup the environment:
+    # git init
+    # git remote add origin https://github.com/gaelcolas/Sampler
+    # git config gc.auto 0
+    # git config --get-all http.https://github.com/gaelcolas/Sampler.extraheader
+    # git pull origin master
+    # # git fetch --force --tags --prune --progress --no-recurse-submodules origin
+    # # git checkout --progress --force (git rev-parse origin/master)
 
-# }
+    foreach ($GitHubConfigKey in @('GitHubFilesToAdd', 'GitHubConfigUserName','GitHubConfigUserEmail','UpdateChangelogOnPrerelease')) {
+        if ( -Not (Get-Variable -Name $GitHubConfigKey -ValueOnly)) {
+            # Variable is not set in context, use $BuildInfo.GitHubConfig.<varName>
+            $ConfigValue = $BuildInfo.GitHubConfig.($GitHubConfigKey)
+            Set-Variable -Name $GitHubConfigKey -Value $ConfigValue
+            Write-Build DarkGray "`t...Set $GitHubConfigKey to $ConfigValue"
+        }
+    }
 
+    git pull origin master --tag
+    # Look at the tags on latest commit for origin/master (assume we're on detached head)
+    $TagsAtCurrentPoint = git tag -l --points-at (git rev-parse origin/master)
+    # Only Update changelog if last commit is a full release
+    if ($UpdateChangelogOnPrerelease) {
+        $TagVersion = $TagsAtCurrentPoint[0]
+        Write-Build Green "Updating Changelog for PRE-Release $TagVersion"
+    }
+    elseif($TagVersion = $TagsAtCurrentPoint.Where{ $_ -notMatch 'v.*\-' }) {
+        Write-Build Green "Updating the ChangeLog for release $TagVersion"
+    }
+    else {
+        Write-Build Yellow "No Release Tag found to update the ChangeLog from"
+        return
+    }
 
-# function GetDescriptionFromChangelog
-# {
-#     param(
-#         [Parameter(Mandatory)]
-#         [string]
-#         $ChangelogPath
-#     )
+    $TagVersion = $TagsAtCurrentPoint
+    Write-Build DarkGray "Updating Changelog since Tag $TagVersion"
+    $BranchName = "updateChangelogAfter$TagVersion"
+    git checkout -B $BranchName
+    try {
+        Update-Changelog -ReleaseVersion ($TagVersion -replace '^v') -LinkMode None -OutputPath .\CHANGELOG.md -Path .\CHANGELOG.md -ErrorAction SilentlyContinue
+        git add $GitHubFilesToAdd
+        git commit -m "Updating ChangeLog since $TagVersion +semver:skip"
+        git config --global user.name $GitHubConfigUserName
+        git config --global user.email $GitHubConfigUserEmail
 
-#     $lines = Get-Content -Path $ChangelogPath
-#     # First two lines are the title and newline
-#     # Third looks like '## vX.Y.Z-releasetag'
-#     $sb = [System.Text.StringBuilder]::new($lines[2])
-#     # Read through until the next '## vX.Y.Z-releasetag' H2
-#     for ($i = 3; -not $lines[$i].StartsWith('## '); $i++)
-#     {
-#         $null = $sb.Append("`n").Append($lines[$i])
-#     }
+        $URI = [URI](git remote get-url origin)
+        $URI = $Uri.Scheme + [URI]::SchemeDelimiter + $GitHubToken + '@' + $URI.Authority + $URI.PathAndQuery
 
-#     return $sb.ToString()
-# }
+        # Update the PUSH URI to use the Personal Access Token for Auth
+        git remote set-url --push origin $URI
 
-# $tag = "v$Version"
+        # track this branch on the remote 'origin
+        git push -u origin $BranchName
 
-# $releaseParams = @{
-#     Owner = $TargetFork
-#     Repository = $Repository
-#     Tag = $tag
-#     ReleaseName = $tag
-#     Branch = "release/$Version"
-#     AssetPath = $AssetPath
-#     Prerelease = [bool]($Version.PreReleaseLabel)
-#     Description = GetDescriptionFromChangelog -ChangelogPath $ChangelogPath
-#     GitHubToken = $GitHubToken
-# }
-# Publish-GitHubRelease @releaseParams
+        # Grab the Repo info for creating new PR
+        $RepoInfo = GetHumanishRepositoryDetails -RemoteUrl (git remote get-url origin)
 
-# from https://github.com/PowerShell/vscode-powershell/blob/master/tools/GitHubTools.psm1
-# Copyright (c) Microsoft Corporation. All rights reserved.
-# Licensed under the MIT License.
+        $NewPullRequestParams = @{
+            GitHubToken = $GitHubToken
+            Repository  = $RepoInfo.Repository
+            Owner       = $RepoInfo.Owner
+            Title       = "Updating ChangeLog since release of $TagVersion"
+            Branch      = $BranchName
+            ErrorAction = 'Stop'
+        }
+        $Response = New-GitHubPullRequest @NewPullRequestParams
+    }
+    catch {
+        Write-Build Yellow "Error trying to create ChangeLog Pull Request. Ignoring. $_"
+    }
+    Write-Build Green "`n --> PR #$($Response.number) opened: $($Response.url)"
+}
