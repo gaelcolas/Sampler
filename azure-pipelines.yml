@@ -163,27 +163,30 @@ stages:
       - deployment: Deploy_Artefact
         pool:
           vmImage: 'ubuntu 16.04'
-        steps:
-          - task: DownloadBuildArtifacts@0
-            inputs:
-              buildType: 'current'
-              downloadType: 'single'
-              artifactName: 'output'
-              downloadPath: '$(Build.SourcesDirectory)'
-          - task: PowerShell@2
-            name: publish_prerelease
-            inputs:
-              filePath: './build.ps1'
-              arguments: '-tasks publish'
-              pwsh: true
-            env:
-              GitHubToken: $(GitHubToken)
-              GalleryApiToken: $(GalleryApiToken)
-          - task: PowerShell@2
-            name: send_changelog_PR
-            inputs:
-              filePath: './build.ps1'
-              arguments: '-tasks Create_ChangeLog_GitHub_PR'
-              pwsh: true
-            env:
-              GitHubToken: $(GitHubToken)
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: DownloadBuildArtifacts@0
+                  inputs:
+                    buildType: 'current'
+                    downloadType: 'single'
+                    artifactName: 'output'
+                    downloadPath: '$(Build.SourcesDirectory)'
+                - task: PowerShell@2
+                  name: publish_prerelease
+                  inputs:
+                    filePath: './build.ps1'
+                    arguments: '-tasks publish'
+                    pwsh: true
+                  env:
+                    GitHubToken: $(GitHubToken)
+                    GalleryApiToken: $(GalleryApiToken)
+                - task: PowerShell@2
+                  name: send_changelog_PR
+                  inputs:
+                    filePath: './build.ps1'
+                    arguments: '-tasks Create_ChangeLog_GitHub_PR'
+                    pwsh: true
+                  env:
+                    GitHubToken: $(GitHubToken)
