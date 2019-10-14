@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.92.0-preview0003] - 2019-10-14
+## [Unreleased]
+
 ### Fixed
 
 - Fixing GitHub config for creating Changelog PR.
