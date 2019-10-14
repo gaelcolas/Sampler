@@ -372,3 +372,62 @@ filter GetHumanishRepositoryDetails {
         Repository = $repository
     }
 }
+
+function New-GitHubPullRequest {
+    param(
+        [Parameter(Mandatory)]
+        [string]
+        $Branch,
+
+        [Parameter(Mandatory)]
+        [string]
+        $Title,
+
+        [Parameter(Mandatory)]
+        [string]
+        $GitHubToken,
+
+        [Parameter(Mandatory)]
+        [string]
+        $Owner,
+
+        [Parameter(Mandatory)]
+        $Repository,
+
+        [Parameter()]
+        [string]
+        $TargetBranch = 'master',
+
+        [Parameter()]
+        [string]
+        $Description = '',
+
+        [Parameter()]
+        [string]
+        $FromOwner
+    )
+
+    $uri = "https://api.github.com/repos/$Owner/$Repository/pulls"
+
+    if ($FromOwner -and $FromOwner -ne $Owner) {
+        $Branch = "${FromOwner}:${Branch}"
+    }
+
+    $body = @{
+        title                 = $Title
+        body                  = $Description
+        head                  = $Branch
+        base                  = $TargetBranch
+        maintainer_can_modify = $true
+    } | ConvertTo-Json
+
+    $headers = @{
+        Accept        = 'application/vnd.github.v3+json'
+        Authorization = "token $GitHubToken"
+    }
+
+    Write-Verbose "Opening new GitHub pull request on '$Owner/$Repository' with title '$Title'"
+    $response = Invoke-RestMethod -Method Post -Uri $uri -Body $body -Headers $headers
+
+    return $response
+}
