@@ -130,7 +130,7 @@ task Create_ChangeLog_GitHub_PR -if ($GitHubToken) {
     # # git checkout --progress --force (git rev-parse origin/master)
 
     foreach ($GitHubConfigKey in @('GitHubFilesToAdd', 'GitHubConfigUserName','GitHubConfigUserEmail','UpdateChangelogOnPrerelease')) {
-        if ( -Not (Get-Variable -Name $GitHubConfigKey -ValueOnly)) {
+        if ( -Not (Get-Variable -Name $GitHubConfigKey -ValueOnly -ErrorAction SilentlyContinue)) {
             # Variable is not set in context, use $BuildInfo.GitHubConfig.<varName>
             $ConfigValue = $BuildInfo.GitHubConfig.($GitHubConfigKey)
             Set-Variable -Name $GitHubConfigKey -Value $ConfigValue
