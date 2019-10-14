@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Fixing GitHub config for creating Changelog PR
+- Fixing GitHub config for creating Changelog PR.
 
 ### Changed
 
