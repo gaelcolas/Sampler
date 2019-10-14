@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Packaging module to nupkg
-- for new features
+- Adding Auto-creation of GitHub PR for Changelog update on release
 
 ### Changed
 
