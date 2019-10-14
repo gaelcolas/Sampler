@@ -161,9 +161,9 @@ task Create_ChangeLog_GitHub_PR -if ($GitHubToken) {
     try {
         Update-Changelog -ReleaseVersion ($TagVersion -replace '^v') -LinkMode None -OutputPath .\CHANGELOG.md -Path .\CHANGELOG.md -ErrorAction SilentlyContinue
         git add $GitHubFilesToAdd
+        git config user.name $GitHubConfigUserName
+        git config user.email $GitHubConfigUserEmail
         git commit -m "Updating ChangeLog since $TagVersion +semver:skip"
-        git config --global user.name $GitHubConfigUserName
-        git config --global user.email $GitHubConfigUserEmail
 
         $URI = [URI](git remote get-url origin)
         $URI = $Uri.Scheme + [URI]::SchemeDelimiter + $GitHubToken + '@' + $URI.Authority + $URI.PathAndQuery
