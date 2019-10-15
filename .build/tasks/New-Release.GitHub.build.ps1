@@ -143,10 +143,10 @@ task Create_ChangeLog_GitHub_PR -if ($GitHubToken) {
     $TagsAtCurrentPoint = git tag -l --points-at (git rev-parse origin/master)
     # Only Update changelog if last commit is a full release
     if ($UpdateChangelogOnPrerelease) {
-        $TagVersion = $TagsAtCurrentPoint | Select-Object -First 1
+        $TagVersion = [string]($TagsAtCurrentPoint | Select-Object -First 1)
         Write-Build Green "Updating Changelog for PRE-Release $TagVersion"
     }
-    elseif($TagVersion = $TagsAtCurrentPoint.Where{ $_ -notMatch 'v.*\-' }) {
+    elseif($TagVersion = [string]($TagsAtCurrentPoint.Where{ $_ -notMatch 'v.*\-' })) {
         Write-Build Green "Updating the ChangeLog for release $TagVersion"
     }
     else {
@@ -157,6 +157,7 @@ task Create_ChangeLog_GitHub_PR -if ($GitHubToken) {
     $BranchName = "updateChangelogAfter$TagVersion"
     git checkout -B $BranchName
     try {
+        Write-Build DarkGray "Updating Changelog file"
         Update-Changelog -ReleaseVersion ($TagVersion -replace '^v') -LinkMode None -Path .\CHANGELOG.md -ErrorAction Stop
         git add $GitHubFilesToAdd
         git config user.name $GitHubConfigUserName
@@ -184,9 +185,9 @@ task Create_ChangeLog_GitHub_PR -if ($GitHubToken) {
             ErrorAction = 'Stop'
         }
         $Response = New-GitHubPullRequest @NewPullRequestParams
+        Write-Build Green "`n --> PR #$($Response.number) opened: $($Response.url)"
     }
     catch {
-        Write-Build Yellow "Error trying to create ChangeLog Pull Request. Ignoring. $_"
+        Write-Build Red "Error trying to create ChangeLog Pull Request. Ignoring.`r`n $_"
     }
-    Write-Build Green "`n --> PR #$($Response.number) opened: $($Response.url)"
 }
