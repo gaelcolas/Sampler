@@ -158,7 +158,14 @@ stages:
   - stage: Deploy
     dependsOn: test_module
     # Only execute deploy stage if we're on master and previous stage succeeded
-    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+    condition: |
+      and(
+        succeeded(),
+        or(
+          eq(variables['Build.SourceBranch'], 'refs/heads/master'),
+          startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+        )
+      )
     jobs:
       - job: Deploy_Artefact
         pool:
