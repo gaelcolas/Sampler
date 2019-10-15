@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Add condition to trigger deployment stage when building a tag (not master)
+
+## [v0.92.0] - 2019-10-15
+
+### Fixed
+
 - Fixing GitHub config for creating Changelog PR
 
 ### Changed
