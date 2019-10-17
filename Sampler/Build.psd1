@@ -1,14 +1,3 @@
-@{
-    # CopyDirectories          = @(
-    #     'DscResources',
-    #     #'HelperSubmodule',
-    #     '../.build/tasks',
-    #     'en',
-    #     'assets',
-    #     'PlasterTemplate'
-    # )
-    # suffix = 'suffix.ps1'
-    # SourcePath               = "./Sampler.psd1"
-    # VersionedOutputDirectory = $true
-    # OutputDirectory          = "../output/Sampler"
-}
+@{ }
+# Waiting for ModuleBuilder to do away with this file
+# when all prameters are provided to the function

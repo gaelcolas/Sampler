@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Shields badge on the readme page
+
+## [v0.92.2] - 2019-10-15
+
 ### Fixed
 
 - Add condition to trigger deployment stage when building a tag (not master)

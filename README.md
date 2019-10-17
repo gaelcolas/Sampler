@@ -1,20 +1,150 @@
-# Sample Module
+# Sampler Module [![Azure DevOps builds](https://img.shields.io/azure-devops/build/Synedgy/524b41a5-5330-4967-b2de-bed8fd44da08/1)](https://synedgy.visualstudio.com/Sampler/_build?definitionId=1&_a=summary)
 
-`TODO: Add build badge`
+[![PowerShell Gallery (with prereleases)](https://img.shields.io/powershellgallery/vpre/Sampler?label=Sampler%20Preview)](https://www.powershellgallery.com/packages/Sampler/)
+[![PowerShell Gallery](https://img.shields.io/powershellgallery/v/Sampler?label=Sampler)](https://www.powershellgallery.com/packages/Sampler/)
+[![Azure DevOps tests](https://img.shields.io/azure-devops/tests/SynEdgy/Sampler/1)](https://synedgy.visualstudio.com/Sampler/_test/analytics?definitionId=1&contextType=build)
+![Azure DevOps coverage](https://img.shields.io/azure-devops/coverage/Synedgy/Sampler/1)
+![PowerShell Gallery](https://img.shields.io/powershellgallery/p/Sampler)
 
-This project is a Module and template for PowerShell module and DSC Resources with a PowerShell Build Pipeline.
+This project is a Module and template of a PowerShell module and DSC Resources (soon)
+with its PowerShell Build Pipeline automation.
 
-## Goal
+The Sampler module in itself serves several purposes:
 
-The goal is to use my learnings from (and since) the [`gaelcolas/SampleModule`](https://github.com/gaelcolas/SampleModule/) experiment, and bring that up in a production-ready module and Plaster template, including DSC Resources, and implementing Build definition.
+- illustrate what a module source repository and its pipeline could look like
+- Publish Sampler to PSGallery to provide `InvokeBuild` tasks that can be re-used by anyone
+- Provide a Plaster template to create similar module easily and quickly
 
-## Workflow and reasoning
+## Usage
+
+When you clone this module locally, or if you create a module from its template,
+the `build.ps1` is how you interact with the built-in pipeline automation, and
+`build.yml` how you configure and customize it.
+
+### Bootstrapping repository and Resolve-Dependency
+
+Quick Start:
+
+```PowerShell
+PS C:\src\Sampler> build.ps1 -ResolveDependency
+# this will first bootstrap the environment by downloading dependencies required for the automation
+# then run the '.' task workflow as defined in build.yml (a list of Invoke-Build tasks)
+```
+
+The `build.ps1` is the _entry point_ to invoke any task or a list of build tasks (workflow),
+leveraging the [`Invoke-Build`](https://www.powershellgallery.com/packages/InvokeBuild/) task runner.
+
+But we don't assume your environment has the required PowerShell module,
+the `bootstrap` is done by `build.ps1`, and then resolves the dependencies listed
+in `RequiredModules.ps1` using `PSDepend`.
+
+Invoking `build.ps1` with the `-ResolveDependency` parameter will prepare your environment like so:
+
+1. Update your Environment variables ($Env:PSModulePath) to resolve built
+& local (repository) module first (by prepending those paths)
+1. Making sure you have a trustable version of PSGet &
+PackageManagement (`version -gt 1.6`) or install it from *a* gallery
+1. Download or install the `PowerShell-yaml` and `PSDepend` modules needed for
+further dependency management
+1. Read the `Build.yml` configuration
+1. Invoke [PSDepend](https://github.com/RamblingCookieMonster/PSDepend) on
+the RequiredModules.psd1
+1. hand over the task executions to `Invoke-Build` to run the workflow
+
+>By default, each repository should not rely on your environment,
+>so that it's easier to repeat on any machine or build agent.
+>Instead of installing required modules to your environment,
+>it will Save them to the `output/RequiredModules` folder
+>of your repository.
+>
+>By also prepending this path to your `$Env:PSModulePath`,
+>the build process will make those dependencies available in your session for
+>module discovery and auto-loading.
+
+Once the `-ResolveDependency` has been called once, there should not be a need
+to call it again until the `RequiredModules.psd1` is changed.
+
+Although you can use `Invoke-Build` to call the tasks, ensuring you are
+using `build.ps1` instead will make sure the right environment variables
+are set in your session.
+
+### Discoverability & noop
+
+Quick Start:
+```PowerShell
+PS C:\src\Sampler> .\build.ps1 -Tasks ?
+[pre-build] Starting Build Init
+[build] Starting build with InvokeBuild.
+[build] Parsing defined tasks
+[build] Loading Configuration from C:\src\Sampler\build.yaml
+Adding CopyPlaster
+Adding build
+Adding publish
+Adding test
+Adding .
+[build] Executing requested workflow: ?
+
+Name                                    Jobs
+----                                    ----
+Build_Module_ModuleBuilder              {}
+Build_NestedModules_ModuleBuilder       {}
+[...]
+
+PS C:\src\Sampler> .\build.ps1 -Tasks noop
+[pre-build] Starting Build Init
+[build] Starting build with InvokeBuild.
+[build] Parsing defined tasks
+[build] Loading Configuration from C:\src\Sampler\build.yaml
+Adding CopyPlaster
+Adding build
+Adding publish
+Adding test
+Adding .
+[build] Executing requested workflow: noop
+Build noop C:\src\Sampler\build.ps1
+Redefined task '.'.
+
+===============================================================
+                        NOOP
+Empty task, useful to test the bootstrap process
+---------------------------------------------------------------
+  /noop
+  C:\src\Sampler\build.ps1:171
+
+Done /noop 00:00:00.0240027
+Build succeeded. 1 tasks, 0 errors, 0 warnings 00:00:04.4388686
+```
+
+Because the build tasks are `InvokeBuild` tasks, we can discover them
+by using the `?` task (after we've resolved the dependencies):
+`build.ps1 -Tasks ?`
+
+If you only want to mak sure the environment is configured, or you only want to
+resolve the dependency, you can call the built-in task `noop` which won't
+do anything. The `requiredModules` should already be available to the session though.
+
+- `build.ps1 -tasks noop` - This will just setup your missing environment variables
+- `build.ps1 -tasks noop -ResolveDependency` - That one will bootstrap your environment & download required modules
+
+## Sampler Build workflow
+
+To better explain the features available, let's look at the `Sampler` module
+and its configured workflow.
 
 ### Bootstrap and re-hydration process
 
-This is the beginning of the build process so that anyone doing a git clone can re-hydrate the project and start testing and producing the artefacts locally with minimum environment dependency.
+This is the beginning of the build process so that anyone doing a git clone
+can re-hydrate the project and start testing and producing the artefacts locally
+with minimum environment dependency. You need `git`, `PowerShell` and
+preferably `GitVersion` (but not mandatory).
 
-- [x] Bootstrap (optional) the repository & resolve Dependencies (Module restore). Handled by the `.build.ps1`'s **BEGIN** block, and `Resolve-Dependency.ps1`:
+This avoid the "it works on my machine" or removes the dependence on specific
+tools (such as CI tool). It also ensures the build process can be run anywhere
+the same way (whether behind a firewall, on a dev workstation or in a build agent)
+
+
+- [x] Bootstrap (optional) the repository & resolve Dependencies (Module restore).
+Handled by the `.build.ps1`'s **BEGIN** block, and `Resolve-Dependency.ps1`:
 
   - Assume nothing is set up, and you don't have Admin rights
   - pushd in `$PSScriptRoot`
@@ -109,24 +239,3 @@ The detail of the **default workflow** is as follow (InvokeBuild defaults to the
 - Build & CI tools
   - [ ] Extend the project to DSC Builds
   - [ ] add Azure DevOps Pipeline builds for different platforms
-
-## Usage (intended)
-
-`.build.ps1` is fairly generic, but this is where parameters can be added in a given repository to change the input on all tasks using that parameter.
-Most of the Build customization is done for the project can be done in `build.psd1`. This is where the default task `.` is composed by importing required tasks exposed by different modules or added to the current repository when specific.
-
-```PowerShell
-Param (
-    [String]
-    #Override the Parameter of every tasks using $BuildOutput (i.e. [QualityTests](.build/Pester/QualityTests.pester.build.ps1))
-    $BuildOutput = "$PSScriptRoot\BuildOutput"
-)
-
-#Import custom tasks
-Get-ChildItem -Path "$PSScriptRoot/.build/" -Recurse -Include *.ps1 -Verbose |
-    Foreach-Object {
-        "Importing file $($_.BaseName)"
-        . $_.FullName
-    }
-
-```
