@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.92.1] - 2019-10-15
+### Added
+
+- Shields badge on the readme page
+
+## [v0.92.2] - 2019-10-15
 
 ### Fixed
 
