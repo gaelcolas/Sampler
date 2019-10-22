@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Copy Plaster on linux to include hidden files
+- build on Windows
 
 ## [v0.92.2] - 2019-10-15
 
