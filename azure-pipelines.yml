@@ -27,7 +27,7 @@ stages:
             inputs:
               filePath: './build.ps1'
               arguments: '-ResolveDependency -tasks build'
-              pwsh: true
+              pwsh: false
             env:
               ModuleVersion: $(GitVersion.Informationalversion)
 
