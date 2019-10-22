@@ -34,8 +34,8 @@ PS C:\src\Sampler> build.ps1 -ResolveDependency
 The `build.ps1` is the _entry point_ to invoke any task or a list of build tasks (workflow),
 leveraging the [`Invoke-Build`](https://www.powershellgallery.com/packages/InvokeBuild/) task runner.
 
-But we don't assume your environment has the required PowerShell module,
-the `bootstrap` is done by `build.ps1`, and then resolves the dependencies listed
+But we don't assume your environment has the required PowerShell modules,
+so the `bootstrap` is done by `build.ps1`, and can resolves the dependencies listed
 in `RequiredModules.ps1` using `PSDepend`.
 
 Invoking `build.ps1` with the `-ResolveDependency` parameter will prepare your environment like so:
