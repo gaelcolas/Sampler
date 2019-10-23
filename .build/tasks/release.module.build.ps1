@@ -4,6 +4,8 @@ param(
 
     $ChangelogPath = (property ChangelogPath 'CHANGELOG.md'),
 
+    $ReleaseNotesPath = (property ReleaseNotesPath (Join-Path $OutputDirectory 'ReleaseNotes.md')),
+
     [string]
     $ProjectName = (property ProjectName $(
             #Find the module manifest to deduce the Project Name
@@ -42,6 +44,52 @@ param(
 
     $PSModuleFeed = (property PSModuleFeed 'PSGallery')
 )
+
+# Synopsis: Create ReleaseNotes from changelog and update the Changelog for release
+task Create_changelog_release_output {
+    if (!(Split-Path -isAbsolute $OutputDirectory)) {
+        $OutputDirectory = Join-path $BuildRoot $OutputDirectory
+    }
+
+    if(!(Split-Path -isAbsolute $ReleaseNotesPath)) {
+        $ReleaseNotesPath = Join-path $OutputDirectory $ReleaseNotesPath
+    }
+
+    $ChangeLogOutputPath = Join-path $OutputDirectory 'CHANGELOG.md'
+
+
+    if ([String]::IsNullOrEmpty($ModuleVersion)) {
+        $ModuleInfo = Import-PowerShellDataFile "$OutputDirectory/$ProjectName/*/$ProjectName.psd1" -ErrorAction Stop
+        if ($PreReleaseTag = $ModuleInfo.PrivateData.PSData.Prerelease) {
+            $ModuleVersion = $ModuleInfo.ModuleVersion + "-" + $PreReleaseTag
+        }
+        else {
+            $ModuleVersion = $ModuleInfo.ModuleVersion
+        }
+    }
+    else {
+        # Remove metadata from ModuleVersion
+        $ModuleVersion, $BuildMetadata = $ModuleVersion -split '\+', 2
+        # Remove Prerelease tag from ModuleVersionFolder
+        $ModuleVersionFolder, $PreReleaseTag = $ModuleVersion -split '\-', 2
+    }
+
+    # Parse the Changelog and extract unreleased
+    try {
+        Import-Module ChangelogManagement -ErrorAction Stop
+
+        # Update the source changelog file
+        Update-Changelog -Path $ChangeLogPath -OutputPath $ChangeLogOutputPath -ErrorAction Stop -ReleaseVersion $ModuleVersion -LinkMode none
+
+        # Create a ReleaseNotes from the Updated changelog
+        ConvertFrom-Changelog -Path $ChangeLogOutputPath -Format Release -NoHeader -OutputPath $ReleaseNotesPath -ErrorAction Stop
+    }
+    catch {
+        if (-not ($ReleaseNotes = (Get-Content -raw $ReleaseNotesPath -ErrorAction SilentlyContinue))) {
+            $ReleaseNotes = Get-Content -raw $ChangeLogOutputPath -ErrorAction SilentlyContinue
+        }
+    }
+}
 
 task publish_nupkg_to_gallery -if ((Get-Command nuget -ErrorAction SilentlyContinue) -and $GalleryApiToken) {
     if ([String]::IsNullOrEmpty($ModuleVersion)) {
@@ -127,17 +175,28 @@ task publish_module_to_gallery -if ((!(Get-Command nuget -ErrorAction SilentlyCo
         $OutputDirectory = Join-Path $BuildRoot $OutputDirectory
     }
 
+    if(!(Split-Path -isAbsolute $ReleaseNotesPath)) {
+        $ReleaseNotesPath = Join-path $OutputDirectory $ReleaseNotesPath
+    }
+
+    # Retrieving ReleaseNotes or defaulting to Updated ChangeLog
+    if (-not ($ReleaseNotes = (Get-Content -raw $ReleaseNotesPath -ErrorAction SilentlyContinue))) {
+        $ReleaseNotes = Get-Content -raw $ChangeLogPath -ErrorAction SilentlyContinue
+    }
+
     $null = Test-ModuleManifest "$OutputDirectory/$ProjectName/*/$ProjectName.psd1" -ErrorAction Stop
     $ModulePath = Join-Path $OutputDirectory $ProjectName
 
     Write-Build DarkGray "`nAbout to release $ModulePath"
 
     $PublishModuleParams = @{
-        Path        = $ModulePath
-        NuGetApiKey = $GalleryApiToken
-        Repository  = $PSModuleFeed
-        ErrorAction = 'Stop'
+        Path         = $ModulePath
+        NuGetApiKey  = $GalleryApiToken
+        Repository   = $PSModuleFeed
+        ErrorAction  = 'Stop'
+        releaseNotes = $ReleaseNotes
     }
+
     Publish-Module @PublishModuleParams
 
     Write-Build Green "Package Published to PSGallery"

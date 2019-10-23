@@ -1,4 +1,5 @@
 output/*
+modules/*
 .kitchen/*
 **.bak
 .kitchen.local.yml

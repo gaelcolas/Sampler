@@ -11,9 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Shields badge on the readme page
 
+### Changed
+
+- Changelog compiled to release notes
+- use release notes for publishing
+
 ### Fixed
 
-- Copy Plaster on linux to include hidden files
+- Added hidden files as template assets
 
 ## [v0.92.2] - 2019-10-15
 

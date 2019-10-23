@@ -65,21 +65,15 @@ BuildWorkflow:
     }
 
   '.': # "." is the default Invoke-Build workflow. It is called when no -Tasks is specified to the build.ps1
-    - Clean
-    - Set_Build_Environment_Variables
-    - Build_Module_ModuleBuilder
-    - Build_NestedModules_ModuleBuilder
-    - CopyPlaster
-    - package_module_nupkg
-    - Pester_Tests_Stop_On_Fail
-    - Pester_if_Code_Coverage_Under_Threshold
+    - build
+    - test
 
   build:
     - Clean
-    - Set_Build_Environment_Variables
     - Build_Module_ModuleBuilder
     - Build_NestedModules_ModuleBuilder
     - CopyPlaster
+    - Create_changelog_release_output
     - package_module_nupkg
 
   # defining test task to be run when invoking `./build.ps1 -Tasks test`
@@ -104,7 +98,7 @@ Resolve-Dependency: #Parameters for Resolve-Dependency
 
 ModuleBuildTasks:
 #   # - ModuleName: 'alias to search'
-#   - Sampler: *.ib.tasks' # this means: import (dot source) all aliases ending with .ib.tasks exported by sampler module
+#  - Sampler: '*.ib.tasks' # this means: import (dot source) all aliases ending with .ib.tasks exported by sampler module
 
 # Invoke-Build Header to be used to 'decorate' the terminal output of the tasks.
 TaskHeader: |
