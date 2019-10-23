@@ -47,10 +47,16 @@ param(
 
 # Synopsis: Create ReleaseNotes from changelog and update the Changelog for release
 task Create_changelog_release_output {
+    if (!(Split-Path -isAbsolute $OutputDirectory)) {
+        $OutputDirectory = Join-path $BuildRoot $OutputDirectory
+    }
 
     if(!(Split-Path -isAbsolute $ReleaseNotesPath)) {
         $ReleaseNotesPath = Join-path $OutputDirectory $ReleaseNotesPath
     }
+
+    $ChangeLogOutputPath = Join-path $OutputDirectory 'CHANGELOG.md'
+
 
     if ([String]::IsNullOrEmpty($ModuleVersion)) {
         $ModuleInfo = Import-PowerShellDataFile "$OutputDirectory/$ProjectName/*/$ProjectName.psd1" -ErrorAction Stop
@@ -73,14 +79,14 @@ task Create_changelog_release_output {
         Import-Module ChangelogManagement -ErrorAction Stop
 
         # Update the source changelog file
-        Update-Changelog -Path $ChangeLogPath -ErrorAction Stop -ReleaseVersion $ModuleVersion -LinkMode none
+        Update-Changelog -Path $ChangeLogPath -OutputPath $ChangeLogOutputPath -ErrorAction Stop -ReleaseVersion $ModuleVersion -LinkMode none
 
         # Create a ReleaseNotes from the Updated changelog
-        ConvertFrom-Changelog -Path $ChangeLogPath -Format Release -NoHeader -OutputPath $ReleaseNotesPath -ErrorAction Stop
+        ConvertFrom-Changelog -Path $ChangeLogOutputPath -Format Release -NoHeader -OutputPath $ReleaseNotesPath -ErrorAction Stop
     }
     catch {
         if (-not ($ReleaseNotes = (Get-Content -raw $ReleaseNotesPath -ErrorAction SilentlyContinue))) {
-            $ReleaseNotes = Get-Content -raw $ChangeLogPath -ErrorAction SilentlyContinue
+            $ReleaseNotes = Get-Content -raw $ChangeLogOutputPath -ErrorAction SilentlyContinue
         }
     }
 }
