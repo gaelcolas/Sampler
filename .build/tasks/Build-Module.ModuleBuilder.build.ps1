@@ -23,6 +23,8 @@ Param (
     [string]
     $BuildModuleOutput = (property BuildModuleOutput (Join-Path $OutputDirectory $ProjectName)),
 
+    $ReleaseNotesPath = (property ReleaseNotesPath (Join-Path $OutputDirectory 'ReleaseNotes.md')),
+
     [string]
     $ModuleVersion = (property ModuleVersion $(
             try {
@@ -45,7 +47,12 @@ Task Build_Module_ModuleBuilder {
     " OutputDirectory   = $OutputDirectory"
     " BuildModuleOutput = $BuildModuleOutput"
 
-    Import-Module ModuleBuilder
+
+    if (!(Split-Path -isAbsolute $ReleaseNotesPath)) {
+        $ReleaseNotesPath = Join-path $OutputDirectory $ReleaseNotesPath
+    }
+
+    Import-Module ModuleBuilder -ErrorAction Stop
     $BuildModuleParams = @{}
 
     foreach ($ParamName in (Get-Command Build-Module).Parameters.Keys) {
@@ -70,7 +77,13 @@ Task Build_Module_ModuleBuilder {
     }
 
     Write-Build -Color Green "Building Module to $($BuildModuleParams['OutputDirectory'])..."
-    Build-Module @BuildModuleParams -SemVer $ModuleVersion
+    $BuiltModule = Build-Module @BuildModuleParams -SemVer $ModuleVersion -Passthru
+
+    if (Test-Path $ReleaseNotesPath) {
+        $RelNote = Get-Content -raw $ReleaseNotesPath
+        $OutputManifest = $BuiltModule.Path
+        Update-Metadata -Path $OutputManifest -PropertyName PrivateData.PSData.ReleaseNotes -Value $RelNote
+    }
 }
 
 Task Build_NestedModules_ModuleBuilder {
