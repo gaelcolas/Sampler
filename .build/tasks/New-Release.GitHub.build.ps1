@@ -94,11 +94,18 @@ task Publish_release_to_GitHub -if ($GitHubToken) {
     }
 
     # Parse the Changelog and extract unreleased
-    if ((Get-Content -raw $ChangelogPath -ErrorAction SilentlyContinue) -match '\[Unreleased\](?<changeLog>[.\s\w\W]*)\n## \[') {
-        $ChangeLog = $matches.ChangeLog
-    }
-    else {
+    try {
+        Import-Module ChangelogManagement -ErrorAction Stop
+        Update-Changelog -Path $ChangeLogPath -ErrorAction Stop -ReleaseVersion $ModuleVersion -LinkMode none
         $ChangeLog = Get-Content -raw $ChangelogPath -ErrorAction SilentlyContinue
+    }
+    catch {
+        if ((Get-Content -raw $ChangelogPath -ErrorAction SilentlyContinue) -match '\[Unreleased\](?<changeLog>[.\s\w\W]*)\n## \[') {
+            $ChangeLog = $matches.ChangeLog
+        }
+        else {
+            $ChangeLog = Get-Content -raw $ChangelogPath -ErrorAction SilentlyContinue
+        }
     }
 
     # if you want to create the tag on /release/v$ModuleVersion branch (default to master)
@@ -158,7 +165,7 @@ task Create_ChangeLog_GitHub_PR -if ($GitHubToken) {
     git checkout -B $BranchName
     try {
         Write-Build DarkGray "Updating Changelog file"
-        Update-Changelog -ReleaseVersion ($TagVersion -replace '^v') -LinkMode None -Path .\CHANGELOG.md -ErrorAction Stop
+        Update-Changelog -ReleaseVersion ($TagVersion -replace '^v') -LinkMode None -Path $ChangelogPath -ErrorAction Stop
         git add $GitHubFilesToAdd
         git config user.name $GitHubConfigUserName
         git config user.email $GitHubConfigUserEmail
