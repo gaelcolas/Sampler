@@ -1,29 +1,3 @@
-
-<#PSScriptInfo
-
-.VERSION 0.1.0
-
-.GUID 2720e889-1287-4cab-8945-01a7f89b53cc
-
-.AUTHOR Gael Colas
-
-.COMPANYNAME SynEdgy Limited
-
-.COPYRIGHT (c) SynEdgy, All rights reserved
-
-.TAGS build powershell module bootstrap InvokeBuild tasks template
-
-.LICENSEURI
-
-.PROJECTURI https://github.com/gaelcolas/sampler
-
-.ICONURI
-
-.RELEASENOTES
-Initial version
-
-#>
-
 <#
 
 .DESCRIPTION

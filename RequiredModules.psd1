@@ -12,12 +12,12 @@
     pester               = 'latest'
     Plaster              = 'latest'
     ModuleBuilder        = 'latest'
-    buildhelpers         = 'latest'
+    # buildhelpers         = 'latest'
     # PSDeploy             = 'latest'
     ChangelogManagement  = 'latest'
 
     #required for DSC authoring
-    xDscResourceDesigner = 'latest'
+    # xDscResourceDesigner = 'latest'
 
     # Git Clone Used to test DSC Resources (This needs to be ported to a module)
     # 'PowerShell/DscResource.Tests' = @{

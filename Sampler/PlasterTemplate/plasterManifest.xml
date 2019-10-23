@@ -226,19 +226,19 @@
 
     <!-- REPOSITORY Files -->
     <!--   GITIGNORE -->
-    <file source='.gitignore'
+    <file source='Sampler/assets/gitignore'
           destination='${PLASTER_PARAM_ModuleName}/.gitignore'
           condition='${PLASTER_PARAM_Features}.Contains("All") -or ${PLASTER_PARAM_Features}.Contains("git") -or ${PLASTER_PARAM_ModuleType} -in @("SimpleModule","CompleteModule","SimpleModule_NoBuild","CompleteModule_NoBuild","SharedDscConfig")'
     />
 
     <!--   GITATTRIBUTES -->
-    <file source='.gitattributes'
+    <file source='Sampler/assets/gitattributes'
           destination='${PLASTER_PARAM_ModuleName}/.gitattributes'
           condition='${PLASTER_PARAM_Features}.Contains("All") -or ${PLASTER_PARAM_Features}.Contains("git") -or ${PLASTER_PARAM_ModuleType} -in @("SimpleModule","CompleteModule","SimpleModule_NoBuild","CompleteModule_NoBuild","SharedDscConfig")'
     />
 
     <!--   KITCHEN YAML Sample -->
-    <templateFile source='Sampler/assets/.kitchen.yml.template'
+    <templateFile source='Sampler/assets/kitchen.yml.template'
                   destination='${PLASTER_PARAM_ModuleName}/.kitchen.yml'
                   condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","SharedDscConfig") -or ${PLASTER_PARAM_Features}.Contains("All") -or ${PLASTER_PARAM_Features}.Contains("TestKitchen")'
     />
@@ -358,13 +358,13 @@
     />
 
    <!-- VSCODE SETTINGS -->
-   <file source='.vscode'
+   <file source='Sampler/assets/vscode'
           destination='${PLASTER_PARAM_ModuleName}/.vscode'
           condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild","SimpleBuild") -or ${PLASTER_PARAM_Features}.Contains("All") -or ${PLASTER_PARAM_Features}.Contains("vscode")'
     />
 
    <!-- GITHUB TEMPLATES -->
-   <file source='.github'
+   <file source='Sampler/assets/github'
           destination='${PLASTER_PARAM_ModuleName}/.github'
           condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild","SimpleBuild") -or ${PLASTER_PARAM_Features}.Contains("All") -or ${PLASTER_PARAM_Features}.Contains("github")'
     />
@@ -382,7 +382,7 @@
     />
 
    <!-- MARKDOWN LINT -->
-   <file source='.markdownlint.json'
+   <file source='Sampler/assets/markdownlint.json'
           destination='${PLASTER_PARAM_ModuleName}/.markdownlint.json'
           condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild","SimpleBuild") -or ${PLASTER_PARAM_Features}.Contains("All") -or ${PLASTER_PARAM_Features}.Contains("vscode")'
     />

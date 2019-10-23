@@ -13,7 +13,11 @@ $SourcePath = (Get-ChildItem $ProjectPath\*\*.psd1 | Where-Object {
     ).Directory.FullName
 
     Describe 'Changelog Management' -Tag 'Changelog' {
-        It 'Changelog has been updated' -skip:(![bool](Get-Command git -EA SilentlyContinue)) {
+        It 'Changelog has been updated' -skip:(& {
+            ![bool](Get-Command git -EA SilentlyContinue) -or
+            (Test-Path (Join-Path $ProjectPath '.git'))
+            })
+            {
             # Get the list of changed files compared with master
             $HeadCommit = &git rev-parse HEAD
             $MasterCommit = &git rev-parse origin/master
