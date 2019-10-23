@@ -4,6 +4,8 @@ param(
 
     $ChangelogPath = (property ChangelogPath 'CHANGELOG.md'),
 
+    $ReleaseNotesPath = (property ReleaseNotesPath (Join-Path $OutputDirectory 'ReleaseNotes.md')),
+
     [string]
     $ProjectName = (property ProjectName $(
             #Find the module manifest to deduce the Project Name
@@ -51,6 +53,13 @@ param(
 . $PSScriptRoot/GitHubRelease.functions.ps1
 
 task Publish_release_to_GitHub -if ($GitHubToken) {
+    if (!(Split-Path $OutputDirectory -IsAbsolute)) {
+        $OutputDirectory = Join-Path $BuildRoot $OutputDirectory
+    }
+
+    if (!(Split-Path -isAbsolute $ReleaseNotesPath)) {
+        $ReleaseNotesPath = Join-path $OutputDirectory $ReleaseNotesPath
+    }
 
     if ([String]::IsNullOrEmpty($ModuleVersion)) {
         $ModuleInfo = Import-PowerShellDataFile "$OutputDirectory/$ProjectName/*/$ProjectName.psd1" -ErrorAction Stop
@@ -88,24 +97,9 @@ task Publish_release_to_GitHub -if ($GitHubToken) {
         $Prerelease = $true
     }
 
-    # compile changelog for that version
-    if (!(Split-Path $ChangelogPath -isAbsolute)) {
-        $ChangelogPath = Join-Path $BuildRoot $ChangelogPath | Convert-Path
-    }
-
-    # Parse the Changelog and extract unreleased
-    try {
-        Import-Module ChangelogManagement -ErrorAction Stop
-        Update-Changelog -Path $ChangeLogPath -ErrorAction Stop -ReleaseVersion $ModuleVersion -LinkMode none
-        $ChangeLog = Get-Content -raw $ChangelogPath -ErrorAction SilentlyContinue
-    }
-    catch {
-        if ((Get-Content -raw $ChangelogPath -ErrorAction SilentlyContinue) -match '\[Unreleased\](?<changeLog>[.\s\w\W]*)\n## \[') {
-            $ChangeLog = $matches.ChangeLog
-        }
-        else {
-            $ChangeLog = Get-Content -raw $ChangelogPath -ErrorAction SilentlyContinue
-        }
+    # Retrieving ReleaseNotes or defaulting to Updated ChangeLog
+    if (-not ($ReleaseNotes = (Get-Content -raw $ReleaseNotesPath -ErrorAction SilentlyContinue))) {
+        $ReleaseNotes = Get-Content -raw $ChangeLogPath -ErrorAction SilentlyContinue
     }
 
     # if you want to create the tag on /release/v$ModuleVersion branch (default to master)
@@ -119,7 +113,7 @@ task Publish_release_to_GitHub -if ($GitHubToken) {
         Branch      = $ReleaseBranch
         AssetPath   = $PackageToRelease
         Prerelease  = [bool]($PreReleaseTag)
-        Description = $ChangeLog
+        Description = $ReleaseNotes
         GitHubToken = $GitHubToken
     }
     $APIResponse = Publish-GitHubRelease @releaseParams
@@ -165,7 +159,7 @@ task Create_ChangeLog_GitHub_PR -if ($GitHubToken) {
     git checkout -B $BranchName
     try {
         Write-Build DarkGray "Updating Changelog file"
-        Update-Changelog -ReleaseVersion ($TagVersion -replace '^v') -LinkMode None -Path $ChangelogPath -ErrorAction Stop
+        Update-Changelog -ReleaseVersion ($TagVersion -replace '^v') -LinkMode None -Path $ChangelogPath -ErrorAction SilentlyContinue
         git add $GitHubFilesToAdd
         git config user.name $GitHubConfigUserName
         git config user.email $GitHubConfigUserEmail
