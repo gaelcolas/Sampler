@@ -70,10 +70,12 @@ BuildWorkflow:
 
   build:
     - Clean
-    - Create_changelog_release_output
     - Build_Module_ModuleBuilder
     - Build_NestedModules_ModuleBuilder
     - CopyPlaster
+    - Create_changelog_release_output
+
+  pack:
     - package_module_nupkg
 
   # defining test task to be run when invoking `./build.ps1 -Tasks test`
