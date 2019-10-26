@@ -1,0 +1,37 @@
+---
+provisioner:
+    name: dsc
+    dsc_local_configuration_manager_version: wmf5
+    dsc_local_configuration_manager:
+      reboot_if_needed: true
+      configuration_mode_frequency_mins: 15
+      debug_mode: none
+<%
+@"
+    configuration_script_folder: {0}/examples
+"@ -f $PLASTER_PARAM_ModuleName
+%>
+    configuration_script: dsc_configuration.ps1
+    modules_path: modules
+    retry_on_exit_code:
+    - 35
+    configuration_data_variable: configurationData
+    modules_from_gallery:
+     - xPSDesiredStateConfiguration
+     #- PackageManagementProviderResource
+
+verifier:
+  name: pester
+<%
+@"
+  test_folder: {0}/tests/integration/
+
+"@ -f $PLASTER_PARAM_ModuleName
+%>
+platforms:
+  - name: win2012r2_PPB
+    os_type: windows
+    shell: powershell
+
+suites:
+  - name: Default

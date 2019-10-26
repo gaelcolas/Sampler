@@ -1,0 +1,17 @@
+<%
+@"
+# {0}
+
+{1}
+
+## Make it yours
+
+---
+Generated with Plaster and the SampleModule template
+
+"@ -f $PLASTER_PARAM_ModuleName,$PLASTER_PARAM_ModuleDescription
+%>
+
+This is a sample Readme
+
+## Make it yours
