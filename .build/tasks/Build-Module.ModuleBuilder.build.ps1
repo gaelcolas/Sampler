@@ -87,9 +87,34 @@ Task Build_Module_ModuleBuilder {
 }
 
 Task Build_NestedModules_ModuleBuilder {
+    " Project Name      = $ProjectName"
+    " Source Path       = $SourcePath"
+    " OutputDirectory   = $OutputDirectory"
+    " BuildModuleOutput = $BuildModuleOutput"
+
     Import-Module ModuleBuilder -ErrorAction Stop
-    $ModuleVersion, $VersionMetadata = $ModuleVersion -split '\+', 2
-    $ModuleVersionFolder, $PrereleaseTag = $ModuleVersion -split '\-', 2
+
+    if ([String]::IsNullOrEmpty($ModuleVersion)) {
+        $ModuleInfo = Import-PowerShellDataFile "$OutputDirectory/$ProjectName/*/$ProjectName.psd1" -ErrorAction Stop
+        if ($PreReleaseTag = $ModuleInfo.PrivateData.PSData.Prerelease) {
+            $ModuleVersionFolder = $ModuleInfo.ModuleVersion
+            $ModuleVersion = $ModuleVersionFolder + "-" + $PreReleaseTag
+        }
+        else {
+            $ModuleVersionFolder = $ModuleInfo.ModuleVersion
+            $ModuleVersion = $ModuleInfo.ModuleVersion
+        }
+    }
+    else {
+        # Remove metadata from ModuleVersion
+        $ModuleVersion, $BuildMetadata = $ModuleVersion -split '\+', 2
+        # Remove Prerelease tag from ModuleVersionFolder
+        $ModuleVersionFolder, $PreReleaseTag = $ModuleVersion -split '\-', 2
+    }
+
+    " ModuleVersion       = $ModuleVersion"
+    " ModuleVersionFolder = $ModuleVersionFolder"
+    " PreReleaseTag       = $PreReleaseTag"
 
     $NestedModule = $BuildInfo.NestedModule
     foreach ($NestedModuleName in $NestedModule.Keys) {
