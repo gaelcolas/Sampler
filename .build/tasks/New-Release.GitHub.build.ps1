@@ -46,7 +46,9 @@ param(
 
     $GitHubFilesToAdd = (property GitHubFilesToAdd ''),
 
-    $BuildInfo = (property BuildInfo @{})
+    $BuildInfo = (property BuildInfo @{ }),
+
+    $SkipPublish = (property SkipPublish '')
 )
 
 # Until I can use a third party module
@@ -98,9 +100,15 @@ task Publish_release_to_GitHub -if ($GitHubToken) {
     }
 
     # Retrieving ReleaseNotes or defaulting to Updated ChangeLog
-    if (-not ($ReleaseNotes = (Get-Content -raw $ReleaseNotesPath -ErrorAction SilentlyContinue))) {
-        $ReleaseNotes = Get-Content -raw $ChangeLogPath -ErrorAction SilentlyContinue
+    if (Import-Module ChangelogManagement -ErrorAction SilentlyContinue -PassThru) {
+        ($ReleaseNotes = Get-ChangelogData -Path $ChangeLogPath).Unreleased.RawData -replace '\[unreleased\]', "[v$ModuleVersion]"
     }
+    else {
+        if (-not ($ReleaseNotes = (Get-Content -raw $ReleaseNotesPath -ErrorAction SilentlyContinue))) {
+            $ReleaseNotes = Get-Content -raw $ChangeLogPath -ErrorAction SilentlyContinue
+        }
+    }
+
 
     # if you want to create the tag on /release/v$ModuleVersion branch (default to master)
     $ReleaseBranch = $ExecutionContext.InvokeCommand.ExpandString($ReleaseBranch)
@@ -116,7 +124,9 @@ task Publish_release_to_GitHub -if ($GitHubToken) {
         Description = $ReleaseNotes
         GitHubToken = $GitHubToken
     }
-    $APIResponse = Publish-GitHubRelease @releaseParams
+    if (!$SkipPublish) {
+        $APIResponse = Publish-GitHubRelease @releaseParams
+    }
     Write-Build Green "Release Created. Follow the link -> $($APIResponse.html_url)"
 }
 
@@ -130,7 +140,7 @@ task Create_ChangeLog_GitHub_PR -if ($GitHubToken) {
     # # git fetch --force --tags --prune --progress --no-recurse-submodules origin
     # # git checkout --progress --force (git rev-parse origin/master)
 
-    foreach ($GitHubConfigKey in @('GitHubFilesToAdd', 'GitHubConfigUserName','GitHubConfigUserEmail','UpdateChangelogOnPrerelease')) {
+    foreach ($GitHubConfigKey in @('GitHubFilesToAdd', 'GitHubConfigUserName', 'GitHubConfigUserEmail', 'UpdateChangelogOnPrerelease')) {
         if ( -Not (Get-Variable -Name $GitHubConfigKey -ValueOnly -ErrorAction SilentlyContinue)) {
             # Variable is not set in context, use $BuildInfo.GitHubConfig.<varName>
             $ConfigValue = $BuildInfo.GitHubConfig.($GitHubConfigKey)
@@ -147,7 +157,7 @@ task Create_ChangeLog_GitHub_PR -if ($GitHubToken) {
         $TagVersion = [string]($TagsAtCurrentPoint | Select-Object -First 1)
         Write-Build Green "Updating Changelog for PRE-Release $TagVersion"
     }
-    elseif($TagVersion = [string]($TagsAtCurrentPoint.Where{ $_ -notMatch 'v.*\-' })) {
+    elseif ($TagVersion = [string]($TagsAtCurrentPoint.Where{ $_ -notMatch 'v.*\-' })) {
         Write-Build Green "Updating the ChangeLog for release $TagVersion"
     }
     else {
