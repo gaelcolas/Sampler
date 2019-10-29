@@ -219,7 +219,7 @@ task publish_module_to_gallery -if ((!(Get-Command nuget -ErrorAction SilentlyCo
         Value = $ReleaseNotes
     }
 
-    Update-Metadata @UpdateReleaseNotesParams
+    Update-Manifest @UpdateReleaseNotesParams
     $ModulePath = Join-Path $OutputDirectory $ProjectName
 
     Write-Build DarkGray "`nAbout to release $ModulePath"
