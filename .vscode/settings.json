@@ -23,6 +23,7 @@
         "RELEASENOTES",
         "buildhelpers",
         "gitversion",
+        "keepachangelog",
         "pscmdlet"
     ]
 }

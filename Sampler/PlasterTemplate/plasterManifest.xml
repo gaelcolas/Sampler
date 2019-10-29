@@ -141,7 +141,7 @@
 
     <!--   Enums Folder-->
     <file source=''
-          destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/enums'
+          destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/Enums'
           condition='${PLASTER_PARAM_Features} -in @("All","Enums") -or ${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild")'
     />
 
@@ -240,7 +240,7 @@
     <!--   KITCHEN YAML Sample -->
     <templateFile source='Sampler/Assets/kitchen.yml.template'
                   destination='${PLASTER_PARAM_ModuleName}/.kitchen.yml'
-                  condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","SharedDscConfig") -or ${PLASTER_PARAM_Features} -Contains "All" -or ${PLASTER_PARAM_Features} -Contains "TestKitchen"'
+                  condition='${PLASTER_PARAM_Features} -Contains "All" -or ${PLASTER_PARAM_Features} -Contains "TestKitchen"'
     />
 
     <!--   PSDEPLOY Sample -->
@@ -371,6 +371,12 @@
    <!-- CODE OF CONDUCT MD -->
    <file source='CODE_OF_CONDUCT.md'
           destination='${PLASTER_PARAM_ModuleName}/CODE_OF_CONDUCT.md'
+          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild","SimpleBuild") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("git")'
+    />
+
+   <!-- CHANGELOG MD -->
+   <file source='Sampler/Assets/CHANGELOG.md.template'
+          destination='${PLASTER_PARAM_ModuleName}/CHANGELOG.md'
           condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild","SimpleBuild") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("git")'
     />
 

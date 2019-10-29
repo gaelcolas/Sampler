@@ -20,12 +20,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - fixed template
-- fixed the publishing to also pack nupkg
+- fixed the publishing to also pack NuPkg
 - Added hidden files as template assets
+- fixed git test to skip test on new module scaffolding
+- fixed default DscResources from copy-item in build yaml
 
 ### Removed
 
 - old file reference with wrong case
+- remove kitchen yaml from template
 
 ## [v0.92.2] - 2019-10-15
 

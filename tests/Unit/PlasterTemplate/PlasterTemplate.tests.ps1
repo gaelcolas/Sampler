@@ -27,7 +27,7 @@ Describe 'Plaster Templates creates a complete Module scaffolding' {
         Invoke-plaster @PlasterParams
     }
     catch {
-        Write-Host $_
+        Write-Warning "ERROR: $_"
     }
 
 
@@ -62,6 +62,7 @@ Describe 'Plaster Templates creates a complete Module scaffolding' {
         ,@{fileName = "TestDrive:\$ModuleName\.vscode\"}
         ,@{fileName = "TestDrive:\$ModuleName\.github\"}
         ,@{fileName = "TestDrive:\$ModuleName\CONTRIBUTING.md"}
+        ,@{fileName = "TestDrive:\$ModuleName\CHANGELOG.md"}
         ,@{fileName = "TestDrive:\$ModuleName\CODE_OF_CONDUCT.md"}
         ,@{fileName = "TestDrive:\$ModuleName\.markdownlint.json"}
         ,@{fileName = "TestDrive:\$ModuleName\GitVersion.yml"}
@@ -69,7 +70,8 @@ Describe 'Plaster Templates creates a complete Module scaffolding' {
 
     It 'Should have created file <fileName>' -TestCases $FileList {
         param($fileName)
-        Write-host $fileName
-        Get-Item -force $fileName -ErrorAction SilentlyContinue | Should -Not -BeNullOrEmpty
+
+        # Careful on Linux PS7+, FS is case sensitive
+        Test-Path $fileName -ErrorAction SilentlyContinue | Should -Not -BeNullOrEmpty
     }
 }
