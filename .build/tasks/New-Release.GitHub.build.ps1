@@ -101,7 +101,7 @@ task Publish_release_to_GitHub -if ($GitHubToken) {
 
     # Retrieving ReleaseNotes or defaulting to Updated ChangeLog
     if (Import-Module ChangelogManagement -ErrorAction SilentlyContinue -PassThru) {
-        ($ReleaseNotes = Get-ChangelogData -Path $ChangeLogPath).Unreleased.RawData -replace '\[unreleased\]', "[v$ModuleVersion]"
+        $ReleaseNotes = (Get-ChangelogData -Path $ChangeLogPath).Unreleased.RawData -replace '\[unreleased\]', "[v$ModuleVersion]"
     }
     else {
         if (-not ($ReleaseNotes = (Get-Content -raw $ReleaseNotesPath -ErrorAction SilentlyContinue))) {
