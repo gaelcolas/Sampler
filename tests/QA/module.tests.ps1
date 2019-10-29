@@ -14,8 +14,8 @@ $SourcePath = (Get-ChildItem $ProjectPath\*\*.psd1 | Where-Object {
 
     Describe 'Changelog Management' -Tag 'Changelog' {
         It 'Changelog has been updated' -skip:(& {
-            ![bool](Get-Command git -EA SilentlyContinue) -and
-            [bool](git rev-parse --is-inside-work-tree 2>$null)
+            ![bool](Get-Command git -EA SilentlyContinue) -or
+            ![bool](git rev-parse --is-inside-work-tree 2>$null)
             }) {
             # Get the list of changed files compared with master
             $HeadCommit = &git rev-parse HEAD
@@ -28,7 +28,7 @@ $SourcePath = (Get-ChildItem $ProjectPath\*\*.psd1 | Where-Object {
         }
 
         It 'Changelog format compliant with keepachangelog format' -skip:(![bool](Get-Command git -EA SilentlyContinue)) {
-            { Get-ChangelogData "$ProjectPath\changelog*" -ErrorAction Stop } | Should -Not -Throw
+            { Get-ChangelogData (Join-Path $ProjectPath 'CHANGELOG.md') -ErrorAction Stop } | Should -Not -Throw
         }
     }
 
