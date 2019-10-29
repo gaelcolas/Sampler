@@ -1,8 +1,0 @@
-output/*
-modules/*
-.kitchen/*
-**.bak
-.kitchen.local.yml
-
-!**/README.md
-DscResource.tests

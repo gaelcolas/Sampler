@@ -11,7 +11,7 @@ CopyDirectories:
   #- HelperSubmodule # This will be built as submodule instead
   - ../.build/tasks
   - en-US
-  - assets
+  - Assets
   - PlasterTemplate
 
 # Suffix to add to Root module PSM1 after merge (here, the Set-Alias exporting IB tasks)

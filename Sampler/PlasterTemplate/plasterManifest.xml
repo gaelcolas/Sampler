@@ -226,25 +226,25 @@
 
     <!-- REPOSITORY Files -->
     <!--   GITIGNORE -->
-    <file source='Sampler/assets/gitignore'
+    <file source='Sampler/Assets/gitignore'
           destination='${PLASTER_PARAM_ModuleName}/.gitignore'
           condition='${PLASTER_PARAM_Features} -Contains "All" -or ${PLASTER_PARAM_Features} -Contains "git" -or ${PLASTER_PARAM_ModuleType} -in @("SimpleModule","CompleteModule","SimpleModule_NoBuild","CompleteModule_NoBuild","SharedDscConfig")'
     />
 
     <!--   GITATTRIBUTES -->
-    <file source='Sampler/assets/gitattributes'
+    <file source='Sampler/Assets/gitattributes'
           destination='${PLASTER_PARAM_ModuleName}/.gitattributes'
           condition='${PLASTER_PARAM_Features} -Contains "All" -or ${PLASTER_PARAM_Features} -Contains "git" -or ${PLASTER_PARAM_ModuleType} -in @("SimpleModule","CompleteModule","SimpleModule_NoBuild","CompleteModule_NoBuild","SharedDscConfig")'
     />
 
     <!--   KITCHEN YAML Sample -->
-    <templateFile source='Sampler/assets/kitchen.yml.template'
+    <templateFile source='Sampler/Assets/kitchen.yml.template'
                   destination='${PLASTER_PARAM_ModuleName}/.kitchen.yml'
                   condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","SharedDscConfig") -or ${PLASTER_PARAM_Features} -Contains "All" -or ${PLASTER_PARAM_Features} -Contains "TestKitchen"'
     />
 
     <!--   PSDEPLOY Sample -->
-    <templateFile source='Sampler/assets/Deploy.PSDeploy.template'
+    <templateFile source='Sampler/Assets/Deploy.PSDeploy.template'
                   destination='${PLASTER_PARAM_ModuleName}/Deploy.PSDeploy.ps1'
                   condition='${PLASTER_PARAM_ModuleType} -in @("SimpleModule","CompleteModule","SharedDscConfig") -or ${PLASTER_PARAM_Features} -Contains "All" -or (${PLASTER_PARAM_Features} -Contains "Build" -and !${PLASTER_PARAM_Features} -Contains "AppVeyor")'
     />
@@ -257,7 +257,7 @@
     />
 
     <!--   REQUIRED MODULES MANIFEST -->
-    <file source='Sampler/assets/RequiredModules.psd1'
+    <file source='Sampler/Assets/RequiredModules.psd1'
           destination='${PLASTER_PARAM_ModuleName}/RequiredModules.psd1'
           condition='${PLASTER_PARAM_ModuleType} -in @("SimpleModule","CompleteModule","SharedDscConfig") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("Build")'
     />
@@ -275,7 +275,7 @@
     />
 
     <!--   BUILD YAML CONFIGURATION -->
-    <file source='Sampler/assets/build.yaml'
+    <file source='Sampler/Assets/build.yaml'
           destination='${PLASTER_PARAM_ModuleName}/build.yaml'
           condition='${PLASTER_PARAM_ModuleType} -in @("SimpleModule","CompleteModule","SharedDscConfig") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("Build")'
     />
@@ -340,13 +340,13 @@
 
     <!-- LICENSE based on type of license MIT/Apache2/CC...-->
     <!--   MIT License -->
-    <templateFile source='Sampler/assets/LICENSES/LICENSE.MIT.Template'
+    <templateFile source='Sampler/Assets/LICENSES/LICENSE.MIT.Template'
                   destination='${PLASTER_PARAM_ModuleName}/LICENSE'
                   condition='${PLASTER_PARAM_License} -eq "true" -and ${PLASTER_PARAM_LicenseType} -eq "MIT"'
     />
 
     <!--   APACHE License -->
-    <templateFile source='Sampler/assets/LICENSES/LICENSE.Apache.Template'
+    <templateFile source='Sampler/Assets/LICENSES/LICENSE.Apache.Template'
                   destination='${PLASTER_PARAM_ModuleName}/LICENSE'
                   condition='${PLASTER_PARAM_License} -eq "true" -and ${PLASTER_PARAM_LicenseType} -eq "Apache"'
     />
@@ -354,24 +354,12 @@
     <!-- END OF LICENSE based on type of license MIT/Apache2/CC...-->
 
     <!-- Add Markup help files -->
-    <templateFile source='Sampler/assets/README.md.template'
+    <templateFile source='Sampler/Assets/README.md.template'
                   destination='${PLASTER_PARAM_ModuleName}/README.md'
     />
     <!-- ABOUT MODULE help text file -->
-    <templateFile source='Sampler/assets/about_ModuleName.help.template'
+    <templateFile source='Sampler/Assets/about_ModuleName.help.template'
                   destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/en-US/about_${PLASTER_PARAM_ModuleName}.help.txt'
-    />
-
-   <!-- VSCODE SETTINGS -->
-   <file source='Sampler/assets/vscode'
-          destination='${PLASTER_PARAM_ModuleName}/.vscode'
-          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild","SimpleBuild") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("vscode")'
-    />
-
-   <!-- GITHUB TEMPLATES -->
-   <file source='Sampler/assets/github'
-          destination='${PLASTER_PARAM_ModuleName}/.github'
-          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild","SimpleBuild") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("github")'
     />
 
    <!-- CONTRIBUTING MD -->
@@ -386,16 +374,29 @@
           condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild","SimpleBuild") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("git")'
     />
 
-   <!-- MARKDOWN LINT -->
-   <file source='Sampler/assets/markdownlint.json'
-          destination='${PLASTER_PARAM_ModuleName}/.markdownlint.json'
-          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild","SimpleBuild") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("vscode")'
-    />
-
    <!-- GITVERSION CONFIG YAML -->
    <file source='GitVersion.yml'
           destination='${PLASTER_PARAM_ModuleName}/GitVersion.yml'
           condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","SimpleBuild") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("git")'
     />
+
+   <!-- MARKDOWN LINT -->
+   <file source='Sampler/Assets/markdownlint.json'
+          destination='${PLASTER_PARAM_ModuleName}/.markdownlint.json'
+          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild","SimpleBuild") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("vscode")'
+    />
+
+   <!-- VSCODE SETTINGS -->
+   <file source='Sampler/Assets/vscode'
+          destination='${PLASTER_PARAM_ModuleName}/.vscode'
+          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild","SimpleBuild") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("vscode")'
+    />
+
+   <!-- GITHUB TEMPLATES -->
+   <file source='Sampler/Assets/github'
+          destination='${PLASTER_PARAM_ModuleName}/.github'
+          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild","SimpleBuild") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("github")'
+    />
+
   </content>
 </plasterManifest>

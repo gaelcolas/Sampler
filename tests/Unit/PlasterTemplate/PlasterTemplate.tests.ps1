@@ -1,5 +1,4 @@
 $here = $PSScriptRoot
-$sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
 
 $ProjectPath = "$here\..\..\.." | Convert-Path
 $ProjectName = (Get-ChildItem $ProjectPath\*\*.psd1 | Where-Object {
@@ -9,62 +8,68 @@ $ProjectName = (Get-ChildItem $ProjectPath\*\*.psd1 | Where-Object {
 
 
 Describe 'Plaster Templates creates a complete Module scaffolding' {
-    Import-Module Sampler
-    $ModuleName = 'testMod'
-    $testPath = "TestDrive:\"
-    $TemplatePath = Join-Path (Get-Module Sampler).ModuleBase 'PlasterTemplate'
-    $PlasterParams = @{
-        NoLogo            = $true
-        TemplatePath      = $TemplatePath
-        DestinationPath   = $testPath
-        ModuleType        = 'CompleteModule'
-        ModuleAuthor      = 'gaelcolas'
-        ModuleDescription = 'testing template'
-        moduleName        = $ModuleName
-        ModuleVersion     = '0.0.1'
-        SourceDirectory   = 'Source'
+    try {
+        $module = Import-Module Sampler -PassThru
+        $ModuleName = 'testMod'
+        $testPath = "TestDrive:\"
+        $TemplatePath = Join-Path $module.ModuleBase 'PlasterTemplate'
+        $PlasterParams = @{
+            NoLogo            = $true
+            TemplatePath      = $TemplatePath
+            DestinationPath   = $testPath
+            ModuleType        = 'CompleteModule'
+            ModuleAuthor      = 'gaelcolas'
+            ModuleDescription = 'testing template'
+            moduleName        = $ModuleName
+            ModuleVersion     = '0.0.1'
+            SourceDirectory   = 'Source'
+        }
+        Invoke-plaster @PlasterParams
     }
-    Invoke-plaster @PlasterParams
+    catch {
+        Write-Host $_
+    }
+
 
     $FileList = @(
-         @{fileName = "testDrive:\$ModuleName\tests\Unit\Classes\class1.tests.ps1"}
-        ,@{fileName = "testDrive:\$ModuleName\tests\Unit\Classes\class11.tests.ps1"}
-        ,@{fileName = "testDrive:\$ModuleName\tests\Unit\Classes\class12.tests.ps1"}
-        ,@{fileName = "testDrive:\$ModuleName\tests\Unit\Classes\class2.tests.ps1"}
-        ,@{fileName = "testDrive:\$ModuleName\tests\Unit\Private\Get-PrivateFunction.tests.ps1"}
-        ,@{fileName = "testDrive:\$ModuleName\tests\Unit\Public\Get-Something.tests.ps1"}
-        ,@{fileName = "testDrive:\$ModuleName\tests\QA\module.tests.ps1"}
-        ,@{fileName = "testDrive:\$ModuleName\Source\Public\Get-Something.ps1"}
-        ,@{fileName = "testDrive:\$ModuleName\Source\Private\Get-PrivateFunction.ps1"}
-        ,@{fileName = "testDrive:\$ModuleName\Source\Classes\1.class1.ps1"}
-        ,@{fileName = "testDrive:\$ModuleName\Source\Classes\2.class2.ps1"}
-        ,@{fileName = "testDrive:\$ModuleName\Source\Classes\3.class11.ps1"}
-        ,@{fileName = "testDrive:\$ModuleName\Source\Classes\4.class12.ps1"}
-        ,@{fileName = "testDrive:\$ModuleName\.gitignore"}
-        ,@{fileName = "testDrive:\$ModuleName\.gitattributes"}
-        ,@{fileName = "testDrive:\$ModuleName\.kitchen.yml"}
-        ,@{fileName = "testDrive:\$ModuleName\Deploy.PSDeploy.ps1"}
-        ,@{fileName = "testDrive:\$ModuleName\build.ps1"}
-        ,@{fileName = "testDrive:\$ModuleName\RequiredModules.psd1"}
-        ,@{fileName = "testDrive:\$ModuleName\Resolve-Dependency.ps1"}
-        ,@{fileName = "testDrive:\$ModuleName\Resolve-Dependency.psd1"}
-        ,@{fileName = "testDrive:\$ModuleName\build.yaml"}
-        ,@{fileName = "testDrive:\$ModuleName\Source\Build.psd1"}
-        ,@{fileName = "testDrive:\$ModuleName\azure-pipelines.yml"}
-        ,@{fileName = "testDrive:\$ModuleName\Source\$ModuleName.psd1"}
-        ,@{fileName = "testDrive:\$ModuleName\README.md"}
-        ,@{fileName = "testDrive:\$ModuleName\Source\en-US\about_$ModuleName.help.txt"}
-        ,@{fileName = "testDrive:\$ModuleName\.vscode\"}
-        ,@{fileName = "testDrive:\$ModuleName\.github\"}
-        ,@{fileName = "testDrive:\$ModuleName\CONTRIBUTING.md"}
-        ,@{fileName = "testDrive:\$ModuleName\CODE_OF_CONDUCT.md"}
-        ,@{fileName = "testDrive:\$ModuleName\.markdownlint.json"}
-        ,@{fileName = "testDrive:\$ModuleName\GitVersion.yml"}
+        @{fileName = "TestDrive:\$ModuleName\tests\Unit\Classes\class1.tests.ps1" }
+        ,@{fileName = "TestDrive:\$ModuleName\tests\Unit\Classes\class11.tests.ps1"}
+        ,@{fileName = "TestDrive:\$ModuleName\tests\Unit\Classes\class12.tests.ps1"}
+        ,@{fileName = "TestDrive:\$ModuleName\tests\Unit\Classes\class2.tests.ps1"}
+        ,@{fileName = "TestDrive:\$ModuleName\tests\Unit\Private\Get-PrivateFunction.tests.ps1"}
+        ,@{fileName = "TestDrive:\$ModuleName\tests\Unit\Public\Get-Something.tests.ps1"}
+        ,@{fileName = "TestDrive:\$ModuleName\tests\QA\module.tests.ps1"}
+        ,@{fileName = "TestDrive:\$ModuleName\Source\Public\Get-Something.ps1"}
+        ,@{fileName = "TestDrive:\$ModuleName\Source\Private\Get-PrivateFunction.ps1"}
+        ,@{fileName = "TestDrive:\$ModuleName\Source\Classes\1.class1.ps1"}
+        ,@{fileName = "TestDrive:\$ModuleName\Source\Classes\2.class2.ps1"}
+        ,@{fileName = "TestDrive:\$ModuleName\Source\Classes\3.class11.ps1"}
+        ,@{fileName = "TestDrive:\$ModuleName\Source\Classes\4.class12.ps1"}
+        ,@{fileName = "TestDrive:\$ModuleName\.gitignore"}
+        ,@{fileName = "TestDrive:\$ModuleName\.gitattributes"}
+        ,@{fileName = "TestDrive:\$ModuleName\.kitchen.yml"}
+        ,@{fileName = "TestDrive:\$ModuleName\Deploy.PSDeploy.ps1"}
+        ,@{fileName = "TestDrive:\$ModuleName\build.ps1"}
+        ,@{fileName = "TestDrive:\$ModuleName\RequiredModules.psd1"}
+        ,@{fileName = "TestDrive:\$ModuleName\Resolve-Dependency.ps1"}
+        ,@{fileName = "TestDrive:\$ModuleName\Resolve-Dependency.psd1"}
+        ,@{fileName = "TestDrive:\$ModuleName\build.yaml"}
+        ,@{fileName = "TestDrive:\$ModuleName\Source\Build.psd1"}
+        ,@{fileName = "TestDrive:\$ModuleName\azure-pipelines.yml"}
+        ,@{fileName = "TestDrive:\$ModuleName\Source\$ModuleName.psd1"}
+        ,@{fileName = "TestDrive:\$ModuleName\README.md"}
+        ,@{fileName = "TestDrive:\$ModuleName\Source\en-US\about_$ModuleName.help.txt"}
+        ,@{fileName = "TestDrive:\$ModuleName\.vscode\"}
+        ,@{fileName = "TestDrive:\$ModuleName\.github\"}
+        ,@{fileName = "TestDrive:\$ModuleName\CONTRIBUTING.md"}
+        ,@{fileName = "TestDrive:\$ModuleName\CODE_OF_CONDUCT.md"}
+        ,@{fileName = "TestDrive:\$ModuleName\.markdownlint.json"}
+        ,@{fileName = "TestDrive:\$ModuleName\GitVersion.yml"}
     )
+
     It 'Should have created file <fileName>' -TestCases $FileList {
         param($fileName)
-
-        Test-Path $fileName | Should -Be $true
+        Write-host $fileName
+        Get-Item -force $fileName -ErrorAction SilentlyContinue | Should -Not -BeNullOrEmpty
     }
-
 }
