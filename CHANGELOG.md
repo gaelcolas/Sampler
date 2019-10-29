@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - fixed template
-- fixed the publishing to also pack NuPkg
+- fixed the publishing to also pack Nupkg
 - Added hidden files as template assets
 - fixed git test to skip test on new module scaffolding
 - fixed default DscResources from copy-item in build yaml
