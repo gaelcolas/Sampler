@@ -11,7 +11,7 @@ CopyDirectories:
   #- HelperSubmodule # This will be built as submodule instead
   - ../.build/tasks
   - en-US
-  - assets
+  - Assets
   - PlasterTemplate
 
 # Suffix to add to Root module PSM1 after merge (here, the Set-Alias exporting IB tasks)
@@ -70,10 +70,12 @@ BuildWorkflow:
 
   build:
     - Clean
-    - Create_changelog_release_output
     - Build_Module_ModuleBuilder
     - Build_NestedModules_ModuleBuilder
     - CopyPlaster
+    - Create_changelog_release_output
+
+  pack:
     - package_module_nupkg
 
   # defining test task to be run when invoking `./build.ps1 -Tasks test`
