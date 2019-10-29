@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Changelog compiled to release notes
-- use release notes for publishing
+- use release notes for publishing to GH
 
 ### Fixed
 
