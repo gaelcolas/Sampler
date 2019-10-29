@@ -42,21 +42,26 @@ param(
     [string]
     $NuGetPublishSource = (property NuGetPublishSource 'https://www.powershellgallery.com/'),
 
-    $PSModuleFeed = (property PSModuleFeed 'PSGallery')
+    $PSModuleFeed = (property PSModuleFeed 'PSGallery'),
+
+    $SkipPublish = (property SkipPublish '')
 )
 
 # Synopsis: Create ReleaseNotes from changelog and update the Changelog for release
 task Create_changelog_release_output {
+    "  OutputDirectory  = $OutputDirectory"
+    "  ReleaseNotesPath = $ReleaseNotesPath"
+
     if (!(Split-Path -isAbsolute $OutputDirectory)) {
         $OutputDirectory = Join-path $BuildRoot $OutputDirectory
     }
 
-    if(!(Split-Path -isAbsolute $ReleaseNotesPath)) {
+    if (!(Split-Path -isAbsolute $ReleaseNotesPath)) {
         $ReleaseNotesPath = Join-path $OutputDirectory $ReleaseNotesPath
     }
 
     $ChangeLogOutputPath = Join-path $OutputDirectory 'CHANGELOG.md'
-
+    "  ChangeLogOutputPath = $ChangeLogOutputPath"
 
     if ([String]::IsNullOrEmpty($ModuleVersion)) {
         $ModuleInfo = Import-PowerShellDataFile "$OutputDirectory/$ProjectName/*/$ProjectName.psd1" -ErrorAction Stop
@@ -85,9 +90,22 @@ task Create_changelog_release_output {
         ConvertFrom-Changelog -Path $ChangeLogOutputPath -Format Release -NoHeader -OutputPath $ReleaseNotesPath -ErrorAction Stop
     }
     catch {
-        if (-not ($ReleaseNotes = (Get-Content -raw $ReleaseNotesPath -ErrorAction SilentlyContinue))) {
-            $ReleaseNotes = Get-Content -raw $ChangeLogOutputPath -ErrorAction SilentlyContinue
+        Write-Build Red "Error creating the Changelog Output and/or ReleaseNotes. $($_.Exception.Message)"
+    }
+
+    if (-not ($ReleaseNotes = (Get-Content -raw $ReleaseNotesPath -ErrorAction SilentlyContinue))) {
+        $ReleaseNotes = Get-Content -raw $ChangeLogOutputPath -ErrorAction SilentlyContinue
+    }
+
+    if ((Test-Path "$OutputDirectory/$ProjectName/*/$ProjectName.psd1" -ErrorAction SilentlyContinue) -and $ReleaseNotes) {
+        $UpdateReleaseNotesParams = @{
+            Path         = "$OutputDirectory/$ProjectName/*/$ProjectName.psd1"
+            PropertyName = 'PrivateData.PSData.ReleaseNotes'
+            Value        = $ReleaseNotes
+            ErrorAction  = 'SilentlyContinue'
         }
+
+        Update-Metadata @UpdateReleaseNotesParams
     }
 }
 
@@ -113,8 +131,10 @@ task publish_nupkg_to_gallery -if ((Get-Command nuget -ErrorAction SilentlyConti
     $ReleaseTag = "v$PSModuleVersion"
 
     Write-Build DarkGray "About to release $PackageToRelease"
-    $response = &nuget push $PackageToRelease -source $nugetPublishSource -ApiKey $GalleryApiToken
-    Write-Build Green $response
+    if (!$SkipPublish) {
+        $response = &nuget push $PackageToRelease -source $nugetPublishSource -ApiKey $GalleryApiToken
+    }
+    Write-Build Green "Response = " + $response
 }
 
 # Synopsis: Packaging the module by Publishing to output folder (incl dependencies)
@@ -185,6 +205,13 @@ task publish_module_to_gallery -if ((!(Get-Command nuget -ErrorAction SilentlyCo
     }
 
     $null = Test-ModuleManifest "$OutputDirectory/$ProjectName/*/$ProjectName.psd1" -ErrorAction Stop
+    $UpdateReleaseNotesParams = @{
+        Path = "$OutputDirectory/$ProjectName/*/$ProjectName.psd1"
+        PropertyName  = 'PrivateData.PSData.ReleaseNotes'
+        Value = $ReleaseNotes
+    }
+
+    Update-Metadata @UpdateReleaseNotesParams
     $ModulePath = Join-Path $OutputDirectory $ProjectName
 
     Write-Build DarkGray "`nAbout to release $ModulePath"
@@ -196,8 +223,9 @@ task publish_module_to_gallery -if ((!(Get-Command nuget -ErrorAction SilentlyCo
         ErrorAction  = 'Stop'
         releaseNotes = $ReleaseNotes
     }
-
-    Publish-Module @PublishModuleParams
+    if (!$SkipPublish) {
+        Publish-Module @PublishModuleParams
+    }
 
     Write-Build Green "Package Published to PSGallery"
 
