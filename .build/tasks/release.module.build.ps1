@@ -98,6 +98,14 @@ task Create_changelog_release_output {
     }
 
     if ((Test-Path "$OutputDirectory/$ProjectName/*/$ProjectName.psd1" -ErrorAction SilentlyContinue) -and $ReleaseNotes) {
+        try {
+            Import-Module Configuration -ErrorAction Stop
+        }
+        catch {
+            Write-Build Red "Issue importing Configuration module. $($_.Exception.Message)"
+            return
+        }
+
         $UpdateReleaseNotesParams = @{
             Path         = "$OutputDirectory/$ProjectName/*/$ProjectName.psd1"
             PropertyName = 'PrivateData.PSData.ReleaseNotes'
@@ -105,7 +113,7 @@ task Create_changelog_release_output {
             ErrorAction  = 'SilentlyContinue'
         }
 
-        Update-Metadata @UpdateReleaseNotesParams
+        Update-Manifest @UpdateReleaseNotesParams
     }
 }
 
