@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Shields badge on the readme page
-- Adding release notes to module manifest
+- Release notes to module manifest
 
 ### Changed
 
