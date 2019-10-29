@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - fixed template
+- fixed the publishing to also pack nupkg
 - Added hidden files as template assets
 
 ## [v0.92.2] - 2019-10-15
