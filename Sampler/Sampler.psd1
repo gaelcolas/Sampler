@@ -83,6 +83,19 @@ PrivateData = @{
 
         PSData = @{
 
+            # Extension for Plaster Template discoverability with `Get-PlasterTemplate -IncludeInstalledModules`
+            Extensions  = @(
+                @{
+                    Module  = 'Plaster'
+                    minimumVersion = '1.1.3'
+                    Details = @{
+                        TemplatePaths = @(
+                            'Templates\Sampler'
+                        )
+                    }
+                }
+            )
+
             # Tags applied to this module. These help with module discovery in online galleries.
             Tags = @('Template','pipeline','plaster','DesiredStateConfiguration', 'DSC', 'DSCResourceKit', 'DSCResource','Windows','MacOS','Linux')
 

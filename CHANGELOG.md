@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Support for Pester parameter in Config File
+- Making Plaster Template Discoverable by Get-PlasterTemplate -IncludeInstalledModules
 
 ## [0.93.2] - 2019-10-30
 
