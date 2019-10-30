@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Support for Pester parameter in Config File
+
 ## [0.93.2] - 2019-10-30
 
 ### Fixed

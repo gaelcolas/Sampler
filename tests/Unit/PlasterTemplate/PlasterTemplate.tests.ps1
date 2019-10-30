@@ -12,7 +12,7 @@ Describe 'Plaster Templates creates a complete Module scaffolding' {
         $module = Import-Module Sampler -PassThru
         $ModuleName = 'testMod'
         $testPath = "TestDrive:\"
-        $TemplatePath = Join-Path $module.ModuleBase 'PlasterTemplate'
+        $TemplatePath = Join-Path $module.ModuleBase 'Template'
         $PlasterParams = @{
             NoLogo            = $true
             TemplatePath      = $TemplatePath

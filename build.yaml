@@ -12,7 +12,7 @@ CopyDirectories:
   - ../.build/tasks
   - en-US
   - Assets
-  - PlasterTemplate
+  - Template
 
 # Suffix to add to Root module PSM1 after merge (here, the Set-Alias exporting IB tasks)
 suffix: suffix.ps1
@@ -40,9 +40,15 @@ Pester:
   OutputFormat: NUnitXML
   # Will look at every *.ps1 & *.psm1 under ModulePath, excepts when $_.FullName -match (Join-Path $ProjectPath $ExcludeFromCodeCoverageItem)
   ExcludeFromCodeCoverage:
+    - tasks
+    - Template
   # Default is to use the tests folder in the project folder or source folder (if present)
   # can use it to prioritize: tests/QA, tests/Unit, tests/Integration
   Script:
+  # - tests/QA/module.tests.ps1
+  # - tests/QA
+  # - tests/Unit
+  # - tests/Integration
   ExcludeTag:
   Tag:
   CodeCoverageThreshold: 50 # Set to 0 to bypass
@@ -57,7 +63,7 @@ BuildWorkflow:
     {
       # Create a Build task from the Yaml (Because we dont want this task to be in the .build folder)
       # so that it's not copied and made accessible in the Sampler Module.
-      $PlasterTemplateFolder = Get-Item ./output/Sampler/*/PlasterTemplate
+      $PlasterTemplateFolder = Get-Item ./output/Sampler/*/Template
       $ToCopy = Get-ChildItem -Force . -Exclude .git,output
       foreach ($item in $toCopy) {
         Copy-Item -recurse -Force -Path $item -Destination (Join-Path $PlasterTemplateFolder $item.Name)
