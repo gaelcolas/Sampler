@@ -121,6 +121,7 @@ Process {
                     foreach ($TaskToExport in $BuildInfo['ModuleBuildTasks'].($Module)) {
                         $LoadedModule.ExportedAliases.GetEnumerator().Where{
                             # using -like to support wildcard
+                            Write-Host -ForegroundColor DarkGray "`t Loading $($_.Key)..."
                             $_.Key -like $TaskToExport
                         }.ForEach{
                             # Dot sourcing the Tasks via their exported aliases
