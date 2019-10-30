@@ -203,7 +203,7 @@ task publish_module_to_gallery -if ((!(Get-Command nuget -ErrorAction SilentlyCo
         $OutputDirectory = Join-Path $BuildRoot $OutputDirectory
     }
 
-    if(!(Split-Path -isAbsolute $ReleaseNotesPath)) {
+    if (!(Split-Path -isAbsolute $ReleaseNotesPath)) {
         $ReleaseNotesPath = Join-path $OutputDirectory $ReleaseNotesPath
     }
 
@@ -212,14 +212,32 @@ task publish_module_to_gallery -if ((!(Get-Command nuget -ErrorAction SilentlyCo
         $ReleaseNotes = Get-Content -raw $ChangeLogPath -ErrorAction SilentlyContinue
     }
 
-    $null = Test-ModuleManifest "$OutputDirectory/$ProjectName/*/$ProjectName.psd1" -ErrorAction Stop
-    $UpdateReleaseNotesParams = @{
-        Path = "$OutputDirectory/$ProjectName/*/$ProjectName.psd1"
-        PropertyName  = 'PrivateData.PSData.ReleaseNotes'
-        Value = $ReleaseNotes
+    # find Module manifest
+    $BuiltModuleManifest = (Get-ChildItem (Join-Path $OutputDirectory $ProjectName) -Depth 2 -Filter "$ProjectName.psd1").FullName
+    $null = Test-ModuleManifest $BuiltModuleManifest -ErrorAction Stop
+
+    # Uncomment release notes (the default in Plaster/New-ModuleManifest)
+    $ManifestString = Get-Content -raw $BuiltModuleManifest
+    if ( $ManifestString -match '#\sReleaseNotes\s?=') {
+        $ManifestString -replace '#\sReleaseNotes\s?=', '  ReleaseNotes ='
+        $Utf8NoBomEncoding = [System.Text.UTF8Encoding]::new($False)
+        [System.IO.File]::WriteAllLines($BuiltModuleManifest, $ManifestString, $Utf8NoBomEncoding)
     }
 
-    Update-Manifest @UpdateReleaseNotesParams
+    $UpdateReleaseNotesParams = @{
+        Path         = "$OutputDirectory/$ProjectName/*/$ProjectName.psd1"
+        PropertyName = 'PrivateData.PSData.ReleaseNotes'
+        Value        = $ReleaseNotes
+        ErrorAction  = 'Stop'
+    }
+
+    try {
+        Update-Manifest @UpdateReleaseNotesParams
+    }
+    catch {
+        Write-Build Red "Error updating the Release notes to Module manifest. $($_.Exception.Message)"
+    }
+
     $ModulePath = Join-Path $OutputDirectory $ProjectName
 
     Write-Build DarkGray "`nAbout to release $ModulePath"
