@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Template not including RootModule anymore
+- Uncomment ReleaseNotes from module manifest before updating
+
 ## [0.93.1] - 2019-10-29
 
 ### Added
