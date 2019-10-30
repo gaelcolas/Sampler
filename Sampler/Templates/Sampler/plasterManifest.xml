@@ -8,7 +8,7 @@
     <title>Sampler Module Template</title>
     <description>Sampler Module Template with bootstrap</description>
     <author>Gael Colas</author>
-    <tags>Template, Build, Module</tags>
+    <tags>Sampler,Template, Build, Module</tags>
   </metadata>
   <parameters>
     <parameter name="ModuleType" type="choice" default='1' prompt="Select the type of Module you would like to create:">
