@@ -15,7 +15,7 @@ $SourcePath = (Get-ChildItem $ProjectPath\*\*.psd1 | Where-Object {
     Describe 'Changelog Management' -Tag 'Changelog' {
         It 'Changelog has been updated' -skip:(
             !([bool](Get-Command git -EA SilentlyContinue) -and
-              [bool](powershell -NoProfile -C 'git rev-parse --is-inside-work-tree 2>$null'))
+              [bool](&(Get-Process -id $PID).Path -NoProfile -Command 'git rev-parse --is-inside-work-tree 2>$null'))
             ) {
             # Get the list of changed files compared with master
             $HeadCommit = &git rev-parse HEAD
