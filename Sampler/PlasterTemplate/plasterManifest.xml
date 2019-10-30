@@ -324,19 +324,19 @@
     <!-- END OF DSCResources files and folders -->
 
     <!-- MODULE MANIFEST -->
-    <!-- rootModule='${PLASTER_PARAM_ModuleName}.psm1' -->
     <newModuleManifest destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/${PLASTER_PARAM_ModuleName}.psd1'
         moduleVersion='$PLASTER_PARAM_ModuleVersion'
+        rootModule='${PLASTER_PARAM_ModuleName}.psm1'
         author='$PLASTER_PARAM_ModuleAuthor'
         description='$PLASTER_PARAM_ModuleDescription'
         condition='-not (Test-Path "${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}.psd1")'
     />
 
-    <!-- <templateFile
-        source='media/module.template'
+     <templateFile
+        source='Sampler/Assets/module.template'
         destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/${PLASTER_PARAM_ModuleName}.psm1'
         condition='-not (Test-Path "${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/${PLASTER_PARAM_ModuleName}.psm1")'
-    /> -->
+    /> <!-- -->
 
     <!-- LICENSE based on type of license MIT/Apache2/CC...-->
     <!--   MIT License -->

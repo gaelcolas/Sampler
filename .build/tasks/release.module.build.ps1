@@ -106,6 +106,18 @@ task Create_changelog_release_output {
             return
         }
 
+        # find Module manifest
+        $BuiltModuleManifest = (Get-ChildItem (Join-Path $OutputDirectory $ProjectName) -Depth 2 -Filter "$ProjectName.psd1").FullName
+        $null = Test-ModuleManifest $BuiltModuleManifest -ErrorAction Stop
+
+        # Uncomment release notes (the default in Plaster/New-ModuleManifest)
+        $ManifestString = Get-Content -raw $BuiltModuleManifest
+        if ( $ManifestString -match '#\sReleaseNotes\s?=') {
+            $ManifestString = $ManifestString -replace '#\sReleaseNotes\s?=', '  ReleaseNotes ='
+            $Utf8NoBomEncoding = [System.Text.UTF8Encoding]::new($False)
+            [System.IO.File]::WriteAllLines($BuiltModuleManifest, $ManifestString, $Utf8NoBomEncoding)
+        }
+
         $UpdateReleaseNotesParams = @{
             Path         = "$OutputDirectory/$ProjectName/*/$ProjectName.psd1"
             PropertyName = 'PrivateData.PSData.ReleaseNotes'
@@ -219,7 +231,7 @@ task publish_module_to_gallery -if ((!(Get-Command nuget -ErrorAction SilentlyCo
     # Uncomment release notes (the default in Plaster/New-ModuleManifest)
     $ManifestString = Get-Content -raw $BuiltModuleManifest
     if ( $ManifestString -match '#\sReleaseNotes\s?=') {
-        $ManifestString -replace '#\sReleaseNotes\s?=', '  ReleaseNotes ='
+        $ManifestString = $ManifestString -replace '#\sReleaseNotes\s?=', '  ReleaseNotes ='
         $Utf8NoBomEncoding = [System.Text.UTF8Encoding]::new($False)
         [System.IO.File]::WriteAllLines($BuiltModuleManifest, $ManifestString, $Utf8NoBomEncoding)
     }
