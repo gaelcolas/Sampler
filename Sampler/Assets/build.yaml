@@ -59,14 +59,19 @@ BuildWorkflow:
 #       PESTER  Configuration                      #
 ####################################################
 
-Pester:
-  # OutputFolder:
+Pester: #Passthru, OutputFile, CodeCoverageOutputFile not supported
   OutputFormat: NUnitXML
   # Will look at every *.ps1 & *.psm1 under ModulePath, excepts when $_.FullName -match (Join-Path $ProjectPath $ExcludeFromCodeCoverageItem)
   ExcludeFromCodeCoverage:
+    - tasks
+    - Template
   # Default is to use the tests folder in the project folder or source folder (if present)
   # can use it to prioritize: tests/QA, tests/Unit, tests/Integration
   Script:
+  # - tests/QA/module.tests.ps1
+  # - tests/QA
+  # - tests/Unit
+  # - tests/Integration
   ExcludeTag:
   Tag:
   CodeCoverageThreshold: 50 # Set to 0 to bypass

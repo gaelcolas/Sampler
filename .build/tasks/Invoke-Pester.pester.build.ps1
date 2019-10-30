@@ -27,9 +27,9 @@ Param (
 
     [string]$PesterOutputFolder = (property PesterOutputFolder 'testResults'),
 
-    [string]$PesterOutputFormat = (property PesterOutputFormat 'NUnitXml'),
+    [string]$PesterOutputFormat = (property PesterOutputFormat ''),
 
-    [string[]]$PesterScript = (property PesterScript 'tests', (Join-Path $ProjectName 'tests')),
+    [string[]]$PesterScript = (property PesterScript ''),
 
     [string[]]$PesterTag = (property PesterTag @()),
 
@@ -43,13 +43,6 @@ Param (
 
 # Synopsis: Making sure the Module meets some quality standard (help, tests)
 task Invoke_pester_tests {
-    "`tProject Path  = $ProjectPath"
-    "`tProject Name  = $ProjectName"
-    "`tTests         = $($PesterScript -join ', ')"
-    "`tTags          = $($PesterTag -join ', ')"
-    "`tExclude Tags  = $($PesterExcludeTag -join ', ')"
-    "`tModuleVersion = $ModuleVersion"
-
     if (!(Split-path -isAbsolute $OutputDirectory)) {
         $OutputDirectory = Join-Path -Path $ProjectPath -ChildPath $OutputDirectory
         Write-Build Yellow "Absolute path to Output Directory is $OutputDirectory"
@@ -63,6 +56,61 @@ task Invoke_pester_tests {
         Write-Build Yellow "Creating folder $PesterOutputFolder"
         $null = New-Item -ItemType Directory -force $PesterOutputFolder -ErrorAction Stop
     }
+
+    $DefaultPesterParams = @{
+        OutputFormat                  = 'NUnitXML'
+        #OutputFile                   = $PesterOutputFullPath
+        PassThru                      = $true
+        CodeCoverageOutputFileFormat  = 'JaCoCo'
+        Script                        = ('tests', (Join-Path $ProjectName 'tests'))
+        #CodeCoverage                 = $CodeCoverageFiles
+        #CodeCoverageOutputFile       = (Join-Path $PesterOutputFolder "CodeCov_$PesterOutputFileFileName")
+        #ExcludeTag                   = 'FunctionalQuality', 'TestQuality', 'helpQuality'
+    }
+
+    $DefaultExcludeFromCodeCoverage = @('test')
+
+    # Build.ps1 parameters should be top priority
+    # BuildInfo values should come next
+    # Otherwise we should set some defaults
+    $PesterCmd = Get-Command Invoke-Pester
+    Foreach ($ParamName in $PesterCmd.Parameters.Keys) {
+        $TaskParamName = "Pester$ParamName"
+        if (!(Get-Variable -Name $TaskParamName -ValueOnly -ErrorAction SilentlyContinue) -and ($PesterBuildConfig = $BuildInfo.Pester)) {
+            # The Variable is set to '' so we should try to use the Config'd one if exists
+            if ($ParamValue = $PesterBuildConfig.($ParamName)) {
+                Write-Build DarkGray "Using $TaskParamName from Build Config"
+                Set-Variable -Name $TaskParamName -Value $ParamValue
+            } # or use a default if available
+            elseif ($DefaultPesterParams.ContainsKey($ParamName)) {
+                Write-Build DarkGray "Using $TaskParamName from Defaults"
+                Set-Variable -Name $TaskParamName -Value $DefaultPesterParams.($ParamName)
+            }
+        }
+        else {
+            Write-Build DarkGray "Using $TaskParamName from Build Invocation Parameters"
+        }
+    }
+
+    # Code Coverage Exclude
+    if(!$ExcludeFromCodeCoverage -and ($PesterBuildConfig = $BuildInfo.Pester)) {
+        if ($PesterBuildConfig.ContainsKey('ExcludeFromCodeCoverage')) {
+            $ExcludeFromCodeCoverage = $PesterBuildConfig['ExcludeFromCodeCoverage']
+        }
+        else {
+            $ExcludeFromCodeCoverage = $DefaultExcludeFromCodeCoverage
+        }
+    }
+
+    "`tProject Path  = $ProjectPath"
+    "`tProject Name  = $ProjectName"
+    "`tTest Scripts  = $($PesterScript -join ', ')"
+    "`tTags          = $($PesterTag -join ', ')"
+    "`tExclude Tags  = $($PesterExcludeTag -join ', ')"
+    "`tExclude CodCov= $($ExcludeFromCodeCoverage -join ', ')"
+    "`tModuleVersion = $ModuleVersion"
+
+
 
     if ([String]::IsNullOrEmpty($ModuleVersion)) {
         $ModuleInfo = Import-PowerShellDataFile "$OutputDirectory/$ProjectName/*/$ProjectName.psd1" -ErrorAction Stop
@@ -78,10 +126,10 @@ task Invoke_pester_tests {
         $ModuleVersionFolder, $PreReleaseTag = $ModuleVersion -split '\-', 2
     }
 
-    $os = if($isWindows -or $PSVersionTable.PSVersion.Major -le 5) {
+    $os = if ($isWindows -or $PSVersionTable.PSVersion.Major -le 5) {
         'Windows'
     }
-    elseif($isMacOS) {
+    elseif ($isMacOS) {
         'MacOS'
     }
     else {
@@ -93,8 +141,7 @@ task Invoke_pester_tests {
     $PesterOutputFullPath = Join-Path $PesterOutputFolder "$($PesterOutputFormat)_$PesterOutputFileFileName"
 
     $moduleUnderTest = Import-Module $ProjectName -PassThru
-    $ExcludeFromCodeCoverage = @('tasks','PlasterTemplate')
-    $CodeCoverageFiles = (Get-ChildItem -Path $moduleUnderTest.ModuleBase -Include *.psm1, *.ps1 -Recurse).Where{
+    $PesterCodeCoverage = (Get-ChildItem -Path $moduleUnderTest.ModuleBase -Include *.psm1, *.ps1 -Recurse).Where{
         $result = $true
         foreach ($ExclPath in $ExcludeFromCodeCoverage) {
             if (!(Split-Path -IsAbsolute $ExclPath)) {
@@ -111,28 +158,30 @@ task Invoke_pester_tests {
         OutputFormat                 = $PesterOutputFormat
         OutputFile                   = $PesterOutputFullPath
         PassThru                     = $true
-        CodeCoverageOutputFileFormat = 'JaCoCo'
-        CodeCoverage                 = $CodeCoverageFiles
+        CodeCoverageOutputFileFormat = $PesterCodeCoverageOutputFileFormat
+        CodeCoverage                 = $PesterCodeCoverage
         CodeCoverageOutputFile       = (Join-Path $PesterOutputFolder "CodeCov_$PesterOutputFileFileName")
         #ExcludeTag                   = 'FunctionalQuality', 'TestQuality', 'helpQuality'
     }
 
-    if ($PesterExcludeTag) {
-        $PesterParams.Add('ExcludeTag',$PesterExcludeTag)
+    if ($PesterExcludeTag.count -gt 0) {
+        $PesterParams.Add('ExcludeTag', $PesterExcludeTag)
     }
 
-    if ($PesterTag) {
-        $PesterParams.Add('Tag',$PesterTag)
+    if ($PesterTag.Count -gt 0) {
+        $PesterParams.Add('Tag', $PesterTag)
     }
 
     # Test folders is specified, do not run invoke-pester against $BuildRoot
     if ($PesterScript.count -gt 0) {
         $PesterParams.Add('Script', @())
+        Write-Build DarkGray " Adding PesterScript to params"
         foreach ($TestFolder in $PesterScript) {
             if (!(Split-path -isAbsolute $TestFolder)) {
                 $TestFolder = Join-Path $ProjectPath $TestFolder
             }
 
+            Write-Build DarkGray "      ... $TestFolder"
             # The Absolute path to this folder exists, adding to the list of pester scripts to run
             if (Test-Path $TestFolder) {
                 $PesterParams.Script += $TestFolder
@@ -140,8 +189,14 @@ task Invoke_pester_tests {
         }
     }
 
-    $script:TestResults = Invoke-Pester @PesterParams -Verbose
+    foreach ($ParamName in $PesterCmd.Parameters.keys) {
+        $ParamValueFromScope = (Get-Variable "Pester$ParamName" -ValueOnly -ErrorAction SilentlyContinue)
+        if (!$PesterParams.ContainsKey($ParamName) -and $ParamValueFromScope) {
+            $PesterParams.Add($ParamName, $ParamValueFromScope)
+        }
+    }
 
+    $script:TestResults = Invoke-Pester @PesterParams
     $PesterResultObjectCliXml = Join-Path $PesterOutputFolder "PesterObject_$PesterOutputFileFileName"
     $null = $script:TestResults | Export-CliXml -Path $PesterResultObjectCliXml -Force
 
