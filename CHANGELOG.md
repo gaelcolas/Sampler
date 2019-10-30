@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Template not including RootModule anymore
 - Uncomment ReleaseNotes from module manifest before updating
+- Skip Changelog test when not in a git repo
 
 ## [0.93.1] - 2019-10-29
 
