@@ -7,6 +7,9 @@ RootModule = 'Sampler.psm1'
 # Version number of this module.
 ModuleVersion = '0.0.1'
 
+# Supported PSEditions
+CompatiblePSEditions = @('Desktop','Core')
+
 # ID used to uniquely identify this module
 GUID = 'b59b8442-9cf9-4c4b-bc40-035336ace573'
 
