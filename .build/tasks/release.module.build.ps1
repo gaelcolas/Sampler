@@ -107,7 +107,9 @@ task Create_changelog_release_output {
         }
 
         # find Module manifest
-        $BuiltModuleManifest = (Get-ChildItem (Join-Path $OutputDirectory $ProjectName) -Depth 2 -Filter "$ProjectName.psd1").FullName
+        $BuiltModuleManifest = (Get-ChildItem (Join-Path $OutputDirectory $ProjectName) -Depth 2 -Filter "$ProjectName.psd1").FullName |
+            Where-Object { try { Test-ModuleManifest -ErrorAction Stop -Path $_} catch { $false} }
+        Write-Build DarkGray "Built Manifest $BuiltModuleManifest"
         $null = Test-ModuleManifest $BuiltModuleManifest -ErrorAction Stop
 
         # Uncomment release notes (the default in Plaster/New-ModuleManifest)
@@ -178,7 +180,8 @@ task package_module_nupkg {
     }
 
     # find Module manifest
-    $BuiltModuleManifest = (Get-ChildItem (Join-Path $OutputDirectory $ProjectName) -Depth 2 -Filter "$ProjectName.psd1").FullName
+    $BuiltModuleManifest = (Get-ChildItem (Join-Path $OutputDirectory $ProjectName) -Depth 2 -Filter "$ProjectName.psd1").FullName |
+        Where-Object { try { Test-ModuleManifest -ErrorAction Stop -Path $_} catch { $false} }
     Write-Build DarkGray "  Built module's Manifest found at $BuiltModuleManifest"
 
     # load module manifest
@@ -225,7 +228,8 @@ task publish_module_to_gallery -if ((!(Get-Command nuget -ErrorAction SilentlyCo
     }
 
     # find Module manifest
-    $BuiltModuleManifest = (Get-ChildItem (Join-Path $OutputDirectory $ProjectName) -Depth 2 -Filter "$ProjectName.psd1").FullName
+    $BuiltModuleManifest = (Get-ChildItem (Join-Path $OutputDirectory $ProjectName) -Depth 2 -Filter "$ProjectName.psd1").FullName |
+        Where-Object { try { Test-ModuleManifest -ErrorAction Stop -Path $_} catch { $false} }
     $null = Test-ModuleManifest $BuiltModuleManifest -ErrorAction Stop
 
     # Uncomment release notes (the default in Plaster/New-ModuleManifest)
