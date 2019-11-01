@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed when the SourcePath is not enough for finding ModuleManifest (ModuleBuilder bug)
+
 ## [0.95.1] - 2019-11-01
 
 ### Changed
