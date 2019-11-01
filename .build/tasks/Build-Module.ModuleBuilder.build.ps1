@@ -47,6 +47,18 @@ Task Build_Module_ModuleBuilder {
     " OutputDirectory   = $OutputDirectory"
     " BuildModuleOutput = $BuildModuleOutput"
 
+    # because of a bug in ModuleBuilder, and I want to leave using build.psd1
+    # an option, we only override Source path if Build.psd1 does not target source
+    if(Test-Path $SourcePath -PathType Container) {
+        $BuildPsd1 = Join-Path $SourcePath '[Bb]uild.psd1'
+        if (Test-Path $BuildPsd1) {
+            $data = Import-Metadata $BuildPsd1
+            if (!$data.containsKey('SourcePath')) {
+                $SourcePath = Join-Path $SourcePath "$ProjectName.psd1"
+                " Source Path       = $SourcePath"
+            }
+        }
+    }
 
     if (!(Split-Path -isAbsolute $ReleaseNotesPath)) {
         $ReleaseNotesPath = Join-path $OutputDirectory $ReleaseNotesPath
