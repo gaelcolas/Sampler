@@ -189,13 +189,13 @@ task package_module_nupkg {
 
     # Publish dependencies (from environment) so we can publish the built module
     foreach ($module in $ModuleInfo.RequiredModules) {
-        if(!(Find-Module -repository output -Name $Module -ErrorAction SilentlyContinue)) {
+        if (!([Microsoft.PowerShell.Commands.ModuleSpecification]$module | Find-Module -repository output -ErrorAction SilentlyContinue)) {
             # Replace the module by first (path & version) resolved in PSModulePath
-            $module = Get-Module -ListAvailable $module | Select-Object -First 1
+            $module = Get-Module -ListAvailable -FullyQualifiedName $module | Select-Object -First 1
             if ($Prerelease = $module.PrivateData.PSData.Prerelease) {
                 $Prerelease = "-" + $Prerelease
             }
-            Write-Build Yellow ("  Packaging Required Module {0} v{1}{2}" -f $Module.Name,$Module.Version.ToString(),$Prerelease)
+            Write-Build Yellow ("  Packaging Required Module {0} v{1}{2}" -f $Module.Name, $Module.Version.ToString(), $Prerelease)
             Publish-Module -Repository output -ErrorAction SilentlyContinue -Path $module.ModuleBase
         }
     }
