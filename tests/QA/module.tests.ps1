@@ -13,7 +13,7 @@ $SourcePath = (Get-ChildItem $ProjectPath\*\*.psd1 | Where-Object {
     ).Directory.FullName
 
 $mut = Import-Module -Name $ProjectName -ErrorAction Stop -PassThru -Force
-$allModuleFunctions = &$mut { Get-Command -Module $ProjectName -CommandType Function }
+$allModuleFunctions = &$mut {Get-Command -Module $args[0] -CommandType Function } $ProjectName
 
     Describe 'Changelog Management' -Tag 'Changelog' {
         It 'Changelog has been updated' -skip:(
