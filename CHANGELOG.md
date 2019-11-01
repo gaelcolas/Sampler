@@ -7,16 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Updating QA tests function discovery to look within loaded module
+
 ## [0.95.0] - 2019-11-01
 
 ### Added
 
 - Support for Pester parameter in Config File
 - Making Plaster Template Discoverable by Get-PlasterTemplate -IncludeInstalledModules
-
-### Changed
-
-- Updating QA tests function discovery to look within loaded module
 
 ## [0.93.2] - 2019-10-30
 
