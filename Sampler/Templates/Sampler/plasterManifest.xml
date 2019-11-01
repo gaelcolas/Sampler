@@ -282,7 +282,7 @@
 
     <!--   EMPTY MODULE BUILDER MANIFEST (waiting for bug fix https://github.com/PoshCode/ModuleBuilder/issues/44) -->
     <file source='Sampler/Build.psd1'
-          destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/Build.psd1'
+          destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/build.psd1'
           condition='${PLASTER_PARAM_ModuleType} -in @("SimpleModule","CompleteModule","SharedDscConfig") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("Build")'
     />
 
