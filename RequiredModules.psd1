@@ -15,6 +15,7 @@
     # buildhelpers         = 'latest'
     # PSDeploy             = 'latest'
     ChangelogManagement  = 'latest'
+    #'DscResource.AnalyzerRules' = 'latest'
 
     #required for DSC authoring
     # xDscResourceDesigner = 'latest'
