@@ -1,19 +1,30 @@
 Param (
     # Project path
-    [string]$ProjectPath = (property ProjectPath $BuildRoot),
+    [Parameter()]
+    [string]
+    $ProjectPath = (property ProjectPath $BuildRoot),
 
+    [Parameter()]
     # Base directory of all output (default to 'output')
-    [string]$OutputDirectory = (property OutputDirectory (Join-Path $BuildRoot 'output')),
+    [string]
+    $OutputDirectory = (property OutputDirectory (Join-Path $BuildRoot 'output')),
 
+    [Parameter()]
     [string]
     $ProjectName = (property ProjectName $(
             (Get-ChildItem $BuildRoot\*\*.psd1 | Where-Object {
-                ($_.Directory.Name -match 'source|src' -or $_.Directory.Name -eq $_.BaseName) -and
-                $(try { Test-ModuleManifest $_.FullName -ErrorAction Stop }catch{$false}) }
+                    ($_.Directory.Name -match 'source|src' -or $_.Directory.Name -eq $_.BaseName) -and
+                    $(try {
+                            Test-ModuleManifest $_.FullName -ErrorAction Stop
+                        }
+                        catch {
+                            $false
+                        }) }
             ).BaseName
         )
     ),
 
+    [Parameter()]
     [string]
     $ModuleVersion = (property ModuleVersion $(
             try {
@@ -25,30 +36,43 @@ Param (
             }
         )),
 
-    [string]$PesterOutputFolder = (property PesterOutputFolder 'testResults'),
+    [Parameter()]
+    [string]
+    $PesterOutputFolder = (property PesterOutputFolder 'testResults'),
 
-    [string]$PesterOutputFormat = (property PesterOutputFormat ''),
+    [Parameter()]
+    [string]
+    $PesterOutputFormat = (property PesterOutputFormat ''),
 
-    [string[]]$PesterScript = (property PesterScript ''),
+    [Parameter()]
+    [string[]]
+    $PesterScript = (property PesterScript ''),
 
-    [string[]]$PesterTag = (property PesterTag @()),
+    [Parameter()]
+    [string[]]
+    $PesterTag = (property PesterTag @()),
 
-    [string[]]$PesterExcludeTag = (property PesterExcludeTag @()),
+    [Parameter()]
+    [string[]]
+    $PesterExcludeTag = (property PesterExcludeTag @()),
 
-    [int]$CodeCoverageThreshold = (property CodeCoverageThreshold 100),
+    [Parameter()]
+    [int]
+    $CodeCoverageThreshold = (property CodeCoverageThreshold 100),
 
     # Build Configuration object
-    $BuildInfo = (property BuildInfo @{})
+    [Parameter()]
+    $BuildInfo = (property BuildInfo @{ })
 )
 
 # Synopsis: Making sure the Module meets some quality standard (help, tests)
 task Invoke_pester_tests {
-    if (!(Split-path -isAbsolute $OutputDirectory)) {
+    if (!(Split-Path -isAbsolute $OutputDirectory)) {
         $OutputDirectory = Join-Path -Path $ProjectPath -ChildPath $OutputDirectory
         Write-Build Yellow "Absolute path to Output Directory is $OutputDirectory"
     }
 
-    if (!(Split-path -isAbsolute $PesterOutputFolder)) {
+    if (!(Split-Path -isAbsolute $PesterOutputFolder)) {
         $PesterOutputFolder = Join-Path $OutputDirectory $PesterOutputFolder
     }
 
@@ -58,11 +82,11 @@ task Invoke_pester_tests {
     }
 
     $DefaultPesterParams = @{
-        OutputFormat                  = 'NUnitXML'
+        OutputFormat                 = 'NUnitXML'
         #OutputFile                   = $PesterOutputFullPath
-        PassThru                      = $true
-        CodeCoverageOutputFileFormat  = 'JaCoCo'
-        Script                        = ('tests', (Join-Path $ProjectName 'tests'))
+        PassThru                     = $true
+        CodeCoverageOutputFileFormat = 'JaCoCo'
+        Script                       = ('tests', (Join-Path $ProjectName 'tests'))
         #CodeCoverage                 = $CodeCoverageFiles
         #CodeCoverageOutputFile       = (Join-Path $PesterOutputFolder "CodeCov_$PesterOutputFileFileName")
         #ExcludeTag                   = 'FunctionalQuality', 'TestQuality', 'helpQuality'
@@ -93,7 +117,7 @@ task Invoke_pester_tests {
     }
 
     # Code Coverage Exclude
-    if(!$ExcludeFromCodeCoverage -and ($PesterBuildConfig = $BuildInfo.Pester)) {
+    if (!$ExcludeFromCodeCoverage -and ($PesterBuildConfig = $BuildInfo.Pester)) {
         if ($PesterBuildConfig.ContainsKey('ExcludeFromCodeCoverage')) {
             $ExcludeFromCodeCoverage = $PesterBuildConfig['ExcludeFromCodeCoverage']
         }
@@ -177,7 +201,7 @@ task Invoke_pester_tests {
         $PesterParams.Add('Script', @())
         Write-Build DarkGray " Adding PesterScript to params"
         foreach ($TestFolder in $PesterScript) {
-            if (!(Split-path -isAbsolute $TestFolder)) {
+            if (!(Split-Path -isAbsolute $TestFolder)) {
                 $TestFolder = Join-Path $ProjectPath $TestFolder
             }
 
@@ -198,7 +222,7 @@ task Invoke_pester_tests {
 
     $script:TestResults = Invoke-Pester @PesterParams
     $PesterResultObjectCliXml = Join-Path $PesterOutputFolder "PesterObject_$PesterOutputFileFileName"
-    $null = $script:TestResults | Export-CliXml -Path $PesterResultObjectCliXml -Force
+    $null = $script:TestResults | Export-Clixml -Path $PesterResultObjectCliXml -Force
 
 }
 
@@ -206,19 +230,19 @@ task Invoke_pester_tests {
 task Fail_Build_if_Pester_Tests_failed -If ($CodeCoverageThreshold -ne 0) {
     "Asserting that no test failed"
 
-    if (!(Split-path -isAbsolute $OutputDirectory)) {
+    if (!(Split-Path -isAbsolute $OutputDirectory)) {
         $OutputDirectory = Join-Path -Path $ProjectPath -ChildPath $OutputDirectory
         Write-Build Yellow "Absolute path to Output Directory is $OutputDirectory"
     }
 
-    if (!(Split-path -isAbsolute $PesterOutputFolder)) {
+    if (!(Split-Path -isAbsolute $PesterOutputFolder)) {
         $PesterOutputFolder = Join-Path $OutputDirectory $PesterOutputFolder
     }
 
-    $os = if($isWindows -or $PSVersionTable.PSVersion.Major -le 5) {
+    $os = if ($isWindows -or $PSVersionTable.PSVersion.Major -le 5) {
         'Windows'
     }
-    elseif($isMacOS) {
+    elseif ($isMacOS) {
         'MacOS'
     }
     else {
@@ -227,7 +251,7 @@ task Fail_Build_if_Pester_Tests_failed -If ($CodeCoverageThreshold -ne 0) {
 
     if ([String]::IsNullOrEmpty($ModuleVersion)) {
         $ModuleInfo = Import-PowerShellDataFile "$OutputDirectory/$ProjectName/*/$ProjectName.psd1" -ErrorAction Stop
-        if($PreReleaseTag = $ModuleInfo.PrivateData.PSData.Prerelease) {
+        if ($PreReleaseTag = $ModuleInfo.PrivateData.PSData.Prerelease) {
             $ModuleVersion = $ModuleInfo.ModuleVersion + "-" + $PreReleaseTag
         }
         else {
@@ -265,19 +289,19 @@ task Fail_Build_if_Pester_Tests_failed -If ($CodeCoverageThreshold -ne 0) {
 # Synopsis: Fails the build if the code coverage is under predefined threshold
 task Pester_if_Code_Coverage_Under_Threshold {
 
-    if (!(Split-path -isAbsolute $OutputDirectory)) {
+    if (!(Split-Path -isAbsolute $OutputDirectory)) {
         $OutputDirectory = Join-Path -Path $ProjectPath -ChildPath $OutputDirectory
         Write-Build Yellow "Absolute path to Output Directory is $OutputDirectory"
     }
 
-    if (!(Split-path -isAbsolute $PesterOutputFolder)) {
+    if (!(Split-Path -isAbsolute $PesterOutputFolder)) {
         $PesterOutputFolder = Join-Path $OutputDirectory $PesterOutputFolder
     }
 
-    $os = if($isWindows -or $PSVersionTable.PSVersion.Major -le 5) {
+    $os = if ($isWindows -or $PSVersionTable.PSVersion.Major -le 5) {
         'Windows'
     }
-    elseif($isMacOS) {
+    elseif ($isMacOS) {
         'MacOS'
     }
     else {
@@ -286,7 +310,7 @@ task Pester_if_Code_Coverage_Under_Threshold {
 
     if ([String]::IsNullOrEmpty($ModuleVersion)) {
         $ModuleInfo = Import-PowerShellDataFile "$OutputDirectory/$ProjectName/*/$ProjectName.psd1" -ErrorAction Stop
-        if($PreReleaseTag = $ModuleInfo.PrivateData.PSData.Prerelease) {
+        if ($PreReleaseTag = $ModuleInfo.PrivateData.PSData.Prerelease) {
             $ModuleVersion = $ModuleInfo.ModuleVersion + "-" + $PreReleaseTag
         }
         else {
@@ -329,14 +353,14 @@ task Pester_if_Code_Coverage_Under_Threshold {
 }
 
 # Synopsis: Uploading Unit Test results to AppVeyor
-task Upload_Test_Results_To_AppVeyor -If {(property BuildSystem 'unknown') -eq 'AppVeyor'} {
+task Upload_Test_Results_To_AppVeyor -If { (property BuildSystem 'unknown') -eq 'AppVeyor' } {
 
-    if (!(Split-path -isAbsolute $OutputDirectory)) {
+    if (!(Split-Path -isAbsolute $OutputDirectory)) {
         $OutputDirectory = Join-Path -Path $ProjectPath -ChildPath $OutputDirectory
         Write-Build Yellow "Absolute path to Output Directory is $OutputDirectory"
     }
 
-    if (!(Split-path -isAbsolute $PesterOutputFolder)) {
+    if (!(Split-Path -isAbsolute $PesterOutputFolder)) {
         $PesterOutputFolder = Join-Path $OutputDirectory $PesterOutputFolder
     }
 
@@ -345,10 +369,10 @@ task Upload_Test_Results_To_AppVeyor -If {(property BuildSystem 'unknown') -eq '
         $null = New-Item -ItemType Directory -force $PesterOutputFolder -ErrorAction Stop
     }
 
-    $os = if($isWindows -or $PSVersionTable.PSVersion.Major -le 5) {
+    $os = if ($isWindows -or $PSVersionTable.PSVersion.Major -le 5) {
         'Windows'
     }
-    elseif($isMacOS) {
+    elseif ($isMacOS) {
         'MacOS'
     }
     else {
@@ -374,7 +398,7 @@ task Upload_Test_Results_To_AppVeyor -If {(property BuildSystem 'unknown') -eq '
     $PesterOutputFullPath = Join-Path $PesterOutputFolder "$($PesterOutputFormat)_$PesterOutputFileFileName"
 
     $TestResultFile = Get-Item $PesterOutputFullPath -ErrorAction Ignore
-    if($TestResultFile) {
+    if ($TestResultFile) {
         Write-Build Green "  Uploading test results $TestResultFile to Appveyor"
         $TestResultFile | Add-TestResultToAppveyor
         Write-Build Green "  Upload Complete"
@@ -382,4 +406,12 @@ task Upload_Test_Results_To_AppVeyor -If {(property BuildSystem 'unknown') -eq '
 }
 
 # Synopsis: Meta task that runs Quality Tests, and fails if they're not successful
+task Pester_Tests_Stop_On_Fail Invoke_pester_tests, Upload_Test_Results_To_AppVeyor, Fail_Build_if_Pester_Tests_failed
+task Pester_Tests_Stop_On_Fail Invoke_pester_tests, Upload_Test_Results_To_AppVeyor, Fail_Build_if_Pester_Tests_failed
+task Pester_Tests_Stop_On_Fail Invoke_pester_tests, Upload_Test_Results_To_AppVeyor, Fail_Build_if_Pester_Tests_failed
+task Pester_Tests_Stop_On_Fail Invoke_pester_tests, Upload_Test_Results_To_AppVeyor, Fail_Build_if_Pester_Tests_failed
+task Pester_Tests_Stop_On_Fail Invoke_pester_tests, Upload_Test_Results_To_AppVeyor, Fail_Build_if_Pester_Tests_failed
+task Pester_Tests_Stop_On_Fail Invoke_pester_tests, Upload_Test_Results_To_AppVeyor, Fail_Build_if_Pester_Tests_failed
+task Pester_Tests_Stop_On_Fail Invoke_pester_tests, Upload_Test_Results_To_AppVeyor, Fail_Build_if_Pester_Tests_failed
+task Pester_Tests_Stop_On_Fail Invoke_pester_tests, Upload_Test_Results_To_AppVeyor, Fail_Build_if_Pester_Tests_failed
 task Pester_Tests_Stop_On_Fail Invoke_pester_tests, Upload_Test_Results_To_AppVeyor, Fail_Build_if_Pester_Tests_failed

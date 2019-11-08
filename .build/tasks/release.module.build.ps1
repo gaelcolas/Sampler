@@ -1,11 +1,16 @@
 param(
     # Base directory of all output (default to 'output')
-    [string]$OutputDirectory = (property OutputDirectory (Join-Path $BuildRoot 'output')),
+    [Parameter()]
+    [string]
+    $OutputDirectory = (property OutputDirectory (Join-Path $BuildRoot 'output')),
 
+    [Parameter()]
     $ChangelogPath = (property ChangelogPath 'CHANGELOG.md'),
 
+    [Parameter()]
     $ReleaseNotesPath = (property ReleaseNotesPath (Join-Path $OutputDirectory 'ReleaseNotes.md')),
 
+    [Parameter()]
     [string]
     $ProjectName = (property ProjectName $(
             #Find the module manifest to deduce the Project Name
@@ -21,6 +26,7 @@ param(
         )
     ),
 
+    [Parameter()]
     [string]
     $ModuleVersion = (property ModuleVersion $(
             try {
@@ -32,18 +38,23 @@ param(
             }
         )),
 
+    [Parameter()]
     [string]
     # retrieves from Environment variable
     $GitHubToken = (property GitHubToken ''),
 
+    [Parameter()]
     [string]
     $GalleryApiToken = (property GalleryApiToken ''),
 
+    [Parameter()]
     [string]
     $NuGetPublishSource = (property NuGetPublishSource 'https://www.powershellgallery.com/'),
 
+    [Parameter()]
     $PSModuleFeed = (property PSModuleFeed 'PSGallery'),
 
+    [Parameter()]
     $SkipPublish = (property SkipPublish '')
 )
 
@@ -53,14 +64,14 @@ task Create_changelog_release_output {
     "  ReleaseNotesPath = $ReleaseNotesPath"
 
     if (!(Split-Path -isAbsolute $OutputDirectory)) {
-        $OutputDirectory = Join-path $BuildRoot $OutputDirectory
+        $OutputDirectory = Join-Path $BuildRoot $OutputDirectory
     }
 
     if (!(Split-Path -isAbsolute $ReleaseNotesPath)) {
-        $ReleaseNotesPath = Join-path $OutputDirectory $ReleaseNotesPath
+        $ReleaseNotesPath = Join-Path $OutputDirectory $ReleaseNotesPath
     }
 
-    $ChangeLogOutputPath = Join-path $OutputDirectory 'CHANGELOG.md'
+    $ChangeLogOutputPath = Join-Path $OutputDirectory 'CHANGELOG.md'
     "  ChangeLogOutputPath = $ChangeLogOutputPath"
 
     if ([String]::IsNullOrEmpty($ModuleVersion)) {
@@ -108,7 +119,12 @@ task Create_changelog_release_output {
 
         # find Module manifest
         $BuiltModuleManifest = (Get-ChildItem (Join-Path $OutputDirectory $ProjectName) -Depth 2 -Filter "$ProjectName.psd1").FullName |
-            Where-Object { try { Test-ModuleManifest -ErrorAction Stop -Path $_} catch { $false} }
+            Where-Object { try {
+                    Test-ModuleManifest -ErrorAction Stop -Path $_
+                }
+                catch {
+                    $false
+                } }
         Write-Build DarkGray "Built Manifest $BuiltModuleManifest"
         $null = Test-ModuleManifest $BuiltModuleManifest -ErrorAction Stop
 
@@ -176,12 +192,17 @@ task package_module_nupkg {
     # Cleaning up existing packaged module
     if ($ModuleToRemove = Get-ChildItem (Join-Path $OutputDirectory "$ProjectName.*.nupkg")) {
         Write-Build DarkGray "  Remove existing $ProjectName package"
-        remove-item -force -Path $ModuleToRemove -ErrorAction Stop
+        Remove-Item -force -Path $ModuleToRemove -ErrorAction Stop
     }
 
     # find Module manifest
     $BuiltModuleManifest = (Get-ChildItem (Join-Path $OutputDirectory $ProjectName) -Depth 2 -Filter "$ProjectName.psd1").FullName |
-        Where-Object { try { Test-ModuleManifest -ErrorAction Stop -Path $_} catch { $false} }
+        Where-Object { try {
+                Test-ModuleManifest -ErrorAction Stop -Path $_
+            }
+            catch {
+                $false
+            } }
     Write-Build DarkGray "  Built module's Manifest found at $BuiltModuleManifest"
 
     # load module manifest
@@ -201,9 +222,9 @@ task package_module_nupkg {
     }
 
     $PublishModuleParams = @{
-        Path       = (Join-Path $OutputDirectory $ProjectName)
-        Repository = 'output'
-        Force      = $true
+        Path        = (Join-Path $OutputDirectory $ProjectName)
+        Repository  = 'output'
+        Force       = $true
         ErrorAction = 'Stop'
     }
     Publish-Module @PublishModuleParams
@@ -219,7 +240,7 @@ task publish_module_to_gallery -if ((!(Get-Command nuget -ErrorAction SilentlyCo
     }
 
     if (!(Split-Path -isAbsolute $ReleaseNotesPath)) {
-        $ReleaseNotesPath = Join-path $OutputDirectory $ReleaseNotesPath
+        $ReleaseNotesPath = Join-Path $OutputDirectory $ReleaseNotesPath
     }
 
     # Retrieving ReleaseNotes or defaulting to Updated ChangeLog
@@ -229,7 +250,12 @@ task publish_module_to_gallery -if ((!(Get-Command nuget -ErrorAction SilentlyCo
 
     # find Module manifest
     $BuiltModuleManifest = (Get-ChildItem (Join-Path $OutputDirectory $ProjectName) -Depth 2 -Filter "$ProjectName.psd1").FullName |
-        Where-Object { try { Test-ModuleManifest -ErrorAction Stop -Path $_} catch { $false} }
+        Where-Object { try {
+                Test-ModuleManifest -ErrorAction Stop -Path $_
+            }
+            catch {
+                $false
+            } }
     $null = Test-ModuleManifest $BuiltModuleManifest -ErrorAction Stop
 
     # Uncomment release notes (the default in Plaster/New-ModuleManifest)

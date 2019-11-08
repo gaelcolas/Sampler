@@ -1,11 +1,17 @@
 param(
     # Base directory of all output (default to 'output')
-    [string]$OutputDirectory = (property OutputDirectory (Join-Path $BuildRoot 'output')),
 
+    [Parameter()]
+    [string]
+    $OutputDirectory = (property OutputDirectory (Join-Path $BuildRoot 'output')),
+
+    [Parameter()]
     $ChangelogPath = (property ChangelogPath 'CHANGELOG.md'),
 
+    [Parameter()]
     $ReleaseNotesPath = (property ReleaseNotesPath (Join-Path $OutputDirectory 'ReleaseNotes.md')),
 
+    [Parameter()]
     [string]
     $ProjectName = (property ProjectName $(
             #Find the module manifest to deduce the Project Name
@@ -21,6 +27,7 @@ param(
         )
     ),
 
+    [Parameter()]
     [string]
     $ModuleVersion = (property ModuleVersion $(
             try {
@@ -32,22 +39,29 @@ param(
             }
         )),
 
+    [Parameter()]
     [string]
     $GitHubToken = (property GitHubToken ''), # retrieves from Environment variable
 
+    [Parameter()]
     [string]
     $ReleaseBranch = (property ReleaseBranch 'master'),
 
+    [Parameter()]
     [string]
     $GitHubConfigUserEmail = (property GitHubConfigUserEmail ''),
 
+    [Parameter()]
     [string]
     $GitHubConfigUserName = (property GitHubConfigUserName ''),
 
+    [Parameter()]
     $GitHubFilesToAdd = (property GitHubFilesToAdd ''),
 
+    [Parameter()]
     $BuildInfo = (property BuildInfo @{ }),
 
+    [Parameter()]
     $SkipPublish = (property SkipPublish '')
 )
 
@@ -60,7 +74,7 @@ task Publish_release_to_GitHub -if ($GitHubToken) {
     }
 
     if (!(Split-Path -isAbsolute $ReleaseNotesPath)) {
-        $ReleaseNotesPath = Join-path $OutputDirectory $ReleaseNotesPath
+        $ReleaseNotesPath = Join-Path $OutputDirectory $ReleaseNotesPath
     }
 
     if ([String]::IsNullOrEmpty($ModuleVersion)) {
@@ -93,11 +107,6 @@ task Publish_release_to_GitHub -if ($GitHubToken) {
 
     # find owner repository / remote
     $Repo = GetHumanishRepositoryDetails -RemoteUrl $remoteURL
-
-    # Prerelease label?
-    if ($PreReleaseTag) {
-        $Prerelease = $true
-    }
 
     # Retrieving ReleaseNotes or defaulting to Updated ChangeLog
     if (Import-Module ChangelogManagement -ErrorAction SilentlyContinue -PassThru) {
