@@ -1,4 +1,5 @@
-Class class11 : class1 {
+Class class11 : class1
+{
     [string]$Name = 'Class11'
 
     class11 ()

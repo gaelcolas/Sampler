@@ -1,4 +1,5 @@
-enum Stuff {
-    Thing       = 1
-    OtherThing  = 2
+enum Stuff
+{
+    Thing = 1
+    OtherThing = 2
 }

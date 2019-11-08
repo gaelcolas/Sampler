@@ -1,11 +1,14 @@
 Param (
     # Project path
+    [Parameter()]
     [string]
     $ProjectPath = (property ProjectPath $BuildRoot),
 
+    [Parameter()]
     [string]
     $VariableNamePrefix = (property VariableNamePrefix ''),
 
+    [Parameter()]
     [switch]
     $ForceEnvironmentVariables = (property ForceEnvironmentVariables $false)
 )

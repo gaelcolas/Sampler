@@ -1,7 +1,9 @@
 Param (
+    [Parameter()]
     [io.DirectoryInfo]
     $ProjectPath = (property ProjectPath $BuildRoot),
 
+    [Parameter()]
     [string]
     $ProjectName = (property ProjectName $(
             (Get-ChildItem $BuildRoot\*\*.psd1 | Where-Object {
@@ -11,6 +13,7 @@ Param (
         )
     ),
 
+    [Parameter()]
     [string]
     $SourcePath = (property SourcePath ((Get-ChildItem $BuildRoot\*\*.psd1 | Where-Object {
                     ($_.Directory.Name -match 'source|src' -or $_.Directory.Name -eq $_.BaseName) -and
@@ -18,15 +21,19 @@ Param (
             ).Directory.FullName)
     ),
 
+    [Parameter()]
     [string]
     $HelpFolder = (property HelpFolder 'docs'),
 
+    [Parameter()]
     [string]
     $BuildOutput = (property BuildOutput 'C:\BuildOutput'),
 
-    [cultureinfo]
+    [Parameter()]
+    [cultureInfo]
     $HelpCultureInfo = 'en-US',
 
+    [Parameter()]
     [string]
     $LineSeparation = (property LineSeparation ('-' * 78))
 

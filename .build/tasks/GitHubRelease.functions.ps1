@@ -40,9 +40,11 @@ function Publish-GitHubRelease {
         [string[]]
         $AssetPath,
 
+        [Parameter()]
         [switch]
         $Draft,
 
+        [Parameter()]
         [switch]
         $Prerelease
     )
@@ -351,6 +353,7 @@ function Add-GitHubAssetToRelease {
 # Licensed under the MIT License.
 filter GetHumanishRepositoryDetails {
     param(
+        [Parameter()]
         [string]
         $RemoteUrl
     )

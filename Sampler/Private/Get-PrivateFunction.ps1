@@ -15,7 +15,7 @@ function Get-PrivateFunction {
       #>
     [cmdletBinding()]
     Param(
-        [parameter()]
+        [Parameter()]
         [String]
         $PrivateData
     )

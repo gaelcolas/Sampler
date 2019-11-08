@@ -51,8 +51,10 @@
         'Measure-*'
     )
 
-    ExcludeRule    = @(
-        # Ecluding rules as this project uses
+    IncludeDefaultRules = $true
+
+    ExcludeRules    = @(
+        # Excluding rules as this project uses
         # brackets on same line
         'Measure-IfStatement',
         'Measure-ForEachStatement',
@@ -63,6 +65,7 @@
         'Measure-DoWhileStatement',
         'Measure-WhileStatement',
         'Measure-SwitchStatement',
-        'Measure-ForStatement'
+        'Measure-ForStatement',
+        'Measure-ParameterBlockMandatoryNamedArgument' # Param(Mandatory) or =$true?
     )
 }

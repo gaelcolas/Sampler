@@ -1,9 +1,10 @@
-Class class12 : class1 {
+Class class12 : class1
+{
     [string]$Name = 'Class12'
 
     class12 ()
     {
-        
+
     }
 
     [String] ToString()

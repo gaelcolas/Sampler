@@ -1,5 +1,6 @@
 Param (
 
+    [Parameter()]
     [string]
     $ProjectName = (property ProjectName $(
             #Find the module manifest to deduce the Project Name
@@ -10,6 +11,7 @@ Param (
         )
     ),
 
+    [Parameter()]
     [string]
     $SourcePath = (property SourcePath ((Get-ChildItem $BuildRoot\*\*.psd1 | Where-Object {
                     ($_.Directory.Name -match 'source|src' -or $_.Directory.Name -eq $_.BaseName) -and
@@ -17,14 +19,18 @@ Param (
             ).Directory.FullName)
     ),
 
+    [Parameter()]
     [string]
     $OutputDirectory = (property OutputDirectory (Join-Path $BuildRoot "output")),
 
+    [Parameter()]
     [string]
     $BuildModuleOutput = (property BuildModuleOutput (Join-Path $OutputDirectory $ProjectName)),
 
+    [Parameter()]
     $ReleaseNotesPath = (property ReleaseNotesPath (Join-Path $OutputDirectory 'ReleaseNotes.md')),
 
+    [Parameter()]
     [string]
     $ModuleVersion = (property ModuleVersion $(
             try {
@@ -36,6 +42,7 @@ Param (
             }
         )),
 
+    [Parameter()]
     $BuildInfo = (property BuildInfo @{})
 )
 
