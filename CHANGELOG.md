@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Added Module manifest in build.psd1 template to fix issue resolving Project on linux.
+
 ## [0.96.0] - 2019-11-01
 
 ### Fixed

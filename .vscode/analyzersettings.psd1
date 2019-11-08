@@ -4,7 +4,7 @@
         cloned. It is automatically clone as soon as any unit or
         integration tests are run.
     #>
-    CustomRulePath = '.\output\RequiredModules\DSCResource.Tests\DscResource.AnalyzerRules'
+    CustomRulePath = '.\output\RequiredModules\DscResource.AnalyzerRules'
 
     IncludeRules   = @(
         # DSC Resource Kit style guideline rules.
@@ -49,5 +49,20 @@
             with 'Measure*'.
         #>
         'Measure-*'
+    )
+
+    ExcludeRule    = @(
+        # Ecluding rules as this project uses
+        # brackets on same line
+        'Measure-IfStatement',
+        'Measure-ForEachStatement',
+        'Measure-TryStatement',
+        'Measure-CatchClause',
+        'Measure-FunctionBlockBrace*', # new name from DscResource.AnalyzerRules
+        'Measure-DoUntilStatement',
+        'Measure-DoWhileStatement',
+        'Measure-WhileStatement',
+        'Measure-SwitchStatement',
+        'Measure-ForStatement'
     )
 }
