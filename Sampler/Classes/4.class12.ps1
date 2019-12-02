@@ -4,7 +4,6 @@ Class class12 : class1
 
     class12 ()
     {
-
     }
 
     [String] ToString()

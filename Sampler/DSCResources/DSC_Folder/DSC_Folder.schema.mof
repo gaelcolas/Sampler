@@ -1,0 +1,10 @@
+[ClassVersion("1.0.0.0"), FriendlyName("Folder")]
+class DSC_Folder : OMI_BaseResource
+{
+    [Key, Description("The path to the folder to create.")] String Path;
+    [Required, Description("If the files in the folder should be read only.")] Boolean ReadOnly;
+    [Write, Description("If the folder attribute should be hidden. Default value is $false.")] Boolean Hidden;
+    [Write, Description("Specifies the desired state of the folder. When set to 'Present', the folder will be created. When set to 'Absent', the folder will be removed. Default value is 'Present'."), ValueMap{"Present","Absent"}, Values{"Present","Absent"}] String Ensure;
+    [Read, Description("If sharing is be enabled or disabled.")] Boolean Shared;
+    [Read, Description("The name of the shared resource.")] String ShareName;
+};
