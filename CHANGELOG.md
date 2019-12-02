@@ -7,7 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
 - Added Module manifest in build.psd1 template to fix issue resolving Project on linux.
+- Added DSC Resources & Supporting modules (including one from PSGallery, one from source)
 
 ## [0.96.0] - 2019-11-01
 
