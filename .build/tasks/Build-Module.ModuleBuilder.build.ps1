@@ -167,7 +167,7 @@ Task Build_NestedModules_ModuleBuilder {
         $cmdParamKeys = @() + $cmdParam.Keys
         foreach ($ParamName in $cmdParamKeys) {
             # remove param not available in command
-            if ($ParamName -notin @($cmd.Parameters.keys + $c.Parameters.values.aliases) ) {
+            if ($ParamName -notin @($cmd.Parameters.keys + $cmd.Parameters.values.aliases) ) {
                 Write-Build White "Removing Parameter $ParamName for $($cmd.Name)"
                 $cmdParam.remove($ParamName)
             }

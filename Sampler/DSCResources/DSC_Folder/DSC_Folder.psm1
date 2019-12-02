@@ -1,10 +1,12 @@
 $script:ParentModulePath = Split-Path -Path (Split-Path -Path $PSScriptRoot -Parent) -Parent
 $script:modulesFolderPath = Join-Path -Path $script:ParentModulePath -ChildPath 'Modules'
 
-$script:resourceHelperModulePath = Join-Path -Path $script:modulesFolderPath -ChildPath 'DscResource.Common'
-Import-Module -Name (Join-Path -Path $script:resourceHelperModulePath -ChildPath 'DscResource.Common.psm1')
+$script:CommonHelperModulePath = Join-Path -Path $script:modulesFolderPath -ChildPath 'DscResource.Common'
+$script:ResourceHelperModulePath = Join-Path -Path $script:modulesFolderPath -ChildPath 'Folder.Common'
+Import-Module $script:CommonHelperModulePath -ErrorAction Stop
+Import-Module -Name (Join-Path -Path $script:resourceHelperModulePath -ChildPath 'Folder.Common.psm1')
 
-$script:localizedData = Get-LocalizedData -ResourceName 'MSFT_Folder'
+$script:localizedData = Get-LocalizedData -DefaultUICulture en-US
 
 <#
     .SYNOPSIS
@@ -20,7 +22,7 @@ $script:localizedData = Get-LocalizedData -ResourceName 'MSFT_Folder'
     .NOTES
         The ReadOnly parameter was made mandatory in this example to show
         how to handle unused mandatory parameters.
-        In a real scenarion this parameter would not need to have the type
+        In a real scenario this parameter would not need to have the type
         qualifier Required in the schema.mof.
 #>
 function Get-TargetResource

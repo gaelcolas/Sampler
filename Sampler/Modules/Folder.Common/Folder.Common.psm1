@@ -90,3 +90,5 @@ function Set-FileAttribute
         }
     }
 }
+
+Export-ModuleMember -Function Set-FileAttribute, Test-FileAttribute

@@ -2,10 +2,9 @@
 $script:dscModuleName = 'Sampler'
 $script:dscResourceName = 'DSC_Folder'
 
-# Unit Test Template Version: 1.2.4
 $script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 
-Import-Module -Name (Join-Path -Path $script:moduleRoot -ChildPath (Join-Path -Path 'DSCResource.Tests' -ChildPath 'TestHelper.psm1')) -Force
+Import-Module -Name DscResource.Test -Force
 
 $TestEnvironment = Initialize-TestEnvironment `
     -DSCModuleName $script:dscModuleName `
