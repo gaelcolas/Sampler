@@ -66,6 +66,12 @@ Pester:
   Tag:
   CodeCoverageThreshold: 50 # Set to 0 to bypass
 
+DscTest:
+  # OutputFolder:
+  # OutputFormat: NUnitXML
+  ExcludeTag:
+    #- DscPSSA
+  Tag:
 
 ####################################################
 #       Sampler Pipeline Configuration             #
