@@ -162,7 +162,7 @@ task Invoke_DscResource_tests {
     }
 
     $PSVersion = 'PSv.{0}' -f $PSVersionTable.PSVersion
-    $DscTestOutputFileFileName = "{0}_v{1}.{2}.{3}.xml" -f $ProjectName, $ModuleVersion, $os, $PSVersion
+    $DscTestOutputFileFileName = "DscTest_{0}_v{1}.{2}.{3}.xml" -f $ProjectName, $ModuleVersion, $os, $PSVersion
     $DscTestOutputFullPath = Join-Path $DscTestOutputFolder "$($DscTestOutputFormat)_$DscTestOutputFileFileName"
 
 
@@ -259,19 +259,13 @@ task Fail_Build_if_DscResource_Tests_failed {
     }
 
     $PSVersion = 'PSv.{0}' -f $PSVersionTable.PSVersion
-    $DscTestOutputFileFileName = "DscResource.Test_{0}_v{1}.{2}.{3}.xml" -f $ProjectName, $ModuleVersion, $os, $PSVersion
+    $DscTestOutputFileFileName = "DscTest_{0}_v{1}.{2}.{3}.xml" -f $ProjectName, $ModuleVersion, $os, $PSVersion
     $DscTestResultObjectClixml = Join-Path $DscTestOutputFolder "DscTestObject_$DscTestOutputFileFileName"
     Write-Build White "`tDscTest Output Object = $DscTestResultObjectClixml"
 
 
     if (-Not (Test-Path $DscTestResultObjectClixml)) {
-        if ( $CodeCoverageThreshold -eq 0 ) {
-            Write-Build Green "DscTest run and Coverage bypassed. No DscTest output found but allowed."
-            return
-        }
-        else {
-            Throw "No command were tested. Threshold of $CodeCoverageThreshold % not met"
-        }
+        Throw "No command were tested. $DscTestResultObjectClixml not found"
     }
     else {
         $DscTestObject = Import-Clixml -Path $DscTestResultObjectClixml -ErrorAction Stop

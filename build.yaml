@@ -70,7 +70,7 @@ DscTest:
   # OutputFolder:
   # OutputFormat: NUnitXML
   ExcludeTag:
-    #- DscPSSA
+    - DscPSSA
   Tag:
 
 ####################################################
@@ -108,6 +108,7 @@ BuildWorkflow:
   test:
     - Pester_Tests_Stop_On_Fail
     - Pester_if_Code_Coverage_Under_Threshold
+    - DscResource_Tests_Stop_On_Fail
 
   publish:
     - publish_nupkg_to_gallery  # runs if nuget is available (prefered)
