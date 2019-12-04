@@ -28,7 +28,7 @@ NestedModule:
     # $ModuleVersionFolder is trimmed (remove metadata & Prerelease tag) and OutputDirectory expanded (the only one)
     OutputDirectory: ./output/$ProjectName/$ModuleVersionFolder/Modules/HelperSubmodule
     VersionedOutputDirectory: false
-    AddToManifest: true
+    AddToManifest: false
     SemVer: $ModuleVersionFolder
     # suffix:
     # prefix:
@@ -41,7 +41,7 @@ NestedModule:
     #Filter:
   Folder.Common:
     CopyOnly: true
-    AddToManifest: true
+    AddToManifest: false
 
 ####################################################
 #       PESTER  Configuration                      #
@@ -64,7 +64,7 @@ Pester:
   # - tests/Integration
   ExcludeTag:
   Tag:
-  CodeCoverageThreshold: 50 # Set to 0 to bypass
+  CodeCoverageThreshold: 35 # Set to 0 to bypass
 
 DscTest:
   # OutputFolder:

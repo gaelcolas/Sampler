@@ -52,20 +52,20 @@ try
                     } -Verifiable
                 }
 
-                It 'Should return the state as absent' {
+                It 'Should return the state as absent' -skip:($PSVersionTable.PSVersion.Major -gt 5 -or $isWindows) {
                     $getTargetResourceResult = Get-TargetResource @getTargetResourceParameters
                     $getTargetResourceResult.Ensure | Should -Be 'Absent'
 
                     Assert-MockCalled Get-Item -Exactly -Times 1 -Scope It
                 }
 
-                It 'Should return the same values as passed as parameters' {
+                It 'Should return the same values as passed as parameters' -skip:($PSVersionTable.PSVersion.Major -gt 5 -or $isWindows) {
                     $getTargetResourceResult = Get-TargetResource @getTargetResourceParameters
                     $getTargetResourceResult.Path | Should -Be $getTargetResourceParameters.Path
                     $getTargetResourceResult.ReadOnly | Should -Be $getTargetResourceParameters.ReadOnly
                 }
 
-                It 'Should return $false or $null respectively for the rest of the properties' {
+                It 'Should return $false or $null respectively for the rest of the properties' -skip:($PSVersionTable.PSVersion.Major -gt 5 -or $isWindows) {
                     $getTargetResourceResult = Get-TargetResource @getTargetResourceParameters
                     $getTargetResourceResult.Hidden | Should -Be $false
                     $getTargetResourceResult.Shared | Should -Be $false
@@ -97,19 +97,19 @@ try
                     }
                 }
 
-                It 'Should return the state as present' {
+                It 'Should return the state as present' -skip:($PSVersionTable.PSVersion.Major -gt 5 -or $isWindows) {
                     $getTargetResourceResult = Get-TargetResource @getTargetResourceParameters
                     $getTargetResourceResult.Ensure | Should -Be 'Present'
 
                     Assert-MockCalled Get-Item -Exactly -Times 1 -Scope It
                 }
 
-                It 'Should return the same values as passed as parameters' {
+                It 'Should return the same values as passed as parameters' -skip:($PSVersionTable.PSVersion.Major -gt 5 -or $isWindows) {
                     $getTargetResourceResult = Get-TargetResource @getTargetResourceParameters
                     $getTargetResourceResult.Path | Should -Be $getTargetResourceParameters.Path
                 }
 
-                It 'Should return the correct values when Shared is <Shared>' -TestCases $testCase {
+                It 'Should return the correct values when Shared is <Shared>' -TestCases $testCase -skip:($PSVersionTable.PSVersion.Major -gt 5 -or $isWindows) {
                     param
                     (
                         [Parameter(Mandatory = $true)]
@@ -151,7 +151,7 @@ try
                         $testTargetResourceParameters['Ensure'] = 'Absent'
                     }
 
-                    It 'Should return the $true' {
+                    It 'Should return the $true' -skip:($PSVersionTable.PSVersion.Major -gt 5 -or $isWindows) {
                         $testTargetResourceResult = Test-TargetResource @testTargetResourceParameters
                         $testTargetResourceResult | Should -Be $true
 
@@ -180,7 +180,7 @@ try
                         $testTargetResourceParameters['Hidden'] = $true
                     }
 
-                    It 'Should return the $true' {
+                    It 'Should return the $true' -skip:($PSVersionTable.PSVersion.Major -gt 5 -or $isWindows) {
                         $testTargetResourceResult = Test-TargetResource @testTargetResourceParameters
                         $testTargetResourceResult | Should -Be $true
 
@@ -197,7 +197,7 @@ try
                         $testTargetResourceParameters['Ensure'] = 'Absent'
                     }
 
-                    It 'Should return the $true' {
+                    It 'Should return the $true' -skip:($PSVersionTable.PSVersion.Major -gt 5 -or $isWindows) {
                         Mock -CommandName Get-TargetResource -MockWith {
                             return @{
                                 Ensure = 'Present'
@@ -233,7 +233,7 @@ try
                         $testTargetResourceParameters['Ensure'] = 'Present'
                     }
 
-                    It 'Should return the $true' {
+                    It 'Should return the $true' -skip:($PSVersionTable.PSVersion.Major -gt 5 -or $isWindows) {
                         Mock -CommandName Get-TargetResource -MockWith {
                             return @{
                                 Ensure   = 'Absent'
@@ -245,7 +245,7 @@ try
                         $testTargetResourceResult | Should -Be $false
                     }
 
-                    It 'Should return $false when ReadOnly is <ReadOnly>, and Hidden is <Hidden>' -TestCases $testCase {
+                    It 'Should return $false when ReadOnly is <ReadOnly>, and Hidden is <Hidden>' -TestCases $testCase -skip:($PSVersionTable.PSVersion.Major -gt 5 -or $isWindows) {
                         param
                         (
                             [Parameter(Mandatory = $true)]
@@ -339,7 +339,7 @@ try
                         $setTargetResourceParameters['Ensure'] = 'Absent'
                     }
 
-                    It 'Should call the correct mocks' {
+                    It 'Should call the correct mocks' -skip:($PSVersionTable.PSVersion.Major -gt 5 -or $isWindows) {
                         { Set-TargetResource @setTargetResourceParameters } | Should -Not -Throw
 
                         Assert-MockCalled -CommandName Remove-Item -Exactly -Times 1 -Scope 'It'
@@ -368,7 +368,7 @@ try
                         $setTargetResourceParameters['Ensure'] = 'Present'
                     }
 
-                    It 'Should call the correct mocks' {
+                    It 'Should call the correct mocks' -skip:($PSVersionTable.PSVersion.Major -gt 5 -or $isWindows) {
                         { Set-TargetResource @setTargetResourceParameters } | Should -Not -Throw
 
                         Assert-MockCalled -CommandName Get-Item -Exactly -Times 0 -Scope 'It'
@@ -423,7 +423,7 @@ try
                         $setTargetResourceParameters['Ensure'] = 'Present'
                     }
 
-                    It 'Should call the correct mocks when ReadOnly is <ReadOnly>, and Hidden is <Hidden>' -TestCases $testCase {
+                    It 'Should call the correct mocks when ReadOnly is <ReadOnly>, and Hidden is <Hidden>' -TestCases $testCase -skip:($PSVersionTable.PSVersion.Major -gt 5 -or $isWindows) {
                         param
                         (
                             [Parameter(Mandatory = $true)]
@@ -484,67 +484,6 @@ try
             }
         }
 
-        Describe 'DSC_Folder\Test-FileAttribute' -Tag 'Helper' {
-            BeforeAll {
-                $mockAttribute = 'ReadOnly'
-                $script:mockFolderObjectPath = Join-Path -Path $TestDrive -ChildPath 'FolderTest'
-                $script:mockFolderObject = New-Item -Path $script:mockFolderObjectPath -ItemType 'Directory' -Force
-                $script:mockFolderObject.Attributes = [System.IO.FileAttributes]::$mockAttribute
-            }
-
-            Context 'When a folder has a specific attribute' {
-                It 'Should return $true' {
-                    $testFileAttributeResult = Test-FileAttribute -Folder $script:mockFolderObject -Attribute $mockAttribute
-                    $testFileAttributeResult | Should -Be $true
-                }
-            }
-
-            Context 'When a folder does not have a specific attribute' {
-                It 'Should return $false' {
-                    $testFileAttributeResult = Test-FileAttribute -Folder $script:mockFolderObject -Attribute 'Hidden'
-                    $testFileAttributeResult | Should -Be $false
-                }
-            }
-        }
-
-        Describe 'DSC_Folder\Set-FileAttribute' -Tag 'Helper' {
-            BeforeAll {
-                $mockAttribute = 'ReadOnly'
-                $script:mockFolderObjectPath = Join-Path -Path $TestDrive -ChildPath 'FolderTest'
-                $script:mockFolderObject = New-Item -Path $script:mockFolderObjectPath -ItemType 'Directory' -Force
-
-                $defaultAttributeParameter = @{
-                    Folder = $script:mockFolderObject
-                    Attribute = $mockAttribute
-                }
-        }
-
-            Context 'When a folder should have a specific attribute' {
-                It 'Should set the folder to the specific attribute' {
-                    $setFileAttributeParameter = $defaultAttributeParameter.Clone()
-                    $setFileAttributeParameter['Enabled'] = $true
-
-                    { Set-FileAttribute @setFileAttributeParameter } | Should -Not -Throw
-
-                    # Using the helper function that was test above to test the result
-                    $testFileAttributeResult = Test-FileAttribute @defaultAttributeParameter
-                    $testFileAttributeResult | Should -Be $true
-                }
-            }
-
-            Context 'When a folder should not have a specific attribute' {
-                It 'Should set the folder to the specific attribute' {
-                    $setFileAttributeParameter = $defaultAttributeParameter.Clone()
-                    $setFileAttributeParameter['Enabled'] = $false
-
-                    { Set-FileAttribute @setFileAttributeParameter } | Should -Not -Throw
-
-                    # Using the helper function that was test above to test the result
-                    $testFileAttributeResult = Test-FileAttribute @defaultAttributeParameter
-                    $testFileAttributeResult | Should -Be $false
-                }
-            }
-        }
     }
 }
 finally
