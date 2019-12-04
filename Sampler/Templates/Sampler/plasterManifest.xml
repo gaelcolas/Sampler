@@ -295,26 +295,33 @@
 
     <!-- DSC RESOURCES files and folders -->
     <!--   DSCResources -->
-    <!--
+
     <file source=''
           destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/DSCResources'
           condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("DSCResources")'
     />
-    -->
+
 
     <!--   Examples -->
-    <!--
+
     <file source=''
           destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/Examples'
     />
-    -->
+
 
     <!--   DSCResource Sample Files -->
 
-    <!-- <file source='Sampler/DSCResources/**'
+    <file source='Sampler/DSCResources/**'
           destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/DSCResources/'
           condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild") -or ${PLASTER_PARAM_Features} -Contains ("All") -or (${PLASTER_PARAM_Features} -Contains ("DSCResources") -and ${PLASTER_PARAM_Features} -Contains ("SampleScripts"))'
-    /> -->
+    />
+
+    <!--   DSCResource Examples Sample Files -->
+
+    <file source='Sampler/Examples/Resources/**'
+          destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/Examples/Resources/'
+          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild") -or ${PLASTER_PARAM_Features} -Contains ("All") -or (${PLASTER_PARAM_Features} -Contains ("DSCResources") -and ${PLASTER_PARAM_Features} -Contains ("SampleScripts"))'
+    />
     <!-- END OF DSCResources files and folders -->
 
     <!-- MODULE MANIFEST -->
