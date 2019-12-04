@@ -8,6 +8,7 @@
 # OutputDirectory: ../output/Sampler
 CopyDirectories:
   - en-US
+  - DSCResources
 # SemVer: '1.2.3'
 # Suffix to add to Root module PSM1 after merge (here, the Set-Alias exporting IB tasks)
 # suffix: suffix.ps1
