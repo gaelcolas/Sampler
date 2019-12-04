@@ -50,6 +50,7 @@ BuildWorkflow:
   test:
     - Pester_Tests_Stop_On_Fail
     - Pester_if_Code_Coverage_Under_Threshold
+    - DscResource_Tests_Stop_On_Fail
 
   publish:
     - Publish_release_to_GitHub
@@ -77,6 +78,13 @@ Pester: #Passthru, OutputFile, CodeCoverageOutputFile not supported
   Tag:
   CodeCoverageThreshold: 50 # Set to 0 to bypass
 
+DscTest:
+  # OutputFolder:
+  # OutputFormat: NUnitXML
+  # ExcludeTag:
+  # ExcludeSourceFile:
+  # ExcludeModuleFile:
+  # Tag:
 
 Resolve-Dependency: #Parameters for Resolve-Dependency
   #PSDependTarget: ./output/modules

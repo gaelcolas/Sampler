@@ -72,6 +72,9 @@ DscTest:
   ExcludeTag:
     - DscPSSA
   Tag:
+  # ExcludeSourceFile:
+  ExcludeModuleFile:
+    - Assets
 
 ####################################################
 #       Sampler Pipeline Configuration             #

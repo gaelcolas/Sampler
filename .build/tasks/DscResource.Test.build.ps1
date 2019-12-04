@@ -85,8 +85,8 @@ task Invoke_DscResource_tests {
     $DscTestExcludeTag = $DscTestExcludeTag.Where{ ![string]::IsNullOrEmpty($_) }
 
     $DefaultDscTestParams = @{
-        #OutputFormat = 'NUnitXML'
-        #OutputFile                   = $DscTestOutputFullPath
+        OutputFormat = 'NUnitXML'
+        OutputFile   = $DscTestOutputFullPath
         PassThru     = $true
         # ProjectPath  = $ProjectPath
         #ExcludeTag                   = 'FunctionalQuality', 'TestQuality', 'helpQuality'
@@ -168,8 +168,8 @@ task Invoke_DscResource_tests {
 
 
     $DscTestParams = @{
-        # OutputFormat = $DscTestOutputFormat
-        # OutputFile   = $DscTestOutputFullPath
+        OutputFormat = $DscTestOutputFormat
+        OutputFile   = $DscTestOutputFullPath
         PassThru     = $true
         Module  = $ProjectName
         #ExcludeTag                   = 'FunctionalQuality', 'TestQuality', 'helpQuality'
