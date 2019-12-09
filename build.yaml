@@ -34,7 +34,7 @@ NestedModule:
     # prefix:
   DscResource.Common:
     CopyOnly: true
-    # Path: ./$ProjectName/Modules/DscResource.Common # relative to $buildroot, default to '$sourcePath/Modules/$NestedModuleName'
+    Path: ./output/RequiredModules/DscResource.Common # relative to $buildroot, default to '$sourcePath/Modules/$NestedModuleName'
     # Destination: './output/$ProjectName/$ModuleVersionFolder/Modules/$NestedModuleName' # or override with path relative to $buildroot
     AddToManifest: false
     include: '*.*'

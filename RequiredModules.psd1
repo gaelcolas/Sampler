@@ -19,9 +19,6 @@
     'DscResource.AnalyzerRules' = 'latest'
     xDscResourceDesigner        = 'latest'
     # PSPKI                       = 'latest'
-    'DscResource.Common' = @{
-        Target     = 'Sampler/Modules'
-        Version    = 'latest'
-    }
+    'DscResource.Common' = 'latest'
 
 }
