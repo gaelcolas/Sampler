@@ -7,8 +7,8 @@
 # Output Directory where ModuleBuilder will build the Module, relative to module manifest
 # OutputDirectory: ../output/Sampler
 CopyDirectories:
-  #- DSCResources
   #- HelperSubmodule # This will be built as submodule instead
+  - DSCResources
   - ../.build/tasks
   - en-US
   - Assets
@@ -28,8 +28,21 @@ NestedModule:
     # $ModuleVersionFolder is trimmed (remove metadata & Prerelease tag) and OutputDirectory expanded (the only one)
     OutputDirectory: ./output/$ProjectName/$ModuleVersionFolder/Modules/HelperSubmodule
     VersionedOutputDirectory: false
+    AddToManifest: false
+    SemVer: $ModuleVersionFolder
     # suffix:
     # prefix:
+  DscResource.Common:
+    CopyOnly: true
+    Path: ./output/RequiredModules/DscResource.Common # relative to $buildroot, default to '$sourcePath/Modules/$NestedModuleName'
+    # Destination: './output/$ProjectName/$ModuleVersionFolder/Modules/$NestedModuleName' # or override with path relative to $buildroot
+    AddToManifest: false
+    # include: '*.*'
+    Exclude: PSGetModuleInfo.xml
+    #Filter:
+  Folder.Common:
+    CopyOnly: true
+    AddToManifest: false
 
 ####################################################
 #       PESTER  Configuration                      #
@@ -42,6 +55,7 @@ Pester:
   ExcludeFromCodeCoverage:
     - tasks
     - Templates
+    - Modules/DscResource.Common
   # Default is to use the tests folder in the project folder or source folder (if present)
   # can use it to prioritize: tests/QA, tests/Unit, tests/Integration
   Script:
@@ -51,8 +65,17 @@ Pester:
   # - tests/Integration
   ExcludeTag:
   Tag:
-  CodeCoverageThreshold: 50 # Set to 0 to bypass
+  CodeCoverageThreshold: 35 # Set to 0 to bypass
 
+DscTest:
+  # OutputFolder:
+  # OutputFormat: NUnitXML
+  ExcludeTag:
+    - DscPSSA
+  Tag:
+  # ExcludeSourceFile:
+  ExcludeModuleFile:
+    - Assets
 
 ####################################################
 #       Sampler Pipeline Configuration             #
@@ -89,6 +112,7 @@ BuildWorkflow:
   test:
     - Pester_Tests_Stop_On_Fail
     - Pester_if_Code_Coverage_Under_Threshold
+    - DscResource_Tests_Stop_On_Fail
 
   publish:
     - publish_nupkg_to_gallery  # runs if nuget is available (prefered)

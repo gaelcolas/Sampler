@@ -5,3 +5,4 @@ output/*
 
 !**/README.md
 DscResource.tests
+Sampler/Modules/DscResource.Common

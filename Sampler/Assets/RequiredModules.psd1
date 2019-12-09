@@ -7,14 +7,21 @@
         }
     }
 
-    invokeBuild          = 'latest'
-    PSScriptAnalyzer     = 'latest'
-    pester               = 'latest'
-    Plaster              = 'latest'
-    ModuleBuilder        = 'latest'
-    ChangelogManagement  = 'latest'
-    Sampler              = 'latest'
+    invokeBuild                 = 'latest'
+    PSScriptAnalyzer            = 'latest'
+    pester                      = 'latest'
+    Plaster                     = 'latest'
+    ModuleBuilder               = 'latest'
+    ChangelogManagement         = 'latest'
+    Sampler                     = 'latest'
+    'DscResource.Test'          = 'latest'
+    'DscResource.AnalyzerRules' = 'latest'
+    xDscResourceDesigner        = 'latest'
 
-    #required for DSC authoring
-    # xDscResourceDesigner = 'latest'
+
+    # PSPKI                       = 'latest'
+    # 'DscResource.Common' = @{
+    #     Target     = 'Source/Modules'
+    #     Version    = 'latest'
+    # }
 }

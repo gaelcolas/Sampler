@@ -1,13 +1,15 @@
 # This file is not needed, a COMPILED version will be built by ModuleBuilder
 ##Import Enums
 
-foreach ($Enum in (Get-ChildItem "$PSScriptRoot\Enums" -ErrorAction SilentlyContinue)) {
+foreach ($Enum in (Get-ChildItem "$PSScriptRoot\Enums" -ErrorAction SilentlyContinue))
+{
     . $Enum
 }
 
 ##Import Classes
 
-foreach ($class in (Get-ChildItem "$PSScriptRoot\Classes" -ErrorAction SilentlyContinue)) {
+foreach ($class in (Get-ChildItem "$PSScriptRoot\Classes" -ErrorAction SilentlyContinue))
+{
     . $Class
 }
 

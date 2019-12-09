@@ -61,7 +61,7 @@ RequiredModules = @(
 # FormatsToProcess = @()
 
 # Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
-# NestedModules = @()
+NestedModules = @()
 
 # Functions to export from this module
 FunctionsToExport = ''
@@ -76,7 +76,7 @@ VariablesToExport = ''
 AliasesToExport =   '*'
 
 # List of all modules packaged with this module
-# ModuleList = @()
+ModuleList      = @()
 
 # List of all files packaged with this module
 # FileList = @()

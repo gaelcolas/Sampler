@@ -1,4 +1,5 @@
-function Get-Something {
+function Get-Something
+{
     <#
       .SYNOPSIS
       Sample Function to return input string.
@@ -15,27 +16,30 @@ function Get-Something {
 
       #>
     [cmdletBinding(
-            SupportsShouldProcess=$true,
-            ConfirmImpact='Low'
-            )]
-    Param(
+        SupportsShouldProcess = $true,
+        ConfirmImpact = 'Low'
+    )]
+    param
+    (
         [Parameter(
-            Mandatory
-            ,ValueFromPipeline
-            ,ValueFromPipelineByPropertyName
-            )]
+            Mandatory = $true
+            , ValueFromPipeline = $true
+            , ValueFromPipelineByPropertyName = $true
+        )]
         [String]
         $Data
     )
 
-    Process {
-        if ($pscmdlet.ShouldProcess($Data)) {
+    Process
+    {
+        if ($pscmdlet.ShouldProcess($Data))
+        {
             Write-Verbose ('Returning the data: {0}' -f $Data)
             Get-PrivateFunction -PrivateData $Data
         }
-        else {
+        else
+        {
             Write-Verbose 'oh dear'
         }
     }
-
 }

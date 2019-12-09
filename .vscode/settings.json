@@ -10,8 +10,8 @@
     "powershell.codeFormatting.preset": "Custom",
     "files.trimTrailingWhitespace": true,
     "files.insertFinalNewline": true,
-    "powershell.scriptAnalysis.settingsPath": ".vscode\\analyzersettings.psd1",
-    "powershell.scriptAnalysis.enable": true,
+    // "powershell.scriptAnalysis.settingsPath": ".vscode\\analyzersettings.psd1",
+    // "powershell.scriptAnalysis.enable": true,
     "files.associations": {
         "*.ps1xml": "xml"
     },
@@ -22,8 +22,16 @@
         "PROJECTURI",
         "RELEASENOTES",
         "buildhelpers",
+        "endregion",
         "gitversion",
+        "icontains",
         "keepachangelog",
-        "pscmdlet"
-    ]
+        "notin",
+        "pscmdlet",
+        "steppable"
+    ],
+    "[markdown]": {
+        "files.trimTrailingWhitespace": false,
+        "files.encoding": "utf8"
+    }
 }

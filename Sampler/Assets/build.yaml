@@ -8,6 +8,7 @@
 # OutputDirectory: ../output/Sampler
 CopyDirectories:
   - en-US
+  - DSCResources
 # SemVer: '1.2.3'
 # Suffix to add to Root module PSM1 after merge (here, the Set-Alias exporting IB tasks)
 # suffix: suffix.ps1
@@ -43,12 +44,14 @@ BuildWorkflow:
     - Create_changelog_release_output
 
   pack:
+    - build
     - package_module_nupkg
 
   # defining test task to be run when invoking `./build.ps1 -Tasks test`
   test:
     - Pester_Tests_Stop_On_Fail
     - Pester_if_Code_Coverage_Under_Threshold
+    - DscResource_Tests_Stop_On_Fail
 
   publish:
     - Publish_release_to_GitHub
@@ -76,6 +79,13 @@ Pester: #Passthru, OutputFile, CodeCoverageOutputFile not supported
   Tag:
   CodeCoverageThreshold: 50 # Set to 0 to bypass
 
+DscTest:
+  # OutputFolder:
+  # OutputFormat: NUnitXML
+  # ExcludeTag:
+  # ExcludeSourceFile:
+  # ExcludeModuleFile:
+  # Tag:
 
 Resolve-Dependency: #Parameters for Resolve-Dependency
   #PSDependTarget: ./output/modules
