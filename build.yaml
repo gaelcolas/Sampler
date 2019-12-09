@@ -38,6 +38,7 @@ NestedModule:
     # Destination: './output/$ProjectName/$ModuleVersionFolder/Modules/$NestedModuleName' # or override with path relative to $buildroot
     AddToManifest: false
     Exclude: PSGetModuleInfo.xml
+    Verbose: true
     #Filter:
   Folder.Common:
     CopyOnly: true
