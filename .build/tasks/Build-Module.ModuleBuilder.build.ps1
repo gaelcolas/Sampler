@@ -182,8 +182,11 @@ Task Build_NestedModules_ModuleBuilder {
             }
         }
         $BuiltModuleBase = Split-Path -Parent -Path $BuiltModuleManifest
-
         Write-Build -color Green "$($cmd.Verb) $NestedModuleName..."
+        if ($cmdParam.Verbose) {
+            gci -Recurse (Join-Path $SourcePath 'Modules')
+            Write-Verbose ($CmdParam | ConvertTo-Json)
+        }
         &$cmd @cmdParam
 
         if ($AddToManifest) {
