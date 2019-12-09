@@ -39,6 +39,7 @@ NestedModule:
     AddToManifest: false
     Exclude: PSGetModuleInfo.xml
     Verbose: true
+    ErrorAction: Stop
     #Filter:
   Folder.Common:
     CopyOnly: true
