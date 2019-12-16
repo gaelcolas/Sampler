@@ -65,17 +65,18 @@ Pester:
   # - tests/Integration
   ExcludeTag:
   Tag:
-  CodeCoverageThreshold: 35 # Set to 0 to bypass
+  CodeCoverageThreshold: 0 # Set to 0 to bypass
 
 DscTest:
-  # OutputFolder:
-  # OutputFormat: NUnitXML
   ExcludeTag:
-    - DscPSSA
+    - "Common Tests - New Error-Level Script Analyzer Rules"
   Tag:
-  # ExcludeSourceFile:
+  ExcludeSourceFile:
+    - output
+    - Modules/DscResource.Common
   ExcludeModuleFile:
-    - Assets
+    - Templates
+    - Modules/DscResource.Common
 
 ####################################################
 #       Sampler Pipeline Configuration             #

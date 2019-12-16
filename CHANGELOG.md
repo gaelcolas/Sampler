@@ -11,6 +11,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added Module manifest in build.psd1 template to fix issue resolving Project on linux.
 - Added DSC Resources & Supporting modules (including one from PSGallery, one from source)
+- Added PesterScript parameter in Build.ps1 so that it can be overridden at runtime (in azure-pipelines.yml)
+- Added `Modules` commented out to the `build.yml`
+
+### Changed
+
+- Made Code Coverage threshold to load from config file, and be skipped completely if set to 0 or absent
+
+### Fixed
+
+- Made build.ps1 & Resolve-Dependency.ps1 compliant with DSC Style guidelines
+- removed unneccessary file from Plaster template
 
 ## [0.96.0] - 2019-11-01
 

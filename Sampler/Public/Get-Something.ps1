@@ -30,7 +30,7 @@ function Get-Something
         $Data
     )
 
-    Process
+    process
     {
         if ($pscmdlet.ShouldProcess($Data))
         {

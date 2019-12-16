@@ -89,7 +89,6 @@ task Invoke_DscResource_tests {
         OutputFile   = $DscTestOutputFullPath
         PassThru     = $true
         # ProjectPath  = $ProjectPath
-        #ExcludeTag                   = 'FunctionalQuality', 'TestQuality', 'helpQuality'
     }
 
     # Build.ps1 parameters should be top priority
@@ -97,7 +96,7 @@ task Invoke_DscResource_tests {
     # Otherwise we should set some defaults
     Import-Module Pester,DscResource.Test -ErrorAction Stop
     $DscTestCmd = Get-Command Invoke-DscResourceTest
-    Foreach ($ParamName in $DscTestCmd.Parameters.Keys)
+    foreach ($ParamName in $DscTestCmd.Parameters.Keys)
     {
         $TaskParamName = "DscTest$ParamName"
         if (!(Get-Variable -Name $TaskParamName -ValueOnly -ErrorAction SilentlyContinue) -and ($DscTestBuildConfig = $BuildInfo.DscTest))
@@ -123,7 +122,7 @@ task Invoke_DscResource_tests {
 
     "`tProject Path  = $ProjectPath"
     "`tProject Name  = $ProjectName"
-    "`tTest Scripts  = >>>$($DscTestScript -join ', ')<<< $($DscTestScript.Count)"
+    "`tTest Scripts  = $($DscTestScript -join ', ')"
     "`tTags          = $($DscTestTag -join ', ')"
     "`tExclude Tags  = $($DscTestExcludeTag -join ', ')"
     "`tModuleVersion = $ModuleVersion"
@@ -171,8 +170,19 @@ task Invoke_DscResource_tests {
         OutputFormat = $DscTestOutputFormat
         OutputFile   = $DscTestOutputFullPath
         PassThru     = $true
-        Module  = $ProjectName
-        #ExcludeTag                   = 'FunctionalQuality', 'TestQuality', 'helpQuality'
+    }
+
+    if ($DscTestModule)
+    {
+        $DscTestParams.Add('Module', $DscTestModule)
+    }
+    elseif ($DscTestFullyQualifiedModule)
+    {
+        $DscTestParams.Add('FullyQualifiedModule', $DscTestFullyQualifiedModule)
+    }
+    else
+    {
+        $DscTestParams.Add('ProjectPath', $ProjectPath)
     }
 
     if ($DscTestExcludeTag.count -gt 0)
@@ -185,7 +195,7 @@ task Invoke_DscResource_tests {
         $DscTestParams.Add('Tag', $DscTestTag)
     }
 
-    # Test folders is specified, do not run invoke-DscTest against $BuildRoot
+    # Test folders is specified, override invoke-DscResourceTest internal default
     if ($DscTestScript.count -gt 0)
     {
         $DscTestParams.Add('Script', @())
@@ -217,7 +227,7 @@ task Invoke_DscResource_tests {
 Write-Host -ForegroundColor Yellow ($DscTestParams | ConvertTo-JSOn)
     $script:TestResults = Invoke-DscResourceTest @DscTestParams
     $DscTestResultObjectCliXml = Join-Path $DscTestOutputFolder "DscTestObject_$DscTestOutputFileFileName"
-    $null = $script:TestResults | Export-Clixml -Path $DscTestResultObjectCliXml -Force
+    $null = $script:TestResults | Export-CliXml -Path $DscTestResultObjectCliXml -Force
 
 }
 

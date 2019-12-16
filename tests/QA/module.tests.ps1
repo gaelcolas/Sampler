@@ -25,7 +25,7 @@ $allModuleFunctions = &$mut {Get-Command -Module $args[0] -CommandType Function 
             $MasterCommit = &git rev-parse origin/master
             $filesChanged = &git diff $MasterCommit...$HeadCommit --name-only
 
-            if($HeadCommit -ne $MasterCommit) { # if we're not testing same commit (i.e. master..master)
+            if ($HeadCommit -ne $MasterCommit) { # if we're not testing same commit (i.e. master..master)
                 $filesChanged.Where{ (Split-Path $_ -Leaf) -match '^changelog' } | Should -Not -BeNullOrEmpty
             }
         }

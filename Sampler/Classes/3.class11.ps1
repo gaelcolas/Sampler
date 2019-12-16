@@ -1,8 +1,8 @@
-Class class11 : class1
+class Class11 : Class1
 {
     [string]$Name = 'Class11'
 
-    class11 ()
+    Class11 ()
     {
     }
 
