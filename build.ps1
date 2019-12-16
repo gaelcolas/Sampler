@@ -251,9 +251,9 @@ Begin
         }
 
 
-        if ($BuildModuleSubdirectory)
+        if ($BuiltModuleSubdirectory)
         {
-            if (-Not (Split-Path -IsAbsolute $BuildModuleSubdirectory))
+            if (-Not (Split-Path -IsAbsolute $BuiltModuleSubdirectory))
             {
                 $BuildModuleOutput = Join-Path $OutputDirectory $BuiltModuleSubdirectory
             }
@@ -264,7 +264,7 @@ Begin
         }
         else
         {
-            $BuildModuleSubdirectory = $OutputDirectory
+            $BuildModuleOutput = $OutputDirectory
         }
 
         # Prepending $BuildModuleOutput folder to PSModulePath to resolve built module from this folder

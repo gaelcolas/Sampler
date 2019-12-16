@@ -43,7 +43,7 @@ Param (
 
     [Parameter()]
     [String]
-    $BuildModuleOutput = (property BuildModuleOutput ([io.path]::Combine($OutputDirectory, $BuiltModuleSubdirectory, $ProjectName))),
+    $BuildModuleOutput = (property BuildModuleOutput (Join-Path $OutputDirectory $BuiltModuleSubdirectory)),
 
     [Parameter()]
     [String]
@@ -109,7 +109,7 @@ Task Build_Module_ModuleBuilder {
             Write-Build -Color DarkGray "Adding $ParamName with value $ValueFromBuildParam from current Variables"
             if ($ParamName -eq 'OutputDirectory')
             {
-                $BuildModuleParams.add($ParamName, $BuildModuleOutput)
+                $BuildModuleParams.add($ParamName, (Join-Path $BuildModuleOutput $ProjectName))
             }
             else
             {
@@ -145,7 +145,7 @@ Task Build_NestedModules_ModuleBuilder {
     " BuildModuleOutput = $BuildModuleOutput"
 
     Import-Module ModuleBuilder -ErrorAction Stop
-    $BuiltModuleManifest = "$BuildModuleOutput/*/$ProjectName.psd1"
+    $BuiltModuleManifest = "$BuildModuleOutput/$ProjectName/*/$ProjectName.psd1"
     $ModuleInfo = Import-PowerShellDataFile $BuiltModuleManifest -ErrorAction Stop
 
     if ([String]::IsNullOrEmpty($ModuleVersion))
@@ -197,7 +197,7 @@ Task Build_NestedModules_ModuleBuilder {
             # Set default Destination (substitute later)
             if (!$cmdParam.ContainsKey('Destination'))
             {
-                $cmdParam['Destination'] = './output/$ProjectName/$ModuleVersionFolder/Modules/$NestedModuleName'
+                $cmdParam['Destination'] = '$BuildModuleOutput/$ProjectName/$ModuleVersionFolder/Modules/$NestedModuleName'
             }
             Write-Build -color yellow "Copying Nested Module files for $NestedModuleName"
         }

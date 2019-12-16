@@ -26,7 +26,7 @@ NestedModule:
   HelperSubmodule: # This is the first submodule to build into the output
     Path: ./*/Modules/HelperSubmodule/HelperSubmodule.psd1
     # $ModuleVersionFolder is trimmed (remove metadata & Prerelease tag) and OutputDirectory expanded (the only one)
-    OutputDirectory: ./output/$ProjectName/$ModuleVersionFolder/Modules/HelperSubmodule
+    OutputDirectory: $BuildModuleOutput/$ProjectName/$ModuleVersionFolder/Modules/HelperSubmodule
     VersionedOutputDirectory: false
     AddToManifest: false
     SemVer: $ModuleVersionFolder
@@ -87,7 +87,8 @@ BuildWorkflow:
     {
       # Create a Build task from the Yaml (Because we dont want this task to be in the .build folder)
       # so that it's not copied and made accessible in the Sampler Module.
-      $PlasterTemplateFolder = Get-Item ./output/Sampler/*/Templates/Sampler
+      $PlasterTemplateFolder = Get-Item $BuildModuleOutput/$ProjectName/*/Templates/Sampler
+      # ./output/Sampler/*/Templates/Sampler
       $ToCopy = Get-ChildItem -Force . -Exclude .git,output
       foreach ($item in $toCopy) {
         Copy-Item -recurse -Force -Path $item -Destination (Join-Path $PlasterTemplateFolder $item.Name)

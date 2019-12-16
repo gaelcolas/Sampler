@@ -118,6 +118,6 @@ TaskHeader: |
 GitHubConfig:
   GitHubFilesToAdd:
     - 'CHANGELOG.md'
-  GitHubConfigUserName: gaelcolas
-  GitHubConfigUserEmail: gaelcolas@synedgy.com
+  GitHubConfigUserName: dscbot
+  GitHubConfigUserEmail: dsccommunity@outlook.com
   UpdateChangelogOnPrerelease: false
