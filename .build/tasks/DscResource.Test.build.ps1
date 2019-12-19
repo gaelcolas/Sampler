@@ -126,12 +126,13 @@ task Invoke_DscResource_tests {
     "`tTags          = $($DscTestTag -join ', ')"
     "`tExclude Tags  = $($DscTestExcludeTag -join ', ')"
     "`tModuleVersion = $ModuleVersion"
+    "`tBuildModuleOutput = $BuildModuleOutput"
 
 
 
     if ([String]::IsNullOrEmpty($ModuleVersion))
     {
-        $ModuleInfo = Import-PowerShellDataFile "$OutputDirectory/$ProjectName/*/$ProjectName.psd1" -ErrorAction Stop
+        $ModuleInfo = Import-PowerShellDataFile "$BuildModuleOutput/$ProjectName/*/$ProjectName.psd1" -ErrorAction Stop
         if ($PreReleaseTag = $ModuleInfo.PrivateData.PSData.Prerelease)
         {
             $ModuleVersion = $ModuleInfo.ModuleVersion + "-" + $PreReleaseTag
@@ -224,7 +225,7 @@ task Invoke_DscResource_tests {
             $DscTestParams.Add($ParamName, $ParamValueFromScope)
         }
     }
-Write-Host -ForegroundColor Yellow ($DscTestParams | ConvertTo-JSOn)
+    Write-Verbose -Message ($DscTestParams | ConvertTo-Json)
     $script:TestResults = Invoke-DscResourceTest @DscTestParams
     $DscTestResultObjectCliXml = Join-Path $DscTestOutputFolder "DscTestObject_$DscTestOutputFileFileName"
     $null = $script:TestResults | Export-CliXml -Path $DscTestResultObjectCliXml -Force
