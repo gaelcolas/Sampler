@@ -13,6 +13,7 @@ CopyDirectories:
   - en-US
   - Assets
   - Templates
+Encoding: UTF8
 
 # Suffix to add to Root module PSM1 after merge (here, the Set-Alias exporting IB tasks)
 suffix: suffix.ps1
