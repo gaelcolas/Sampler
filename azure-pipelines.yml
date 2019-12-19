@@ -58,6 +58,7 @@ stages:
               arguments: '-tasks test'
 
           - task: PublishTestResults@2
+            condition: succeededOrFailed()
             inputs:
               testResultsFormat: 'NUnit'
               testResultsFiles: 'output/testResults/NUnit*.xml'
@@ -65,9 +66,12 @@ stages:
 
           # Publish code coverage results
           - task: PublishCodeCoverageResults@1
+            condition: succeededOrFailed()
             inputs:
               codeCoverageTool: 'JaCoCo'
               summaryFileLocation: 'output/testResults/CodeCov*.xml'
+              pathToSources: $(Build.Repository.LocalPath)/output/$(Build.Repository.Name)
+
       - job: test_windows_core
         pool:
           vmImage: 'win1803'
@@ -87,6 +91,7 @@ stages:
               pwsh: true
 
           - task: PublishTestResults@2
+            condition: succeededOrFailed()
             inputs:
               testResultsFormat: 'NUnit'
               testResultsFiles: 'output/testResults/NUnit*.xml'
@@ -94,9 +99,12 @@ stages:
 
           # Publish code coverage results
           - task: PublishCodeCoverageResults@1
+            condition: succeededOrFailed()
             inputs:
               codeCoverageTool: 'JaCoCo'
               summaryFileLocation: 'output/testResults/CodeCov*.xml'
+              pathToSources: $(Build.Repository.LocalPath)/output/$(Build.Repository.Name)
+
       - job: test_windows_ps
         pool:
           vmImage: 'win1803'
@@ -116,6 +124,7 @@ stages:
               pwsh: false
 
           - task: PublishTestResults@2
+            condition: succeededOrFailed()
             inputs:
               testResultsFormat: 'NUnit'
               testResultsFiles: 'output/testResults/NUnit*.xml'
@@ -123,9 +132,12 @@ stages:
 
           # Publish code coverage results
           - task: PublishCodeCoverageResults@1
+            condition: succeededOrFailed()
             inputs:
               codeCoverageTool: 'JaCoCo'
               summaryFileLocation: 'output/testResults/CodeCov*.xml'
+              pathToSources: $(Build.Repository.LocalPath)/output/$(Build.Repository.Name)
+
       - job: test_macos
         pool:
           vmImage: 'macos-latest'
@@ -145,15 +157,18 @@ stages:
               pwsh: true
 
           - task: PublishTestResults@2
+            condition: succeededOrFailed()
             inputs:
               testResultsFormat: 'NUnit'
               testResultsFiles: 'output/testResults/NUnit*.xml'
 
           # Publish code coverage results
           - task: PublishCodeCoverageResults@1
+            condition: succeededOrFailed()
             inputs:
               codeCoverageTool: 'JaCoCo'
               summaryFileLocation: 'output/testResults/CodeCov*.xml'
+              pathToSources: $(Build.Repository.LocalPath)/output/$(Build.Repository.Name)
 
   - stage: Deploy
     dependsOn: test_module
