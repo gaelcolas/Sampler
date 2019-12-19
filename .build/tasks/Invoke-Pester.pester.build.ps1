@@ -82,6 +82,11 @@ task Invoke_pester_tests {
         $null = New-Item -ItemType Directory -force $PesterOutputFolder -ErrorAction Stop
     }
 
+    # If no codeCoverageThreshold configured at runtime, look for BuildInfo settings.
+    if ($CodeCoverageThreshold -le 0) {
+        $CodeCoverageThreshold = $BuildInfo.Pester.CodeCoverageThreshold
+    }
+
     $DefaultPesterParams = @{
         OutputFormat                 = 'NUnitXML'
         #OutputFile                   = $PesterOutputFullPath
@@ -185,12 +190,16 @@ task Invoke_pester_tests {
         PassThru                     = $true
     }
 
-    if (!$codeCoverageThreshold -or $codeCoverageThreshold -gt 0) {
+    $CodeCoverageOutputFile = (Join-Path $PesterOutputFolder "CodeCov_$PesterOutputFileFileName")
+
+    if ($codeCoverageThreshold -gt 0) {
         $PesterParams.Add('CodeCoverage', $PesterCodeCoverage)
-        $PesterParams.Add('CodeCoverageOutputFile', (Join-Path $PesterOutputFolder "CodeCov_$PesterOutputFileFileName"))
+        $PesterParams.Add('CodeCoverageOutputFile', $CodeCoverageOutputFile)
         $PesterParams.Add('CodeCoverageOutputFileFormat', $PesterCodeCoverageOutputFileFormat)
     }
-
+    "`tCodeCoverage  = $($PesterParams['CodeCoverage'])"
+    "`tCodeCoverageOutputFile  = $($PesterParams['CodeCoverageOutputFile'])"
+    "`tCodeCoverageOutputFileFormat  = $($PesterParams['CodeCoverageOutputFileFormat'])"
 
     if ($PesterExcludeTag.count -gt 0) {
         $PesterParams.Add('ExcludeTag', $PesterExcludeTag)
@@ -226,8 +235,11 @@ task Invoke_pester_tests {
         }
     }
 
-    if (!$CodeCoverageParam -or $CodeCoverageParam -eq 0) {
-        foreach ($CodeCovParam in $PesterParams.Keys.Where{$_ -like 'CodeCov*'}) {
+    if ($codeCoverageThreshold -eq 0 -or (-not $codeCoverageThreshold))
+    {
+        Write-Build DarkGray "Removing Code Coverage parameters"
+        foreach ($CodeCovParam in $PesterParams.Keys.Where{ $_ -like 'CodeCov*' })
+        {
             $PesterParams.Remove($CodeCovParam)
         }
     }
