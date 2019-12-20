@@ -257,9 +257,9 @@ Begin
         # Checking if the user should -ResolveDependency
         if ((!(Get-Module -ListAvailable powershell-yaml) -or !(Get-Module -ListAvailable InvokeBuild) -or !(Get-Module -ListAvailable PSDepend)) -and !$ResolveDependency)
         {
-            if ($AutoRestore -or !$PSBoundParameters.ContainsKey('Tasks'))
+            if ($AutoRestore -or !$PSBoundParameters.ContainsKey('Tasks') -or $Tasks -contains 'build')
             {
-                Write-Host -ForegroundColor Yellow "[pre-build] Automatically downloading Dependencies`r`n"
+                Write-Host -ForegroundColor Yellow "[pre-build] Dependency missing, running './build.ps1 -ResolveDependency -Tasks noop' for you `r`n"
                 $ResolveDependency = $true
             }
             else
