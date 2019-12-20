@@ -6,6 +6,7 @@ $script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 
 Import-Module -Name DscResource.Test -Force -ErrorAction Stop
 
+Remove-Module $script:dscResourceName -force -ErrorAction SilentlyContinue
 $TestEnvironment = Initialize-TestEnvironment `
     -DSCModuleName $script:dscModuleName `
     -DSCResourceName $script:dscResourceName `

@@ -53,7 +53,11 @@ param
 
     [Parameter(DontShow)]
     [AllowNull()]
-    $BuildInfo
+    $BuildInfo,
+
+    [Parameter()]
+    [switch]
+    $AutoRestore
 )
 
 # The BEGIN block (at the end of this file) handles the Bootstrap of the Environment before Invoke-Build can run the tasks
@@ -250,6 +254,20 @@ Begin
             $Env:PSModulePath = $RequiredModulesDirectory + [io.path]::PathSeparator + $Env:PSModulePath
         }
 
+        # Checking if the user should -ResolveDependency
+        if ((!(Get-Module -ListAvailable powershell-yaml) -or !(Get-Module -ListAvailable InvokeBuild) -or !(Get-Module -ListAvailable PSDepend)) -and !$ResolveDependency)
+        {
+            if ($AutoRestore -or !$PSBoundParameters.ContainsKey('Tasks'))
+            {
+                Write-Host -ForegroundColor Yellow "[pre-build] Automatically downloading Dependencies`r`n"
+                $ResolveDependency = $true
+            }
+            else
+            {
+                Write-Warning "Some required Modules are missing, make sure you first run with the '-ResolveDependency' parameter."
+                Write-Warning "Running 'build.ps1 -ResolveDependency -Tasks noop' will pull required modules without running the build task."
+            }
+        }
 
         if ($BuiltModuleSubdirectory)
         {
