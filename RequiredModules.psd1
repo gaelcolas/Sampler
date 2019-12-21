@@ -7,18 +7,17 @@
         }
     }
 
-    invokeBuild          = 'latest'
-    PSScriptAnalyzer     = 'latest'
-    pester               = 'latest'
-    Plaster              = 'latest'
-    ModuleBuilder        = '1.0.0'
-    # buildhelpers         = 'latest'
-    # PSDeploy             = 'latest'
-    ChangelogManagement  = 'latest'
-    'DscResource.Test'   = 'latest'
+    invokeBuild                 = 'latest'
+    PSScriptAnalyzer            = 'latest'
+    pester                      = 'latest'
+    Plaster                     = 'latest'
+    ModuleBuilder               = '1.0.0'
+    MarkdownLinkCheck           = 'latest'
+    ChangelogManagement         = 'latest'
+    'DscResource.Test'          = 'latest'
     'DscResource.AnalyzerRules' = 'latest'
     xDscResourceDesigner        = 'latest'
     # PSPKI                       = 'latest'
-    'DscResource.Common' = 'latest'
+    'DscResource.Common'        = 'latest'
 
 }
