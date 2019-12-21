@@ -48,7 +48,6 @@ Describe 'Plaster Templates creates a complete Module scaffolding' {
         ,@{fileName = "TestDrive:\$ModuleName\.gitignore"}
         ,@{fileName = "TestDrive:\$ModuleName\.gitattributes"}
         ,@{fileName = "TestDrive:\$ModuleName\.kitchen.yml"}
-        ,@{fileName = "TestDrive:\$ModuleName\Deploy.PSDeploy.ps1"}
         ,@{fileName = "TestDrive:\$ModuleName\build.ps1"}
         ,@{fileName = "TestDrive:\$ModuleName\RequiredModules.psd1"}
         ,@{fileName = "TestDrive:\$ModuleName\Resolve-Dependency.ps1"}
