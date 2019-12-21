@@ -58,7 +58,7 @@ Param (
 
     [Parameter()]
     [int]
-    $CodeCoverageThreshold = (property CodeCoverageThreshold 100),
+    $CodeCoverageThreshold = (property CodeCoverageThreshold ''),
 
     # Build Configuration object
     [Parameter()]
@@ -76,9 +76,15 @@ task Invoke_pester_tests {
         $PesterOutputFolder = Join-Path $OutputDirectory $PesterOutputFolder
     }
 
-    if (!(Test-Path $PesterOutputFolder)) {
+    if (!(Test-Path $PesterOutputFolder))
+    {
         Write-Build Yellow "Creating folder $PesterOutputFolder"
         $null = New-Item -ItemType Directory -force $PesterOutputFolder -ErrorAction Stop
+    }
+
+    # If no codeCoverageThreshold configured at runtime, look for BuildInfo settings.
+    if ($CodeCoverageThreshold -le 0) {
+        $CodeCoverageThreshold = $BuildInfo.Pester.CodeCoverageThreshold
     }
 
     $DefaultPesterParams = @{
@@ -98,7 +104,7 @@ task Invoke_pester_tests {
     # BuildInfo values should come next
     # Otherwise we should set some defaults
     $PesterCmd = Get-Command Invoke-Pester
-    Foreach ($ParamName in $PesterCmd.Parameters.Keys) {
+    foreach ($ParamName in $PesterCmd.Parameters.Keys) {
         $TaskParamName = "Pester$ParamName"
         if (!(Get-Variable -Name $TaskParamName -ValueOnly -ErrorAction SilentlyContinue) -and ($PesterBuildConfig = $BuildInfo.Pester)) {
             # The Variable is set to '' so we should try to use the Config'd one if exists
@@ -182,11 +188,18 @@ task Invoke_pester_tests {
         OutputFormat                 = $PesterOutputFormat
         OutputFile                   = $PesterOutputFullPath
         PassThru                     = $true
-        CodeCoverageOutputFileFormat = $PesterCodeCoverageOutputFileFormat
-        CodeCoverage                 = $PesterCodeCoverage
-        CodeCoverageOutputFile       = (Join-Path $PesterOutputFolder "CodeCov_$PesterOutputFileFileName")
-        #ExcludeTag                   = 'FunctionalQuality', 'TestQuality', 'helpQuality'
     }
+
+    $CodeCoverageOutputFile = (Join-Path $PesterOutputFolder "CodeCov_$PesterOutputFileFileName")
+
+    if ($codeCoverageThreshold -gt 0) {
+        $PesterParams.Add('CodeCoverage', $PesterCodeCoverage)
+        $PesterParams.Add('CodeCoverageOutputFile', $CodeCoverageOutputFile)
+        $PesterParams.Add('CodeCoverageOutputFileFormat', $PesterCodeCoverageOutputFileFormat)
+    }
+    "`tCodeCoverage  = $($PesterParams['CodeCoverage'])"
+    "`tCodeCoverageOutputFile  = $($PesterParams['CodeCoverageOutputFile'])"
+    "`tCodeCoverageOutputFileFormat  = $($PesterParams['CodeCoverageOutputFileFormat'])"
 
     if ($PesterExcludeTag.count -gt 0) {
         $PesterParams.Add('ExcludeTag', $PesterExcludeTag)
@@ -213,10 +226,21 @@ task Invoke_pester_tests {
         }
     }
 
-    foreach ($ParamName in $PesterCmd.Parameters.keys) {
+    foreach ($ParamName in $PesterCmd.Parameters.keys)
+    {
         $ParamValueFromScope = (Get-Variable "Pester$ParamName" -ValueOnly -ErrorAction SilentlyContinue)
-        if (!$PesterParams.ContainsKey($ParamName) -and $ParamValueFromScope) {
+        if (!$PesterParams.ContainsKey($ParamName) -and $ParamValueFromScope)
+        {
             $PesterParams.Add($ParamName, $ParamValueFromScope)
+        }
+    }
+
+    if ($codeCoverageThreshold -eq 0 -or (-not $codeCoverageThreshold))
+    {
+        Write-Build DarkGray "Removing Code Coverage parameters"
+        foreach ($CodeCovParam in $PesterParams.Keys.Where{ $_ -like 'CodeCov*' })
+        {
+            $PesterParams.Remove($CodeCovParam)
         }
     }
 
@@ -228,6 +252,7 @@ task Invoke_pester_tests {
 
 # Synopsis: This task ensures the build job fails if the test aren't successful.
 task Fail_Build_if_Pester_Tests_failed -If ($CodeCoverageThreshold -ne 0) {
+
     "Asserting that no test failed"
 
     if (!(Split-Path -isAbsolute $OutputDirectory)) {
@@ -289,6 +314,18 @@ task Fail_Build_if_Pester_Tests_failed -If ($CodeCoverageThreshold -ne 0) {
 # Synopsis: Fails the build if the code coverage is under predefined threshold
 task Pester_if_Code_Coverage_Under_Threshold {
 
+    if (!$CodeCoverageThreshold)
+    {
+        if ($CodeCoverageThreshold = $BuildInfo.Pester.CodeCoverageThreshold)
+        {
+            Write-Verbose "Using CodeCoverage Threshold from config file"
+        }
+        else
+        {
+            $CodeCoverageThreshold = 0
+        }
+    }
+
     if (!(Split-Path -isAbsolute $OutputDirectory)) {
         $OutputDirectory = Join-Path -Path $ProjectPath -ChildPath $OutputDirectory
         Write-Build Yellow "Absolute path to Output Directory is $OutputDirectory"
@@ -347,7 +384,7 @@ task Pester_if_Code_Coverage_Under_Threshold {
             Throw "The Code Coverage FAILURE: ($($Coverage*100) %) is under the threshold of $CodeCoverageThreshold %."
         }
         else {
-            Write-Build Green "Code Coverage SUCCESS with value of $($coverage*100) %"
+            Write-Build Green "Code Coverage SUCCESS with value of $($coverage*100) % (Threshold $CodeCoverageThreshold %)"
         }
     }
 }

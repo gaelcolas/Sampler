@@ -13,6 +13,7 @@ CopyDirectories:
   - en-US
   - Assets
   - Templates
+Encoding: UTF8
 
 # Suffix to add to Root module PSM1 after merge (here, the Set-Alias exporting IB tasks)
 suffix: suffix.ps1
@@ -26,7 +27,7 @@ NestedModule:
   HelperSubmodule: # This is the first submodule to build into the output
     Path: ./*/Modules/HelperSubmodule/HelperSubmodule.psd1
     # $ModuleVersionFolder is trimmed (remove metadata & Prerelease tag) and OutputDirectory expanded (the only one)
-    OutputDirectory: ./output/$ProjectName/$ModuleVersionFolder/Modules/HelperSubmodule
+    OutputDirectory: $BuildModuleOutput/$ProjectName/$ModuleVersionFolder/Modules/HelperSubmodule
     VersionedOutputDirectory: false
     AddToManifest: false
     SemVer: $ModuleVersionFolder
@@ -65,17 +66,19 @@ Pester:
   # - tests/Integration
   ExcludeTag:
   Tag:
-  CodeCoverageThreshold: 35 # Set to 0 to bypass
+  CodeCoverageThreshold: 0 # Set to 0 to bypass
 
 DscTest:
-  # OutputFolder:
-  # OutputFormat: NUnitXML
   ExcludeTag:
-    - DscPSSA
+    - "Common Tests - New Error-Level Script Analyzer Rules"
+    - "Common Tests - Validate Localization"
   Tag:
-  # ExcludeSourceFile:
+  ExcludeSourceFile:
+    - output
+    - Modules/DscResource.Common
   ExcludeModuleFile:
-    - Assets
+    - Templates
+    - Modules/DscResource.Common
 
 ####################################################
 #       Sampler Pipeline Configuration             #
@@ -86,7 +89,8 @@ BuildWorkflow:
     {
       # Create a Build task from the Yaml (Because we dont want this task to be in the .build folder)
       # so that it's not copied and made accessible in the Sampler Module.
-      $PlasterTemplateFolder = Get-Item ./output/Sampler/*/Templates/Sampler
+      $PlasterTemplateFolder = Get-Item $BuildModuleOutput/$ProjectName/*/Templates/Sampler
+      # ./output/Sampler/*/Templates/Sampler
       $ToCopy = Get-ChildItem -Force . -Exclude .git,output
       foreach ($item in $toCopy) {
         Copy-Item -recurse -Force -Path $item -Destination (Join-Path $PlasterTemplateFolder $item.Name)

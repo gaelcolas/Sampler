@@ -1,8 +1,8 @@
-Class class1
+class Class1
 {
     [string]$Name = 'Class1'
 
-    class1()
+    Class1()
     {
         #default Constructor
     }

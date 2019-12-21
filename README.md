@@ -152,7 +152,7 @@ Handled by the `.build.ps1`'s **BEGIN** block, and `Resolve-Dependency.ps1`:
   - Prepend `.\output` to your `$Env:PSModulePath`
   - If Nuget package provider not present, Install & Import nuget PackageProvider (Proxy enabled)
   - Update `$PSRepository`'s Installation Policy to Trusted for the duration of the build
-  - Bootstrap PowerShellGet `if($_.version -le '1.6.0')` to latest (Save-Module to `.\output\RequiredModules` or install to CurrentUser/AllUsers, Remove-Module -Force,  Import-Module -Force )
+  - Bootstrap PowerShellGet `if ($_.version -le '1.6.0')` to latest (Save-Module to `.\output\RequiredModules` or install to CurrentUser/AllUsers, Remove-Module -Force,  Import-Module -Force )
   - Import-Module PSDepend or install/save it, then import
   - [optional] Bootstrap `powershell-yaml` if we need to read further config from Yaml files instead of PSD1 (not sure about that one yet)
   - Invoke PSDepend based on the dependency file [.\RequiredModules.psd1](RequiredModules.psd1) <-- this could be made to support Yaml

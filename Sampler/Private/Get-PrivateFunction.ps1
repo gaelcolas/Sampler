@@ -22,7 +22,7 @@ function Get-PrivateFunction
         $PrivateData
     )
 
-    Process
+    process
     {
         Write-Output $PrivateData
     }

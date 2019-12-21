@@ -8,10 +8,12 @@
     "powershell.codeFormatting.whitespaceAfterSeparator": true,
     "powershell.codeFormatting.ignoreOneLineBlock": false,
     "powershell.codeFormatting.preset": "Custom",
+    "powershell.codeFormatting.alignPropertyValuePairs": true,
+    "powershell.developer.bundledModulesPath": "${cwd}/output/RequiredModules",
     "files.trimTrailingWhitespace": true,
     "files.insertFinalNewline": true,
-    // "powershell.scriptAnalysis.settingsPath": ".vscode\\analyzersettings.psd1",
-    // "powershell.scriptAnalysis.enable": true,
+    "powershell.scriptAnalysis.settingsPath": ".vscode\\analyzersettings.psd1",
+    "powershell.scriptAnalysis.enable": true,
     "files.associations": {
         "*.ps1xml": "xml"
     },
