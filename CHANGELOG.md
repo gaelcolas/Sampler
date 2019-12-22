@@ -10,18 +10,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added Module manifest in build.psd1 template to fix issue resolving Project on linux.
-- Added DSC Resources & Supporting modules (including one from PSGallery, one from source)
-- Added PesterScript parameter in Build.ps1 so that it can be overridden at runtime (in azure-pipelines.yml)
+- Added DSC Resources & Supporting modules (including one from PSGallery, one from source).
+- Added PesterScript parameter in Build.ps1 so that it can be overridden at runtime (in azure-pipelines.yml).
 - Added `Modules` commented out to the `build.yml`
+- Added CodeCoverageThreshold parameter to fail when under threshold
+  (configurable in `build.yaml`). Will skip all code coverage when set to 0
+  (build.ps1 parameter override build.yml config).
+- Added Tasks.json with build and test tasks.
+  (VSCode bug when you click on Problems, Integrated terminal crashes).
 
 ### Changed
 
-- Made Code Coverage threshold to load from config file, and be skipped completely if set to 0 or absent
+- Made Code Coverage threshold to load from config file, and be skipped completely if set to 0 or absent.
+- Updating Code of Conduct to the DSC Community one.
 
 ### Fixed
 
 - Made build.ps1 & Resolve-Dependency.ps1 compliant with DSC Style guidelines
-- removed unneccessary file from Plaster template
+- removed unnecessary file from Plaster template
 
 ## [0.96.0] - 2019-11-01
 
