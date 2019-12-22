@@ -11,6 +11,10 @@ param
     [string[]]$Tasks = '.',
 
     [Parameter()]
+    [int]
+    $CodeCoverageThreshold = '',
+
+    [Parameter()]
     [validateScript(
         { Test-Path -Path $_ }
     )]

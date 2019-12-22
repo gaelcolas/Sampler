@@ -41,6 +41,7 @@ stages:
     dependsOn: Build_artefact
     jobs:
       - job: test_linux
+        timeoutInMinutes: 0
         pool:
           vmImage: 'ubuntu 16.04'
         steps:
@@ -79,6 +80,7 @@ stages:
               pathToSources: '$(Build.SourcesDirectory)/output/$(DscBuildVariable.RepositoryName)'
 
       - job: test_windows_core
+        timeoutInMinutes: 0
         pool:
           vmImage: 'win1803'
         steps:
@@ -118,6 +120,7 @@ stages:
               pathToSources: '$(Build.SourcesDirectory)/output/$(DscBuildVariable.RepositoryName)'
 
       - job: test_windows_ps
+        timeoutInMinutes: 0
         pool:
           vmImage: 'win1803'
         steps:
@@ -157,6 +160,7 @@ stages:
               pathToSources: '$(Build.SourcesDirectory)/output/$(DscBuildVariable.RepositoryName)'
 
       - job: test_macos
+        timeoutInMinutes: 0
         pool:
           vmImage: 'macos-latest'
         steps:
