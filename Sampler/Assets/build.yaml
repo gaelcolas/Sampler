@@ -33,7 +33,7 @@ VersionedOutputDirectory: true
 ####################################################
 #       Sampler Pipeline Configuration             #
 ####################################################
-# Defining 'Workflows' (suite of InvkeBuild tasks) to be run using their alias
+# Defining 'Workflows' (suite of InvokeBuild tasks) to be run using their alias
 BuildWorkflow:
   '.': # "." is the default Invoke-Build workflow. It is called when no -Tasks is specified to the build.ps1
     - build
@@ -49,11 +49,14 @@ BuildWorkflow:
     - build
     - package_module_nupkg
 
+  hqrmtest:
+    - DscResource_Tests_Stop_On_Fail
+
   # defining test task to be run when invoking `./build.ps1 -Tasks test`
   test:
     - Pester_Tests_Stop_On_Fail
     - Pester_if_Code_Coverage_Under_Threshold
-    - DscResource_Tests_Stop_On_Fail
+    - hqrmtest
 
   publish:
     - Publish_release_to_GitHub
