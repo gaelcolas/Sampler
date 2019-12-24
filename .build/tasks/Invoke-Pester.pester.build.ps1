@@ -57,7 +57,7 @@ Param (
     $PesterExcludeTag = (property PesterExcludeTag @()),
 
     [Parameter()]
-    [int]
+    [String]
     $CodeCoverageThreshold = (property CodeCoverageThreshold ''),
 
     # Build Configuration object
@@ -83,8 +83,22 @@ task Invoke_pester_tests {
     }
 
     # If no codeCoverageThreshold configured at runtime, look for BuildInfo settings.
-    if ($CodeCoverageThreshold -le 0) {
-        $CodeCoverageThreshold = $BuildInfo.Pester.CodeCoverageThreshold
+    if ($CodeCoverageThreshold -eq '')
+    {
+        if ($BuildInfo.ContainsKey('Pester') -and $BuildInfo.Pester.ContainsKey('CodeCoverageThreshold'))
+        {
+            $CodeCoverageThreshold = $BuildInfo.Pester.CodeCoverageThreshold
+            Write-Build Magenta "Loading Code Coverage from Config file ($CodeCoverageThreshold %)"
+        }
+        else
+        {
+            $CodeCoverageThreshold = 0
+            Write-Build Magenta "No code coverage threshold value found (param nor config). Skipping."
+        }
+    }
+    else {
+        $CodeCoverageThreshold = [int]$CodeCoverageThreshold
+        Write-Build Magenta "Loading CodeCoverage Threshold from Parameter ($CodeCoverageThreshold %)"
     }
 
     $DefaultPesterParams = @{
@@ -251,7 +265,7 @@ task Invoke_pester_tests {
 }
 
 # Synopsis: This task ensures the build job fails if the test aren't successful.
-task Fail_Build_if_Pester_Tests_failed -If ($CodeCoverageThreshold -ne 0) {
+task Fail_Build_if_Pester_Tests_failed {
 
     "Asserting that no test failed"
 
