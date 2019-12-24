@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.98.1] - 2019-12-24
+## [Unreleased]
+
 ## Fixed
 
 - Fixing the codecoverage threshold issues reported by Daniel (As param set to 0 should not bypass).
