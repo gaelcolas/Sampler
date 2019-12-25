@@ -41,7 +41,7 @@
             "label": "build",
             "type": "shell",
             "command": "&${cwd}/build.ps1",
-            "args": ["-AutoRestore","-Tasks","noop"],
+            "args": ["-AutoRestore"],
             "presentation": {
                 "echo": true,
                 "reveal": "always",
@@ -51,7 +51,34 @@
             },
             "runOptions": {
                 "runOn": "default"
-            }
+            },
+            "problemMatcher": [
+                {
+                    "owner": "powershell",
+                    "fileLocation": [
+                        "absolute"
+                    ],
+                    "severity": "error",
+                    "pattern": [
+                        {
+                            "regexp": "^\\s*(\\[-\\]\\s*.*?)(\\d+)ms\\s*$",
+                            "message": 1
+                        },
+                        {
+                            "regexp": "(.*)",
+                            "code": 1
+                        },
+                        {
+                            "regexp": ""
+                        },
+                        {
+                            "regexp": "^.*,\\s*(.*):\\s*line\\s*(\\d+).*",
+                            "file": 1,
+                            "line": 2
+                        }
+                    ]
+                }
+            ]
         },
         {
             "label": "test",
