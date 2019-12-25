@@ -50,7 +50,7 @@
                 "clear": false
             },
             "runOptions": {
-                "runOn": "folderOpen"
+                "runOn": "default"
             }
         },
         {
