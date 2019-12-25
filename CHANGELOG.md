@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Added
+
+- New option to create files for DSC Community repo transition from within the repository's folder.
+  `invoke-plaster -TemplatePath (Get-Module Sampler -ListAvailable).ModuleBase -DestinationPath ..\ -ModuleType dsccommunity -ModuleName (Split-path -Leaf $PWD) -SourceDirectory source`
+- .vscode folder and files now part of the template.
+- Two new tasks for vscode in tasks.json to run `./build.ps1 -AutoRestore` (build) &
+  `./build.ps1 -tasks test` (test) including Problem matchers
+
+## Changed
+
+- Updated entries in .gitignore, .gitattributes
+- Set vscode build task to not run automatically on folder open.
+
 ## Fixed
 
 - Fixing the codecoverage threshold issues reported by Daniel (As param set to 0 should not bypass).
