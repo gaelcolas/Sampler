@@ -13,3 +13,4 @@ output/
 .sln
 markdownissues.txt
 node_modules
+package-lock.json
