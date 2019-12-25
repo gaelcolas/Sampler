@@ -1,8 +1,15 @@
-output/*
-modules/*
-.kitchen/*
-**.bak
-.kitchen.local.yml
+output/
 
+**.bak
+*.local.*
 !**/README.md
-DscResource.tests
+.kitchen/
+
+*.suo
+*.user
+*.coverage
+.vs
+.psproj
+.sln
+markdownissues.txt
+node_modules
