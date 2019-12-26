@@ -26,7 +26,7 @@ Copyright = '(c) Gael Colas. All rights reserved.'
 Description = 'Sample Module with Pipeline scripts and its Plaster template to create a module following some of the community accepted practices.'
 
 # Minimum version of the Windows PowerShell engine required by this module
-PowerShellVersion = '5.1'
+PowerShellVersion = '5.0'
 
 # Name of the Windows PowerShell host required by this module
 # PowerShellHostName = ''
