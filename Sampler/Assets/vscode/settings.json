@@ -1,5 +1,5 @@
 {
-    "powershell.codeFormatting.openBraceOnSameLine": true,
+    "powershell.codeFormatting.openBraceOnSameLine": false,
     "powershell.codeFormatting.newLineAfterOpenBrace": true,
     "powershell.codeFormatting.newLineAfterCloseBrace": true,
     "powershell.codeFormatting.whitespaceBeforeOpenBrace": true,
@@ -8,6 +8,7 @@
     "powershell.codeFormatting.whitespaceAfterSeparator": true,
     "powershell.codeFormatting.ignoreOneLineBlock": false,
     "powershell.codeFormatting.preset": "Custom",
+    "powershell.codeFormatting.alignPropertyValuePairs": true,
     "files.trimTrailingWhitespace": true,
     "files.insertFinalNewline": true,
     "powershell.scriptAnalysis.settingsPath": ".vscode\\analyzersettings.psd1",
@@ -22,7 +23,16 @@
         "PROJECTURI",
         "RELEASENOTES",
         "buildhelpers",
+        "endregion",
         "gitversion",
-        "pscmdlet"
-    ]
+        "icontains",
+        "keepachangelog",
+        "notin",
+        "pscmdlet",
+        "steppable"
+    ],
+    "[markdown]": {
+        "files.trimTrailingWhitespace": false,
+        "files.encoding": "utf8"
+    }
 }
