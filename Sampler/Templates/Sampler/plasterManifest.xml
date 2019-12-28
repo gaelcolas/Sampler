@@ -310,7 +310,7 @@
 
     <file source=''
           destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/Examples'
-          condition='${PLASTER_PARAM_ModuleName} -notin @("dsccommunity")'
+          condition='${PLASTER_PARAM_ModuleType} -notin @("dsccommunity")'
     />
 
 
