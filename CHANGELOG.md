@@ -24,6 +24,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixing the codecoverage threshold issues reported by Daniel (As param set to 0 should not bypass).
 
+## Removed
+
+- Removing QA tests from dsccommunity template.
+
 ## [0.98.0] - 2019-12-22
 
 ### Added
