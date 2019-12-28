@@ -194,7 +194,7 @@
     <!--   QUALITY TESTS for Module -->
     <file source='tests/QA/**'
           destination='${PLASTER_PARAM_ModuleName}/tests/QA/'
-          condition='${PLASTER_PARAM_ModuleType} -in @("dsccommunity","SimpleModule","SimpleModule_NoBuild","CompleteModule","CompleteModule_NoBuild","SharedDscConfig") -or (${PLASTER_PARAM_Features} -Contains ("ModuleQuality") -or ${PLASTER_PARAM_Features} -contains "All")'
+          condition='${PLASTER_PARAM_ModuleType} -in @("SimpleModule","SimpleModule_NoBuild","CompleteModule","CompleteModule_NoBuild","SharedDscConfig") -or (${PLASTER_PARAM_Features} -Contains ("ModuleQuality") -or ${PLASTER_PARAM_Features} -contains "All")'
     />
 
     <!--   PUBLIC FUNCTION Sample -->
@@ -310,7 +310,7 @@
 
     <file source=''
           destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/Examples'
-          condition='${PLASTER_PARAM_ModuleName} -notin @("dsccommunity")'
+          condition='${PLASTER_PARAM_ModuleType} -notin @("dsccommunity")'
     />
 
 
