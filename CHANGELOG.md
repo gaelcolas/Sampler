@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Changed
+
+- Updated `build.ps1` to add DscTestTag, DscTestExcludeTag parameters.
+
 ## [0.98.1] - 2019-12-24
 
 ## Fixed
