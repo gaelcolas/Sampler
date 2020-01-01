@@ -46,7 +46,7 @@ Invoking `build.ps1` with the `-ResolveDependency` parameter will prepare your e
 PackageManagement (`version -gt 1.6`) or install it from *a* gallery
 1. Download or install the `PowerShell-yaml` and `PSDepend` modules needed for
 further dependency management
-1. Read the `Build.yaml` configuration
+1. Read the `build.yaml` configuration
 1. Invoke [PSDepend](https://github.com/RamblingCookieMonster/PSDepend) on
 the RequiredModules.psd1
 1. hand over the task executions to `Invoke-Build` to run the workflow
@@ -187,7 +187,7 @@ Handled by the `.build.ps1`'s **BEGIN** block, and `Resolve-Dependency.ps1`:
 
 As seen in the bootstrap process above, the different workflows can be configured by editing the `build.psd1`: new tasks can be loaded, and the sequence can be added under the `BuildWorkflow` key by listing the names.
 
-In our case, [the Build.psd1](Build.yaml#L89) defines several workflows (., build, pack, hqrmtest,test, and publish) that can be called by using:
+In our case, [the Build.psd1](build.yaml#L89) defines several workflows (., build, pack, hqrmtest,test, and publish) that can be called by using:
 ```PowerShell
  .build.ps1 -Tasks Workflow_or_task_Name
 ```
