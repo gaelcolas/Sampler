@@ -7,17 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## Changed
+### Changed
 
 - Updated `build.ps1` to add DscTestTag, DscTestExcludeTag parameters.
+- Updated module manifest to support PS 5.0.
+- updated Contributing.md to redirect to dsccommunity.org
 
 ## [0.98.1] - 2019-12-24
 
-## Fixed
+### Fixed
 
 - Fixing the codecoverage threshold issues reported by Daniel (As param set to 0 should not bypass).
 
-## Removed
+### Removed
 
 - Removing QA tests from dsccommunity template.
 
