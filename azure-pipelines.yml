@@ -7,7 +7,6 @@ trigger:
     - "v*"
     exclude:
     - "*-*"
-#variables:
 
 stages:
   - stage: Build_artefact
@@ -69,9 +68,8 @@ stages:
             inputs:
               testResultsFormat: 'NUnit'
               testResultsFiles: 'output/testResults/NUnit*.xml'
+              testRunTitle: 'Linux'
 
-
-          # Publish code coverage results
           - task: PublishCodeCoverageResults@1
             condition: succeededOrFailed()
             inputs:
@@ -109,9 +107,8 @@ stages:
             inputs:
               testResultsFormat: 'NUnit'
               testResultsFiles: 'output/testResults/NUnit*.xml'
+              testRunTitle: 'Windows Server Core'
 
-
-          # Publish code coverage results
           - task: PublishCodeCoverageResults@1
             condition: succeededOrFailed()
             inputs:
@@ -149,9 +146,8 @@ stages:
             inputs:
               testResultsFormat: 'NUnit'
               testResultsFiles: 'output/testResults/NUnit*.xml'
+              testRunTitle: 'Windows Server Core'
 
-
-          # Publish code coverage results
           - task: PublishCodeCoverageResults@1
             condition: succeededOrFailed()
             inputs:
@@ -189,8 +185,8 @@ stages:
             inputs:
               testResultsFormat: 'NUnit'
               testResultsFiles: 'output/testResults/NUnit*.xml'
+              testRunTitle: 'MacOS'
 
-          # Publish code coverage results
           - task: PublishCodeCoverageResults@1
             condition: succeededOrFailed()
             inputs:

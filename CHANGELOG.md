@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Changed
+
+- Set `testRunTitle` for PublishTestResults steps in `azure-pipelines.yml`
+  so that a helpful name is displayed in Azure DevOps for each test run.
+- Removed unnecessary comments from `azure-pipelines.yml`.
+
 ## [0.98.1] - 2019-12-24
 
 ## Fixed
