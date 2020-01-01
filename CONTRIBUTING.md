@@ -70,12 +70,12 @@ prefixed with just 'Sql'
 Helper functions that are only used by one resource
 so preferably be put in the same script file as the resource.
 Helper function that can used by more than one resource can preferably
-be placed in the resource module file [DscResource.Common](/Modules/DscResource.Common/DscResource.Common.psm1).
+be placed in the resource module file [DscResource.Common](https://github.com/dsccommunity/DscResource.Common).
 
 ### Localization
 
 Please see the localization section in the [style guideline](https://github.com/PowerShell/DscResources/blob/master/StyleGuidelines.md#localization).
-The helper functions is found in the module [DscResource.LocalizationHelper](/Modules/DscResource.LocalizationHelper/DscResource.LocalizationHelper.psm1).
+The helper functions is found in the module [DscResource.Common](https://github.com/dsccommunity/DscResource.Common/blob/master/source/Public/Get-LocalizedData.ps1).
 
 ### Unit tests
 
@@ -134,11 +134,8 @@ Invoke-Pester .\DSCResource.Tests\Meta.Tests.ps1
 Integration tests should be written for resources so they can be validated by
 the automated test framework which is run in AppVeyor when commits are pushed
 to a Pull Request (PR).
-Please see the [Testing Guidelines](https://github.com/PowerShell/DscResources/blob/master/TestsGuidelines.md)
+Please see the [Testing Guidelines](https://dsccommunity.org/guidelines/testing-guidelines/)
 for common DSC Resource Kit testing guidelines.
-There are also configurations made by existing integration tests that can be reused
-to write integration tests for other resources. This is documented in the
-[Integration tests README](/Tests/Integration/README.md).
 
 #### AppVeyor
 
