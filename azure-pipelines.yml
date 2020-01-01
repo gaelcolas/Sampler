@@ -107,7 +107,7 @@ stages:
             inputs:
               testResultsFormat: 'NUnit'
               testResultsFiles: 'output/testResults/NUnit*.xml'
-              testRunTitle: 'Windows Server Core'
+              testRunTitle: 'Windows Server Core (PowerShell Core)'
 
           - task: PublishCodeCoverageResults@1
             condition: succeededOrFailed()
@@ -146,7 +146,7 @@ stages:
             inputs:
               testResultsFormat: 'NUnit'
               testResultsFiles: 'output/testResults/NUnit*.xml'
-              testRunTitle: 'Windows Server Core'
+              testRunTitle: 'Windows Server Core (Windows PowerShell)'
 
           - task: PublishCodeCoverageResults@1
             condition: succeededOrFailed()
