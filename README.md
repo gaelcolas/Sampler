@@ -19,7 +19,7 @@ The Sampler module in itself serves several purposes:
 
 When you clone this module locally, or if you create a module from its template,
 the `build.ps1` is how you interact with the built-in pipeline automation, and
-`build.yml` how you configure and customize it.
+`build.yaml` how you configure and customize it.
 
 ### Bootstrapping repository and Resolve-Dependency
 
@@ -28,7 +28,7 @@ Quick Start:
 ```PowerShell
 PS C:\src\Sampler> build.ps1 -ResolveDependency
 # this will first bootstrap the environment by downloading dependencies required for the automation
-# then run the '.' task workflow as defined in build.yml (a list of Invoke-Build tasks)
+# then run the '.' task workflow as defined in build.yaml (a list of Invoke-Build tasks)
 ```
 
 The `build.ps1` is the _entry point_ to invoke any task or a list of build tasks (workflow),
@@ -46,7 +46,7 @@ Invoking `build.ps1` with the `-ResolveDependency` parameter will prepare your e
 PackageManagement (`version -gt 1.6`) or install it from *a* gallery
 1. Download or install the `PowerShell-yaml` and `PSDepend` modules needed for
 further dependency management
-1. Read the `Build.yml` configuration
+1. Read the `Build.yaml` configuration
 1. Invoke [PSDepend](https://github.com/RamblingCookieMonster/PSDepend) on
 the RequiredModules.psd1
 1. hand over the task executions to `Invoke-Build` to run the workflow
@@ -187,7 +187,7 @@ Handled by the `.build.ps1`'s **BEGIN** block, and `Resolve-Dependency.ps1`:
 
 As seen in the bootstrap process above, the different workflows can be configured by editing the `build.psd1`: new tasks can be loaded, and the sequence can be added under the `BuildWorkflow` key by listing the names.
 
-In our case, [the Build.psd1](Build.psd1#L5) defines 2 workflows (. and test) that can be called by using:
+In our case, [the Build.psd1](Build.yaml#L89) defines several workflows (., build, pack, hqrmtest,test, and publish) that can be called by using:
 ```PowerShell
  .build.ps1 -Tasks Workflow_or_task_Name
 ```
@@ -201,7 +201,7 @@ The detail of the **default workflow** is as follow (InvokeBuild defaults to the
 - **Invoke_pester_tests**: run `Invoke-Pester -Script $TestFolder` and other arguments
 - **Upload_Test_Results_To_AppVeyor**: push the Test results XML to AppVeyor [if running in AppVeyor](.build/tasks/Invoke-Pester.pester.build.ps1#L139)
 - **Fail_Build_if_Pester_Tests_failed**: Fails the build if any test failed
-- **Pester_if_Code_Coverage_Under_Threshold**: This fails the build if the Pester Code Coverage is under the [configured](.build.ps1#L21) threshold.
+- **Pester_if_Code_Coverage_Under_Threshold**: This fails the build if the Pester Code Coverage is under the [configured](build.yaml#L69) threshold.
 
 ### What needs to be added next
 
