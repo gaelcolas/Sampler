@@ -8,7 +8,7 @@ RootModule = 'Sampler.psm1'
 ModuleVersion = '0.0.1'
 
 # Supported PSEditions
-CompatiblePSEditions = @('Desktop','Core')
+# CompatiblePSEditions = @('Desktop','Core') # Removed to support PS 5.0
 
 # ID used to uniquely identify this module
 GUID = 'b59b8442-9cf9-4c4b-bc40-035336ace573'
@@ -26,7 +26,7 @@ Copyright = '(c) Gael Colas. All rights reserved.'
 Description = 'Sample Module with Pipeline scripts and its Plaster template to create a module following some of the community accepted practices.'
 
 # Minimum version of the Windows PowerShell engine required by this module
-PowerShellVersion = '5.1'
+PowerShellVersion = '5.0'
 
 # Name of the Windows PowerShell host required by this module
 # PowerShellHostName = ''
