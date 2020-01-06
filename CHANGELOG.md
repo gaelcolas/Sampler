@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Update GitVersion.yml with the correct regular expression.
+
 ## [0.99.0] - 2020-01-01
 
 ### Changed
