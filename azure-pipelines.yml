@@ -88,6 +88,7 @@ stages:
               pathToSources: '$(Build.SourcesDirectory)/output/$(dscBuildVariable.RepositoryName)'
 
       - job: test_windows_core
+        displayName: 'Test Windows (PowerShell Core)'
         timeoutInMinutes: 0
         pool:
           vmImage: 'win1803'
@@ -132,6 +133,7 @@ stages:
               pathToSources: '$(Build.SourcesDirectory)/output/$(dscBuildVariable.RepositoryName)'
 
       - job: test_windows_ps
+        displayName: 'Test Windows (Windows PowerShell)'
         timeoutInMinutes: 0
         pool:
           vmImage: 'win1803'
@@ -176,6 +178,7 @@ stages:
               pathToSources: '$(Build.SourcesDirectory)/output/$(dscBuildVariable.RepositoryName)'
 
       - job: test_macos
+        displayName: 'Test macOS'
         timeoutInMinutes: 0
         pool:
           vmImage: 'macos-latest'
