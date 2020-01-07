@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Update GitVersion.yml with the correct regular expression.
 
+### Changed
+
+- Set a display name on all the jobs and tasks in the CI pipeline.
+
 ## [0.99.0] - 2020-01-01
 
 ### Changed
