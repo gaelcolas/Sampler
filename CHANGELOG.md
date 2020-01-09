@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Update GitVersion.yml with the correct regular expression.
+- Fix casing in key names in `azure-pipelines.yml`.
 
 ### Changed
 
