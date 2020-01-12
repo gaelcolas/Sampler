@@ -145,22 +145,6 @@ task Parse_CodeCoverage {
 
     $xmlJaCoCo = Select-Xml -Path $codeCoverageOutputFile -XPath '.'
 
-    Write-Build DarkGray "  Changing to correct path in the XML element 'package'."
-
-    $nodes = $xmlJaCoCo.Node.SelectNodes("/report/package")
-    foreach ($node in $nodes)
-    {
-        $node.SetAttribute('name', ($node.GetAttribute('name') -replace '\d+\.\d+\.\d+', 'source'))
-    }
-
-    Write-Build DarkGray "  Changing to correct path in the XML element 'class'."
-
-    $nodes = $xmlJaCoCo.Node.SelectNodes("/report/package/class")
-    foreach ($node in $nodes)
-    {
-        $node.SetAttribute('name', ($node.GetAttribute('name') -replace '\d+\.\d+\.\d+', 'source'))
-    }
-
     Write-Build Yellow "  Adding missing attributes to the XML element 'line'. Workaround for the Pester issue https://github.com/pester/Pester/issues/1419."
 
     $nodes = $xmlJaCoCo.Node.SelectNodes("/report/package/sourcefile/line")
