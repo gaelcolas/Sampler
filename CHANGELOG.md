@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - VSCode template setting `pipelineIndentationStyle`.
 
+## [0.99.1] - 2020-01-16
+
 ### Fixed
 
 - Update GitVersion.yml with the correct regular expression.
