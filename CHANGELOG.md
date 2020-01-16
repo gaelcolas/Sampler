@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Set a display name on all the jobs and tasks in the CI pipeline.
+- Azure Pipelines will no longer trigger on changes to just the CHANGELOG.md.
 
 ## [0.99.0] - 2020-01-01
 
