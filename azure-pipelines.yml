@@ -234,7 +234,8 @@ stages:
         or(
           eq(variables['Build.SourceBranch'], 'refs/heads/master'),
           startsWith(variables['Build.SourceBranch'], 'refs/tags/')
-        )
+        ),
+        contains(variables['System.TeamFoundationCollectionUri'], 'synedgy')
       )
     jobs:
       - job: Deploy_Module
