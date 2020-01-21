@@ -9,8 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Changed the VS Code project settings to trim trailing whitespace for
-  markdown files too.
 - The deploy step is no longer run if the Azure DevOps organization URL
   does not contain 'synedgy'.
 
