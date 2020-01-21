@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.99.3] - 2020-01-21
+
 ### Changed
 
 - The deploy step is no longer run if the Azure DevOps organization URL
