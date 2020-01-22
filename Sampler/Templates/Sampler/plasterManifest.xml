@@ -300,7 +300,7 @@
     <!--   AZURE PIPELINES -->
     <file source='azure-pipelines.yml'
           destination='${PLASTER_PARAM_ModuleName}/azure-pipelines.yml'
-          condition='${PLASTER_PARAM_ModuleType} -in @("dsccommunity","SimpleModule","CompleteModule","SharedDscConfig") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("Azure-Pipelines")'
+          condition='${PLASTER_PARAM_ModuleType} -in @("dsccommunity","CompleteModule") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("Azure-Pipelines")'
     />
 
     <modify path='${PLASTER_PARAM_ModuleName}/azure-pipelines.yml'
