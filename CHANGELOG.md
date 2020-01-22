@@ -16,6 +16,16 @@ assets with conditional content.
 - supports setting CustomRepo to pull dependencies from a private gallery
  other than PSGallery.
 
+- Update the plaster template to replace 'synedgy' with 'dsccommunity' if
+  the module type is 'dsccommunity'.
+  
+## [0.99.3] - 2020-01-21
+
+### Changed
+
+- The deploy step is no longer run if the Azure DevOps organization URL
+  does not contain 'synedgy'.
+  
 ## [0.99.2] - 2020-01-16
 
 ### Added
