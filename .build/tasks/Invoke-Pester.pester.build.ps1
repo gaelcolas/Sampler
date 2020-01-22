@@ -258,6 +258,7 @@ task Invoke_pester_tests {
         }
     }
 
+    Import-Module -Name Pester -MinimumVersion 4.0
     $script:TestResults = Invoke-Pester @PesterParams
     $PesterResultObjectCliXml = Join-Path $PesterOutputFolder "PesterObject_$PesterOutputFileFileName"
     $null = $script:TestResults | Export-Clixml -Path $PesterResultObjectCliXml -Force
