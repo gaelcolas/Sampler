@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.99.4] - 2020-01-22
+
 ### Changed
 
 - Removed Azure-Pipelines.yml on simple module type.
