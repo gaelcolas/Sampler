@@ -1,0 +1,13 @@
+@{
+<%
+    if($PLASTER_PARAM_CustomRepo -ne 'PSGallery') {
+"    Gallery = '$PLASTER_PARAM_CustomRepo'"
+    }
+    else {
+"    Gallery         = 'PSGallery'"
+
+    }
+%>
+    AllowPrerelease = $false
+    WithYAML        = $true # Will also bootstrap PowerShell-Yaml to read other config files
+}

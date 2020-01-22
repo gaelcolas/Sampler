@@ -23,6 +23,7 @@ Describe 'Plaster Templates creates a complete Module scaffolding' {
             moduleName        = $ModuleName
             ModuleVersion     = '0.0.1'
             SourceDirectory   = 'Source'
+            CustomRepo        = 'Modules'
         }
         Invoke-plaster @PlasterParams
     }
