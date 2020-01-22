@@ -8,12 +8,20 @@
 # OutputDirectory: ../output/Sampler
 CopyDirectories:
   - en-US
-  - DSCResources
+<%
+    if($PLASTER_PARAM_ModuleType -eq 'dsccommunity') {
+"  - DSCResources"
+    }
+    else {
+"#  - DSCResources"
+    }
+%>
   # - Modules
 Encoding: UTF8 # With BOM in WinPS, noBOM in PSCore.
-# SemVer: '1.2.3'
+
 # Suffix to add to Root module PSM1 after merge (here, the Set-Alias exporting IB tasks)
 # suffix: suffix.ps1
+# prefix: prefix.ps1
 VersionedOutputDirectory: true
 
 ####################################################
@@ -56,7 +64,11 @@ BuildWorkflow:
   test:
     - Pester_Tests_Stop_On_Fail
     - Pester_if_Code_Coverage_Under_Threshold
-    - hqrmtest
+<%
+    if($PLASTER_PARAM_ModuleType -eq 'dsccommunity') {
+"    - hqrmtest"
+    }
+%>
 
   publish:
     - Publish_release_to_GitHub
@@ -85,7 +97,9 @@ Pester: #Passthru, OutputFile, CodeCoverageOutputFile not supported
     - TestQuality
   Tag:
   CodeCoverageThreshold: 85 # Set to 0 to bypass
-
+<%
+    if($PLASTER_PARAM_ModuleType -eq 'dsccommunity') {
+@"
 DscTest:
   ExcludeTag:
     - "Common Tests - New Error-Level Script Analyzer Rules"
@@ -95,19 +109,21 @@ DscTest:
   ExcludeModuleFile:
   #  - Templates
   #  - Modules/DscResource.Common
+"@
+    }
+%>
+
 
 Resolve-Dependency: #Parameters for Resolve-Dependency
   #PSDependTarget: ./output/modules
   #Proxy: ''
   #ProxyCredential:
-  Gallery: 'PSGallery'
-  # AllowOldPowerShellGetModule: true
+  Gallery: '<%=$PLASTER_PARAM_CustomRepo%>'
   #MinimumPSDependVersion = '0.3.0'
   AllowPrerelease: false
   Verbose: false
 
 ModuleBuildTasks:
-  # - ModuleName: 'alias to search'
   Sampler:
     - '*.build.Sampler.ib.tasks' # this means: import (dot source) all aliases ending with .ib.tasks exported by sampler module
 
@@ -122,10 +138,15 @@ TaskHeader: |
   Write-Build DarkGray "  $Path"
   Write-Build DarkGray "  $($Task.InvocationInfo.ScriptName):$($Task.InvocationInfo.ScriptLineNumber)"
   ""
-
+<%
+    if($PLASTER_PARAM_ModuleType -eq 'dsccommunity') {
+@"
 GitHubConfig:
   GitHubFilesToAdd:
     - 'CHANGELOG.md'
   GitHubConfigUserName: dscbot
   GitHubConfigUserEmail: dsccommunity@outlook.com
   UpdateChangelogOnPrerelease: false
+"@
+    }
+%>

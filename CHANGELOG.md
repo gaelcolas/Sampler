@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- build.yaml, RequiredModules.psd1 and Resolve-Dependency.psd1 are now templated
+assets with conditional content.
+- HQRM tests to run only when using the dsccommunity module type.
+- Updated simple module to not contain sample scripts & tests.
+- supports setting CustomRepo to pull dependencies from a private gallery
+ other than PSGallery.
+
 ## [0.99.2] - 2020-01-16
 
 ### Added
