@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Removed Azure-Pipelines.yml on simple module type.
 - Ensuring Pester version above 4.0 is used and loaded.
 - build.yaml, RequiredModules.psd1 and Resolve-Dependency.psd1 are now templated
 assets with conditional content.
