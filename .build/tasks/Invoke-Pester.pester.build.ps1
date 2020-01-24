@@ -50,7 +50,7 @@ Param (
     $PesterOutputFormat = (property PesterOutputFormat ''),
 
     [Parameter()]
-    [string[]]
+    [object[]]
     $PesterScript = (property PesterScript ''),
 
     [Parameter()]
@@ -246,18 +246,33 @@ task Invoke_pester_tests {
     {
         $PesterParams.Add('Script', @())
         Write-Build DarkGray " Adding PesterScript to params"
-        foreach ($TestFolder in $PesterScript)
-        {
-            if (!(Split-Path -isAbsolute $TestFolder))
-            {
-                $TestFolder = Join-Path $ProjectPath $TestFolder
-            }
 
-            Write-Build DarkGray "      ... $TestFolder"
-            # The Absolute path to this folder exists, adding to the list of pester scripts to run
-            if (Test-Path $TestFolder)
-            {
-                $PesterParams.Script += $TestFolder
+        # Assuming that if the first item in the PesterScript array is of a certain type,
+        # all other items will be of the same type.
+        switch ($PesterScript[0])
+        {
+            { $_ -is [System.String] } {
+                foreach ($TestFolder in $PesterScript)
+                {
+                    if (!(Split-Path -isAbsolute $TestFolder))
+                    {
+                        $TestFolder = Join-Path $ProjectPath $TestFolder
+                    }
+
+                    Write-Build DarkGray "      ... $TestFolder"
+                    # The Absolute path to this folder exists, adding to the list of pester scripts to run
+                    if (Test-Path $TestFolder)
+                    {
+                        $PesterParams.Script += $TestFolder
+                    }
+                }
+            }
+            { $_ -is [System.Collections.Hashtable] } {
+                foreach ($scriptItem in $PesterScript)
+                {
+                    Write-Build DarkGray "      ... $scriptItem"
+                    $PesterParams.Script += $scriptItem
+                }
             }
         }
     }
