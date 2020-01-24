@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Updated the PesterScript parameter to allow the specification of hastables,
+  to enable specifying parameters to Pester.
+
 ## [0.99.4] - 2020-01-22
 
 ### Changed

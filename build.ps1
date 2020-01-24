@@ -36,7 +36,7 @@ param
     $RequiredModulesDirectory = $(Join-Path 'output' 'RequiredModules'),
 
     [Parameter()]
-    [string[]]
+    [object[]]
     $PesterScript,
 
     # Filter which tags to run when invoking Pester tests
