@@ -146,7 +146,7 @@ task Create_changelog_release_output {
                     $false
                 }
             }
-        if (-not $BuildModuleManifest)
+        if (-not $BuiltModuleManifest)
         {
             throw "No valid manifest found for project $ProjectName."
         }
@@ -240,7 +240,7 @@ task package_module_nupkg {
             }
         }
 
-    if (-not $BuildModuleManifest)
+    if (-not $BuiltModuleManifest)
     {
         throw "No valid manifest found for project $ProjectName."
     }
@@ -308,7 +308,7 @@ task publish_module_to_gallery -if ((!(Get-Command nuget -ErrorAction SilentlyCo
             }
         }
     # No need to test the manifest again here, because the pipeline tested all manifests via the where-clause already
-    if (-not $BuildModuleManifest)
+    if (-not $BuiltModuleManifest)
     {
         throw "No valid manifest found for project $ProjectName."
     }
