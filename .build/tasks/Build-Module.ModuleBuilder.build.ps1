@@ -12,6 +12,7 @@ Param (
                         }
                         catch
                         {
+                            Write-Warning $_
                             $false
                         }) }
             ).BaseName
@@ -28,6 +29,7 @@ Param (
                         }
                         catch
                         {
+                            Write-Warning $_
                             $false
                         }) }
             ).Directory.FullName)
@@ -257,8 +259,10 @@ Task Build_NestedModules_ModuleBuilder {
                             }
                             catch
                             {
+                                Write-Warning $_
                                 $false
-                            }) }
+                            })
+                    }
             ).FullName -replace [Regex]::Escape($BuiltModuleBase), ".$([io.path]::DirectorySeparatorChar)"
 
 
