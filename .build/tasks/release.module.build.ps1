@@ -14,7 +14,7 @@ param(
     [string]
     $ProjectName = (property ProjectName $(
             #Find the module manifest to deduce the Project Name
-            (Get-ChildItem $BuildRoot\*\*.psd1 | Where-Object {
+            (Get-ChildItem $BuildRoot\*\*.psd1 -Exclude 'build.psd1', 'analyzersettings.psd1' | Where-Object {
                     ($_.Directory.Name -match 'source|src' -or $_.Directory.Name -eq $_.BaseName) -and
                     $(try
                         {
@@ -143,7 +143,6 @@ task Create_changelog_release_output {
                 }
                 catch
                 {
-                    Write-Warning $_
                     $false
                 }
             }
@@ -237,7 +236,6 @@ task package_module_nupkg {
             }
             catch
             {
-                Write-Warning $_
                 $false
             }
         }
@@ -306,7 +304,6 @@ task publish_module_to_gallery -if ((!(Get-Command nuget -ErrorAction SilentlyCo
             }
             catch
             {
-                Write-Warning $_
                 $false
             }
         }

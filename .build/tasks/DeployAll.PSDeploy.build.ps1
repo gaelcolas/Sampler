@@ -6,7 +6,7 @@ Param (
     [Parameter()]
     [string]
     $ProjectName = (property ProjectName $(
-            (Get-ChildItem $BuildRoot\*\*.psd1 | Where-Object {
+            (Get-ChildItem $BuildRoot\*\*.psd1 -Exclude 'build.psd1', 'analyzersettings.psd1' | Where-Object {
                     ($_.Directory.Name -match 'source|src' -or $_.Directory.Name -eq $_.BaseName) -and
                     $(try
                         {
