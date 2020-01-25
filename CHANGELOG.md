@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+-  `build.ps1` will now dynamically determine the build configuration if not specified via the `-BuildConfig` parameter
+
 ## [0.99.4] - 2020-01-22
 
 ### Changed
