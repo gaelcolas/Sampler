@@ -177,5 +177,5 @@ function Get-CodeCoverageOutputFileEncoding
         $codeCoverageOutputFileEncoding = $null
     }
 
-    return $codeCoverageOutputFile
+    return $codeCoverageOutputFileEncoding
 }
