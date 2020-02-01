@@ -134,7 +134,6 @@ function Get-CodeCoverageOutputFile
         [PSObject]
         $BuildInfo,
 
-        # Parameter help description
         [Parameter(Mandatory = $true)]
         [System.String]
         $PesterOutputFolder
@@ -154,6 +153,28 @@ function Get-CodeCoverageOutputFile
     else
     {
         $codeCoverageOutputFile = $null
+    }
+
+    return $codeCoverageOutputFile
+}
+
+function Get-CodeCoverageOutputFileEncoding
+{
+    [CmdletBinding()]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [PSObject]
+        $BuildInfo
+    )
+
+    if ($BuildInfo.ContainsKey('Pester') -and $BuildInfo.Pester.ContainsKey('CodeCoverageOutputFileEncoding'))
+    {
+        $codeCoverageOutputFileEncoding = $BuildInfo.Pester.CodeCoverageOutputFileEncoding
+    }
+    else
+    {
+        $codeCoverageOutputFileEncoding = $null
     }
 
     return $codeCoverageOutputFile

@@ -204,6 +204,15 @@ task Invoke_pester_tests {
     "`tCodeCoverageOutputFile  = $($PesterParams['CodeCoverageOutputFile'])"
     "`tCodeCoverageOutputFileFormat  = $($PesterParams['CodeCoverageOutputFileFormat'])"
 
+    $codeCoverageOutputFileEncoding = Get-CodeCoverageOutputFileEncoding -BuildInfo $BuildInfo
+
+    if ($codeCoverageThreshold -gt 0 -and $codeCoverageOutputFileEncoding)
+    {
+        $PesterParams.Add('CodeCoverageOutputFileEncoding', $codeCoverageOutputFileEncoding)
+
+        "`tCodeCoverageOutputFileEncoding  = $($PesterParams['CodeCoverageOutputFileEncoding'])"
+    }
+
     if ($PesterExcludeTag.count -gt 0) {
         $PesterParams.Add('ExcludeTag', $PesterExcludeTag)
     }

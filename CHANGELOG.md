@@ -9,9 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added new build task `Parse_CodeCoverage` that can be used to parse
-  a JaCoCo XML file returned from Pester so it is possible to upload the
-  file to Codecov.io.
 - Added the option to specify `CodeCoverageOutputFile` in the file `build.yml`.
   For example if a code coverage provider need the file to be named in a 
   certain way.
