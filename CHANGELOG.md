@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added the option to specify `CodeCoverageOutputFile` and `CodeCoverageOutputFileEncoding`
+  in the file `build.yml`. For example if a code coverage provider need the
+  file to be named in a certain way.
+
+### Changed
+
+- Added new common functions for build tasks to reduce code duplication.
+
 ## [0.99.4] - 2020-01-22
 
 ### Changed
