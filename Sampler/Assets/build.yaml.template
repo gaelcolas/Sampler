@@ -97,7 +97,7 @@ Pester: #Passthru, OutputFile, CodeCoverageOutputFile not supported
     - TestQuality
   Tag:
   CodeCoverageThreshold: 85 # Set to 0 to bypass
-  # CodeCoverageOutputFile: JaCoCo_coverage.xml
+  # CodeCoverageOutputFile: JaCoCo_$OsShortName.xml
   # CodeCoverageOutputFileEncoding: ascii
 <%
     if($PLASTER_PARAM_ModuleType -eq 'dsccommunity') {
