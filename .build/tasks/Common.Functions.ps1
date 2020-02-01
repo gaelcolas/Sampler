@@ -141,7 +141,7 @@ function Get-CodeCoverageOutputFile
 
     if ($BuildInfo.ContainsKey('Pester') -and $BuildInfo.Pester.ContainsKey('CodeCoverageOutputFile'))
     {
-        $codeCoverageOutputFile = $BuildInfo.Pester.CodeCoverageOutputFile
+        $codeCoverageOutputFile = $executioncontext.invokecommand.expandstring($BuildInfo.Pester.CodeCoverageOutputFile)
 
         if (-not (Split-Path -IsAbsolute $codeCoverageOutputFile))
         {
