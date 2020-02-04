@@ -52,6 +52,11 @@ BuildWorkflow:
     - Build_Module_ModuleBuilder
     - Build_NestedModules_ModuleBuilder
     - Create_changelog_release_output
+<%
+    if($PLASTER_PARAM_ModuleType -eq 'dsccommunity') {
+"    - Generate_ConceptualHelp"
+    }
+%>
 
   pack:
     - build
