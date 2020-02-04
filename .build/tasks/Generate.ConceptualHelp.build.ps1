@@ -51,7 +51,7 @@ param
 )
 
 # Synopsis: This task generates conceptual help for DSC resources.
-task Generate_ConceptualHelp {
+task Generate_Conceptual_Help {
     if (-not (Split-Path -IsAbsolute $OutputDirectory))
     {
         $OutputDirectory = Join-Path -Path $ProjectPath -ChildPath $OutputDirectory

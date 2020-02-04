@@ -54,7 +54,7 @@ BuildWorkflow:
     - Create_changelog_release_output
 <%
     if($PLASTER_PARAM_ModuleType -eq 'dsccommunity') {
-"    - Generate_ConceptualHelp"
+"    - Generate_Conceptual_Help"
     }
 %>
 
