@@ -40,8 +40,8 @@ param
             }
             catch
             {
-                Write-Verbose "Error attempting to use GitVersion $($_)"
-                ''
+                Write-Verbose "Error attempting to use GitVersion $($_), falling back to default of '0.0.1'."
+                '0.0.1'
             }
         )),
 
