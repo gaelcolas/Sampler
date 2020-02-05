@@ -59,13 +59,22 @@ task Generate_Conceptual_Help {
 
     $builtModulePath = Join-Path -Path (Join-Path -Path $OutputDirectory -ChildPath $ProjectName) -ChildPath $ModuleVersion
 
+    # Get the source folder
+    $sourceFolders = 'source|src|{0}' -f (Split-Path -Path $BuildRoot -Leaf)
+
+    $escapedProjectPath = [RegEx]::Escape($ProjectPath)
+
+    $sourcePath = (Get-ChildItem -Path $ProjectPath -Directory).FullName | Where-Object -FilterScript {
+        ($_ -replace $escapedProjectPath) -match $sourceFolders
+    }
+
     "`tProject Path            = $ProjectPath"
     "`tProject Name            = $ProjectName"
     "`tModule Version          = $ModuleVersion"
-    "`tOutput Directory        = $OutputDirectory"
+    "`tSource Path             = $sourcePath"
     "`tBuilt Module Path       = $builtModulePath"
 
-    Write-Build Magenta "Generating conceptual help for all DSC resources."
+    Write-Build Magenta "Generating conceptual help for all DSC resources based on source."
 
-    New-DscResourcePowerShellHelp -ModulePath $builtModulePath
+    New-DscResourcePowerShellHelp -ModulePath $sourcePath -DestinationModulePath $builtModulePath
 }
