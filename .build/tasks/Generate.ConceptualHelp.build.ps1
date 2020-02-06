@@ -59,7 +59,7 @@ task Generate_Conceptual_Help {
 
     $builtModulePath = Join-Path -Path (Join-Path -Path $OutputDirectory -ChildPath $ProjectName) -ChildPath $ModuleVersion
 
-    # Get the source folder
+    #region Get the source folder
     $sourceFolders = 'source|src|{0}' -f (Split-Path -Path $BuildRoot -Leaf)
 
     $escapedProjectPath = [RegEx]::Escape($ProjectPath)
@@ -67,6 +67,7 @@ task Generate_Conceptual_Help {
     $sourcePath = (Get-ChildItem -Path $ProjectPath -Directory).FullName | Where-Object -FilterScript {
         ($_ -replace $escapedProjectPath) -match $sourceFolders
     }
+    #endregion
 
     "`tProject Path            = $ProjectPath"
     "`tProject Name            = $ProjectName"
