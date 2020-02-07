@@ -15,12 +15,15 @@ param(
     [string]
     $ProjectName = (property ProjectName $(
             #Find the module manifest to deduce the Project Name
-            (Get-ChildItem $BuildRoot\*\*.psd1 | Where-Object {
+            (Get-ChildItem $BuildRoot\*\*.psd1 -Exclude 'build.psd1', 'analyzersettings.psd1' | Where-Object {
                     ($_.Directory.Name -match 'source|src' -or $_.Directory.Name -eq $_.BaseName) -and
-                    $(try {
+                    $(try
+                        {
                             Test-ModuleManifest $_.FullName -ErrorAction Stop
                         }
-                        catch {
+                        catch
+                        {
+                            Write-Warning $_
                             $false
                         }) }
             ).BaseName
@@ -30,10 +33,12 @@ param(
     [Parameter()]
     [string]
     $ModuleVersion = (property ModuleVersion $(
-            try {
+            try
+            {
                 (gitversion | ConvertFrom-Json -ErrorAction Stop).InformationalVersion
             }
-            catch {
+            catch
+            {
                 Write-Verbose "Error attempting to use GitVersion $($_)"
                 ''
             }
@@ -69,24 +74,30 @@ param(
 . $PSScriptRoot/GitHubRelease.functions.ps1
 
 task Publish_release_to_GitHub -if ($GitHubToken) {
-    if (!(Split-Path $OutputDirectory -IsAbsolute)) {
+    if (!(Split-Path $OutputDirectory -IsAbsolute))
+    {
         $OutputDirectory = Join-Path $BuildRoot $OutputDirectory
     }
 
-    if (!(Split-Path -isAbsolute $ReleaseNotesPath)) {
+    if (!(Split-Path -isAbsolute $ReleaseNotesPath))
+    {
         $ReleaseNotesPath = Join-Path $OutputDirectory $ReleaseNotesPath
     }
 
-    if ([String]::IsNullOrEmpty($ModuleVersion)) {
+    if ([String]::IsNullOrEmpty($ModuleVersion))
+    {
         $ModuleInfo = Import-PowerShellDataFile "$OutputDirectory/$ProjectName/*/$ProjectName.psd1" -ErrorAction Stop
-        if ($PreReleaseTag = $ModuleInfo.PrivateData.PSData.Prerelease) {
+        if ($PreReleaseTag = $ModuleInfo.PrivateData.PSData.Prerelease)
+        {
             $ModuleVersion = $ModuleInfo.ModuleVersion + "-" + $PreReleaseTag
         }
-        else {
+        else
+        {
             $ModuleVersion = $ModuleInfo.ModuleVersion
         }
     }
-    else {
+    else
+    {
         # Remove metadata from ModuleVersion
         $ModuleVersion, $BuildMetadata = $ModuleVersion -split '\+', 2
         # Remove Prerelease tag from ModuleVersionFolder
@@ -100,7 +111,8 @@ task Publish_release_to_GitHub -if ($GitHubToken) {
     Write-Build DarkGray "About to release $PackageToRelease v$ModuleVersion"
     $remoteURL = git remote get-url origin
 
-    if ($remoteURL -notMatch 'github') {
+    if ($remoteURL -notMatch 'github')
+    {
         Write-Build Yellow "Skipping Publish GitHub release to $RemoteURL"
         return
     }
@@ -109,11 +121,14 @@ task Publish_release_to_GitHub -if ($GitHubToken) {
     $Repo = GetHumanishRepositoryDetails -RemoteUrl $remoteURL
 
     # Retrieving ReleaseNotes or defaulting to Updated ChangeLog
-    if (Import-Module ChangelogManagement -ErrorAction SilentlyContinue -PassThru) {
+    if (Import-Module ChangelogManagement -ErrorAction SilentlyContinue -PassThru)
+    {
         $ReleaseNotes = (Get-ChangelogData -Path $ChangeLogPath).Unreleased.RawData -replace '\[unreleased\]', "[v$ModuleVersion]"
     }
-    else {
-        if (-not ($ReleaseNotes = (Get-Content -raw $ReleaseNotesPath -ErrorAction SilentlyContinue))) {
+    else
+    {
+        if (-not ($ReleaseNotes = (Get-Content -raw $ReleaseNotesPath -ErrorAction SilentlyContinue)))
+        {
             $ReleaseNotes = Get-Content -raw $ChangeLogPath -ErrorAction SilentlyContinue
         }
     }
@@ -133,7 +148,8 @@ task Publish_release_to_GitHub -if ($GitHubToken) {
         Description = $ReleaseNotes
         GitHubToken = $GitHubToken
     }
-    if (!$SkipPublish) {
+    if (!$SkipPublish)
+    {
         $APIResponse = Publish-GitHubRelease @releaseParams
     }
     Write-Build Green "Release Created. Follow the link -> $($APIResponse.html_url)"
@@ -149,8 +165,10 @@ task Create_ChangeLog_GitHub_PR -if ($GitHubToken) {
     # # git fetch --force --tags --prune --progress --no-recurse-submodules origin
     # # git checkout --progress --force (git rev-parse origin/master)
 
-    foreach ($GitHubConfigKey in @('GitHubFilesToAdd', 'GitHubConfigUserName', 'GitHubConfigUserEmail', 'UpdateChangelogOnPrerelease')) {
-        if ( -Not (Get-Variable -Name $GitHubConfigKey -ValueOnly -ErrorAction SilentlyContinue)) {
+    foreach ($GitHubConfigKey in @('GitHubFilesToAdd', 'GitHubConfigUserName', 'GitHubConfigUserEmail', 'UpdateChangelogOnPrerelease'))
+    {
+        if ( -Not (Get-Variable -Name $GitHubConfigKey -ValueOnly -ErrorAction SilentlyContinue))
+        {
             # Variable is not set in context, use $BuildInfo.GitHubConfig.<varName>
             $ConfigValue = $BuildInfo.GitHubConfig.($GitHubConfigKey)
             Set-Variable -Name $GitHubConfigKey -Value $ConfigValue
@@ -162,21 +180,25 @@ task Create_ChangeLog_GitHub_PR -if ($GitHubToken) {
     # Look at the tags on latest commit for origin/master (assume we're on detached head)
     $TagsAtCurrentPoint = git tag -l --points-at (git rev-parse origin/master)
     # Only Update changelog if last commit is a full release
-    if ($UpdateChangelogOnPrerelease) {
+    if ($UpdateChangelogOnPrerelease)
+    {
         $TagVersion = [string]($TagsAtCurrentPoint | Select-Object -First 1)
         Write-Build Green "Updating Changelog for PRE-Release $TagVersion"
     }
-    elseif ($TagVersion = [string]($TagsAtCurrentPoint.Where{ $_ -notMatch 'v.*\-' })) {
+    elseif ($TagVersion = [string]($TagsAtCurrentPoint.Where{ $_ -notMatch 'v.*\-' }))
+    {
         Write-Build Green "Updating the ChangeLog for release $TagVersion"
     }
-    else {
+    else
+    {
         Write-Build Yellow "No Release Tag found to update the ChangeLog from"
         return
     }
 
     $BranchName = "updateChangelogAfter$TagVersion"
     git checkout -B $BranchName
-    try {
+    try
+    {
         Write-Build DarkGray "Updating Changelog file"
         Update-Changelog -ReleaseVersion ($TagVersion -replace '^v') -LinkMode None -Path $ChangelogPath -ErrorAction SilentlyContinue
         git add $GitHubFilesToAdd
@@ -207,7 +229,8 @@ task Create_ChangeLog_GitHub_PR -if ($GitHubToken) {
         $Response = New-GitHubPullRequest @NewPullRequestParams
         Write-Build Green "`n --> PR #$($Response.number) opened: $($Response.url)"
     }
-    catch {
+    catch
+    {
         Write-Build Red "Error trying to create ChangeLog Pull Request. Ignoring.`r`n $_"
     }
 }

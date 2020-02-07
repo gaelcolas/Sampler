@@ -14,12 +14,15 @@ param(
     [string]
     $ProjectName = (property ProjectName $(
             #Find the module manifest to deduce the Project Name
-            (Get-ChildItem $BuildRoot\*\*.psd1 | Where-Object {
+            (Get-ChildItem $BuildRoot\*\*.psd1 -Exclude 'build.psd1', 'analyzersettings.psd1' | Where-Object {
                     ($_.Directory.Name -match 'source|src' -or $_.Directory.Name -eq $_.BaseName) -and
-                    $(try {
+                    $(try
+                        {
                             Test-ModuleManifest $_.FullName -ErrorAction Stop
                         }
-                        catch {
+                        catch
+                        {
+                            Write-Warning $_
                             $false
                         }) }
             ).BaseName
@@ -29,10 +32,12 @@ param(
     [Parameter()]
     [string]
     $ModuleVersion = (property ModuleVersion $(
-            try {
+            try
+            {
                 (gitversion | ConvertFrom-Json -ErrorAction Stop).InformationalVersion
             }
-            catch {
+            catch
+            {
                 Write-Verbose "Error attempting to use GitVersion $($_)"
                 ''
             }
@@ -63,27 +68,33 @@ task Create_changelog_release_output {
     "  OutputDirectory  = $OutputDirectory"
     "  ReleaseNotesPath = $ReleaseNotesPath"
 
-    if (!(Split-Path -isAbsolute $OutputDirectory)) {
+    if (!(Split-Path -isAbsolute $OutputDirectory))
+    {
         $OutputDirectory = Join-Path $BuildRoot $OutputDirectory
     }
 
-    if (!(Split-Path -isAbsolute $ReleaseNotesPath)) {
+    if (!(Split-Path -isAbsolute $ReleaseNotesPath))
+    {
         $ReleaseNotesPath = Join-Path $OutputDirectory $ReleaseNotesPath
     }
 
     $ChangeLogOutputPath = Join-Path $OutputDirectory 'CHANGELOG.md'
     "  ChangeLogOutputPath = $ChangeLogOutputPath"
 
-    if ([String]::IsNullOrEmpty($ModuleVersion)) {
+    if ([String]::IsNullOrEmpty($ModuleVersion))
+    {
         $ModuleInfo = Import-PowerShellDataFile "$OutputDirectory/$ProjectName/*/$ProjectName.psd1" -ErrorAction Stop
-        if ($PreReleaseTag = $ModuleInfo.PrivateData.PSData.Prerelease) {
+        if ($PreReleaseTag = $ModuleInfo.PrivateData.PSData.Prerelease)
+        {
             $ModuleVersion = $ModuleInfo.ModuleVersion + "-" + $PreReleaseTag
         }
-        else {
+        else
+        {
             $ModuleVersion = $ModuleInfo.ModuleVersion
         }
     }
-    else {
+    else
+    {
         # Remove metadata from ModuleVersion
         $ModuleVersion, $BuildMetadata = $ModuleVersion -split '\+', 2
         # Remove Prerelease tag from ModuleVersionFolder
@@ -91,7 +102,8 @@ task Create_changelog_release_output {
     }
 
     # Parse the Changelog and extract unreleased
-    try {
+    try
+    {
         Import-Module ChangelogManagement -ErrorAction Stop
 
         # Update the source changelog file
@@ -100,37 +112,51 @@ task Create_changelog_release_output {
         # Create a ReleaseNotes from the Updated changelog
         ConvertFrom-Changelog -Path $ChangeLogOutputPath -Format Release -NoHeader -OutputPath $ReleaseNotesPath -ErrorAction Stop
     }
-    catch {
+    catch
+    {
         Write-Build Red "Error creating the Changelog Output and/or ReleaseNotes. $($_.Exception.Message)"
     }
 
-    if (-not ($ReleaseNotes = (Get-Content -raw $ReleaseNotesPath -ErrorAction SilentlyContinue))) {
+    if (-not ($ReleaseNotes = (Get-Content -raw $ReleaseNotesPath -ErrorAction SilentlyContinue)))
+    {
         $ReleaseNotes = Get-Content -raw $ChangeLogOutputPath -ErrorAction SilentlyContinue
     }
 
-    if ((Test-Path "$OutputDirectory/$ProjectName/*/$ProjectName.psd1" -ErrorAction SilentlyContinue) -and $ReleaseNotes) {
-        try {
+    if ((Test-Path "$OutputDirectory/$ProjectName/*/$ProjectName.psd1" -ErrorAction SilentlyContinue) -and $ReleaseNotes)
+    {
+        try
+        {
             Import-Module Configuration -ErrorAction Stop
         }
-        catch {
+        catch
+        {
             Write-Build Red "Issue importing Configuration module. $($_.Exception.Message)"
             return
         }
 
         # find Module manifest
         $BuiltModuleManifest = (Get-ChildItem (Join-Path $OutputDirectory $ProjectName) -Depth 2 -Filter "$ProjectName.psd1").FullName |
-            Where-Object { try {
+            Where-Object {
+                try
+                {
                     Test-ModuleManifest -ErrorAction Stop -Path $_
                 }
-                catch {
+                catch
+                {
                     $false
-                } }
+                }
+            }
+        if (-not $BuiltModuleManifest)
+        {
+            throw "No valid manifest found for project $ProjectName."
+        }
         Write-Build DarkGray "Built Manifest $BuiltModuleManifest"
-        $null = Test-ModuleManifest $BuiltModuleManifest -ErrorAction Stop
+        # No need to test the manifest again here, because the pipeline tested all manifests via the where-clause already
 
         # Uncomment release notes (the default in Plaster/New-ModuleManifest)
         $ManifestString = Get-Content -raw $BuiltModuleManifest
-        if ( $ManifestString -match '#\sReleaseNotes\s?=') {
+        if ( $ManifestString -match '#\sReleaseNotes\s?=')
+        {
             $ManifestString = $ManifestString -replace '#\sReleaseNotes\s?=', '  ReleaseNotes ='
             $Utf8NoBomEncoding = [System.Text.UTF8Encoding]::new($False)
             [System.IO.File]::WriteAllLines($BuiltModuleManifest, $ManifestString, $Utf8NoBomEncoding)
@@ -148,16 +174,20 @@ task Create_changelog_release_output {
 }
 
 task publish_nupkg_to_gallery -if ((Get-Command nuget -ErrorAction SilentlyContinue) -and $GalleryApiToken) {
-    if ([String]::IsNullOrEmpty($ModuleVersion)) {
+    if ([String]::IsNullOrEmpty($ModuleVersion))
+    {
         $ModuleInfo = Import-PowerShellDataFile "$OutputDirectory/$ProjectName/*/$ProjectName.psd1" -ErrorAction Stop
-        if ($PreReleaseTag = $ModuleInfo.PrivateData.PSData.Prerelease) {
+        if ($PreReleaseTag = $ModuleInfo.PrivateData.PSData.Prerelease)
+        {
             $ModuleVersion = $ModuleInfo.ModuleVersion + "-" + $PreReleaseTag
         }
-        else {
+        else
+        {
             $ModuleVersion = $ModuleInfo.ModuleVersion
         }
     }
-    else {
+    else
+    {
         # Remove metadata from ModuleVersion
         $ModuleVersion, $BuildMetadata = $ModuleVersion -split '\+', 2
         # Remove Prerelease tag from ModuleVersionFolder
@@ -169,7 +199,8 @@ task publish_nupkg_to_gallery -if ((Get-Command nuget -ErrorAction SilentlyConti
     $ReleaseTag = "v$PSModuleVersion"
 
     Write-Build DarkGray "About to release $PackageToRelease"
-    if (!$SkipPublish) {
+    if (!$SkipPublish)
+    {
         $response = &nuget push $PackageToRelease -source $nugetPublishSource -ApiKey $GalleryApiToken
     }
     Write-Build Green "Response = " + $response
@@ -190,30 +221,43 @@ task package_module_nupkg {
     $null = Register-PSRepository @RepositoryParams
 
     # Cleaning up existing packaged module
-    if ($ModuleToRemove = Get-ChildItem (Join-Path $OutputDirectory "$ProjectName.*.nupkg")) {
+    if ($ModuleToRemove = Get-ChildItem (Join-Path $OutputDirectory "$ProjectName.*.nupkg"))
+    {
         Write-Build DarkGray "  Remove existing $ProjectName package"
         Remove-Item -force -Path $ModuleToRemove -ErrorAction Stop
     }
 
     # find Module manifest
     $BuiltModuleManifest = (Get-ChildItem (Join-Path $OutputDirectory $ProjectName) -Depth 2 -Filter "$ProjectName.psd1").FullName |
-        Where-Object { try {
+        Where-Object {
+            try
+            {
                 Test-ModuleManifest -ErrorAction Stop -Path $_
             }
-            catch {
+            catch
+            {
                 $false
-            } }
+            }
+        }
+
+    if (-not $BuiltModuleManifest)
+    {
+        throw "No valid manifest found for project $ProjectName."
+    }
     Write-Build DarkGray "  Built module's Manifest found at $BuiltModuleManifest"
 
     # load module manifest
     $ModuleInfo = Import-PowerShellDataFile -Path $BuiltModuleManifest
 
     # Publish dependencies (from environment) so we can publish the built module
-    foreach ($module in $ModuleInfo.RequiredModules) {
-        if (!([Microsoft.PowerShell.Commands.ModuleSpecification]$module | Find-Module -repository output -ErrorAction SilentlyContinue)) {
+    foreach ($module in $ModuleInfo.RequiredModules)
+    {
+        if (!([Microsoft.PowerShell.Commands.ModuleSpecification]$module | Find-Module -repository output -ErrorAction SilentlyContinue))
+        {
             # Replace the module by first (path & version) resolved in PSModulePath
             $module = Get-Module -ListAvailable -FullyQualifiedName $module | Select-Object -First 1
-            if ($Prerelease = $module.PrivateData.PSData.Prerelease) {
+            if ($Prerelease = $module.PrivateData.PSData.Prerelease)
+            {
                 $Prerelease = "-" + $Prerelease
             }
             Write-Build Yellow ("  Packaging Required Module {0} v{1}{2}" -f $Module.Name, $Module.Version.ToString(), $Prerelease)
@@ -235,32 +279,44 @@ task package_module_nupkg {
 }
 
 task publish_module_to_gallery -if ((!(Get-Command nuget -ErrorAction SilentlyContinue)) -and $GalleryApiToken) {
-    if (!(Split-Path $OutputDirectory -IsAbsolute)) {
+    if (!(Split-Path $OutputDirectory -IsAbsolute))
+    {
         $OutputDirectory = Join-Path $BuildRoot $OutputDirectory
     }
 
-    if (!(Split-Path -isAbsolute $ReleaseNotesPath)) {
+    if (!(Split-Path -isAbsolute $ReleaseNotesPath))
+    {
         $ReleaseNotesPath = Join-Path $OutputDirectory $ReleaseNotesPath
     }
 
     # Retrieving ReleaseNotes or defaulting to Updated ChangeLog
-    if (-not ($ReleaseNotes = (Get-Content -raw $ReleaseNotesPath -ErrorAction SilentlyContinue))) {
+    if (-not ($ReleaseNotes = (Get-Content -raw $ReleaseNotesPath -ErrorAction SilentlyContinue)))
+    {
         $ReleaseNotes = Get-Content -raw $ChangeLogPath -ErrorAction SilentlyContinue
     }
 
     # find Module manifest
     $BuiltModuleManifest = (Get-ChildItem (Join-Path $OutputDirectory $ProjectName) -Depth 2 -Filter "$ProjectName.psd1").FullName |
-        Where-Object { try {
+        Where-Object {
+            try
+            {
                 Test-ModuleManifest -ErrorAction Stop -Path $_
             }
-            catch {
+            catch
+            {
                 $false
-            } }
-    $null = Test-ModuleManifest $BuiltModuleManifest -ErrorAction Stop
+            }
+        }
+    # No need to test the manifest again here, because the pipeline tested all manifests via the where-clause already
+    if (-not $BuiltModuleManifest)
+    {
+        throw "No valid manifest found for project $ProjectName."
+    }
 
     # Uncomment release notes (the default in Plaster/New-ModuleManifest)
     $ManifestString = Get-Content -raw $BuiltModuleManifest
-    if ( $ManifestString -match '#\sReleaseNotes\s?=') {
+    if ( $ManifestString -match '#\sReleaseNotes\s?=')
+    {
         $ManifestString = $ManifestString -replace '#\sReleaseNotes\s?=', '  ReleaseNotes ='
         $Utf8NoBomEncoding = [System.Text.UTF8Encoding]::new($False)
         [System.IO.File]::WriteAllLines($BuiltModuleManifest, $ManifestString, $Utf8NoBomEncoding)
@@ -273,10 +329,12 @@ task publish_module_to_gallery -if ((!(Get-Command nuget -ErrorAction SilentlyCo
         ErrorAction  = 'Stop'
     }
 
-    try {
+    try
+    {
         Update-Manifest @UpdateReleaseNotesParams
     }
-    catch {
+    catch
+    {
         Write-Build Red "Error updating the Release notes to Module manifest. $($_.Exception.Message)"
     }
 
@@ -291,7 +349,8 @@ task publish_module_to_gallery -if ((!(Get-Command nuget -ErrorAction SilentlyCo
         ErrorAction  = 'Stop'
         releaseNotes = $ReleaseNotes
     }
-    if (!$SkipPublish) {
+    if (!$SkipPublish)
+    {
         Publish-Module @PublishModuleParams
     }
 
