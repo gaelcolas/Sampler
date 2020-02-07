@@ -6,19 +6,37 @@ Param (
     [Parameter()]
     [string]
     $ProjectName = (property ProjectName $(
-            (Get-ChildItem $BuildRoot\*\*.psd1 | Where-Object {
-                ($_.Directory.Name -match 'source|src' -or $_.Directory.Name -eq $_.BaseName) -and
-                $(try { Test-ModuleManifest $_.FullName -ErrorAction Stop }catch{$false}) }
+            (Get-ChildItem $BuildRoot\*\*.psd1 -Exclude 'build.psd1', 'analyzersettings.psd1' | Where-Object {
+                    ($_.Directory.Name -match 'source|src' -or $_.Directory.Name -eq $_.BaseName) -and
+                    $(try
+                        {
+                            Test-ModuleManifest $_.FullName -ErrorAction Stop
+                        }
+                        catch
+                        {
+                            Write-Warning $_
+                            $false
+                        }) }
             ).BaseName
         )
     ),
 
     [Parameter()]
     [string]
-    $SourcePath = (property SourcePath ((Get-ChildItem $BuildRoot\*\*.psd1 | Where-Object {
+    $SourcePath = (property SourcePath $(
+            (Get-ChildItem $BuildRoot\*\*.psd1 -Exclude 'build.psd1', 'analyzersettings.psd1' | Where-Object {
                     ($_.Directory.Name -match 'source|src' -or $_.Directory.Name -eq $_.BaseName) -and
-                    $(try { Test-ModuleManifest $_.FullName -ErrorAction Stop }catch { $false }) }
-            ).Directory.FullName)
+                    $(try
+                        {
+                            Test-ModuleManifest $_.FullName -ErrorAction Stop
+                        }
+                        catch
+                        {
+                            Write-Warning $_
+                            $false
+                        }) }
+            ).Directory.FullName
+        )
     ),
 
     [Parameter()]
@@ -39,16 +57,18 @@ Param (
 
 )
 
-Task UpdateHelp{
+Task UpdateHelp {
     $LineSeparation
     "`t`t`t UPDATE HELP MARKDOWN FILE"
     $LineSeparation
 
-    if (!(Split-Path -IsAbsolute $BuildOutput)) {
+    if (!(Split-Path -IsAbsolute $BuildOutput))
+    {
         $BuildOutput = Join-Path -Path $ProjectPath.FullName -ChildPath $BuildOutput
     }
 
-    if (!(Split-Path -IsAbsolute $HelpFolder)) {
+    if (!(Split-Path -IsAbsolute $HelpFolder))
+    {
         $HelpFolder = Join-Path $SourcePath $HelpFolder
     }
 
@@ -63,11 +83,13 @@ Task GenerateMamlFromMd {
     "`t`t`t GENERATE MAML IN BUILD OUTPUT"
     $LineSeparation
 
-    if (!(Split-Path -IsAbsolute $BuildOutput)) {
+    if (!(Split-Path -IsAbsolute $BuildOutput))
+    {
         $BuildOutput = Join-Path -Path $ProjectPath.FullName -ChildPath $BuildOutput
     }
 
-    if (!(Split-Path -IsAbsolute $HelpFolder)) {
+    if (!(Split-Path -IsAbsolute $HelpFolder))
+    {
         $HelpFolder = Join-Path $SourcePath $HelpFolder
     }
 

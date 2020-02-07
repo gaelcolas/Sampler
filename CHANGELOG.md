@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Added warning messages to all build task if the task couldn't be imported because of an invalid PSD1 file
+
 ## [0.100.0] - 2020-02-01
 
 ### Added

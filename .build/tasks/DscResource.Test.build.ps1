@@ -12,12 +12,15 @@ Param (
     [Parameter()]
     [string]
     $ProjectName = (property ProjectName $(
-            (Get-ChildItem $BuildRoot\*\*.psd1 | Where-Object {
+            (Get-ChildItem $BuildRoot\*\*.psd1 -Exclude 'build.psd1', 'analyzersettings.psd1' | Where-Object {
                     ($_.Directory.Name -match 'source|src' -or $_.Directory.Name -eq $_.BaseName) -and
-                    $(try {
+                    $(try
+                        {
                             Test-ModuleManifest $_.FullName -ErrorAction Stop
                         }
-                        catch {
+                        catch
+                        {
+                            Write-Warning $_
                             $false
                         }) }
             ).BaseName
@@ -27,10 +30,12 @@ Param (
     [Parameter()]
     [string]
     $ModuleVersion = (property ModuleVersion $(
-            try {
+            try
+            {
                 (gitversion | ConvertFrom-Json -ErrorAction Stop).InformationalVersion
             }
-            catch {
+            catch
+            {
                 Write-Verbose "Error attempting to use GitVersion $($_)"
                 ''
             }
@@ -94,7 +99,7 @@ task Invoke_DscResource_tests {
     # Build.ps1 parameters should be top priority
     # BuildInfo values should come next
     # Otherwise we should set some defaults
-    Import-Module Pester,DscResource.Test -ErrorAction Stop
+    Import-Module Pester, DscResource.Test -ErrorAction Stop
     $DscTestCmd = Get-Command Invoke-DscResourceTest
     foreach ($ParamName in $DscTestCmd.Parameters.Keys)
     {
@@ -236,35 +241,44 @@ task Invoke_DscResource_tests {
 task Fail_Build_if_DscResource_Tests_failed {
     "Asserting that no test failed"
 
-    if (!(Split-Path -isAbsolute $OutputDirectory)) {
+    if (!(Split-Path -isAbsolute $OutputDirectory))
+    {
         $OutputDirectory = Join-Path -Path $ProjectPath -ChildPath $OutputDirectory
         Write-Build Yellow "Absolute path to Output Directory is $OutputDirectory"
     }
 
-    if (!(Split-Path -isAbsolute $DscTestOutputFolder)) {
+    if (!(Split-Path -isAbsolute $DscTestOutputFolder))
+    {
         $DscTestOutputFolder = Join-Path $OutputDirectory $DscTestOutputFolder
     }
 
-    $os = if ($isWindows -or $PSVersionTable.PSVersion.Major -le 5) {
+    $os = if ($isWindows -or $PSVersionTable.PSVersion.Major -le 5)
+    {
         'Windows'
     }
-    elseif ($isMacOS) {
+    elseif ($isMacOS)
+    {
         'MacOS'
     }
-    else {
+    else
+    {
         'Linux'
     }
 
-    if ([String]::IsNullOrEmpty($ModuleVersion)) {
+    if ([String]::IsNullOrEmpty($ModuleVersion))
+    {
         $ModuleInfo = Import-PowerShellDataFile "$OutputDirectory/$ProjectName/*/$ProjectName.psd1" -ErrorAction Stop
-        if ($PreReleaseTag = $ModuleInfo.PrivateData.PSData.Prerelease) {
+        if ($PreReleaseTag = $ModuleInfo.PrivateData.PSData.Prerelease)
+        {
             $ModuleVersion = $ModuleInfo.ModuleVersion + "-" + $PreReleaseTag
         }
-        else {
+        else
+        {
             $ModuleVersion = $ModuleInfo.ModuleVersion
         }
     }
-    else {
+    else
+    {
         $ModuleVersion, $BuildMetadata = $ModuleVersion -split '\+', 2
         $ModuleVersionFolder, $PreReleaseTag = $ModuleVersion -split '\-', 2
     }
@@ -275,10 +289,12 @@ task Fail_Build_if_DscResource_Tests_failed {
     Write-Build White "`tDscTest Output Object = $DscTestResultObjectClixml"
 
 
-    if (-Not (Test-Path $DscTestResultObjectClixml)) {
+    if (-Not (Test-Path $DscTestResultObjectClixml))
+    {
         Throw "No command were tested. $DscTestResultObjectClixml not found"
     }
-    else {
+    else
+    {
         $DscTestObject = Import-Clixml -Path $DscTestResultObjectClixml -ErrorAction Stop
         assert ($DscTestObject.FailedCount -eq 0) ('Failed {0} tests. Aborting Build' -f $DscTestObject.FailedCount)
     }
@@ -288,40 +304,50 @@ task Fail_Build_if_DscResource_Tests_failed {
 # Synopsis: Uploading Unit Test results to AppVeyor
 task Upload_DscResourceTest_Results_To_AppVeyor -If { (property BuildSystem 'unknown') -eq 'AppVeyor' } {
 
-    if (!(Split-Path -isAbsolute $OutputDirectory)) {
+    if (!(Split-Path -isAbsolute $OutputDirectory))
+    {
         $OutputDirectory = Join-Path -Path $ProjectPath -ChildPath $OutputDirectory
         Write-Build Yellow "Absolute path to Output Directory is $OutputDirectory"
     }
 
-    if (!(Split-Path -isAbsolute $DscTestOutputFolder)) {
+    if (!(Split-Path -isAbsolute $DscTestOutputFolder))
+    {
         $DscTestOutputFolder = Join-Path $OutputDirectory $DscTestOutputFolder
     }
 
-    if (!(Test-Path $DscTestOutputFolder)) {
+    if (!(Test-Path $DscTestOutputFolder))
+    {
         Write-Build Yellow "Creating folder $DscTestOutputFolder"
         $null = New-Item -ItemType Directory -force $DscTestOutputFolder -ErrorAction Stop
     }
 
-    $os = if ($isWindows -or $PSVersionTable.PSVersion.Major -le 5) {
+    $os = if ($isWindows -or $PSVersionTable.PSVersion.Major -le 5)
+    {
         'Windows'
     }
-    elseif ($isMacOS) {
+    elseif ($isMacOS)
+    {
         'MacOS'
     }
-    else {
+    else
+    {
         'Linux'
     }
 
-    if ([String]::IsNullOrEmpty($ModuleVersion)) {
+    if ([String]::IsNullOrEmpty($ModuleVersion))
+    {
         $ModuleInfo = Import-PowerShellDataFile "$OutputDirectory/$ProjectName/*/$ProjectName.psd1" -ErrorAction Stop
-        if ($PreReleaseTag = $ModuleInfo.PrivateData.PSData.Prerelease) {
+        if ($PreReleaseTag = $ModuleInfo.PrivateData.PSData.Prerelease)
+        {
             $ModuleVersion = $ModuleInfo.ModuleVersion + "-" + $PreReleaseTag
         }
-        else {
+        else
+        {
             $ModuleVersion = $ModuleInfo.ModuleVersion
         }
     }
-    else {
+    else
+    {
         $ModuleVersion, $BuildMetadata = $ModuleVersion -split '\+', 2
         $ModuleVersionFolder, $PreReleaseTag = $ModuleVersion -split '\-', 2
     }
@@ -331,7 +357,8 @@ task Upload_DscResourceTest_Results_To_AppVeyor -If { (property BuildSystem 'unk
     $DscTestOutputFullPath = Join-Path $DscTestOutputFolder "$($DscTestOutputFormat)_$DscTestOutputFileFileName"
 
     $TestResultFile = Get-Item $DscTestOutputFullPath -ErrorAction Ignore
-    if ($TestResultFile) {
+    if ($TestResultFile)
+    {
         Write-Build Green "  Uploading test results $TestResultFile to Appveyor"
         $TestResultFile | Add-TestResultToAppveyor
         Write-Build Green "  Upload Complete"

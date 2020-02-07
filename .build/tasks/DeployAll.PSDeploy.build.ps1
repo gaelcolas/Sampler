@@ -6,12 +6,15 @@ Param (
     [Parameter()]
     [string]
     $ProjectName = (property ProjectName $(
-            (Get-ChildItem $BuildRoot\*\*.psd1 | Where-Object {
+            (Get-ChildItem $BuildRoot\*\*.psd1 -Exclude 'build.psd1', 'analyzersettings.psd1' | Where-Object {
                     ($_.Directory.Name -match 'source|src' -or $_.Directory.Name -eq $_.BaseName) -and
-                    $(try {
+                    $(try
+                        {
                             Test-ModuleManifest $_.FullName -ErrorAction Stop
                         }
-                        catch {
+                        catch
+                        {
+                            Write-Warning $_
                             $false
                         }) }
             ).BaseName
@@ -24,17 +27,23 @@ Param (
 
     [Parameter()]
     [string]
-    $APPVEYOR_JOB_ID = $(try {
+    $APPVEYOR_JOB_ID = $(try
+        {
             property APPVEYOR_JOB_ID
         }
-        catch { ''
+        catch
+        {
+            ''
         }),
 
     [Parameter()]
-    $DeploymentTags = $(try {
+    $DeploymentTags = $(try
+        {
             property DeploymentTags
         }
-        catch { ''
+        catch
+        {
+            ''
         }),
 
     [Parameter()]
@@ -44,7 +53,8 @@ Param (
 # Synopsis: Deploy everything configured in PSDeploy
 task Deploy_with_PSDeploy {
 
-    if (![io.path]::IsPathRooted($BuildOutput)) {
+    if (![io.path]::IsPathRooted($BuildOutput))
+    {
         $BuildOutput = Join-Path -Path $BuildRoot -ChildPath $BuildOutput
     }
 
@@ -57,7 +67,8 @@ task Deploy_with_PSDeploy {
         Force = $true
     }
 
-    if ($DeploymentTags) {
+    if ($DeploymentTags)
+    {
         $null = $InvokePSDeployArgs.Add('Tags', $DeploymentTags)
     }
 
