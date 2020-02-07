@@ -13,22 +13,36 @@ param
     [Parameter()]
     [string]
     $ProjectName = (property ProjectName $(
-            (
-                Get-ChildItem $BuildRoot\*\*.psd1 | Where-Object {
+            #Find the module manifest to deduce the Project Name
+            (Get-ChildItem $BuildRoot\*\*.psd1 -Exclude 'build.psd1', 'analyzersettings.psd1' | Where-Object {
                     ($_.Directory.Name -match 'source|src' -or $_.Directory.Name -eq $_.BaseName) -and
-                    $(
-                        try
+                    $(try
                         {
                             Test-ModuleManifest $_.FullName -ErrorAction Stop
                         }
                         catch
                         {
+                            Write-Warning $_
                             $false
-                        }
-                    )
-                }
+                        }) }
             ).BaseName
         )
+    ),
+
+    [Parameter()]
+    [string]
+    $SourcePath = (property SourcePath ((Get-ChildItem $BuildRoot\*\*.psd1 -Exclude 'build.psd1', 'analyzersettings.psd1' | Where-Object {
+                    ($_.Directory.Name -match 'source|src' -or $_.Directory.Name -eq $_.BaseName) -and
+                    $(try
+                        {
+                            Test-ModuleManifest $_.FullName -ErrorAction Stop
+                        }
+                        catch
+                        {
+                            Write-Warning $_
+                            $false
+                        }) }
+            ).Directory.FullName)
     ),
 
     [Parameter()]
@@ -59,23 +73,13 @@ task Generate_Conceptual_Help {
 
     $builtModulePath = Join-Path -Path (Join-Path -Path $OutputDirectory -ChildPath $ProjectName) -ChildPath $ModuleVersion
 
-    #region Get the source folder
-    $sourceFolders = 'source|src|{0}' -f (Split-Path -Path $BuildRoot -Leaf)
-
-    $escapedProjectPath = [RegEx]::Escape($ProjectPath)
-
-    $sourcePath = (Get-ChildItem -Path $ProjectPath -Directory).FullName | Where-Object -FilterScript {
-        ($_ -replace $escapedProjectPath) -match $sourceFolders
-    }
-    #endregion
-
     "`tProject Path            = $ProjectPath"
     "`tProject Name            = $ProjectName"
     "`tModule Version          = $ModuleVersion"
-    "`tSource Path             = $sourcePath"
+    "`tSource Path             = $SourcePath"
     "`tBuilt Module Path       = $builtModulePath"
 
     Write-Build Magenta "Generating conceptual help for all DSC resources based on source."
 
-    New-DscResourcePowerShellHelp -ModulePath $sourcePath -DestinationModulePath $builtModulePath
+    New-DscResourcePowerShellHelp -ModulePath $SourcePath -DestinationModulePath $builtModulePath
 }
