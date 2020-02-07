@@ -70,7 +70,9 @@ Param (
     $BuildInfo = (property BuildInfo @{ })
 )
 
-# Synopsis: Making sure the Module meets some quality standard (help, tests)
+. $PSScriptRoot/Common.Functions.ps1
+
+# Synopsis: Making sure the Module meets some quality standard (help, tests).
 task Invoke_pester_tests {
     if (!(Split-Path -isAbsolute $OutputDirectory))
     {
@@ -89,35 +91,18 @@ task Invoke_pester_tests {
         $null = New-Item -ItemType Directory -force $PesterOutputFolder -ErrorAction Stop
     }
 
-    # If no codeCoverageThreshold configured at runtime, look for BuildInfo settings.
-    if ($CodeCoverageThreshold -eq '')
-    {
-        if ($BuildInfo.ContainsKey('Pester') -and $BuildInfo.Pester.ContainsKey('CodeCoverageThreshold'))
-        {
-            $CodeCoverageThreshold = $BuildInfo.Pester.CodeCoverageThreshold
-            Write-Build Magenta "Loading Code Coverage from Config file ($CodeCoverageThreshold %)"
-        }
-        else
-        {
-            $CodeCoverageThreshold = 0
-            Write-Build Magenta "No code coverage threshold value found (param nor config). Skipping."
-        }
+    $GetCodeCoverageThresholdParameters = @{
+        CodeCoverageThreshold = $CodeCoverageThreshold
+        BuildInfo             = $BuildInfo
     }
-    else
-    {
-        $CodeCoverageThreshold = [int]$CodeCoverageThreshold
-        Write-Build Magenta "Loading CodeCoverage Threshold from Parameter ($CodeCoverageThreshold %)"
-    }
+
+    $CodeCoverageThreshold = Get-CodeCoverageThreshold @GetCodeCoverageThresholdParameters
 
     $DefaultPesterParams = @{
         OutputFormat                 = 'NUnitXML'
-        #OutputFile                   = $PesterOutputFullPath
         PassThru                     = $true
         CodeCoverageOutputFileFormat = 'JaCoCo'
         Script                       = ('tests', (Join-Path $ProjectName 'tests'))
-        #CodeCoverage                 = $CodeCoverageFiles
-        #CodeCoverageOutputFile       = (Join-Path $PesterOutputFolder "CodeCov_$PesterOutputFileFileName")
-        #ExcludeTag                   = 'FunctionalQuality', 'TestQuality', 'helpQuality'
     }
 
     $DefaultExcludeFromCodeCoverage = @('test')
@@ -167,44 +152,29 @@ task Invoke_pester_tests {
     "`tTest Scripts  = $($PesterScript -join ', ')"
     "`tTags          = $($PesterTag -join ', ')"
     "`tExclude Tags  = $($PesterExcludeTag -join ', ')"
-    "`tExclude CodCov= $($ExcludeFromCodeCoverage -join ', ')"
+    "`tExclude Cov.  = $($ExcludeFromCodeCoverage -join ', ')"
     "`tModuleVersion = $ModuleVersion"
 
-
-
-    if ([String]::IsNullOrEmpty($ModuleVersion))
-    {
-        $ModuleInfo = Import-PowerShellDataFile "$OutputDirectory/$ProjectName/*/$ProjectName.psd1" -ErrorAction Stop
-        if ($PreReleaseTag = $ModuleInfo.PrivateData.PSData.Prerelease)
-        {
-            $ModuleVersion = $ModuleInfo.ModuleVersion + "-" + $PreReleaseTag
-        }
-        else
-        {
-            $ModuleVersion = $ModuleInfo.ModuleVersion
-        }
-    }
-    else
-    {
-        $ModuleVersion, $BuildMetadata = $ModuleVersion -split '\+', 2
-        $ModuleVersionFolder, $PreReleaseTag = $ModuleVersion -split '\-', 2
+    $GetModuleVersionParameters = @{
+        OutputDirectory = $OutputDirectory
+        ProjectName     = $ProjectName
+        ModuleVersion   = $ModuleVersion
     }
 
-    $os = if ($isWindows -or $PSVersionTable.PSVersion.Major -le 5)
-    {
-        'Windows'
-    }
-    elseif ($isMacOS)
-    {
-        'MacOS'
-    }
-    else
-    {
-        'Linux'
+    $ModuleVersion = Get-ModuleVersion @GetModuleVersionParameters
+
+    $osShortName = Get-OperatingSystemShortName
+
+    $powerShellVersion = 'PSv.{0}' -f $PSVersionTable.PSVersion
+
+    $getPesterOutputFileFileNameParameters = @{
+        ProjectName = $ProjectName
+        ModuleVersion = $ModuleVersion
+        OsShortName = $osShortName
+        PowerShellVersion = $powerShellVersion
     }
 
-    $PSVersion = 'PSv.{0}' -f $PSVersionTable.PSVersion
-    $PesterOutputFileFileName = "{0}_v{1}.{2}.{3}.xml" -f $ProjectName, $ModuleVersion, $os, $PSVersion
+    $PesterOutputFileFileName = Get-PesterOutputFileFileName @getPesterOutputFileFileNameParameters
     $PesterOutputFullPath = Join-Path $PesterOutputFolder "$($PesterOutputFormat)_$PesterOutputFileFileName"
 
     $moduleUnderTest = Import-Module $ProjectName -PassThru
@@ -230,7 +200,17 @@ task Invoke_pester_tests {
         PassThru     = $true
     }
 
-    $CodeCoverageOutputFile = (Join-Path $PesterOutputFolder "CodeCov_$PesterOutputFileFileName")
+    $getCodeCoverageOutputFile = @{
+        BuildInfo = $BuildInfo
+        PesterOutputFolder = $PesterOutputFolder
+    }
+
+    $CodeCoverageOutputFile = Get-CodeCoverageOutputFile @getCodeCoverageOutputFile
+
+    if (-not $CodeCoverageOutputFile)
+    {
+        $CodeCoverageOutputFile = (Join-Path $PesterOutputFolder "CodeCov_$PesterOutputFileFileName")
+    }
 
     if ($codeCoverageThreshold -gt 0)
     {
@@ -238,12 +218,21 @@ task Invoke_pester_tests {
         $PesterParams.Add('CodeCoverageOutputFile', $CodeCoverageOutputFile)
         $PesterParams.Add('CodeCoverageOutputFileFormat', $PesterCodeCoverageOutputFileFormat)
     }
+
     "`tCodeCoverage  = $($PesterParams['CodeCoverage'])"
     "`tCodeCoverageOutputFile  = $($PesterParams['CodeCoverageOutputFile'])"
     "`tCodeCoverageOutputFileFormat  = $($PesterParams['CodeCoverageOutputFileFormat'])"
 
-    if ($PesterExcludeTag.count -gt 0)
+    $codeCoverageOutputFileEncoding = Get-CodeCoverageOutputFileEncoding -BuildInfo $BuildInfo
+
+    if ($codeCoverageThreshold -gt 0 -and $codeCoverageOutputFileEncoding)
     {
+        $PesterParams.Add('CodeCoverageOutputFileEncoding', $codeCoverageOutputFileEncoding)
+
+        "`tCodeCoverageOutputFileEncoding  = $($PesterParams['CodeCoverageOutputFileEncoding'])"
+    }
+
+    if ($PesterExcludeTag.count -gt 0) {
         $PesterParams.Add('ExcludeTag', $PesterExcludeTag)
     }
 
@@ -314,47 +303,31 @@ task Fail_Build_if_Pester_Tests_failed {
         $PesterOutputFolder = Join-Path $OutputDirectory $PesterOutputFolder
     }
 
-    $os = if ($isWindows -or $PSVersionTable.PSVersion.Major -le 5)
-    {
-        'Windows'
-    }
-    elseif ($isMacOS)
-    {
-        'MacOS'
-    }
-    else
-    {
-        'Linux'
+    $osShortName = Get-OperatingSystemShortName
+
+    $GetModuleVersionParameters = @{
+        OutputDirectory = $OutputDirectory
+        ProjectName     = $ProjectName
+        ModuleVersion   = $ModuleVersion
     }
 
-    if ([String]::IsNullOrEmpty($ModuleVersion))
-    {
-        $ModuleInfo = Import-PowerShellDataFile "$OutputDirectory/$ProjectName/*/$ProjectName.psd1" -ErrorAction Stop
-        if ($PreReleaseTag = $ModuleInfo.PrivateData.PSData.Prerelease)
-        {
-            $ModuleVersion = $ModuleInfo.ModuleVersion + "-" + $PreReleaseTag
-        }
-        else
-        {
-            $ModuleVersion = $ModuleInfo.ModuleVersion
-        }
-    }
-    else
-    {
-        $ModuleVersion, $BuildMetadata = $ModuleVersion -split '\+', 2
-        $ModuleVersionFolder, $PreReleaseTag = $ModuleVersion -split '\-', 2
+    $ModuleVersion = Get-ModuleVersion @GetModuleVersionParameters
+
+    $powerShellVersion = 'PSv.{0}' -f $PSVersionTable.PSVersion
+    $getPesterOutputFileFileNameParameters = @{
+        ProjectName = $ProjectName
+        ModuleVersion = $ModuleVersion
+        OsShortName = $osShortName
+        PowerShellVersion = $powerShellVersion
     }
 
-    $PSVersion = 'PSv.{0}' -f $PSVersionTable.PSVersion
-    $PesterOutputFileFileName = "{0}_v{1}.{2}.{3}.xml" -f $ProjectName, $ModuleVersion, $os, $PSVersion
+    $PesterOutputFileFileName = Get-PesterOutputFileFileName @getPesterOutputFileFileNameParameters
     $PesterResultObjectClixml = Join-Path $PesterOutputFolder "PesterObject_$PesterOutputFileFileName"
+
     Write-Build White "`tPester Output Object = $PesterResultObjectClixml"
 
-
-    if (-Not (Test-Path $PesterResultObjectClixml))
-    {
-        if ( $CodeCoverageThreshold -eq 0 )
-        {
+    if (-not (Test-Path $PesterResultObjectClixml)) {
+        if ( $CodeCoverageThreshold -eq 0 ) {
             Write-Build Green "Pester run and Coverage bypassed. No Pester output found but allowed."
             return
         }
@@ -368,11 +341,9 @@ task Fail_Build_if_Pester_Tests_failed {
         $PesterObject = Import-Clixml -Path $PesterResultObjectClixml -ErrorAction Stop
         assert ($PesterObject.FailedCount -eq 0) ('Failed {0} tests. Aborting Build' -f $PesterObject.FailedCount)
     }
-
 }
 
-
-# Synopsis: Fails the build if the code coverage is under predefined threshold
+# Synopsis: Fails the build if the code coverage is under predefined threshold.
 task Pester_if_Code_Coverage_Under_Threshold {
 
     if (!$CodeCoverageThreshold)
@@ -398,47 +369,31 @@ task Pester_if_Code_Coverage_Under_Threshold {
         $PesterOutputFolder = Join-Path $OutputDirectory $PesterOutputFolder
     }
 
-    $os = if ($isWindows -or $PSVersionTable.PSVersion.Major -le 5)
-    {
-        'Windows'
-    }
-    elseif ($isMacOS)
-    {
-        'MacOS'
-    }
-    else
-    {
-        'Linux'
+    $osShortName = Get-OperatingSystemShortName
+
+    $GetModuleVersionParameters = @{
+        OutputDirectory = $OutputDirectory
+        ProjectName     = $ProjectName
+        ModuleVersion   = $ModuleVersion
     }
 
-    if ([String]::IsNullOrEmpty($ModuleVersion))
-    {
-        $ModuleInfo = Import-PowerShellDataFile "$OutputDirectory/$ProjectName/*/$ProjectName.psd1" -ErrorAction Stop
-        if ($PreReleaseTag = $ModuleInfo.PrivateData.PSData.Prerelease)
-        {
-            $ModuleVersion = $ModuleInfo.ModuleVersion + "-" + $PreReleaseTag
-        }
-        else
-        {
-            $ModuleVersion = $ModuleInfo.ModuleVersion
-        }
-    }
-    else
-    {
-        $ModuleVersion, $BuildMetadata = $ModuleVersion -split '\+', 2
-        $ModuleVersionFolder, $PreReleaseTag = $ModuleVersion -split '\-', 2
+    $ModuleVersion = Get-ModuleVersion @GetModuleVersionParameters
+
+    $powerShellVersion = 'PSv.{0}' -f $PSVersionTable.PSVersion
+
+    $getPesterOutputFileFileNameParameters = @{
+        ProjectName = $ProjectName
+        ModuleVersion = $ModuleVersion
+        OsShortName = $osShortName
+        PowerShellVersion = $powerShellVersion
     }
 
-    $PSVersion = 'PSv.{0}' -f $PSVersionTable.PSVersion
-    $PesterOutputFileFileName = "{0}_v{1}.{2}.{3}.xml" -f $ProjectName, $ModuleVersion, $os, $PSVersion
+    $PesterOutputFileFileName = Get-PesterOutputFileFileName @getPesterOutputFileFileNameParameters
     $PesterResultObjectClixml = Join-Path $PesterOutputFolder "PesterObject_$PesterOutputFileFileName"
     Write-Build White "`tPester Output Object = $PesterResultObjectClixml"
 
-
-    if (-Not (Test-Path $PesterResultObjectClixml))
-    {
-        if ( $CodeCoverageThreshold -eq 0 )
-        {
+    if (-Not (Test-Path $PesterResultObjectClixml)) {
+        if ( $CodeCoverageThreshold -eq 0 ) {
             Write-Build Green "Pester run and Coverage bypassed. No Pester output found but allowed."
             return
         }
@@ -466,7 +421,7 @@ task Pester_if_Code_Coverage_Under_Threshold {
     }
 }
 
-# Synopsis: Uploading Unit Test results to AppVeyor
+# Synopsis: Uploading Unit Test results to AppVeyor.
 task Upload_Test_Results_To_AppVeyor -If { (property BuildSystem 'unknown') -eq 'AppVeyor' } {
 
     if (!(Split-Path -isAbsolute $OutputDirectory))
@@ -486,39 +441,26 @@ task Upload_Test_Results_To_AppVeyor -If { (property BuildSystem 'unknown') -eq 
         $null = New-Item -ItemType Directory -force $PesterOutputFolder -ErrorAction Stop
     }
 
-    $os = if ($isWindows -or $PSVersionTable.PSVersion.Major -le 5)
-    {
-        'Windows'
-    }
-    elseif ($isMacOS)
-    {
-        'MacOS'
-    }
-    else
-    {
-        'Linux'
+    $osShortName = Get-OperatingSystemShortName
+
+    $GetModuleVersionParameters = @{
+        OutputDirectory = $OutputDirectory
+        ProjectName     = $ProjectName
+        ModuleVersion   = $ModuleVersion
     }
 
-    if ([String]::IsNullOrEmpty($ModuleVersion))
-    {
-        $ModuleInfo = Import-PowerShellDataFile "$OutputDirectory/$ProjectName/*/$ProjectName.psd1" -ErrorAction Stop
-        if ($PreReleaseTag = $ModuleInfo.PrivateData.PSData.Prerelease)
-        {
-            $ModuleVersion = $ModuleInfo.ModuleVersion + "-" + $PreReleaseTag
-        }
-        else
-        {
-            $ModuleVersion = $ModuleInfo.ModuleVersion
-        }
-    }
-    else
-    {
-        $ModuleVersion, $BuildMetadata = $ModuleVersion -split '\+', 2
-        $ModuleVersionFolder, $PreReleaseTag = $ModuleVersion -split '\-', 2
+    $ModuleVersion = Get-ModuleVersion @GetModuleVersionParameters
+
+    $powerShellVersion = 'PSv.{0}' -f $PSVersionTable.PSVersion
+
+    $getPesterOutputFileFileNameParameters = @{
+        ProjectName = $ProjectName
+        ModuleVersion = $ModuleVersion
+        OsShortName = $osShortName
+        PowerShellVersion = $powerShellVersion
     }
 
-    $PSVersion = 'PSv.{0}' -f $PSVersionTable.PSVersion
-    $PesterOutputFileFileName = "{0}_v{1}.{2}.{3}.xml" -f $ProjectName, $ModuleVersion, $os, $PSVersion
+    $PesterOutputFileFileName = Get-PesterOutputFileFileName @getPesterOutputFileFileNameParameters
     $PesterOutputFullPath = Join-Path $PesterOutputFolder "$($PesterOutputFormat)_$PesterOutputFileFileName"
 
     $TestResultFile = Get-Item $PesterOutputFullPath -ErrorAction Ignore
