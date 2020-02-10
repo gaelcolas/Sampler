@@ -270,7 +270,7 @@ task Invoke_pester_tests {
             { $_ -is [System.Collections.Hashtable] } {
                 foreach ($scriptItem in $PesterScript)
                 {
-                    Write-Build DarkGray "      ... $scriptItem"
+                    Write-Build DarkGray "      ... $(Convert-HashtableToString -Hashtable $scriptItem)"
                     $PesterParams.Script += $scriptItem
                 }
             }
