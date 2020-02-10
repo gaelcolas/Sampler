@@ -1,3 +1,33 @@
+function Convert-HashtableToString
+{
+    param
+    (
+        [Parameter()]
+        [System.Collections.Hashtable]
+        $Hashtable
+    )
+    $values = @()
+    foreach ($pair in $Hashtable.GetEnumerator())
+    {
+        if ($pair.Value -is [System.Array])
+        {
+            $str = "$($pair.Key)=($($pair.Value -join ","))"
+        }
+        elseif ($pair.Value -is [System.Collections.Hashtable])
+        {
+            $str = "$($pair.Key)={$(Convert-HashtableToString -Hashtable $pair.Value)}"
+        }
+        else
+        {
+            $str = "$($pair.Key)=$($pair.Value)"
+        }
+        $values += $str
+    }
+
+    [array]::Sort($values)
+    return ($values -join "; ")
+}
+
 function Get-CodeCoverageThreshold
 {
     [CmdletBinding()]
