@@ -134,6 +134,15 @@ Resolve-Dependency: #Parameters for Resolve-Dependency
 ModuleBuildTasks:
   Sampler:
     - '*.build.Sampler.ib.tasks' # this means: import (dot source) all aliases ending with .ib.tasks exported by sampler module
+<%
+    if($PLASTER_PARAM_ModuleType -eq 'dsccommunity') {
+@"
+  DscResource.DocGenerator:
+    - 'Task.*'
+"@
+    }
+%>
+
 
 # Invoke-Build Header to be used to 'decorate' the terminal output of the tasks.
 TaskHeader: |
