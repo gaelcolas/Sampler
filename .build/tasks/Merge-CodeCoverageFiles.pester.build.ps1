@@ -63,8 +63,6 @@ task Merge_CodeCoverage_Files {
         $CodeCovOutputFile = $BuildInfo.Pester.CodeCoverageMergedOutputFile
     }
 
-Write-Build Yellow $CodeCovOutputFile
-
     $targetFile = Join-Path -Path $OutputDirectory -ChildPath $CodeCovOutputFile
 
     if (Test-Path -Path $targetFile)
