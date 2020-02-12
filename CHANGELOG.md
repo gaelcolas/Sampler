@@ -11,11 +11,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Added warning messages to all build task if the task couldn't be imported because of an invalid PSD1 file
--  `build.ps1` will now dynamically determine the build configuration if not specified via the `-BuildConfig` parameter
+- Added warning messages to all build task if the task couldn't be imported
+  because of an invalid PSD1 file.
+- `build.ps1` will now dynamically determine the build configuration if
+  not specified via the `-BuildConfig` parameter.
 - Updated the PesterScript parameter to allow the specification of hastables,
   to enable specifying parameters to Pester.
   
+### Added
+
+- Add conceptual build step for DSC resources [issue #122](https://github.com/gaelcolas/Sampler/issues/122).
+
 ## [0.100.0] - 2020-02-01
 
 ### Added
