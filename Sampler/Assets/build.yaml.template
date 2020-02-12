@@ -104,6 +104,7 @@ Pester: #Passthru, OutputFile, CodeCoverageOutputFile not supported
   CodeCoverageThreshold: 85 # Set to 0 to bypass
   # CodeCoverageOutputFile: JaCoCo_$OsShortName.xml
   # CodeCoverageOutputFileEncoding: ascii
+  # CodeCoverageMergedOutputFile: JaCoCo_Merged.xml
 <%
     if($PLASTER_PARAM_ModuleType -eq 'dsccommunity') {
 @"
