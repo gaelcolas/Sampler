@@ -77,42 +77,9 @@ task Merge_CodeCoverage_Files {
 
     if ($codecovFiles.Count -gt 1)
     {
-        $firstFile = $codecovFiles | Select-Object -First 1
-        $otherFiles = $codecovFiles | Select-Object -Skip 1
-
         Write-Build DarkGray "Started merging $($codecovFiles.Count) code coverage files!"
-        [xml]$targetDocument = Get-Content $firstFile.FullName
-
-        if (Validate-CodeCoverageFileFormat -CodeCovFile $targetDocument)
-        {
-            Write-Build DarkGray "Successfully imported $($firstFile.Name) as a baseline"
-
-            $merged = 0
-            foreach ($file in $otherFiles)
-            {
-                [xml]$mergeDocument = Get-Content $file.FullName
-                Write-Build DarkGray "Merging $($file.Name) into baseline"
-                if (Validate-CodeCoverageFileFormat -CodeCovFile $mergeDocument)
-                {
-                    $targetDocument = Merge-JaCoCoReports -OriginalDocument $targetDocument -MergeDocument $mergeDocument
-                    $merged++
-                }
-                else
-                {
-                    Write-Build DarkGray "The following code coverage file is not using the JaCoCo format: $($file.Name)"
-                }
-            }
-            Write-Build DarkGray "Merge completed: Successfully merged $merged files into the baseline"
-
-            $targetDocument = Update-JaCoCoStatistics -Document $targetDocument
-
-            $fullTargetFilePath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($targetFile)
-            $targetDocument.Save($fullTargetFilePath)
-        }
-        else
-        {
-            throw "The following code coverage file is not using the JaCoCo format: $($firstFile.Name)"
-        }
+        Start-CodeCoverageMerge -Files $codecovFiles -TargetFile $targetFile
+        Write-Build DarkGray "Merge completed. Saved merge result to: $targetFile"
     }
     else
     {
@@ -120,7 +87,7 @@ task Merge_CodeCoverage_Files {
     }
 }
 
-function Validate-CodeCoverageFileFormat
+function Confirm-CodeCoverageFileFormat
 {
     param
     (
@@ -136,4 +103,54 @@ function Validate-CodeCoverageFileFormat
     }
 
     return $false
+}
+
+function Start-CodeCoverageMerge
+{
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory = $true)]
+        [System.Object[]]
+        $Files,
+
+        [Parameter(Mandatory = $true)]
+        [System.String]
+        $TargetFile
+    )
+
+    $firstFile = $Files | Select-Object -First 1
+    $otherFiles = $Files | Select-Object -Skip 1
+
+    [xml]$targetDocument = Get-Content -Path $firstFile.FullName -Raw
+
+    if (Confirm-CodeCoverageFileFormat -CodeCovFile $targetDocument)
+    {
+        Write-Verbose "Successfully imported $($firstFile.Name) as a baseline"
+
+        $merged = 0
+        foreach ($file in $otherFiles)
+        {
+            [xml]$mergeDocument = Get-Content -Path $file.FullName -Raw
+            Write-Verbose "Merging $($file.Name) into baseline"
+            if (Confirm-CodeCoverageFileFormat -CodeCovFile $mergeDocument)
+            {
+                $targetDocument = Merge-JaCoCoReports -OriginalDocument $targetDocument -MergeDocument $mergeDocument
+                $merged++
+            }
+            else
+            {
+                Write-Verbose "The following code coverage file is not using the JaCoCo format: $($file.Name)"
+            }
+        }
+        Write-Verbose "Merge completed: Successfully merged $merged files into the baseline"
+
+        $targetDocument = Update-JaCoCoStatistics -Document $targetDocument
+
+        $fullTargetFilePath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($TargetFile)
+        $targetDocument.Save($fullTargetFilePath)
+    }
+    else
+    {
+        throw "The following code coverage file is not using the JaCoCo format: $($firstFile.Name)"
+    }
 }
