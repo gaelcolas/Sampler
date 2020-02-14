@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.102.0] - 2020-02-14
+
 ### Added
 
 - Added the functionality to merge multiple JaCoCo code coverage files into one file.
