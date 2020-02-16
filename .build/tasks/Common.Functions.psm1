@@ -101,8 +101,9 @@ function Get-ModuleVersion
     else
     {
         <#
-            A version sting returned by the CI pipeline can look like this:
-            1.15.0-pr0224-0022+Sha.47ae45eb2cfed02b249f239a7c55e5c71b26ab76.Date.2020-01-07
+            This handles a previous version of the module that suggested to pass
+            a version string with metadata in the CI pipeline that can look like
+            this: 1.15.0-pr0224-0022+Sha.47ae45eb2cfed02b249f239a7c55e5c71b26ab76.Date.2020-01-07
         #>
         $moduleVersion = ($moduleVersion -split '\+', 2)[0]
     }
