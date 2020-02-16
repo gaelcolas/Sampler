@@ -32,7 +32,7 @@ Param (
     $ModuleVersion = (property ModuleVersion $(
             try
             {
-                (gitversion | ConvertFrom-Json -ErrorAction Stop).InformationalVersion
+                (gitversion | ConvertFrom-Json -ErrorAction Stop).MajorMinorPatch
             }
             catch
             {

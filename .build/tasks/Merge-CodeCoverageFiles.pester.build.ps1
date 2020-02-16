@@ -27,20 +27,6 @@ Param (
         )
     ),
 
-    [Parameter()]
-    [string]
-    $ModuleVersion = (property ModuleVersion $(
-            try
-            {
-                (gitversion | ConvertFrom-Json -ErrorAction Stop).InformationalVersion
-            }
-            catch
-            {
-                Write-Verbose "Error attempting to use GitVersion $($_)"
-                ''
-            }
-        )),
-
     # Build Configuration object
     [Parameter()]
     $BuildInfo = (property BuildInfo @{ })
