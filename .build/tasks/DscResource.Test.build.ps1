@@ -32,7 +32,7 @@ Param (
     $ModuleVersion = (property ModuleVersion $(
             try
             {
-                (gitversion | ConvertFrom-Json -ErrorAction Stop).MajorMinorPatch
+                (gitversion | ConvertFrom-Json -ErrorAction Stop).NuGetVersionV2
             }
             catch
             {
@@ -158,6 +158,8 @@ task Invoke_DscResource_tests {
     $PSVersion = 'PSv.{0}' -f $PSVersionTable.PSVersion
     $DscTestOutputFileFileName = "DscTest_{0}_v{1}.{2}.{3}.xml" -f $ProjectName, $ModuleVersion, $os, $PSVersion
     $DscTestOutputFullPath = Join-Path $DscTestOutputFolder "$($DscTestOutputFormat)_$DscTestOutputFileFileName"
+
+
 
     $DscTestParams = @{
         OutputFormat = $DscTestOutputFormat

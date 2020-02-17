@@ -34,7 +34,7 @@ stages:
               arguments: '-ResolveDependency -tasks pack'
               pwsh: true
             env:
-              ModuleVersion: $(gitVersion.MajorMinorPatch)
+              ModuleVersion: $(gitVersion.NuGetVersionV2)
 
           - task: PublishBuildArtifacts@1
             displayName: 'Publish Build Artifact'

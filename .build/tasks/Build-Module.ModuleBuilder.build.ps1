@@ -56,7 +56,7 @@ Param (
     $ModuleVersion = (property ModuleVersion $(
             try
             {
-                (gitversion | ConvertFrom-Json -ErrorAction Stop).MajorMinorPatch
+                (gitversion | ConvertFrom-Json -ErrorAction Stop).NuGetVersionV2
             }
             catch
             {

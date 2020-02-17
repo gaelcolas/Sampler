@@ -19,7 +19,7 @@ steps:
     arguments: '-ResolveDependency -tasks build'
     pwsh: true
   env:
-    ModuleVersion: $(GitVersion.MajorMinorPatch)
+    ModuleVersion: $(GitVersion.NuGetVersionV2)
 
 - task: PowerShell@2
   name: Test
@@ -28,7 +28,7 @@ steps:
     arguments: '-tasks test'
     pwsh: true
   env:
-    ModuleVersion: $(GitVersion.MajorMinorPatch)
+    ModuleVersion: $(GitVersion.NuGetVersionV2)
 
 - task: PublishTestResults@2
   inputs:
