@@ -126,7 +126,6 @@ task Invoke_DscResource_tests {
         }
     }
 
-
     "`tProject Path  = $ProjectPath"
     "`tProject Name  = $ProjectName"
     "`tTest Scripts  = $($DscTestScript -join ', ')"
@@ -135,24 +134,10 @@ task Invoke_DscResource_tests {
     "`tModuleVersion = $ModuleVersion"
     "`tBuildModuleOutput = $BuildModuleOutput"
 
-
-
-    if ([String]::IsNullOrEmpty($ModuleVersion))
-    {
-        $ModuleInfo = Import-PowerShellDataFile "$BuildModuleOutput/$ProjectName/*/$ProjectName.psd1" -ErrorAction Stop
-        if ($PreReleaseTag = $ModuleInfo.PrivateData.PSData.Prerelease)
-        {
-            $ModuleVersion = $ModuleInfo.ModuleVersion + "-" + $PreReleaseTag
-        }
-        else
-        {
-            $ModuleVersion = $ModuleInfo.ModuleVersion
-        }
-    }
-    else
-    {
-        $ModuleVersion, $BuildMetadata = $ModuleVersion -split '\+', 2
-        $ModuleVersionFolder, $PreReleaseTag = $ModuleVersion -split '\-', 2
+    $getModuleVersionParameters = @{
+        OutputDirectory = $BuildModuleOutput
+        ProjectName     = $ProjectName
+        ModuleVersion   = $ModuleVersion
     }
 
     $ModuleVersion = Get-ModuleVersion @getModuleVersionParameters
@@ -173,8 +158,6 @@ task Invoke_DscResource_tests {
     $PSVersion = 'PSv.{0}' -f $PSVersionTable.PSVersion
     $DscTestOutputFileFileName = "DscTest_{0}_v{1}.{2}.{3}.xml" -f $ProjectName, $ModuleVersion, $os, $PSVersion
     $DscTestOutputFullPath = Join-Path $DscTestOutputFolder "$($DscTestOutputFormat)_$DscTestOutputFileFileName"
-
-
 
     $DscTestParams = @{
         OutputFormat = $DscTestOutputFormat
