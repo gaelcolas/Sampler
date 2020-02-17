@@ -7,11 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Fixed
+### Changed
 
-- Fixed each build task so that the default value of the parameter `ModuleVersion`
-  always returns the sematic version (x.y.z), and not the informational
-  version ([issue #130](https://github.com/gaelcolas/Sampler/issues/130)).
+- Changed each build task so that the default value of the parameter
+  `ModuleVersion` always returns the sematic version (x.y.z-prerelease),
+  and not the informational version ([issue #130](https://github.com/gaelcolas/Sampler/issues/130)).
 
 ## [0.102.0] - 2020-02-14
 
