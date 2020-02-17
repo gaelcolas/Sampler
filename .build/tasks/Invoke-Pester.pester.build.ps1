@@ -70,7 +70,7 @@ Param (
     $BuildInfo = (property BuildInfo @{ })
 )
 
-. $PSScriptRoot/Common.Functions.ps1
+Import-Module -Name "$PSScriptRoot/Common.Functions.psm1"
 
 # Synopsis: Making sure the Module meets some quality standard (help, tests).
 task Invoke_pester_tests {
@@ -155,13 +155,13 @@ task Invoke_pester_tests {
     "`tExclude Cov.  = $($ExcludeFromCodeCoverage -join ', ')"
     "`tModuleVersion = $ModuleVersion"
 
-    $GetModuleVersionParameters = @{
+    $getModuleVersionParameters = @{
         OutputDirectory = $OutputDirectory
         ProjectName     = $ProjectName
         ModuleVersion   = $ModuleVersion
     }
 
-    $ModuleVersion = Get-ModuleVersion @GetModuleVersionParameters
+    $ModuleVersion = Get-ModuleVersion @getModuleVersionParameters
 
     $osShortName = Get-OperatingSystemShortName
 

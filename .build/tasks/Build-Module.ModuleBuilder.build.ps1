@@ -70,6 +70,8 @@ Param (
     $BuildInfo = (property BuildInfo @{ })
 )
 
+Import-Module -Name "$PSScriptRoot/Common.Functions.psm1"
+
 # Synopsis: Build the Module based on its Build.psd1 definition
 Task Build_Module_ModuleBuilder {
     " Project Name      = $ProjectName"
@@ -141,39 +143,28 @@ Task Build_Module_ModuleBuilder {
 }
 
 Task Build_NestedModules_ModuleBuilder {
-    " Project Name      = $ProjectName"
-    " Source Path       = $SourcePath"
-    " OutputDirectory   = $OutputDirectory"
-    " BuildModuleOutput = $BuildModuleOutput"
+    " Project Name          = $ProjectName"
+    " Source Path           = $SourcePath"
+    " Output Directory      = $OutputDirectory"
+    " Build Module Output   = $BuildModuleOutput"
 
     Import-Module ModuleBuilder -ErrorAction Stop
     $BuiltModuleManifest = "$BuildModuleOutput/$ProjectName/*/$ProjectName.psd1"
-    $ModuleInfo = Import-PowerShellDataFile $BuiltModuleManifest -ErrorAction Stop
 
-    if ([String]::IsNullOrEmpty($ModuleVersion))
-    {
-        if ($PreReleaseTag = $ModuleInfo.PrivateData.PSData.Prerelease)
-        {
-            $ModuleVersionFolder = $ModuleInfo.ModuleVersion
-            $ModuleVersion = $ModuleVersionFolder + "-" + $PreReleaseTag
-        }
-        else
-        {
-            $ModuleVersionFolder = $ModuleInfo.ModuleVersion
-            $ModuleVersion = $ModuleInfo.ModuleVersion
-        }
-    }
-    else
-    {
-        # Remove metadata from ModuleVersion
-        $ModuleVersion, $BuildMetadata = $ModuleVersion -split '\+', 2
-        # Remove Prerelease tag from ModuleVersionFolder
-        $ModuleVersionFolder, $PreReleaseTag = $ModuleVersion -split '\-', 2
+    " Built Module Manifest = $BuiltModuleManifest"
+
+    $getModuleVersionParameters = @{
+        OutputDirectory = $BuildModuleOutput
+        ProjectName     = $ProjectName
+        ModuleVersion   = $ModuleVersion
     }
 
-    " ModuleVersion       = $ModuleVersion"
-    " ModuleVersionFolder = $ModuleVersionFolder"
-    " PreReleaseTag       = $PreReleaseTag"
+    $ModuleVersion = Get-ModuleVersion @getModuleVersionParameters
+    $ModuleVersionFolder, $PreReleaseTag = $ModuleVersion -split '\-', 2
+
+    " Module Version        = $ModuleVersion"
+    " Module Version Folder = $ModuleVersionFolder"
+    " Pre-release Tag       = $PreReleaseTag"
 
     $NestedModule = $BuildInfo.NestedModule
     $NestedModulesToAdd = @()
@@ -279,6 +270,8 @@ Task Build_NestedModules_ModuleBuilder {
 
         Write-Build -color Green "Done `r`n"
     }
+
+    $ModuleInfo = Import-PowerShellDataFile $BuiltModuleManifest -ErrorAction Stop
 
     # Add to NestedModules to ModuleManifest
     if ($ModuleInfo.containsKey('NestedModules') -and $NestedModulesToAdd)

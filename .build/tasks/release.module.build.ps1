@@ -63,6 +63,8 @@ param(
     $SkipPublish = (property SkipPublish '')
 )
 
+Import-Module -Name "$PSScriptRoot/Common.Functions.psm1"
+
 # Synopsis: Create ReleaseNotes from changelog and update the Changelog for release
 task Create_changelog_release_output {
     "  OutputDirectory  = $OutputDirectory"
@@ -81,25 +83,13 @@ task Create_changelog_release_output {
     $ChangeLogOutputPath = Join-Path $OutputDirectory 'CHANGELOG.md'
     "  ChangeLogOutputPath = $ChangeLogOutputPath"
 
-    if ([String]::IsNullOrEmpty($ModuleVersion))
-    {
-        $ModuleInfo = Import-PowerShellDataFile "$OutputDirectory/$ProjectName/*/$ProjectName.psd1" -ErrorAction Stop
-        if ($PreReleaseTag = $ModuleInfo.PrivateData.PSData.Prerelease)
-        {
-            $ModuleVersion = $ModuleInfo.ModuleVersion + "-" + $PreReleaseTag
-        }
-        else
-        {
-            $ModuleVersion = $ModuleInfo.ModuleVersion
-        }
+    $getModuleVersionParameters = @{
+        OutputDirectory = $OutputDirectory
+        ProjectName     = $ProjectName
+        ModuleVersion   = $ModuleVersion
     }
-    else
-    {
-        # Remove metadata from ModuleVersion
-        $ModuleVersion, $BuildMetadata = $ModuleVersion -split '\+', 2
-        # Remove Prerelease tag from ModuleVersionFolder
-        $ModuleVersionFolder, $PreReleaseTag = $ModuleVersion -split '\-', 2
-    }
+
+    $ModuleVersion = Get-ModuleVersion @getModuleVersionParameters
 
     # Parse the Changelog and extract unreleased
     try
@@ -174,25 +164,13 @@ task Create_changelog_release_output {
 }
 
 task publish_nupkg_to_gallery -if ((Get-Command nuget -ErrorAction SilentlyContinue) -and $GalleryApiToken) {
-    if ([String]::IsNullOrEmpty($ModuleVersion))
-    {
-        $ModuleInfo = Import-PowerShellDataFile "$OutputDirectory/$ProjectName/*/$ProjectName.psd1" -ErrorAction Stop
-        if ($PreReleaseTag = $ModuleInfo.PrivateData.PSData.Prerelease)
-        {
-            $ModuleVersion = $ModuleInfo.ModuleVersion + "-" + $PreReleaseTag
-        }
-        else
-        {
-            $ModuleVersion = $ModuleInfo.ModuleVersion
-        }
+    $getModuleVersionParameters = @{
+        OutputDirectory = $OutputDirectory
+        ProjectName     = $ProjectName
+        ModuleVersion   = $ModuleVersion
     }
-    else
-    {
-        # Remove metadata from ModuleVersion
-        $ModuleVersion, $BuildMetadata = $ModuleVersion -split '\+', 2
-        # Remove Prerelease tag from ModuleVersionFolder
-        $ModuleVersionFolder, $PreReleaseTag = $ModuleVersion -split '\-', 2
-    }
+
+    $ModuleVersion = Get-ModuleVersion @getModuleVersionParameters
 
     # find Module's nupkg
     $PackageToRelease = Get-ChildItem (Join-Path $OutputDirectory "$ProjectName.$PSModuleVersion.nupkg")

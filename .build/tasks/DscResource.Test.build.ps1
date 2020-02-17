@@ -66,6 +66,8 @@ Param (
     $BuildInfo = (property BuildInfo @{ })
 )
 
+Import-Module -Name "$PSScriptRoot/Common.Functions.psm1"
+
 # Synopsis: Making sure the Module meets some quality standard (help, tests)
 task Invoke_DscResource_tests {
     if (!(Split-Path -isAbsolute $OutputDirectory))
@@ -152,6 +154,8 @@ task Invoke_DscResource_tests {
         $ModuleVersion, $BuildMetadata = $ModuleVersion -split '\+', 2
         $ModuleVersionFolder, $PreReleaseTag = $ModuleVersion -split '\-', 2
     }
+
+    $ModuleVersion = Get-ModuleVersion @getModuleVersionParameters
 
     $os = if ($isWindows -or $PSVersionTable.PSVersion.Major -le 5)
     {
@@ -265,23 +269,13 @@ task Fail_Build_if_DscResource_Tests_failed {
         'Linux'
     }
 
-    if ([String]::IsNullOrEmpty($ModuleVersion))
-    {
-        $ModuleInfo = Import-PowerShellDataFile "$OutputDirectory/$ProjectName/*/$ProjectName.psd1" -ErrorAction Stop
-        if ($PreReleaseTag = $ModuleInfo.PrivateData.PSData.Prerelease)
-        {
-            $ModuleVersion = $ModuleInfo.ModuleVersion + "-" + $PreReleaseTag
-        }
-        else
-        {
-            $ModuleVersion = $ModuleInfo.ModuleVersion
-        }
+    $getModuleVersionParameters = @{
+        OutputDirectory = $OutputDirectory
+        ProjectName     = $ProjectName
+        ModuleVersion   = $ModuleVersion
     }
-    else
-    {
-        $ModuleVersion, $BuildMetadata = $ModuleVersion -split '\+', 2
-        $ModuleVersionFolder, $PreReleaseTag = $ModuleVersion -split '\-', 2
-    }
+
+    $ModuleVersion = Get-ModuleVersion @getModuleVersionParameters
 
     $PSVersion = 'PSv.{0}' -f $PSVersionTable.PSVersion
     $DscTestOutputFileFileName = "DscTest_{0}_v{1}.{2}.{3}.xml" -f $ProjectName, $ModuleVersion, $os, $PSVersion
@@ -334,23 +328,13 @@ task Upload_DscResourceTest_Results_To_AppVeyor -If { (property BuildSystem 'unk
         'Linux'
     }
 
-    if ([String]::IsNullOrEmpty($ModuleVersion))
-    {
-        $ModuleInfo = Import-PowerShellDataFile "$OutputDirectory/$ProjectName/*/$ProjectName.psd1" -ErrorAction Stop
-        if ($PreReleaseTag = $ModuleInfo.PrivateData.PSData.Prerelease)
-        {
-            $ModuleVersion = $ModuleInfo.ModuleVersion + "-" + $PreReleaseTag
-        }
-        else
-        {
-            $ModuleVersion = $ModuleInfo.ModuleVersion
-        }
+    $getModuleVersionParameters = @{
+        OutputDirectory = $OutputDirectory
+        ProjectName     = $ProjectName
+        ModuleVersion   = $ModuleVersion
     }
-    else
-    {
-        $ModuleVersion, $BuildMetadata = $ModuleVersion -split '\+', 2
-        $ModuleVersionFolder, $PreReleaseTag = $ModuleVersion -split '\-', 2
-    }
+
+    $ModuleVersion = Get-ModuleVersion @getModuleVersionParameters
 
     $PSVersion = 'PSv.{0}' -f $PSVersionTable.PSVersion
     $DscTestOutputFileFileName = "DscResource.Test_{0}_v{1}.{2}.{3}.xml" -f $ProjectName, $ModuleVersion, $os, $PSVersion
