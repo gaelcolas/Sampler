@@ -270,7 +270,7 @@ function Merge-JaCoCoReports
             {
                 # New package, does not exist in origin. Add package.
                 Write-Verbose "    Package '$($mPackage.Name)' does not exist in original file. Adding..."
-                foreach($xmlElement in $OriginalDocument.report)
+                foreach ($xmlElement in $OriginalDocument.report)
                 {
                     if ($xmlElement -is [System.Xml.XmlElement])
                     {
@@ -551,3 +551,15 @@ function Update-JaCoCoStatistics
 
     return $Document
 }
+
+Export-ModuleMember -Function @(
+    'Convert-HashtableToString'
+    'Get-CodeCoverageThreshold'
+    'Get-ModuleVersion'
+    'Get-OperatingSystemShortName'
+    'Get-PesterOutputFileFileName'
+    'Get-CodeCoverageOutputFile'
+    'Get-CodeCoverageOutputFileEncoding'
+    'Merge-JaCoCoReports'
+    'Update-JaCoCoStatistics'
+)

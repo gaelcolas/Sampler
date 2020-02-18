@@ -70,6 +70,8 @@ param(
     $SkipPublish = (property SkipPublish '')
 )
 
+Import-Module -Name "$PSScriptRoot/Common.Functions.psm1"
+
 # Until I can use a third party module
 . $PSScriptRoot/GitHubRelease.functions.ps1
 
@@ -84,25 +86,14 @@ task Publish_release_to_GitHub -if ($GitHubToken) {
         $ReleaseNotesPath = Join-Path $OutputDirectory $ReleaseNotesPath
     }
 
-    if ([String]::IsNullOrEmpty($ModuleVersion))
-    {
-        $ModuleInfo = Import-PowerShellDataFile "$OutputDirectory/$ProjectName/*/$ProjectName.psd1" -ErrorAction Stop
-        if ($PreReleaseTag = $ModuleInfo.PrivateData.PSData.Prerelease)
-        {
-            $ModuleVersion = $ModuleInfo.ModuleVersion + "-" + $PreReleaseTag
-        }
-        else
-        {
-            $ModuleVersion = $ModuleInfo.ModuleVersion
-        }
+    $getModuleVersionParameters = @{
+        OutputDirectory = $OutputDirectory
+        ProjectName     = $ProjectName
+        ModuleVersion   = $ModuleVersion
     }
-    else
-    {
-        # Remove metadata from ModuleVersion
-        $ModuleVersion, $BuildMetadata = $ModuleVersion -split '\+', 2
-        # Remove Prerelease tag from ModuleVersionFolder
-        $ModuleVersionFolder, $PreReleaseTag = $ModuleVersion -split '\-', 2
-    }
+
+    $ModuleVersion = Get-ModuleVersion @getModuleVersionParameters
+    $ModuleVersionFolder, $PreReleaseTag = $ModuleVersion -split '\-', 2
 
     # find Module's nupkg
     $PackageToRelease = Get-ChildItem (Join-Path $OutputDirectory "$ProjectName.$ModuleVersion.nupkg")
