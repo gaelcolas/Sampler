@@ -159,8 +159,6 @@ task Invoke_DscResource_tests {
     $DscTestOutputFileFileName = "DscTest_{0}_v{1}.{2}.{3}.xml" -f $ProjectName, $ModuleVersion, $os, $PSVersion
     $DscTestOutputFullPath = Join-Path $DscTestOutputFolder "$($DscTestOutputFormat)_$DscTestOutputFileFileName"
 
-
-
     $DscTestParams = @{
         OutputFormat = $DscTestOutputFormat
         OutputFile   = $DscTestOutputFullPath
