@@ -126,6 +126,56 @@ do anything. The `requiredModules` should already be available to the session th
 - `build.ps1 -tasks noop` - This will just setup your missing environment variables
 - `build.ps1 -tasks noop -ResolveDependency` - That one will bootstrap your environment & download required modules
 
+## Task Variables
+
+A task variable is used in a build task and it can be set either as a script
+parameter, as a variable defined in a parent scope, or as an environment
+variable.
+
+### `BuildModuleOutput`
+
+The path where the module will be built. The path will for example
+be use for the parameter `OutputDirectory` for the cmdlet `Build-Module` of
+the PowerShell module _Invoke-Build_. Defaults to the path for `OutputDirectory`,
+and concatenated with `BuiltModuleSubdirectory` if it is set.
+
+### `BuiltModuleSubdirectory`
+
+An optional path that will suffix the `OutputDirectory` to build the
+default path in variable `BuildModuleOutput`.
+
+### `ModuleVersion`
+
+The module version of the built module. Defaults to the property `NuGetVersionV2`
+of the executable `gitversion`, or if the executable `gitversion` is not
+available the the variable defaults to an empty string.
+
+### `OutputDirectory`
+
+The base directory of all output from the build tasks. Defaults to folder
+'output' relative to the [`$BuildRoot`](https://github.com/nightroman/Invoke-Build/wiki/Special-Variables#buildroot).
+
+### `ProjectPath`
+
+The root path to the project. Defaults to [`$BuildRoot`](https://github.com/nightroman/Invoke-Build/wiki/Special-Variables#buildroot).
+
+### `ProjectName`
+
+The project name. Defaults to the BaseName of the module manifest it finds
+in either the folder 'source', 'src, or a folder with the same name as the
+module.
+
+### `ReleaseNotesPath`
+
+THe path to the release notes markdown file. Defaults to the path for
+`OutputDirectory` concatenated with `ReleaseNotes.md`.
+
+### `SourcePath`
+
+The path to the source folder. Defaults to the same path where the module
+manifest is found in either the folder 'source', 'src, or a folder with
+the same name as the module.
+
 ## Sampler Build workflow
 
 To better explain the features available, let's look at the `Sampler` module

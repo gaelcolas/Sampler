@@ -77,6 +77,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `ModuleVersion` always returns the sematic version (x.y.z-prerelease),
   and not the informational version ([issue #130](https://github.com/gaelcolas/Sampler/issues/130)).
 
+### Fixed
+
+- Updated README.md with a section `Task Variables` and described each of
+  the build task `Build-Module.ModuleBuilder`'s task variables.
+
 ## [0.102.0] - 2020-02-14
 
 ### Added
