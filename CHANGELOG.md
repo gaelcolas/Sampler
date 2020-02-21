@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.102.1] - 2020-02-21
+
 ### Changed
 
 - Changed build tasks to use the helper function `Get-ModuleVersion` to
