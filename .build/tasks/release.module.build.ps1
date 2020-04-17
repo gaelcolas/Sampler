@@ -99,6 +99,28 @@ task Create_changelog_release_output {
         # Update the source changelog file
         Update-Changelog -Path $ChangeLogPath -OutputPath $ChangeLogOutputPath -ErrorAction Stop -ReleaseVersion $ModuleVersion -LinkMode none
 
+        # Get the updated CHANGELOG.md
+        $changeLogData = Get-ChangelogData -Path $ChangeLogOutputPath
+
+        # Filter out the latest module version change log entries
+        $changeLogDataForLatestRelease = $changeLogData.Released | Where-Object -FilterScript {
+            $_.Version -eq $ModuleVersion
+        }
+
+        <#
+            Get the raw markdown release notes for the module manifest. The
+            module manifest release notes has a hard size limit when publishing
+            to PowerShell Gallery.
+        #>
+        if ($changeLogDataForLatestRelease.RawData.Length -gt 10000)
+        {
+            $moduleManifestReleaseNotes = $changeLogDataForLatestRelease.RawData.Substring(0, 10000)
+        }
+        else
+        {
+            $moduleManifestReleaseNotes = $changeLogDataForLatestRelease.RawData
+        }
+
         # Create a ReleaseNotes from the Updated changelog
         ConvertFrom-Changelog -Path $ChangeLogOutputPath -Format Release -NoHeader -OutputPath $ReleaseNotesPath -ErrorAction Stop
     }
@@ -155,7 +177,7 @@ task Create_changelog_release_output {
         $UpdateReleaseNotesParams = @{
             Path         = "$OutputDirectory/$ProjectName/*/$ProjectName.psd1"
             PropertyName = 'PrivateData.PSData.ReleaseNotes'
-            Value        = $ReleaseNotes
+            Value        = $moduleManifestReleaseNotes
             ErrorAction  = 'SilentlyContinue'
         }
 
