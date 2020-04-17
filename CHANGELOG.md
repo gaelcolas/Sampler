@@ -16,6 +16,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   notes will be truncated to the max hard limit.
 - The CI pipeline was updated with working build images.
 
+### Changed
+
+- The regular expression for `minor-version-bump-message` in the file
+  `GitVersion.yml` was changed to only raise minor version when the
+  commit message contain the word `add`, `adds`, `minor`, `feature`,
+  or `features`.
+
 ## [0.102.1] - 2020-02-21
 
 ### Changed
