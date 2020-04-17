@@ -94,7 +94,7 @@ stages:
         displayName: 'Windows (PowerShell Core)'
         timeoutInMinutes: 0
         pool:
-          vmImage: 'win1803'
+          vmImage: 'windows-2019'
         steps:
           - task: DownloadBuildArtifacts@0
             displayName: 'Download Build Artifact'
@@ -139,7 +139,7 @@ stages:
         displayName: 'Windows (Windows PowerShell)'
         timeoutInMinutes: 0
         pool:
-          vmImage: 'win1803'
+          vmImage: 'windows-2019'
         steps:
           - task: DownloadBuildArtifacts@0
             displayName: 'Download Build Artifact'

@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   manifest when releasing a module to PowerShell Gallery. If all the change log
   entries for the latest release still exceed the max hard limit then the release
   notes will be truncated to the max hard limit.
+- The CI pipeline was updated with working build images.
 
 ## [0.102.1] - 2020-02-21
 
