@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Now the module manifest release notes is only updated with the latest release.
+  This fixes the issue with the limitation for the release notes in the module
+  manifest when releasing a module to PowerShell Gallery. If all the change log
+  entries for the latest release still exceed the max hard limit then the release
+  notes will be truncated to the max hard limit.
+
 ## [0.102.1] - 2020-02-21
 
 ### Changed
