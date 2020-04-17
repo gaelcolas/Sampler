@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- The regular expression for `minor-version-bump-message` in the file
+  `GitVersion.yml` was changed to only raise minor version when the
+  commit message contain the word `add`, `adds`, `minor`, `feature`,
+  or `features`.
+
+## [0.103.0] - 2020-04-17
+
 ### Fixed
 
 - Now the module manifest release notes is only updated with the latest release.
@@ -15,13 +24,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   entries for the latest release still exceed the max hard limit then the release
   notes will be truncated to the max hard limit.
 - The CI pipeline was updated with working build images.
-
-### Changed
-
-- The regular expression for `minor-version-bump-message` in the file
-  `GitVersion.yml` was changed to only raise minor version when the
-  commit message contain the word `add`, `adds`, `minor`, `feature`,
-  or `features`.
 
 ## [0.102.1] - 2020-02-21
 
