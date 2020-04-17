@@ -289,10 +289,16 @@ task publish_module_to_gallery -if ((!(Get-Command nuget -ErrorAction SilentlyCo
         $ReleaseNotesPath = Join-Path $OutputDirectory $ReleaseNotesPath
     }
 
-    # Retrieving ReleaseNotes or defaulting to Updated ChangeLog
-    if (-not ($ReleaseNotes = (Get-Content -raw $ReleaseNotesPath -ErrorAction SilentlyContinue)))
-    {
-        $ReleaseNotes = Get-Content -raw $ChangeLogPath -ErrorAction SilentlyContinue
+    $ModuleVersion = Get-ModuleVersion @getModuleVersionParameters
+
+    $ChangeLogOutputPath = Join-Path $OutputDirectory 'CHANGELOG.md'
+    "  ChangeLogOutputPath = $ChangeLogOutputPath"
+
+    $changeLogData = Get-ChangelogData -Path $ChangeLogOutputPath
+
+    # Filter out the latest module version change log entries
+    $releaseNotesForLatestRelease = $changeLogData.Released | Where-Object -FilterScript {
+        $_.Version -eq $ModuleVersion
     }
 
     # find Module manifest
@@ -322,22 +328,6 @@ task publish_module_to_gallery -if ((!(Get-Command nuget -ErrorAction SilentlyCo
         [System.IO.File]::WriteAllLines($BuiltModuleManifest, $ManifestString, $Utf8NoBomEncoding)
     }
 
-    $UpdateReleaseNotesParams = @{
-        Path         = "$OutputDirectory/$ProjectName/*/$ProjectName.psd1"
-        PropertyName = 'PrivateData.PSData.ReleaseNotes'
-        Value        = $ReleaseNotes
-        ErrorAction  = 'Stop'
-    }
-
-    try
-    {
-        Update-Manifest @UpdateReleaseNotesParams
-    }
-    catch
-    {
-        Write-Build Red "Error updating the Release notes to Module manifest. $($_.Exception.Message)"
-    }
-
     $ModulePath = Join-Path $OutputDirectory $ProjectName
 
     Write-Build DarkGray "`nAbout to release $ModulePath"
@@ -347,7 +337,7 @@ task publish_module_to_gallery -if ((!(Get-Command nuget -ErrorAction SilentlyCo
         NuGetApiKey  = $GalleryApiToken
         Repository   = $PSModuleFeed
         ErrorAction  = 'Stop'
-        releaseNotes = $ReleaseNotes
+        ReleaseNotes = $releaseNotesForLatestRelease
     }
     if (!$SkipPublish)
     {

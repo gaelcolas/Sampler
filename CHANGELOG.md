@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+
+- It no longer updates the module manifest release notes in the task
+  `publish_module_to_gallery`, because that is already done in the task
+  `create_changelog_release_output` that is run in the build step. The
+  task `publish_module_to_gallery` was still dependent on the task
+  `create_changelog_release_output` was run for it to be able to update
+  the release notes in the module manifest, so `publish_module_to_gallery`
+  could never have been run independent of task `create_changelog_release_output`.
+
 ### Changed
 
 - The regular expression for `minor-version-bump-message` in the file
