@@ -24,6 +24,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   commit message contain the word `add`, `adds`, `minor`, `feature`,
   or `features`.
 
+### Fixed
+
+- Correctly evaluate the module version in task `publish_module_to_gallery`.
+
 ## [0.103.0] - 2020-04-17
 
 ### Fixed
