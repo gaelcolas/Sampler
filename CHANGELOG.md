@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add new build task `Generate_Wiki_Content` for the DSC Community module type.
 
+## [0.104.0] - 2020-04-18
+
 ### Removed
 
 - It no longer updates the module manifest release notes in the task
