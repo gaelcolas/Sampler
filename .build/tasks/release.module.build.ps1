@@ -289,6 +289,12 @@ task publish_module_to_gallery -if ((!(Get-Command nuget -ErrorAction SilentlyCo
         $ReleaseNotesPath = Join-Path $OutputDirectory $ReleaseNotesPath
     }
 
+    $getModuleVersionParameters = @{
+        OutputDirectory = $OutputDirectory
+        ProjectName     = $ProjectName
+        ModuleVersion   = $ModuleVersion
+    }
+
     $ModuleVersion = Get-ModuleVersion @getModuleVersionParameters
 
     $ChangeLogOutputPath = Join-Path $OutputDirectory 'CHANGELOG.md'
