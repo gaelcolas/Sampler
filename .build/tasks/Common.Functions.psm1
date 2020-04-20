@@ -91,7 +91,9 @@ function Get-ModuleVersion
 
         if ($preReleaseTag = $moduleInfo.PrivateData.PSData.Prerelease)
         {
-            $moduleVersion = $moduleInfo.ModuleVersion + "-" + $preReleaseTag
+            $validPreReleaseString, $preReleaseStringSuffix = $preReleaseTag -split '-'
+
+            $moduleVersion = $moduleInfo.ModuleVersion + "-" + $validPpreReleaseTagreReleaseString
         }
         else
         {
