@@ -87,7 +87,7 @@ function Get-ModuleVersion
 
     if ([System.String]::IsNullOrEmpty($ModuleVersion))
     {
-        Write-Build -color Yellow "Setting variable 'ModuleVersion' with the value from the module manifest."
+        Write-Verbose -Message "Setting variable 'ModuleVersion' with the value from the module manifest." -Verbose
 
         $moduleInfo = Import-PowerShellDataFile "$OutputDirectory/$ProjectName/*/$ProjectName.psd1" -ErrorAction 'Stop'
 
@@ -108,7 +108,7 @@ function Get-ModuleVersion
     }
     else
     {
-        Write-Build -color Yellow "Found variable 'ModuleVersion' already set to '$ModuleVersion', parsing..."
+        Write-Verbose -Message "Setting variable 'ModuleVersion' with the value from the module manifest." -Verbose
 
         <#
             This handles a previous version of the module that suggested to pass
