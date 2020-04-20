@@ -87,13 +87,19 @@ function Get-ModuleVersion
 
     if ([System.String]::IsNullOrEmpty($ModuleVersion))
     {
+        Write-Build -color Yellow "Setting variable 'ModuleVersion' with the value from the module manifest."
+
         $moduleInfo = Import-PowerShellDataFile "$OutputDirectory/$ProjectName/*/$ProjectName.psd1" -ErrorAction 'Stop'
 
         if ($preReleaseTag = $moduleInfo.PrivateData.PSData.Prerelease)
         {
+            <#
+                Parses the prerelease string to remove any suffix that is not
+                handled by the cmdlet Publish-Module.
+            #>
             $validPreReleaseString, $preReleaseStringSuffix = $preReleaseTag -split '-'
 
-            $moduleVersion = $moduleInfo.ModuleVersion + "-" + $validPpreReleaseTagreReleaseString
+            $moduleVersion = $moduleInfo.ModuleVersion + '-' + $validPreReleaseString
         }
         else
         {
@@ -102,12 +108,25 @@ function Get-ModuleVersion
     }
     else
     {
+        Write-Build -color Yellow "Found variable 'ModuleVersion' already set to '$ModuleVersion', parsing..."
+
         <#
             This handles a previous version of the module that suggested to pass
             a version string with metadata in the CI pipeline that can look like
             this: 1.15.0-pr0224-0022+Sha.47ae45eb2cfed02b249f239a7c55e5c71b26ab76.Date.2020-01-07
+
+            It also parses the prerelease string to remove any suffix that is not
+            handled by the cmdlet Publish-Module.
         #>
-        $moduleVersion = ($moduleVersion -split '\+', 2)[0]
+        $moduleVersionWithoutMetadata = ($ModuleVersion -split '\+', 2)[0]
+        $moduleVersion, $preReleaseString = $moduleVersionWithoutMetadata -split '-', 2
+
+        if ($preReleaseString)
+        {
+            $preReleaseString, $preReleaseStringSuffix = $preReleaseString -split '-'
+
+            $moduleVersion = $moduleVersion + '-' + $preReleaseString
+        }
     }
 
     return $moduleVersion
