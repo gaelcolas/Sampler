@@ -87,8 +87,6 @@ function Get-ModuleVersion
 
     if ([System.String]::IsNullOrEmpty($ModuleVersion))
     {
-        Write-Host -ForegroundColor Yellow -Object "Setting variable 'ModuleVersion' with the value from the module manifest."
-
         $moduleInfo = Import-PowerShellDataFile "$OutputDirectory/$ProjectName/*/$ProjectName.psd1" -ErrorAction 'Stop'
 
         if ($preReleaseTag = $moduleInfo.PrivateData.PSData.Prerelease)
@@ -108,8 +106,6 @@ function Get-ModuleVersion
     }
     else
     {
-        Write-Host -ForegroundColor Yellow -Object "Found variable 'ModuleVersion' already set to '$ModuleVersion', parsing..." -Verbose
-
         <#
             This handles a previous version of the module that suggested to pass
             a version string with metadata in the CI pipeline that can look like
