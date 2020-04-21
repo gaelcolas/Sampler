@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.105.0] - 2020-04-21
+
 ### Added
 
 - Add new build task `Generate_Wiki_Content` for the DSC Community module type.
