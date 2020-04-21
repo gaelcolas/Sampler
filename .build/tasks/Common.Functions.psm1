@@ -89,13 +89,15 @@ function Get-ModuleVersion
     {
         $moduleInfo = Import-PowerShellDataFile "$OutputDirectory/$ProjectName/*/$ProjectName.psd1" -ErrorAction 'Stop'
 
-        if ($preReleaseTag = $moduleInfo.PrivateData.PSData.Prerelease)
+        if ($preReleaseString = $moduleInfo.PrivateData.PSData.Prerelease)
         {
             <#
-                Parses the prerelease string to remove any suffix that is not
-                handled by the cmdlet Publish-Module.
+                The cmldet Publish-Module does not yet support semver compliant
+                pre-release strings. If the prerelease string contains a dash ('-')
+                then the dash and everything behind is removed. For example
+                'pr54-0012' is parsed to 'ps54'.
             #>
-            $validPreReleaseString, $preReleaseStringSuffix = $preReleaseTag -split '-'
+            $validPreReleaseString, $preReleaseStringSuffix = $preReleaseString -split '-'
 
             $moduleVersion = $moduleInfo.ModuleVersion + '-' + $validPreReleaseString
         }
@@ -113,17 +115,19 @@ function Get-ModuleVersion
         #>
         $moduleVersionWithoutMetadata = ($ModuleVersion -split '\+', 2)[0]
 
-        <#
-            Parses the prerelease string to remove any suffix that is not
-            handled by the cmdlet Publish-Module.
-        #>
         $moduleVersion, $preReleaseString = $moduleVersionWithoutMetadata -split '-', 2
 
         if ($preReleaseString)
         {
-            $preReleaseString, $preReleaseStringSuffix = $preReleaseString -split '-'
+            <#
+                The cmldet Publish-Module does not yet support semver compliant
+                pre-release strings. If the prerelease string contains a dash ('-')
+                then the dash and everything behind is removed. For example
+                'pr54-0012' is parsed to 'ps54'.
+            #>
+            $validPreReleaseString, $preReleaseStringSuffix = $preReleaseString -split '-'
 
-            $moduleVersion = $moduleVersion + '-' + $preReleaseString
+            $moduleVersion = $moduleVersion + '-' + $validPreReleaseString
         }
     }
 
