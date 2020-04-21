@@ -74,6 +74,14 @@ Import-Module -Name "$PSScriptRoot/Common.Functions.psm1"
 
 # Synopsis: Build the Module based on its Build.psd1 definition
 Task Build_Module_ModuleBuilder {
+    $getModuleVersionParameters = @{
+        OutputDirectory = $OutputDirectory
+        ProjectName     = $ProjectName
+        ModuleVersion   = $ModuleVersion
+    }
+
+    $ModuleVersion = Get-ModuleVersion @getModuleVersionParameters
+
     " Project Name      = $ProjectName"
     " ModuleVersion     = $ModuleVersion"
     " Source Path       = $SourcePath"

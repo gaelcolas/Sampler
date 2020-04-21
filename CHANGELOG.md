@@ -11,6 +11,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add new build task `Generate_Wiki_Content` for the DSC Community module type.
 
+### Changed
+
+- Update the repository to always use the latest version of the module
+  `ModuleBuilder`.
+  
+### Fixed
+
+- Now the prerelease is cleaned so that it does not contain any dashes by
+  removing any suffix after a dash, for example `pr054-0012' will be changed
+  to just `pr054' as the prerelease string. This is due to a bug in the
+  cmdlet `Publish-Module` together with a newer version of the module
+  `ModuleBuilder`.
+
 ## [0.104.0] - 2020-04-18
 
 ### Removed

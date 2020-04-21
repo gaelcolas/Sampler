@@ -89,9 +89,17 @@ function Get-ModuleVersion
     {
         $moduleInfo = Import-PowerShellDataFile "$OutputDirectory/$ProjectName/*/$ProjectName.psd1" -ErrorAction 'Stop'
 
-        if ($preReleaseTag = $moduleInfo.PrivateData.PSData.Prerelease)
+        if ($preReleaseString = $moduleInfo.PrivateData.PSData.Prerelease)
         {
-            $moduleVersion = $moduleInfo.ModuleVersion + "-" + $preReleaseTag
+            <#
+                The cmldet Publish-Module does not yet support semver compliant
+                pre-release strings. If the prerelease string contains a dash ('-')
+                then the dash and everything behind is removed. For example
+                'pr54-0012' is parsed to 'ps54'.
+            #>
+            $validPreReleaseString, $preReleaseStringSuffix = $preReleaseString -split '-'
+
+            $moduleVersion = $moduleInfo.ModuleVersion + '-' + $validPreReleaseString
         }
         else
         {
@@ -105,7 +113,22 @@ function Get-ModuleVersion
             a version string with metadata in the CI pipeline that can look like
             this: 1.15.0-pr0224-0022+Sha.47ae45eb2cfed02b249f239a7c55e5c71b26ab76.Date.2020-01-07
         #>
-        $moduleVersion = ($moduleVersion -split '\+', 2)[0]
+        $moduleVersionWithoutMetadata = ($ModuleVersion -split '\+', 2)[0]
+
+        $moduleVersion, $preReleaseString = $moduleVersionWithoutMetadata -split '-', 2
+
+        if ($preReleaseString)
+        {
+            <#
+                The cmldet Publish-Module does not yet support semver compliant
+                pre-release strings. If the prerelease string contains a dash ('-')
+                then the dash and everything behind is removed. For example
+                'pr54-0012' is parsed to 'ps54'.
+            #>
+            $validPreReleaseString, $preReleaseStringSuffix = $preReleaseString -split '-'
+
+            $moduleVersion = $moduleVersion + '-' + $validPreReleaseString
+        }
     }
 
     return $moduleVersion
