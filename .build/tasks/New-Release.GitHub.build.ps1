@@ -32,17 +32,7 @@ param(
 
     [Parameter()]
     [string]
-    $ModuleVersion = (property ModuleVersion $(
-            try
-            {
-                (gitversion | ConvertFrom-Json -ErrorAction Stop).NuGetVersionV2
-            }
-            catch
-            {
-                Write-Verbose "Error attempting to use GitVersion $($_)"
-                ''
-            }
-        )),
+    $ModuleVersion = (property ModuleVersion ''),
 
     [Parameter()]
     [string]

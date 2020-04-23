@@ -29,17 +29,7 @@ Param (
 
     [Parameter()]
     [string]
-    $ModuleVersion = (property ModuleVersion $(
-            try
-            {
-                (gitversion | ConvertFrom-Json -ErrorAction Stop).NuGetVersionV2
-            }
-            catch
-            {
-                Write-Verbose "Error attempting to use GitVersion $($_)"
-                ''
-            }
-        )),
+    $ModuleVersion = (property ModuleVersion ''),
 
     [Parameter()]
     [string]
@@ -80,6 +70,14 @@ task Invoke_DscResource_tests {
     {
         $DscTestOutputFolder = Join-Path $OutputDirectory $DscTestOutputFolder
     }
+
+    $getModuleVersionParameters = @{
+        OutputDirectory = $BuildModuleOutput
+        ProjectName     = $ProjectName
+        ModuleVersion   = $ModuleVersion
+    }
+
+    $ModuleVersion = Get-ModuleVersion @getModuleVersionParameters
 
     if (!(Test-Path $DscTestOutputFolder))
     {
@@ -133,14 +131,6 @@ task Invoke_DscResource_tests {
     "`tExclude Tags  = $($DscTestExcludeTag -join ', ')"
     "`tModuleVersion = $ModuleVersion"
     "`tBuildModuleOutput = $BuildModuleOutput"
-
-    $getModuleVersionParameters = @{
-        OutputDirectory = $BuildModuleOutput
-        ProjectName     = $ProjectName
-        ModuleVersion   = $ModuleVersion
-    }
-
-    $ModuleVersion = Get-ModuleVersion @getModuleVersionParameters
 
     $os = if ($isWindows -or $PSVersionTable.PSVersion.Major -le 5)
     {

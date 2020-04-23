@@ -29,17 +29,7 @@ Param (
 
     [Parameter()]
     [string]
-    $ModuleVersion = (property ModuleVersion $(
-            try
-            {
-                (gitversion | ConvertFrom-Json -ErrorAction Stop).NuGetVersionV2
-            }
-            catch
-            {
-                Write-Verbose "Error attempting to use GitVersion $($_)"
-                ''
-            }
-        )),
+    $ModuleVersion = (property ModuleVersion ''),
 
     [Parameter()]
     [string]
@@ -84,6 +74,14 @@ task Invoke_pester_tests {
     {
         $PesterOutputFolder = Join-Path $OutputDirectory $PesterOutputFolder
     }
+
+    $getModuleVersionParameters = @{
+        OutputDirectory = $OutputDirectory
+        ProjectName     = $ProjectName
+        ModuleVersion   = $ModuleVersion
+    }
+
+    $ModuleVersion = Get-ModuleVersion @getModuleVersionParameters
 
     if (!(Test-Path $PesterOutputFolder))
     {
@@ -154,14 +152,6 @@ task Invoke_pester_tests {
     "`tExclude Tags  = $($PesterExcludeTag -join ', ')"
     "`tExclude Cov.  = $($ExcludeFromCodeCoverage -join ', ')"
     "`tModuleVersion = $ModuleVersion"
-
-    $getModuleVersionParameters = @{
-        OutputDirectory = $OutputDirectory
-        ProjectName     = $ProjectName
-        ModuleVersion   = $ModuleVersion
-    }
-
-    $ModuleVersion = Get-ModuleVersion @getModuleVersionParameters
 
     $osShortName = Get-OperatingSystemShortName
 
