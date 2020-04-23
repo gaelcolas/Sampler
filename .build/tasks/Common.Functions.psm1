@@ -133,7 +133,7 @@ function Get-ModuleVersion
 function Split-ModuleVersion
 {
     [CmdletBinding()]
-    [OutputType([System.Collections.Hashtable])]
+    [OutputType([System.Management.Automation.PSCustomObject])]
     param
     (
         [Parameter()]
@@ -148,11 +148,12 @@ function Split-ModuleVersion
     #>
     $ModuleVersion = ($ModuleVersion -split '\+', 2)[0]
 
-    $moduleVersionParts = @{}
+    $moduleVersionParts = [PSCustomObject] @{}
 
     $moduleVersion, $preReleaseString = $ModuleVersion -split '-', 2
 
-    $moduleVersionParts['Version'] = $moduleVersion
+    $moduleVersionParts |
+        Add-Member -MemberType 'NoteProperty' -Name 'Version' -Value $moduleVersion
 
     <#
         The cmldet Publish-Module does not yet support semver compliant
@@ -162,16 +163,20 @@ function Split-ModuleVersion
     #>
     $validPreReleaseString, $preReleaseStringSuffix = $preReleaseString -split '-'
 
-    $moduleVersionParts['PreReleaseString'] =  $validPreReleaseString
+    $moduleVersionParts |
+        Add-Member -MemberType 'NoteProperty' -Name 'PreReleaseString' -Value $validPreReleaseString
 
     if ($validPreReleaseString)
     {
-        $moduleVersionParts['ModuleVersion'] =  $moduleVersion + '-' + $validPreReleaseString
+        $fullModuleVersion =  $moduleVersion + '-' + $validPreReleaseString
     }
     else
     {
-        $moduleVersionParts['ModuleVersion'] =  $moduleVersion
+        $fullModuleVersion =  $moduleVersion
     }
+
+    $moduleVersionParts |
+        Add-Member -MemberType 'NoteProperty' -Name 'ModuleVersion' -Value $fullModuleVersion
 
     return $moduleVersionParts
 }
