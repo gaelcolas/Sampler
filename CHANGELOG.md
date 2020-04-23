@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- The task build will no longer fail if GitVersion is not installed and
+  there are no output folder.
+  
 ## [0.105.0] - 2020-04-21
 
 ### Added

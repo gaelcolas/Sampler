@@ -54,15 +54,11 @@ Param (
     [Parameter()]
     [string]
     $ModuleVersion = (property ModuleVersion $(
-            try
-            {
-                (gitversion | ConvertFrom-Json -ErrorAction Stop).NuGetVersionV2
-            }
-            catch
-            {
-                Write-Verbose "Error attempting to use GitVersion $($_)"
-                ''
-            }
+            <#
+                This will get the version from GitVersion if it exist, otherwise
+                it will use the version from the module manifest in SourcePath.
+            #>
+            Get-ModuleVersion -ModuleManifestPath "$SourcePath\$ProjectName.psd1"
         )),
 
     [Parameter()]
