@@ -53,13 +53,7 @@ Param (
 
     [Parameter()]
     [string]
-    $ModuleVersion = (property ModuleVersion $(
-            <#
-                This will get the version from GitVersion if it exist, otherwise
-                it will use the version from the module manifest in SourcePath.
-            #>
-            Get-ModuleVersion -ModuleManifestPath "$SourcePath\$ProjectName.psd1"
-        )),
+    $ModuleVersion = (property ModuleVersion $null),
 
     [Parameter()]
     [System.Collections.IDictionary]
@@ -71,11 +65,14 @@ Import-Module -Name "$PSScriptRoot/Common.Functions.psm1"
 # Synopsis: Build the Module based on its Build.psd1 definition
 Task Build_Module_ModuleBuilder {
     $getModuleVersionParameters = @{
-        OutputDirectory = $OutputDirectory
-        ProjectName     = $ProjectName
+        ModuleManifestPath = "$SourcePath\$ProjectName.psd1"
         ModuleVersion   = $ModuleVersion
     }
 
+    <#
+        This will get the version from GitVersion if it exist, otherwise
+        it will use the version from the module manifest in SourcePath.
+    #>
     $ModuleVersion = Get-ModuleVersion @getModuleVersionParameters
 
     " Project Name      = $ProjectName"
