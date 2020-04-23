@@ -53,7 +53,7 @@ Param (
 
     [Parameter()]
     [string]
-    $ModuleVersion = (property ModuleVersion $null),
+    $ModuleVersion = (property ModuleVersion ''),
 
     [Parameter()]
     [System.Collections.IDictionary]
