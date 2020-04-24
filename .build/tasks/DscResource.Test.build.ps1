@@ -209,6 +209,11 @@ task Invoke_DscResource_tests {
 task Fail_Build_if_DscResource_Tests_failed {
     "Asserting that no test failed"
 
+    if ([System.String]::IsNullOrEmpty($ProjectName))
+    {
+        $ProjectName = Get-ProjectName -BuildRoot $BuildRoot
+    }
+
     if (!(Split-Path -isAbsolute $OutputDirectory))
     {
         $OutputDirectory = Join-Path -Path $ProjectPath -ChildPath $OutputDirectory
@@ -261,6 +266,10 @@ task Fail_Build_if_DscResource_Tests_failed {
 
 # Synopsis: Uploading Unit Test results to AppVeyor
 task Upload_DscResourceTest_Results_To_AppVeyor -If { (property BuildSystem 'unknown') -eq 'AppVeyor' } {
+    if ([System.String]::IsNullOrEmpty($ProjectName))
+    {
+        $ProjectName = Get-ProjectName -BuildRoot $BuildRoot
+    }
 
     if (!(Split-Path -isAbsolute $OutputDirectory))
     {
