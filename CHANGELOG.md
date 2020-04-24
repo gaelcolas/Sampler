@@ -11,13 +11,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Updated README.md with a section `Task Variables` and described each of
   the build task `Build-Module.ModuleBuilder`'s task variables.
-
-## [0.105.1] - 2020-04-24
-
-### Fixed
-
-- The task build will no longer fail if GitVersion is not installed and
-  there are no output folder.
 - When there are multiple module manifest found in the repository the build
   now fails with a a better error error message ([issue #155](https://github.com/gaelcolas/Sampler/issues/155)).
 
@@ -26,6 +19,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update tasks to reduce code duplication ([issue #125](https://github.com/gaelcolas/Sampler/issues/125)).
 - Task 'Merge_CodeCoverage_Files' did not use the parameter `ProjectName`
   to that parameter was removed.
+
+## [0.105.1] - 2020-04-24
+
+### Fixed
+
+- The task build will no longer fail if GitVersion is not installed and
+  there are no output folder.
 
 ## [0.105.0] - 2020-04-21
 
