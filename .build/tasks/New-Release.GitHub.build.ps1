@@ -13,22 +13,7 @@ param(
 
     [Parameter()]
     [string]
-    $ProjectName = (property ProjectName $(
-            #Find the module manifest to deduce the Project Name
-            (Get-ChildItem $BuildRoot\*\*.psd1 -Exclude 'build.psd1', 'analyzersettings.psd1' | Where-Object {
-                    ($_.Directory.Name -match 'source|src' -or $_.Directory.Name -eq $_.BaseName) -and
-                    $(try
-                        {
-                            Test-ModuleManifest $_.FullName -ErrorAction Stop
-                        }
-                        catch
-                        {
-                            Write-Warning $_
-                            $false
-                        }) }
-            ).BaseName
-        )
-    ),
+    $ProjectName = (property ProjectName ''),
 
     [Parameter()]
     [string]
@@ -66,6 +51,11 @@ Import-Module -Name "$PSScriptRoot/Common.Functions.psm1"
 . $PSScriptRoot/GitHubRelease.functions.ps1
 
 task Publish_release_to_GitHub -if ($GitHubToken) {
+    if ([System.String]::IsNullOrEmpty($ProjectName))
+    {
+        $ProjectName = Get-ProjectName -BuildRoot $BuildRoot
+    }
+
     if (!(Split-Path $OutputDirectory -IsAbsolute))
     {
         $OutputDirectory = Join-Path $BuildRoot $OutputDirectory
@@ -113,7 +103,6 @@ task Publish_release_to_GitHub -if ($GitHubToken) {
             $ReleaseNotes = Get-Content -raw $ChangeLogPath -ErrorAction SilentlyContinue
         }
     }
-
 
     # if you want to create the tag on /release/v$ModuleVersion branch (default to master)
     $ReleaseBranch = $ExecutionContext.InvokeCommand.ExpandString($ReleaseBranch)

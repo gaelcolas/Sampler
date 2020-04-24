@@ -5,21 +5,7 @@ Param (
 
     [Parameter()]
     [string]
-    $ProjectName = (property ProjectName $(
-            (Get-ChildItem $BuildRoot\*\*.psd1 -Exclude 'build.psd1', 'analyzersettings.psd1' | Where-Object {
-                    ($_.Directory.Name -match 'source|src' -or $_.Directory.Name -eq $_.BaseName) -and
-                    $(try
-                        {
-                            Test-ModuleManifest $_.FullName -ErrorAction Stop
-                        }
-                        catch
-                        {
-                            Write-Warning $_
-                            $false
-                        }) }
-            ).BaseName
-        )
-    ),
+    $ProjectName = (property ProjectName ''),
 
     [Parameter()]
     [string]
@@ -52,6 +38,10 @@ Param (
 
 # Synopsis: Deploy everything configured in PSDeploy
 task Deploy_with_PSDeploy {
+    if ([System.String]::IsNullOrEmpty($ProjectName))
+    {
+        $ProjectName = Get-ProjectName -BuildRoot $BuildRoot
+    }
 
     if (![io.path]::IsPathRooted($BuildOutput))
     {

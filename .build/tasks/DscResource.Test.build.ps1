@@ -11,21 +11,7 @@ Param (
 
     [Parameter()]
     [string]
-    $ProjectName = (property ProjectName $(
-            (Get-ChildItem $BuildRoot\*\*.psd1 -Exclude 'build.psd1', 'analyzersettings.psd1' | Where-Object {
-                    ($_.Directory.Name -match 'source|src' -or $_.Directory.Name -eq $_.BaseName) -and
-                    $(try
-                        {
-                            Test-ModuleManifest $_.FullName -ErrorAction Stop
-                        }
-                        catch
-                        {
-                            Write-Warning $_
-                            $false
-                        }) }
-            ).BaseName
-        )
-    ),
+    $ProjectName = (property ProjectName ''),
 
     [Parameter()]
     [string]
@@ -60,6 +46,11 @@ Import-Module -Name "$PSScriptRoot/Common.Functions.psm1"
 
 # Synopsis: Making sure the Module meets some quality standard (help, tests)
 task Invoke_DscResource_tests {
+    if ([System.String]::IsNullOrEmpty($ProjectName))
+    {
+        $ProjectName = Get-ProjectName -BuildRoot $BuildRoot
+    }
+
     if (!(Split-Path -isAbsolute $OutputDirectory))
     {
         $OutputDirectory = Join-Path -Path $ProjectPath -ChildPath $OutputDirectory
@@ -218,6 +209,11 @@ task Invoke_DscResource_tests {
 task Fail_Build_if_DscResource_Tests_failed {
     "Asserting that no test failed"
 
+    if ([System.String]::IsNullOrEmpty($ProjectName))
+    {
+        $ProjectName = Get-ProjectName -BuildRoot $BuildRoot
+    }
+
     if (!(Split-Path -isAbsolute $OutputDirectory))
     {
         $OutputDirectory = Join-Path -Path $ProjectPath -ChildPath $OutputDirectory
@@ -270,6 +266,10 @@ task Fail_Build_if_DscResource_Tests_failed {
 
 # Synopsis: Uploading Unit Test results to AppVeyor
 task Upload_DscResourceTest_Results_To_AppVeyor -If { (property BuildSystem 'unknown') -eq 'AppVeyor' } {
+    if ([System.String]::IsNullOrEmpty($ProjectName))
+    {
+        $ProjectName = Get-ProjectName -BuildRoot $BuildRoot
+    }
 
     if (!(Split-Path -isAbsolute $OutputDirectory))
     {

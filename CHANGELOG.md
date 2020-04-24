@@ -11,6 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Updated README.md with a section `Task Variables` and described each of
   the build task `Build-Module.ModuleBuilder`'s task variables.
+- When there are multiple module manifest found in the repository the build
+  now fails with a a better error error message ([issue #155](https://github.com/gaelcolas/Sampler/issues/155)).
+
+### Changed
+
+- Update tasks to reduce code duplication ([issue #125](https://github.com/gaelcolas/Sampler/issues/125)).
+- Task 'Merge_CodeCoverage_Files' did not use the parameter `ProjectName`
+  to that parameter was removed.
 
 ## [0.105.1] - 2020-04-24
 
@@ -18,7 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The task build will no longer fail if GitVersion is not installed and
   there are no output folder.
-  
+
 ## [0.105.0] - 2020-04-21
 
 ### Added
@@ -33,8 +41,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Now the prerelease is cleaned so that it does not contain any dashes by
-  removing any suffix after a dash, for example `pr054-0012' will be changed
-  to just `pr054' as the prerelease string. This is due to a bug in the
+  removing any suffix after a dash, for example `pr054-0012` will be changed
+  to just `pr054` as the prerelease string. This is due to a bug in the
   cmdlet `Publish-Module` together with a newer version of the module
   `ModuleBuilder`.
 
