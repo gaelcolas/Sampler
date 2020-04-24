@@ -53,17 +53,7 @@ Param (
 
     [Parameter()]
     [string]
-    $ModuleVersion = (property ModuleVersion $(
-            try
-            {
-                (gitversion | ConvertFrom-Json -ErrorAction Stop).NuGetVersionV2
-            }
-            catch
-            {
-                Write-Verbose "Error attempting to use GitVersion $($_)"
-                ''
-            }
-        )),
+    $ModuleVersion = (property ModuleVersion ''),
 
     [Parameter()]
     [System.Collections.IDictionary]
@@ -75,11 +65,16 @@ Import-Module -Name "$PSScriptRoot/Common.Functions.psm1"
 # Synopsis: Build the Module based on its Build.psd1 definition
 Task Build_Module_ModuleBuilder {
     $getModuleVersionParameters = @{
-        OutputDirectory = $OutputDirectory
-        ProjectName     = $ProjectName
-        ModuleVersion   = $ModuleVersion
+        ModuleManifestPath = "$SourcePath\$ProjectName.psd1"
+        ModuleVersion      = $ModuleVersion
     }
 
+    <#
+        This will get the version from $ModuleVersion if is was set as a parameter
+        or as a property. If $ModuleVersion is $null or an empty string the version
+        will fetched from GitVersion if it is installed. If GitVersion is _not_
+        installed the version is fetched from the module manifest in SourcePath.
+    #>
     $ModuleVersion = Get-ModuleVersion @getModuleVersionParameters
 
     " Project Name      = $ProjectName"

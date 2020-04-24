@@ -82,56 +82,98 @@ function Get-ModuleVersion
 
         [Parameter()]
         [System.String]
+        $ModuleManifestPath,
+
+        [Parameter()]
+        [System.String]
         $ModuleVersion
     )
 
     if ([System.String]::IsNullOrEmpty($ModuleVersion))
     {
-        $moduleInfo = Import-PowerShellDataFile "$OutputDirectory/$ProjectName/*/$ProjectName.psd1" -ErrorAction 'Stop'
+        Write-Verbose -Message 'Module version is not determined yet. Evaluating methods to get module version.'
 
-        if ($preReleaseString = $moduleInfo.PrivateData.PSData.Prerelease)
+        if ((Get-Command -Name 'gitversion.exe' -ErrorAction 'SilentlyContinue'))
         {
-            <#
-                The cmldet Publish-Module does not yet support semver compliant
-                pre-release strings. If the prerelease string contains a dash ('-')
-                then the dash and everything behind is removed. For example
-                'pr54-0012' is parsed to 'ps54'.
-            #>
-            $validPreReleaseString, $preReleaseStringSuffix = $preReleaseString -split '-'
+            Write-Verbose -Message 'Using the version from GitVersion.'
 
-            $moduleVersion = $moduleInfo.ModuleVersion + '-' + $validPreReleaseString
+            $ModuleVersion = (gitversion | ConvertFrom-Json -ErrorAction 'Stop').NuGetVersionV2
         }
         else
         {
-            $moduleVersion = $moduleInfo.ModuleVersion
+            if (-not $PSBoundParameters.ContainsKey('ModuleManifestPath'))
+            {
+                $ModuleManifestPath = "$OutputDirectory/$ProjectName/*/$ProjectName.psd1"
+            }
+
+            Write-Verbose -Message (
+                "GitVersion is not installed. Trying instead to use the version from module manifest in path '{0}'." -f $ModuleManifestPath
+            )
+
+            $moduleInfo = Import-PowerShellDataFile $ModuleManifestPath -ErrorAction 'Stop'
+
+            $ModuleVersion = $moduleInfo.ModuleVersion
+
+            if ($moduleInfo.PrivateData.PSData.Prerelease)
+            {
+                $ModuleVersion = $ModuleVersion + '-' + $moduleInfo.PrivateData.PSData.Prerelease
+            }
         }
+    }
+
+    $moduleVersionParts = Split-ModuleVersion -ModuleVersion $ModuleVersion
+
+    Write-Verbose -Message (
+        "Current module version is '{0}'." -f $moduleVersionParts.ModuleVersion
+    )
+
+    return $moduleVersionParts.ModuleVersion
+}
+
+function Split-ModuleVersion
+{
+    [CmdletBinding()]
+    [OutputType([System.Management.Automation.PSCustomObject])]
+    param
+    (
+        [Parameter()]
+        [System.String]
+        $ModuleVersion
+    )
+
+    <#
+        This handles a previous version of the module that suggested to pass
+        a version string with metadata in the CI pipeline that can look like
+        this: 1.15.0-pr0224-0022+Sha.47ae45eb2cfed02b249f239a7c55e5c71b26ab76.Date.2020-01-07
+    #>
+    $ModuleVersion = ($ModuleVersion -split '\+', 2)[0]
+
+    $moduleVersion, $preReleaseString = $ModuleVersion -split '-', 2
+
+    <#
+        The cmldet Publish-Module does not yet support semver compliant
+        pre-release strings. If the prerelease string contains a dash ('-')
+        then the dash and everything behind is removed. For example
+        'pr54-0012' is parsed to 'ps54'.
+    #>
+    $validPreReleaseString, $preReleaseStringSuffix = $preReleaseString -split '-'
+
+    if ($validPreReleaseString)
+    {
+        $fullModuleVersion =  $moduleVersion + '-' + $validPreReleaseString
     }
     else
     {
-        <#
-            This handles a previous version of the module that suggested to pass
-            a version string with metadata in the CI pipeline that can look like
-            this: 1.15.0-pr0224-0022+Sha.47ae45eb2cfed02b249f239a7c55e5c71b26ab76.Date.2020-01-07
-        #>
-        $moduleVersionWithoutMetadata = ($ModuleVersion -split '\+', 2)[0]
-
-        $moduleVersion, $preReleaseString = $moduleVersionWithoutMetadata -split '-', 2
-
-        if ($preReleaseString)
-        {
-            <#
-                The cmldet Publish-Module does not yet support semver compliant
-                pre-release strings. If the prerelease string contains a dash ('-')
-                then the dash and everything behind is removed. For example
-                'pr54-0012' is parsed to 'ps54'.
-            #>
-            $validPreReleaseString, $preReleaseStringSuffix = $preReleaseString -split '-'
-
-            $moduleVersion = $moduleVersion + '-' + $validPreReleaseString
-        }
+        $fullModuleVersion =  $moduleVersion
     }
 
-    return $moduleVersion
+    $moduleVersionParts = [PSCustomObject] @{
+        Version = $moduleVersion
+        PreReleaseString = $validPreReleaseString
+        ModuleVersion = $fullModuleVersion
+    }
+
+    return $moduleVersionParts
 }
 
 function Get-OperatingSystemShortName
