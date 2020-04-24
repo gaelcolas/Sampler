@@ -89,7 +89,14 @@ DscTest:
 BuildWorkflow:
   CopyPlaster: |
     {
-      # Create a Build task from the Yaml (Because we dont want this task to be in the .build folder)
+      Import-Module -Name "$BuildRoot/.build/tasks/Common.Functions.psm1"
+
+      if ([System.String]::IsNullOrEmpty($ProjectName))
+      {
+          $ProjectName = Get-ProjectName -BuildRoot $BuildRoot
+      }
+
+      # Create a Build task from the Yaml (Because we don't want this task to be in the .build folder)
       # so that it's not copied and made accessible in the Sampler Module.
       $PlasterTemplateFolder = Get-Item $BuildModuleOutput/$ProjectName/*/Templates/Sampler
       # ./output/Sampler/*/Templates/Sampler
