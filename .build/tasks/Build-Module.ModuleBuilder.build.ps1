@@ -1,39 +1,12 @@
-Param (
+param
+(
+    [Parameter()]
+    [string]
+    $ProjectName = (property ProjectName ''),
 
     [Parameter()]
     [string]
-    $ProjectName = (property ProjectName $(
-            #Find the module manifest to deduce the Project Name
-            (Get-ChildItem $BuildRoot\*\*.psd1 -Exclude 'build.psd1', 'analyzersettings.psd1' | Where-Object {
-                    ($_.Directory.Name -match 'source|src' -or $_.Directory.Name -eq $_.BaseName) -and
-                    $(try
-                        {
-                            Test-ModuleManifest $_.FullName -ErrorAction Stop
-                        }
-                        catch
-                        {
-                            Write-Warning $_
-                            $false
-                        }) }
-            ).BaseName
-        )
-    ),
-
-    [Parameter()]
-    [string]
-    $SourcePath = (property SourcePath ((Get-ChildItem $BuildRoot\*\*.psd1 -Exclude 'build.psd1', 'analyzersettings.psd1' | Where-Object {
-                    ($_.Directory.Name -match 'source|src' -or $_.Directory.Name -eq $_.BaseName) -and
-                    $(try
-                        {
-                            Test-ModuleManifest $_.FullName -ErrorAction Stop
-                        }
-                        catch
-                        {
-                            Write-Warning $_
-                            $false
-                        }) }
-            ).Directory.FullName)
-    ),
+    $SourcePath = (property SourcePath ''),
 
     [Parameter()]
     [string]
@@ -64,6 +37,16 @@ Import-Module -Name "$PSScriptRoot/Common.Functions.psm1"
 
 # Synopsis: Build the Module based on its Build.psd1 definition
 Task Build_Module_ModuleBuilder {
+    if ([System.String]::IsNullOrEmpty($ProjectName))
+    {
+        $ProjectName = Get-ProjectName -BuildRoot $BuildRoot
+    }
+
+    if ([System.String]::IsNullOrEmpty($SourcePath))
+    {
+        $SourcePath = Get-SourcePath -BuildRoot $BuildRoot
+    }
+
     $getModuleVersionParameters = @{
         ModuleManifestPath = "$SourcePath\$ProjectName.psd1"
         ModuleVersion      = $ModuleVersion
@@ -146,6 +129,16 @@ Task Build_Module_ModuleBuilder {
 }
 
 Task Build_NestedModules_ModuleBuilder {
+    if ([System.String]::IsNullOrEmpty($ProjectName))
+    {
+        $ProjectName = Get-ProjectName -BuildRoot $BuildRoot
+    }
+
+    if ([System.String]::IsNullOrEmpty($SourcePath))
+    {
+        $SourcePath = Get-SourcePath -BuildRoot $BuildRoot
+    }
+
     " Project Name          = $ProjectName"
     " Source Path           = $SourcePath"
     " Output Directory      = $OutputDirectory"

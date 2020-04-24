@@ -5,39 +5,11 @@ Param (
 
     [Parameter()]
     [string]
-    $ProjectName = (property ProjectName $(
-            (Get-ChildItem $BuildRoot\*\*.psd1 -Exclude 'build.psd1', 'analyzersettings.psd1' | Where-Object {
-                    ($_.Directory.Name -match 'source|src' -or $_.Directory.Name -eq $_.BaseName) -and
-                    $(try
-                        {
-                            Test-ModuleManifest $_.FullName -ErrorAction Stop
-                        }
-                        catch
-                        {
-                            Write-Warning $_
-                            $false
-                        }) }
-            ).BaseName
-        )
-    ),
+    $ProjectName = (property ProjectName ''),
 
     [Parameter()]
     [string]
-    $SourcePath = (property SourcePath $(
-            (Get-ChildItem $BuildRoot\*\*.psd1 -Exclude 'build.psd1', 'analyzersettings.psd1' | Where-Object {
-                    ($_.Directory.Name -match 'source|src' -or $_.Directory.Name -eq $_.BaseName) -and
-                    $(try
-                        {
-                            Test-ModuleManifest $_.FullName -ErrorAction Stop
-                        }
-                        catch
-                        {
-                            Write-Warning $_
-                            $false
-                        }) }
-            ).Directory.FullName
-        )
-    ),
+    $SourcePath = (property SourcePath ''),
 
     [Parameter()]
     [string]
@@ -58,6 +30,16 @@ Param (
 )
 
 Task UpdateHelp {
+    if ([System.String]::IsNullOrEmpty($ProjectName))
+    {
+        $ProjectName = Get-ProjectName -BuildRoot $BuildRoot
+    }
+
+    if ([System.String]::IsNullOrEmpty($SourcePath))
+    {
+        $SourcePath = Get-SourcePath -BuildRoot $BuildRoot
+    }
+
     $LineSeparation
     "`t`t`t UPDATE HELP MARKDOWN FILE"
     $LineSeparation
@@ -79,6 +61,16 @@ Task UpdateHelp {
 
 
 Task GenerateMamlFromMd {
+    if ([System.String]::IsNullOrEmpty($ProjectName))
+    {
+        $ProjectName = Get-ProjectName -BuildRoot $BuildRoot
+    }
+
+    if ([System.String]::IsNullOrEmpty($SourcePath))
+    {
+        $SourcePath = Get-SourcePath -BuildRoot $BuildRoot
+    }
+
     $LineSeparation
     "`t`t`t GENERATE MAML IN BUILD OUTPUT"
     $LineSeparation

@@ -12,22 +12,7 @@ param(
 
     [Parameter()]
     [string]
-    $ProjectName = (property ProjectName $(
-            #Find the module manifest to deduce the Project Name
-            (Get-ChildItem $BuildRoot\*\*.psd1 -Exclude 'build.psd1', 'analyzersettings.psd1' | Where-Object {
-                    ($_.Directory.Name -match 'source|src' -or $_.Directory.Name -eq $_.BaseName) -and
-                    $(try
-                        {
-                            Test-ModuleManifest $_.FullName -ErrorAction Stop
-                        }
-                        catch
-                        {
-                            Write-Warning $_
-                            $false
-                        }) }
-            ).BaseName
-        )
-    ),
+    $ProjectName = (property ProjectName ''),
 
     [Parameter()]
     [string]
@@ -57,6 +42,11 @@ Import-Module -Name "$PSScriptRoot/Common.Functions.psm1"
 
 # Synopsis: Create ReleaseNotes from changelog and update the Changelog for release
 task Create_changelog_release_output {
+    if ([System.String]::IsNullOrEmpty($ProjectName))
+    {
+        $ProjectName = Get-ProjectName -BuildRoot $BuildRoot
+    }
+
     "  OutputDirectory  = $OutputDirectory"
     "  ReleaseNotesPath = $ReleaseNotesPath"
 
@@ -176,6 +166,11 @@ task Create_changelog_release_output {
 }
 
 task publish_nupkg_to_gallery -if ((Get-Command nuget -ErrorAction SilentlyContinue) -and $GalleryApiToken) {
+    if ([System.String]::IsNullOrEmpty($ProjectName))
+    {
+        $ProjectName = Get-ProjectName -BuildRoot $BuildRoot
+    }
+
     $getModuleVersionParameters = @{
         OutputDirectory = $OutputDirectory
         ProjectName     = $ProjectName
@@ -198,6 +193,10 @@ task publish_nupkg_to_gallery -if ((Get-Command nuget -ErrorAction SilentlyConti
 
 # Synopsis: Packaging the module by Publishing to output folder (incl dependencies)
 task package_module_nupkg {
+    if ([System.String]::IsNullOrEmpty($ProjectName))
+    {
+        $ProjectName = Get-ProjectName -BuildRoot $BuildRoot
+    }
 
     # Force registering the output repository mapping to the Project's output path
     $null = Unregister-PSRepository -Name output -ErrorAction SilentlyContinue
@@ -269,6 +268,11 @@ task package_module_nupkg {
 }
 
 task publish_module_to_gallery -if ((!(Get-Command nuget -ErrorAction SilentlyContinue)) -and $GalleryApiToken) {
+    if ([System.String]::IsNullOrEmpty($ProjectName))
+    {
+        $ProjectName = Get-ProjectName -BuildRoot $BuildRoot
+    }
+
     if (!(Split-Path $OutputDirectory -IsAbsolute))
     {
         $OutputDirectory = Join-Path $BuildRoot $OutputDirectory

@@ -618,6 +618,76 @@ function Update-JaCoCoStatistics
     return $Document
 }
 
+function Get-ProjectName
+{
+    [CmdletBinding()]
+    [OutputType([System.String])]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [System.String]
+        $BuildRoot
+    )
+
+    return (Get-ProjectModuleManifest -BuildRoot $BuildRoot).BaseName
+}
+
+function Get-SourcePath
+{
+    [CmdletBinding()]
+    [OutputType([System.String])]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [System.String]
+        $BuildRoot
+    )
+
+    return (Get-ProjectModuleManifest -BuildRoot $BuildRoot).Directory.FullName
+}
+
+function Get-ProjectModuleManifest
+{
+    [CmdletBinding()]
+    [OutputType([System.IO.FileInfo])]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [System.String]
+        $BuildRoot
+    )
+
+    $excludeFiles = @(
+        'build.psd1'
+        'analyzersettings.psd1'
+    )
+
+    $moduleManifestItem = @(
+        Get-ChildItem -Path "$BuildRoot\*\*.psd1" -Exclude $excludeFiles |
+            Where-Object -FilterScript {
+                ($_.Directory.Name -match 'source|src' -or $_.Directory.Name -eq $_.BaseName) `
+                -and $(
+                    try
+                    {
+                        Test-ModuleManifest $_.FullName -ErrorAction Stop
+                    }
+                    catch
+                    {
+                        Write-Warning $_
+                        $false
+                    }
+                )
+            }
+    )
+
+    if ($moduleManifestItem.Count -gt 1)
+    {
+        throw ("Found more than one project folder containing a module manifest, please make sure there are only one; `n Manifest: {0}" -f ($moduleManifestItem.FullName -join "`n Manifest: "))
+    }
+
+    return $moduleManifestItem
+}
+
 Export-ModuleMember -Function @(
     'Convert-HashtableToString'
     'Get-CodeCoverageThreshold'
@@ -628,4 +698,7 @@ Export-ModuleMember -Function @(
     'Get-CodeCoverageOutputFileEncoding'
     'Merge-JaCoCoReports'
     'Update-JaCoCoStatistics'
+    'Get-ProjectModuleManifest'
+    'Get-ProjectName'
+    'Get-SourcePath'
 )
