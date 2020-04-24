@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.105.1] - 2020-04-24
+
 ### Fixed
 
 - The task build will no longer fail if GitVersion is not installed and
