@@ -148,12 +148,7 @@ function Split-ModuleVersion
     #>
     $ModuleVersion = ($ModuleVersion -split '\+', 2)[0]
 
-    $moduleVersionParts = [PSCustomObject] @{}
-
     $moduleVersion, $preReleaseString = $ModuleVersion -split '-', 2
-
-    $moduleVersionParts |
-        Add-Member -MemberType 'NoteProperty' -Name 'Version' -Value $moduleVersion
 
     <#
         The cmldet Publish-Module does not yet support semver compliant
@@ -162,9 +157,6 @@ function Split-ModuleVersion
         'pr54-0012' is parsed to 'ps54'.
     #>
     $validPreReleaseString, $preReleaseStringSuffix = $preReleaseString -split '-'
-
-    $moduleVersionParts |
-        Add-Member -MemberType 'NoteProperty' -Name 'PreReleaseString' -Value $validPreReleaseString
 
     if ($validPreReleaseString)
     {
@@ -175,8 +167,11 @@ function Split-ModuleVersion
         $fullModuleVersion =  $moduleVersion
     }
 
-    $moduleVersionParts |
-        Add-Member -MemberType 'NoteProperty' -Name 'ModuleVersion' -Value $fullModuleVersion
+    $moduleVersionParts = [PSCustomObject] @{
+        Version = $moduleVersion
+        PreReleaseString = $validPreReleaseString
+        ModuleVersion = $fullModuleVersion
+    }
 
     return $moduleVersionParts
 }
