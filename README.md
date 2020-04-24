@@ -128,16 +128,18 @@ do anything. The `requiredModules` should already be available to the session th
 
 ## Task Variables
 
-A task variable is used in a build task and it can be set either as a script
-parameter, as a variable defined in a parent scope, or as an environment
-variable.
+A task variable is used in a build task and it can be added as a script
+parameter to build.ps1, set as as an environment variable, and can often
+be used if defined in parent scope or read from the $BuildInfo properties
+defined in the configuration file.
 
 ### `BuildModuleOutput`
 
 The path where the module will be built. The path will for example
-be use for the parameter `OutputDirectory` for the cmdlet `Build-Module` of
-the PowerShell module _Invoke-Build_. Defaults to the path for `OutputDirectory`,
-and concatenated with `BuiltModuleSubdirectory` if it is set.
+be used for the parameter `OutputDirectory` when calling the cmdlet
+`Build-Module` of the PowerShell module _Invoke-Build_. Defaults to
+the path for `OutputDirectory`, and concatenated with `BuiltModuleSubdirectory`
+if it is set.
 
 ### `BuiltModuleSubdirectory`
 
@@ -147,13 +149,19 @@ default path in variable `BuildModuleOutput`.
 ### `ModuleVersion`
 
 The module version of the built module. Defaults to the property `NuGetVersionV2`
-of the executable `gitversion`, or if the executable `gitversion` is not
-available the the variable defaults to an empty string.
+returned by the executable `gitversion`, or if the executable `gitversion`
+is not available the the variable defaults to an empty string, and the
+build module task will use the version found in the Module Manifest.
 
 ### `OutputDirectory`
 
-The base directory of all output from the build tasks. Defaults to folder
-'output' relative to the [`$BuildRoot`](https://github.com/nightroman/Invoke-Build/wiki/Special-Variables#buildroot).
+The base directory of all output from the build tasks. This is the path
+where artifacts will be built or saved such as the built module, required
+modules downloaded at build time, test results, etc. This folder should
+be ignored by git as its content is ephemeral. It defaults to the folder
+'output', a path relative to the root of the repository (same as `Invoke-Build`'s
+[`$BuildRoot`](https://github.com/nightroman/Invoke-Build/wiki/Special-Variables#buildroot)).
+You can override this setting with an absolute path should you need to.
 
 ### `ProjectPath`
 
