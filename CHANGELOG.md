@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Updated README.md with a section `Task Variables` and described each of
+  the build task `Build-Module.ModuleBuilder`'s task variables.
+
 ## [0.105.1] - 2020-04-24
 
 ### Fixed

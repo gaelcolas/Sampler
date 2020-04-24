@@ -126,6 +126,64 @@ do anything. The `requiredModules` should already be available to the session th
 - `build.ps1 -tasks noop` - This will just setup your missing environment variables
 - `build.ps1 -tasks noop -ResolveDependency` - That one will bootstrap your environment & download required modules
 
+## Task Variables
+
+A task variable is used in a build task and it can be added as a script
+parameter to build.ps1, set as as an environment variable, and can often
+be used if defined in parent scope or read from the $BuildInfo properties
+defined in the configuration file.
+
+### `BuildModuleOutput`
+
+The path where the module will be built. The path will for example
+be used for the parameter `OutputDirectory` when calling the cmdlet
+`Build-Module` of the PowerShell module _Invoke-Build_. Defaults to
+the path for `OutputDirectory`, and concatenated with `BuiltModuleSubdirectory`
+if it is set.
+
+### `BuiltModuleSubdirectory`
+
+An optional path that will suffix the `OutputDirectory` to build the
+default path in variable `BuildModuleOutput`.
+
+### `ModuleVersion`
+
+The module version of the built module. Defaults to the property `NuGetVersionV2`
+returned by the executable `gitversion`, or if the executable `gitversion`
+is not available the the variable defaults to an empty string, and the
+build module task will use the version found in the Module Manifest.
+
+### `OutputDirectory`
+
+The base directory of all output from the build tasks. This is the path
+where artifacts will be built or saved such as the built module, required
+modules downloaded at build time, test results, etc. This folder should
+be ignored by git as its content is ephemeral. It defaults to the folder
+'output', a path relative to the root of the repository (same as `Invoke-Build`'s
+[`$BuildRoot`](https://github.com/nightroman/Invoke-Build/wiki/Special-Variables#buildroot)).
+You can override this setting with an absolute path should you need to.
+
+### `ProjectPath`
+
+The root path to the project. Defaults to [`$BuildRoot`](https://github.com/nightroman/Invoke-Build/wiki/Special-Variables#buildroot).
+
+### `ProjectName`
+
+The project name. Defaults to the BaseName of the module manifest it finds
+in either the folder 'source', 'src, or a folder with the same name as the
+module.
+
+### `ReleaseNotesPath`
+
+THe path to the release notes markdown file. Defaults to the path for
+`OutputDirectory` concatenated with `ReleaseNotes.md`.
+
+### `SourcePath`
+
+The path to the source folder. Defaults to the same path where the module
+manifest is found in either the folder 'source', 'src, or a folder with
+the same name as the module.
+
 ## Sampler Build workflow
 
 To better explain the features available, let's look at the `Sampler` module
