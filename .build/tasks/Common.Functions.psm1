@@ -86,14 +86,19 @@ function Get-ModuleVersion
 
         [Parameter()]
         [System.String]
-        $ModuleVersion
+        $ModuleVersion,
+
+        [Parameter()]
+        [ValidateSet('GitVersion','ModuleManifest')]
+        [System.String]
+        $Ignore
     )
 
     if ([System.String]::IsNullOrEmpty($ModuleVersion))
     {
         Write-Verbose -Message 'Module version is not determined yet. Evaluating methods to get module version.'
 
-        if ((Get-Command -Name 'gitversion.exe' -ErrorAction 'SilentlyContinue'))
+        if ('GitVersion' -notin $Ignore -and (Get-Command -Name 'gitversion.exe' -ErrorAction 'SilentlyContinue'))
         {
             Write-Verbose -Message 'Using the version from GitVersion.'
 
@@ -101,22 +106,25 @@ function Get-ModuleVersion
         }
         else
         {
-            if (-not $PSBoundParameters.ContainsKey('ModuleManifestPath'))
+            if ('ModuleManifest' -notin $Ignore)
             {
-                $ModuleManifestPath = "$OutputDirectory/$ProjectName/*/$ProjectName.psd1"
-            }
+                if (-not $PSBoundParameters.ContainsKey('ModuleManifestPath'))
+                {
+                    $ModuleManifestPath = "$OutputDirectory/$ProjectName/*/$ProjectName.psd1"
+                }
 
-            Write-Verbose -Message (
-                "GitVersion is not installed. Trying instead to use the version from module manifest in path '{0}'." -f $ModuleManifestPath
-            )
+                Write-Verbose -Message (
+                    "GitVersion is not installed or was requested to be ignored. Trying to use the version from module manifest in path '{0}'." -f $ModuleManifestPath
+                )
 
-            $moduleInfo = Import-PowerShellDataFile $ModuleManifestPath -ErrorAction 'Stop'
+                $moduleInfo = Import-PowerShellDataFile $ModuleManifestPath -ErrorAction 'Stop'
 
-            $ModuleVersion = $moduleInfo.ModuleVersion
+                $ModuleVersion = $moduleInfo.ModuleVersion
 
-            if ($moduleInfo.PrivateData.PSData.Prerelease)
-            {
-                $ModuleVersion = $ModuleVersion + '-' + $moduleInfo.PrivateData.PSData.Prerelease
+                if ($moduleInfo.PrivateData.PSData.Prerelease)
+                {
+                    $ModuleVersion = $ModuleVersion + '-' + $moduleInfo.PrivateData.PSData.Prerelease
+                }
             }
         }
     }
