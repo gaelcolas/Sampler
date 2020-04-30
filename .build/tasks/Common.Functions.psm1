@@ -98,7 +98,7 @@ function Get-ModuleVersion
     {
         Write-Verbose -Message 'Module version is not determined yet. Evaluating methods to get module version.'
 
-        if ('GitVersion' -notin $Ignore -and (Get-Command -Name 'gitversion.exe' -ErrorAction 'SilentlyContinue'))
+        if ('GitVersion' -notin $Ignore -and (Get-Command -Name 'gitversion' -ErrorAction 'SilentlyContinue'))
         {
             Write-Verbose -Message 'Using the version from GitVersion.'
 

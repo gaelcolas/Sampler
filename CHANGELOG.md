@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   now fails with a a better error error message ([issue #155](https://github.com/gaelcolas/Sampler/issues/155)).
 - Now the the module does not export the helper function modules as tasks
   aliases ([issue #161](https://github.com/gaelcolas/Sampler/issues/161)).
+- Fixed so module version can be detected using GitVersion on macOS and
+  Linux.
 
 ### Changed
 
