@@ -66,6 +66,57 @@ function Get-CodeCoverageThreshold
     return $CodeCoverageThreshold
 }
 
+function Get-BuildVersion
+{
+    [CmdletBinding()]
+    [OutputType([System.String])]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [System.String]
+        $ModuleManifestPath,
+
+        [Parameter()]
+        [System.String]
+        $ModuleVersion
+    )
+
+    if ([System.String]::IsNullOrEmpty($ModuleVersion))
+    {
+        Write-Verbose -Message 'Module version is not determined yet. Evaluating methods to get module version.'
+
+        if ((Get-Command -Name 'gitversion' -ErrorAction 'SilentlyContinue'))
+        {
+            Write-Verbose -Message 'Using the version from GitVersion.'
+
+            $ModuleVersion = (gitversion | ConvertFrom-Json -ErrorAction 'Stop').NuGetVersionV2
+        }
+        else
+        {
+            Write-Verbose -Message (
+                "GitVersion is not installed or was requested to be ignored. Trying to use the version from module manifest in path '{0}'." -f $ModuleManifestPath
+            )
+
+            $moduleInfo = Import-PowerShellDataFile $ModuleManifestPath -ErrorAction 'Stop'
+
+            $ModuleVersion = $moduleInfo.ModuleVersion
+
+            if ($moduleInfo.PrivateData.PSData.Prerelease)
+            {
+                $ModuleVersion = $ModuleVersion + '-' + $moduleInfo.PrivateData.PSData.Prerelease
+            }
+        }
+    }
+
+    $moduleVersionParts = Split-ModuleVersion -ModuleVersion $ModuleVersion
+
+    Write-Verbose -Message (
+        "Current module version is '{0}'." -f $moduleVersionParts.ModuleVersion
+    )
+
+    return $moduleVersionParts.ModuleVersion
+}
+
 function Get-ModuleVersion
 {
     [CmdletBinding()]
@@ -78,55 +129,22 @@ function Get-ModuleVersion
 
         [Parameter()]
         [System.String]
-        $ProjectName,
-
-        [Parameter()]
-        [System.String]
-        $ModuleManifestPath,
-
-        [Parameter()]
-        [System.String]
-        $ModuleVersion,
-
-        [Parameter()]
-        [ValidateSet('GitVersion','ModuleManifest')]
-        [System.String]
-        $Ignore
+        $ProjectName
     )
 
-    if ([System.String]::IsNullOrEmpty($ModuleVersion))
+    $ModuleManifestPath = "$OutputDirectory/$ProjectName/*/$ProjectName.psd1"
+
+    Write-Verbose -Message (
+        "Get the module version from module manifest in path '{0}'." -f $ModuleManifestPath
+    )
+
+    $moduleInfo = Import-PowerShellDataFile $ModuleManifestPath -ErrorAction 'Stop'
+
+    $ModuleVersion = $moduleInfo.ModuleVersion
+
+    if ($moduleInfo.PrivateData.PSData.Prerelease)
     {
-        Write-Verbose -Message 'Module version is not determined yet. Evaluating methods to get module version.'
-
-        if ('GitVersion' -notin $Ignore -and (Get-Command -Name 'gitversion' -ErrorAction 'SilentlyContinue'))
-        {
-            Write-Verbose -Message 'Using the version from GitVersion.'
-
-            $ModuleVersion = (gitversion | ConvertFrom-Json -ErrorAction 'Stop').NuGetVersionV2
-        }
-        else
-        {
-            if ('ModuleManifest' -notin $Ignore)
-            {
-                if (-not $PSBoundParameters.ContainsKey('ModuleManifestPath'))
-                {
-                    $ModuleManifestPath = "$OutputDirectory/$ProjectName/*/$ProjectName.psd1"
-                }
-
-                Write-Verbose -Message (
-                    "GitVersion is not installed or was requested to be ignored. Trying to use the version from module manifest in path '{0}'." -f $ModuleManifestPath
-                )
-
-                $moduleInfo = Import-PowerShellDataFile $ModuleManifestPath -ErrorAction 'Stop'
-
-                $ModuleVersion = $moduleInfo.ModuleVersion
-
-                if ($moduleInfo.PrivateData.PSData.Prerelease)
-                {
-                    $ModuleVersion = $ModuleVersion + '-' + $moduleInfo.PrivateData.PSData.Prerelease
-                }
-            }
-        }
+        $ModuleVersion = $ModuleVersion + '-' + $moduleInfo.PrivateData.PSData.Prerelease
     }
 
     $moduleVersionParts = Split-ModuleVersion -ModuleVersion $ModuleVersion
