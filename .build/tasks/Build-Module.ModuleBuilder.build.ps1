@@ -152,7 +152,6 @@ Task Build_NestedModules_ModuleBuilder {
     $getModuleVersionParameters = @{
         OutputDirectory = $BuildModuleOutput
         ProjectName     = $ProjectName
-        ModuleVersion   = $ModuleVersion
     }
 
     $ModuleVersion = Get-ModuleVersion @getModuleVersionParameters

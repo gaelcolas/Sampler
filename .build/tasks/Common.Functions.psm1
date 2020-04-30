@@ -717,6 +717,7 @@ function Get-ProjectModuleManifest
 Export-ModuleMember -Function @(
     'Convert-HashtableToString'
     'Get-CodeCoverageThreshold'
+    'Get-BuildVersion'
     'Get-ModuleVersion'
     'Get-OperatingSystemShortName'
     'Get-PesterOutputFileFileName'

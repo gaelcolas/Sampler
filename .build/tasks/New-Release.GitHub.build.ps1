@@ -65,7 +65,6 @@ task Publish_release_to_GitHub -if ($GitHubToken) {
     $getModuleVersionParameters = @{
         OutputDirectory = $OutputDirectory
         ProjectName     = $ProjectName
-        Ignore          = 'GitVersion'
     }
 
     $ModuleVersion = Get-ModuleVersion @getModuleVersionParameters

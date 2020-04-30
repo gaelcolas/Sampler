@@ -59,9 +59,8 @@ task Invoke_DscResource_tests {
     }
 
     $getModuleVersionParameters = @{
-        OutputDirectory = $BuildModuleOutput
+        OutputDirectory = $OutputDirectory
         ProjectName     = $ProjectName
-        Ignore          = 'GitVersion'
     }
 
     $ModuleVersion = Get-ModuleVersion @getModuleVersionParameters
@@ -237,7 +236,6 @@ task Fail_Build_if_DscResource_Tests_failed {
     $getModuleVersionParameters = @{
         OutputDirectory = $OutputDirectory
         ProjectName     = $ProjectName
-        Ignore          = 'GitVersion'
     }
 
     $ModuleVersion = Get-ModuleVersion @getModuleVersionParameters
@@ -300,7 +298,6 @@ task Upload_DscResourceTest_Results_To_AppVeyor -If { (property BuildSystem 'unk
     $getModuleVersionParameters = @{
         OutputDirectory = $OutputDirectory
         ProjectName     = $ProjectName
-        Ignore          = 'GitVersion'
     }
 
     $ModuleVersion = Get-ModuleVersion @getModuleVersionParameters
