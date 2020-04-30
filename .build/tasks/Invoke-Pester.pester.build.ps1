@@ -15,10 +15,6 @@ Param (
 
     [Parameter()]
     [string]
-    $ModuleVersion = (property ModuleVersion ''),
-
-    [Parameter()]
-    [string]
     $PesterOutputFolder = (property PesterOutputFolder 'testResults'),
 
     [Parameter()]
@@ -69,7 +65,7 @@ task Invoke_pester_tests {
     $getModuleVersionParameters = @{
         OutputDirectory = $OutputDirectory
         ProjectName     = $ProjectName
-        ModuleVersion   = $ModuleVersion
+        Ignore          = 'GitVersion'
     }
 
     $ModuleVersion = Get-ModuleVersion @getModuleVersionParameters
@@ -309,7 +305,7 @@ task Fail_Build_if_Pester_Tests_failed {
     $GetModuleVersionParameters = @{
         OutputDirectory = $OutputDirectory
         ProjectName     = $ProjectName
-        ModuleVersion   = $ModuleVersion
+        Ignore          = 'GitVersion'
     }
 
     $ModuleVersion = Get-ModuleVersion @GetModuleVersionParameters
@@ -379,7 +375,7 @@ task Pester_if_Code_Coverage_Under_Threshold {
     $GetModuleVersionParameters = @{
         OutputDirectory = $OutputDirectory
         ProjectName     = $ProjectName
-        ModuleVersion   = $ModuleVersion
+        Ignore          = 'GitVersion'
     }
 
     $ModuleVersion = Get-ModuleVersion @GetModuleVersionParameters
@@ -455,7 +451,7 @@ task Upload_Test_Results_To_AppVeyor -If { (property BuildSystem 'unknown') -eq 
     $GetModuleVersionParameters = @{
         OutputDirectory = $OutputDirectory
         ProjectName     = $ProjectName
-        ModuleVersion   = $ModuleVersion
+        Ignore          = 'GitVersion'
     }
 
     $ModuleVersion = Get-ModuleVersion @GetModuleVersionParameters

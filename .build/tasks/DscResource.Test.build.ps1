@@ -15,10 +15,6 @@ Param (
 
     [Parameter()]
     [string]
-    $ModuleVersion = (property ModuleVersion ''),
-
-    [Parameter()]
-    [string]
     $DscTestOutputFolder = (property DscTestOutputFolder 'testResults'),
 
     [Parameter()]
@@ -65,7 +61,7 @@ task Invoke_DscResource_tests {
     $getModuleVersionParameters = @{
         OutputDirectory = $BuildModuleOutput
         ProjectName     = $ProjectName
-        ModuleVersion   = $ModuleVersion
+        Ignore          = 'GitVersion'
     }
 
     $ModuleVersion = Get-ModuleVersion @getModuleVersionParameters
@@ -241,7 +237,7 @@ task Fail_Build_if_DscResource_Tests_failed {
     $getModuleVersionParameters = @{
         OutputDirectory = $OutputDirectory
         ProjectName     = $ProjectName
-        ModuleVersion   = $ModuleVersion
+        Ignore          = 'GitVersion'
     }
 
     $ModuleVersion = Get-ModuleVersion @getModuleVersionParameters
@@ -304,7 +300,7 @@ task Upload_DscResourceTest_Results_To_AppVeyor -If { (property BuildSystem 'unk
     $getModuleVersionParameters = @{
         OutputDirectory = $OutputDirectory
         ProjectName     = $ProjectName
-        ModuleVersion   = $ModuleVersion
+        Ignore          = 'GitVersion'
     }
 
     $ModuleVersion = Get-ModuleVersion @getModuleVersionParameters
