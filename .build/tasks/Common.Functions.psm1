@@ -94,7 +94,7 @@ function Get-BuildVersion
         else
         {
             Write-Verbose -Message (
-                "GitVersion is not installed or was requested to be ignored. Trying to use the version from module manifest in path '{0}'." -f $ModuleManifestPath
+                "GitVersion is not installed. Trying to use the version from module manifest in path '{0}'." -f $ModuleManifestPath
             )
 
             $moduleInfo = Import-PowerShellDataFile $ModuleManifestPath -ErrorAction 'Stop'
