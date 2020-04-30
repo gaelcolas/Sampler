@@ -62,7 +62,6 @@ task Create_changelog_release_output {
     $getModuleVersionParameters = @{
         OutputDirectory = $OutputDirectory
         ProjectName     = $ProjectName
-        Ignore          = 'GitVersion'
     }
 
     $ModuleVersion = Get-ModuleVersion @getModuleVersionParameters
@@ -170,7 +169,6 @@ task publish_nupkg_to_gallery -if ((Get-Command nuget -ErrorAction SilentlyConti
     $getModuleVersionParameters = @{
         OutputDirectory = $OutputDirectory
         ProjectName     = $ProjectName
-        Ignore          = 'GitVersion'
     }
 
     $ModuleVersion = Get-ModuleVersion @getModuleVersionParameters
@@ -282,7 +280,6 @@ task publish_module_to_gallery -if ((!(Get-Command nuget -ErrorAction SilentlyCo
     $getModuleVersionParameters = @{
         OutputDirectory = $OutputDirectory
         ProjectName     = $ProjectName
-        Ignore          = 'GitVersion'
     }
 
     $ModuleVersion = Get-ModuleVersion @getModuleVersionParameters
