@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the build task `Build-Module.ModuleBuilder`'s task variables.
 - When there are multiple module manifest found in the repository the build
   now fails with a a better error error message ([issue #155](https://github.com/gaelcolas/Sampler/issues/155)).
+- Fixed so module version can be detected using GitVersion on macOS and
+  Linux.
 
 ### Changed
 
