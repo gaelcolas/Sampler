@@ -25,7 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   to that parameter was removed.
 - Tasks that are not setting the version in the module manifest or otherwise
   need to evaluate the module version are now using the the module version
-  from the nodule manifest that the build task evaluated and set ([issue #160](https://github.com/gaelcolas/Sampler/issues/160)).
+  from the built module's module manifest ([issue #160](https://github.com/gaelcolas/Sampler/issues/160)).
 
 ## [0.105.1] - 2020-04-24
 
