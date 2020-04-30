@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the build task `Build-Module.ModuleBuilder`'s task variables.
 - When there are multiple module manifest found in the repository the build
   now fails with a a better error error message ([issue #155](https://github.com/gaelcolas/Sampler/issues/155)).
+- Now the the module does not export the helper function modules as tasks
+  aliases ([issue #161](https://github.com/gaelcolas/Sampler/issues/161)).
 
 ### Changed
 
