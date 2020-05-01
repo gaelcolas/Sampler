@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.105.2] - 2020-05-01
+
 ### Fixed
 
 - Updated README.md with a section `Task Variables` and described each of
