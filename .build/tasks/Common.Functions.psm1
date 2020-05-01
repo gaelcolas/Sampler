@@ -66,21 +66,13 @@ function Get-CodeCoverageThreshold
     return $CodeCoverageThreshold
 }
 
-function Get-ModuleVersion
+function Get-BuildVersion
 {
     [CmdletBinding()]
     [OutputType([System.String])]
     param
     (
-        [Parameter()]
-        [System.String]
-        $OutputDirectory,
-
-        [Parameter()]
-        [System.String]
-        $ProjectName,
-
-        [Parameter()]
+        [Parameter(Mandatory = $true)]
         [System.String]
         $ModuleManifestPath,
 
@@ -93,7 +85,7 @@ function Get-ModuleVersion
     {
         Write-Verbose -Message 'Module version is not determined yet. Evaluating methods to get module version.'
 
-        if ((Get-Command -Name 'gitversion.exe' -ErrorAction 'SilentlyContinue'))
+        if ((Get-Command -Name 'gitversion' -ErrorAction 'SilentlyContinue'))
         {
             Write-Verbose -Message 'Using the version from GitVersion.'
 
@@ -101,13 +93,8 @@ function Get-ModuleVersion
         }
         else
         {
-            if (-not $PSBoundParameters.ContainsKey('ModuleManifestPath'))
-            {
-                $ModuleManifestPath = "$OutputDirectory/$ProjectName/*/$ProjectName.psd1"
-            }
-
             Write-Verbose -Message (
-                "GitVersion is not installed. Trying instead to use the version from module manifest in path '{0}'." -f $ModuleManifestPath
+                "GitVersion is not installed. Trying to use the version from module manifest in path '{0}'." -f $ModuleManifestPath
             )
 
             $moduleInfo = Import-PowerShellDataFile $ModuleManifestPath -ErrorAction 'Stop'
@@ -119,6 +106,45 @@ function Get-ModuleVersion
                 $ModuleVersion = $ModuleVersion + '-' + $moduleInfo.PrivateData.PSData.Prerelease
             }
         }
+    }
+
+    $moduleVersionParts = Split-ModuleVersion -ModuleVersion $ModuleVersion
+
+    Write-Verbose -Message (
+        "Current module version is '{0}'." -f $moduleVersionParts.ModuleVersion
+    )
+
+    return $moduleVersionParts.ModuleVersion
+}
+
+function Get-BuiltModuleVersion
+{
+    [CmdletBinding()]
+    [OutputType([System.String])]
+    param
+    (
+        [Parameter()]
+        [System.String]
+        $OutputDirectory,
+
+        [Parameter()]
+        [System.String]
+        $ProjectName
+    )
+
+    $ModuleManifestPath = "$OutputDirectory/$ProjectName/*/$ProjectName.psd1"
+
+    Write-Verbose -Message (
+        "Get the module version from module manifest in path '{0}'." -f $ModuleManifestPath
+    )
+
+    $moduleInfo = Import-PowerShellDataFile $ModuleManifestPath -ErrorAction 'Stop'
+
+    $ModuleVersion = $moduleInfo.ModuleVersion
+
+    if ($moduleInfo.PrivateData.PSData.Prerelease)
+    {
+        $ModuleVersion = $ModuleVersion + '-' + $moduleInfo.PrivateData.PSData.Prerelease
     }
 
     $moduleVersionParts = Split-ModuleVersion -ModuleVersion $ModuleVersion
@@ -691,7 +717,8 @@ function Get-ProjectModuleManifest
 Export-ModuleMember -Function @(
     'Convert-HashtableToString'
     'Get-CodeCoverageThreshold'
-    'Get-ModuleVersion'
+    'Get-BuildVersion'
+    'Get-BuiltModuleVersion'
     'Get-OperatingSystemShortName'
     'Get-PesterOutputFileFileName'
     'Get-CodeCoverageOutputFile'

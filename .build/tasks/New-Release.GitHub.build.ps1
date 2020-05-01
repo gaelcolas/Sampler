@@ -17,10 +17,6 @@ param(
 
     [Parameter()]
     [string]
-    $ModuleVersion = (property ModuleVersion ''),
-
-    [Parameter()]
-    [string]
     $GitHubToken = (property GitHubToken ''), # retrieves from Environment variable
 
     [Parameter()]
@@ -69,10 +65,9 @@ task Publish_release_to_GitHub -if ($GitHubToken) {
     $getModuleVersionParameters = @{
         OutputDirectory = $OutputDirectory
         ProjectName     = $ProjectName
-        ModuleVersion   = $ModuleVersion
     }
 
-    $ModuleVersion = Get-ModuleVersion @getModuleVersionParameters
+    $ModuleVersion = Get-BuiltModuleVersion @getModuleVersionParameters
     $ModuleVersionFolder, $PreReleaseTag = $ModuleVersion -split '\-', 2
 
     # find Module's nupkg

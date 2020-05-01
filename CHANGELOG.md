@@ -15,12 +15,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   now fails with a a better error error message ([issue #155](https://github.com/gaelcolas/Sampler/issues/155)).
 - Now the the module does not export the helper function modules as tasks
   aliases ([issue #161](https://github.com/gaelcolas/Sampler/issues/161)).
+- Fixed so module version can be detected using GitVersion on macOS and
+  Linux.
 
 ### Changed
 
 - Update tasks to reduce code duplication ([issue #125](https://github.com/gaelcolas/Sampler/issues/125)).
 - Task 'Merge_CodeCoverage_Files' did not use the parameter `ProjectName`
   to that parameter was removed.
+- Tasks that are not setting the version in the module manifest or otherwise
+  need to evaluate the module version are now using the the module version
+  from the built module's module manifest ([issue #160](https://github.com/gaelcolas/Sampler/issues/160)).
+- The helper function `Get-ModuleVersion` was split into two cmdlets. A
+  new helper function `Get-BuildVersion` that evaluates and returns the
+  next module version, and `Get-BuiltModuleVersion` that always returns the
+  module's version from the built module manifest.
 
 ## [0.105.1] - 2020-04-24
 

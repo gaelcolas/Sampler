@@ -47,7 +47,7 @@ Task Build_Module_ModuleBuilder {
         $SourcePath = Get-SourcePath -BuildRoot $BuildRoot
     }
 
-    $getModuleVersionParameters = @{
+    $getBuildVersionParameters = @{
         ModuleManifestPath = "$SourcePath\$ProjectName.psd1"
         ModuleVersion      = $ModuleVersion
     }
@@ -58,7 +58,7 @@ Task Build_Module_ModuleBuilder {
         will fetched from GitVersion if it is installed. If GitVersion is _not_
         installed the version is fetched from the module manifest in SourcePath.
     #>
-    $ModuleVersion = Get-ModuleVersion @getModuleVersionParameters
+    $ModuleVersion = Get-BuildVersion @getBuildVersionParameters
 
     " Project Name      = $ProjectName"
     " ModuleVersion     = $ModuleVersion"
@@ -152,10 +152,9 @@ Task Build_NestedModules_ModuleBuilder {
     $getModuleVersionParameters = @{
         OutputDirectory = $BuildModuleOutput
         ProjectName     = $ProjectName
-        ModuleVersion   = $ModuleVersion
     }
 
-    $ModuleVersion = Get-ModuleVersion @getModuleVersionParameters
+    $ModuleVersion = Get-BuiltModuleVersion @getModuleVersionParameters
     $ModuleVersionFolder, $PreReleaseTag = $ModuleVersion -split '\-', 2
 
     " Module Version        = $ModuleVersion"

@@ -15,10 +15,6 @@ Param (
 
     [Parameter()]
     [string]
-    $ModuleVersion = (property ModuleVersion ''),
-
-    [Parameter()]
-    [string]
     $PesterOutputFolder = (property PesterOutputFolder 'testResults'),
 
     [Parameter()]
@@ -69,10 +65,9 @@ task Invoke_pester_tests {
     $getModuleVersionParameters = @{
         OutputDirectory = $OutputDirectory
         ProjectName     = $ProjectName
-        ModuleVersion   = $ModuleVersion
     }
 
-    $ModuleVersion = Get-ModuleVersion @getModuleVersionParameters
+    $ModuleVersion = Get-BuiltModuleVersion @getModuleVersionParameters
 
     if (!(Test-Path $PesterOutputFolder))
     {
@@ -309,10 +304,9 @@ task Fail_Build_if_Pester_Tests_failed {
     $GetModuleVersionParameters = @{
         OutputDirectory = $OutputDirectory
         ProjectName     = $ProjectName
-        ModuleVersion   = $ModuleVersion
     }
 
-    $ModuleVersion = Get-ModuleVersion @GetModuleVersionParameters
+    $ModuleVersion = Get-BuiltModuleVersion @GetModuleVersionParameters
 
     $powerShellVersion = 'PSv.{0}' -f $PSVersionTable.PSVersion
     $getPesterOutputFileFileNameParameters = @{
@@ -379,10 +373,9 @@ task Pester_if_Code_Coverage_Under_Threshold {
     $GetModuleVersionParameters = @{
         OutputDirectory = $OutputDirectory
         ProjectName     = $ProjectName
-        ModuleVersion   = $ModuleVersion
     }
 
-    $ModuleVersion = Get-ModuleVersion @GetModuleVersionParameters
+    $ModuleVersion = Get-BuiltModuleVersion @GetModuleVersionParameters
 
     $powerShellVersion = 'PSv.{0}' -f $PSVersionTable.PSVersion
 
@@ -455,10 +448,9 @@ task Upload_Test_Results_To_AppVeyor -If { (property BuildSystem 'unknown') -eq 
     $GetModuleVersionParameters = @{
         OutputDirectory = $OutputDirectory
         ProjectName     = $ProjectName
-        ModuleVersion   = $ModuleVersion
     }
 
-    $ModuleVersion = Get-ModuleVersion @GetModuleVersionParameters
+    $ModuleVersion = Get-BuiltModuleVersion @GetModuleVersionParameters
 
     $powerShellVersion = 'PSv.{0}' -f $PSVersionTable.PSVersion
 
