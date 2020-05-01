@@ -26,6 +26,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Tasks that are not setting the version in the module manifest or otherwise
   need to evaluate the module version are now using the the module version
   from the built module's module manifest ([issue #160](https://github.com/gaelcolas/Sampler/issues/160)).
+- The helper function `Get-ModuleVersion` was split into two cmdlets. A
+  new helper function `Get-BuildVersion` that evaluates and returns the
+  next module version, and `Get-BuiltModuleVersion` that always returns the
+  module's version from the built module manifest.
 
 ## [0.105.1] - 2020-04-24
 

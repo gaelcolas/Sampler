@@ -154,7 +154,7 @@ Task Build_NestedModules_ModuleBuilder {
         ProjectName     = $ProjectName
     }
 
-    $ModuleVersion = Get-ModuleVersion @getModuleVersionParameters
+    $ModuleVersion = Get-BuiltModuleVersion @getModuleVersionParameters
     $ModuleVersionFolder, $PreReleaseTag = $ModuleVersion -split '\-', 2
 
     " Module Version        = $ModuleVersion"

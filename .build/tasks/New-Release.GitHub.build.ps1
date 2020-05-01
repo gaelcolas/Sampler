@@ -67,7 +67,7 @@ task Publish_release_to_GitHub -if ($GitHubToken) {
         ProjectName     = $ProjectName
     }
 
-    $ModuleVersion = Get-ModuleVersion @getModuleVersionParameters
+    $ModuleVersion = Get-BuiltModuleVersion @getModuleVersionParameters
     $ModuleVersionFolder, $PreReleaseTag = $ModuleVersion -split '\-', 2
 
     # find Module's nupkg

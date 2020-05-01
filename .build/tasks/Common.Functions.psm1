@@ -117,7 +117,7 @@ function Get-BuildVersion
     return $moduleVersionParts.ModuleVersion
 }
 
-function Get-ModuleVersion
+function Get-BuiltModuleVersion
 {
     [CmdletBinding()]
     [OutputType([System.String])]
@@ -718,7 +718,7 @@ Export-ModuleMember -Function @(
     'Convert-HashtableToString'
     'Get-CodeCoverageThreshold'
     'Get-BuildVersion'
-    'Get-ModuleVersion'
+    'Get-BuiltModuleVersion'
     'Get-OperatingSystemShortName'
     'Get-PesterOutputFileFileName'
     'Get-CodeCoverageOutputFile'

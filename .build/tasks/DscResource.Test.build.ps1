@@ -63,7 +63,7 @@ task Invoke_DscResource_tests {
         ProjectName     = $ProjectName
     }
 
-    $ModuleVersion = Get-ModuleVersion @getModuleVersionParameters
+    $ModuleVersion = Get-BuiltModuleVersion @getModuleVersionParameters
 
     if (!(Test-Path $DscTestOutputFolder))
     {
@@ -238,7 +238,7 @@ task Fail_Build_if_DscResource_Tests_failed {
         ProjectName     = $ProjectName
     }
 
-    $ModuleVersion = Get-ModuleVersion @getModuleVersionParameters
+    $ModuleVersion = Get-BuiltModuleVersion @getModuleVersionParameters
 
     $PSVersion = 'PSv.{0}' -f $PSVersionTable.PSVersion
     $DscTestOutputFileFileName = "DscTest_{0}_v{1}.{2}.{3}.xml" -f $ProjectName, $ModuleVersion, $os, $PSVersion
@@ -300,7 +300,7 @@ task Upload_DscResourceTest_Results_To_AppVeyor -If { (property BuildSystem 'unk
         ProjectName     = $ProjectName
     }
 
-    $ModuleVersion = Get-ModuleVersion @getModuleVersionParameters
+    $ModuleVersion = Get-BuiltModuleVersion @getModuleVersionParameters
 
     $PSVersion = 'PSv.{0}' -f $PSVersionTable.PSVersion
     $DscTestOutputFileFileName = "DscResource.Test_{0}_v{1}.{2}.{3}.xml" -f $ProjectName, $ModuleVersion, $os, $PSVersion

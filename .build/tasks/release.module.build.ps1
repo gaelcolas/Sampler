@@ -64,7 +64,7 @@ task Create_changelog_release_output {
         ProjectName     = $ProjectName
     }
 
-    $ModuleVersion = Get-ModuleVersion @getModuleVersionParameters
+    $ModuleVersion = Get-BuiltModuleVersion @getModuleVersionParameters
 
     # Parse the Changelog and extract unreleased
     try
@@ -171,7 +171,7 @@ task publish_nupkg_to_gallery -if ((Get-Command nuget -ErrorAction SilentlyConti
         ProjectName     = $ProjectName
     }
 
-    $ModuleVersion = Get-ModuleVersion @getModuleVersionParameters
+    $ModuleVersion = Get-BuiltModuleVersion @getModuleVersionParameters
 
     # find Module's nupkg
     $PackageToRelease = Get-ChildItem (Join-Path $OutputDirectory "$ProjectName.$PSModuleVersion.nupkg")
@@ -282,7 +282,7 @@ task publish_module_to_gallery -if ((!(Get-Command nuget -ErrorAction SilentlyCo
         ProjectName     = $ProjectName
     }
 
-    $ModuleVersion = Get-ModuleVersion @getModuleVersionParameters
+    $ModuleVersion = Get-BuiltModuleVersion @getModuleVersionParameters
 
     $ChangeLogOutputPath = Join-Path $OutputDirectory 'CHANGELOG.md'
     "  ChangeLogOutputPath = $ChangeLogOutputPath"
