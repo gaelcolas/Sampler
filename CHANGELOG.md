@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   from the build task. It was trying to determine the source path by using
   the `SourcePath` property from the build manifest. But since the build
   manifest is in the source path the source path must already be known
-  to be able to import the build manifest. Catch 22. The also code wrongly
+  to be able to import the build manifest. Catch 22. The code also wrongly
   assumed that the `SourcePath` needed to include the module manifest file
   which it should not since that is determined by ModuleBuilder using
   the source path as base path.
