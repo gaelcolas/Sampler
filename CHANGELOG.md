@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.105.3] - 2020-05-09
+
 ### Removed
 
 - Removed not needed attempt to use ModuleBuilder's build manifest (build.psd1)
