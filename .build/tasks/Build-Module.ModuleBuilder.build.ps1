@@ -47,8 +47,10 @@ Task Build_Module_ModuleBuilder {
         $SourcePath = Get-SourcePath -BuildRoot $BuildRoot
     }
 
+    $moduleManifestPath = "$SourcePath/$ProjectName.psd1"
+
     $getBuildVersionParameters = @{
-        ModuleManifestPath = "$SourcePath\$ProjectName.psd1"
+        ModuleManifestPath = $moduleManifestPath
         ModuleVersion      = $ModuleVersion
     }
 
@@ -60,12 +62,12 @@ Task Build_Module_ModuleBuilder {
     #>
     $ModuleVersion = Get-BuildVersion @getBuildVersionParameters
 
-    " Project Name        = $ProjectName"
-    " Module Version      = $ModuleVersion"
-    " Source Path         = $SourcePath"
-    " Output Directory    = $OutputDirectory"
-    " Build Module Output = $BuildModuleOutput"
-
+    " Project Name         = $ProjectName"
+    " Module Version       = $ModuleVersion"
+    " Source Path          = $SourcePath"
+    " Output Directory     = $OutputDirectory"
+    " Build Module Output  = $BuildModuleOutput"
+    " Module Manifest Path = $moduleManifestPath"
 
     if (!(Split-Path -isAbsolute $ReleaseNotesPath))
     {
@@ -77,28 +79,41 @@ Task Build_Module_ModuleBuilder {
 
     foreach ($ParamName in (Get-Command Build-Module).Parameters.Keys)
     {
-        # If Build-Module parameters are available in current session, use those
-        # otherwise use params from BuildInfo if specified
-        if ($ValueFromBuildParam = Get-Variable -Name $ParamName -ValueOnly -ErrorAction SilentlyContinue)
+        if ($ParamName -eq 'SourcePath')
         {
-            Write-Build -Color DarkGray "Adding $ParamName with value $ValueFromBuildParam from current Variables"
-            if ($ParamName -eq 'OutputDirectory')
-            {
-                $BuildModuleParams.add($ParamName, (Join-Path $BuildModuleOutput $ProjectName))
-            }
-            else
-            {
-                $BuildModuleParams.Add($ParamName, $ValueFromBuildParam)
-            }
-        }
-        elseif ($ValueFromBuildInfo = $BuildInfo[$ParamName])
-        {
-            Write-Build -Color DarkGray "Adding $ParamName with value $ValueFromBuildInfo from Build Info"
-            $BuildModuleParams.Add($ParamName, $ValueFromBuildInfo)
+            <#
+                To support building the without a build manifest the SourcePath must be
+                set to the path to the source module manifest.
+            #>
+            $BuildModuleParams.Add($ParamName, $moduleManifestPath)
         }
         else
         {
-            Write-Debug -Message "No value specified for $ParamName"
+            <#
+                If Build-Module parameters are available in current session, use those
+                otherwise use params from BuildInfo if specified.
+            #>
+            if ($ValueFromBuildParam = Get-Variable -Name $ParamName -ValueOnly -ErrorAction SilentlyContinue)
+            {
+                Write-Build -Color DarkGray "Adding $ParamName with value $ValueFromBuildParam from current Variables"
+                if ($ParamName -eq 'OutputDirectory')
+                {
+                    $BuildModuleParams.Add($ParamName, (Join-Path $BuildModuleOutput $ProjectName))
+                }
+                else
+                {
+                    $BuildModuleParams.Add($ParamName, $ValueFromBuildParam)
+                }
+            }
+            elseif ($ValueFromBuildInfo = $BuildInfo[$ParamName])
+            {
+                Write-Build -Color DarkGray "Adding $ParamName with value $ValueFromBuildInfo from Build Info"
+                $BuildModuleParams.Add($ParamName, $ValueFromBuildInfo)
+            }
+            else
+            {
+                Write-Debug -Message "No value specified for $ParamName"
+            }
         }
     }
 
