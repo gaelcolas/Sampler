@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   until this repo is converted to Pester 5.
 - Update build task to pass the full path to the module manifest to
   `Build-Module` to be able to build without a build manifest.
-- Remove the build manifest.
+- Remove the build manifest from Sampler and Plaster template.
 - Change the build.yaml to use `CopyPaths` instead of `CopyDirectories`.
 
 ## [0.105.3] - 2020-05-09
