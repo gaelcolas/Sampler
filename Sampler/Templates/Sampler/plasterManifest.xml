@@ -353,13 +353,6 @@
         condition='${PLASTER_PARAM_ModuleType} -notin @("dsccommunity") -and (-not (Test-Path "${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/${PLASTER_PARAM_ModuleName}.psd1"))'
     />
 
-    <!--   EMPTY MODULE BUILDER MANIFEST (waiting for bug fix https://github.com/PoshCode/ModuleBuilder/issues/44) -->
-    <templateFile
-          source='Sampler/Assets/build.psd1.template'
-          destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/build.psd1'
-          condition='${PLASTER_PARAM_ModuleType} -in @("dsccommunity","SimpleModule","CompleteModule","SharedDscConfig") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("Build")'
-    />
-
      <templateFile
         source='Sampler/Assets/module.template'
         destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/${PLASTER_PARAM_ModuleName}.psm1'
