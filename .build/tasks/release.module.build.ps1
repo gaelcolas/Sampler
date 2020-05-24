@@ -89,19 +89,27 @@ task Create_changelog_release_output {
         #>
         if ($changeLogDataForLatestRelease.RawData.Length -gt 10000)
         {
-            # Get the remote name that the upstream of branch master is pointing at.
-            $remoteName, $branchName = (git rev-parse --abbrev-ref 'master@{upstream}') -split '/'
+            if ((Get-Command -Name 'git'))
+            {
+                # Get the remote name that the upstream of branch master is pointing at.
+                # TODO: The branch should be a parameter in build.yaml and could default to master.
+                $remoteName, $branchName = (git rev-parse --abbrev-ref 'master@{upstream}') -split '/'
 
-            # Get the URL for the remote name that the upstream of branch master is pointing at.
-            $repositoryUrl = git remote get-url $remoteName
+                # Get the URL for the remote name that the upstream of branch master is pointing at.
+                $repositoryUrl = git remote get-url $remoteName
 
-            # Build the GitHub Release url for the current module version.
-            $gitHubReleaseUrl = '{0}/releases/tag/{1}' -f $repositoryUrl, $ModuleVersion
+                # Build the GitHub Release url for the current module version.
+                $gitHubReleaseUrl = '{0}/releases/tag/{1}' -f $repositoryUrl, $ModuleVersion
 
-            $overSizeLimitNotice = "The release notes are over the allowed size limit for PowerShell Gallery so they are truncated.`nPlease see the full release notes in the GitHub release {0}.`n`n" -f $gitHubReleaseUrl
+                $overSizeLimitNotice = "The release notes are over the allowed size limit for PowerShell Gallery so they are truncated.`nPlease see the full release notes in the GitHub release {0}.`n`n" -f $gitHubReleaseUrl
 
-            $moduleManifestReleaseNotes = $overSizeLimitNotice
-            $moduleManifestReleaseNotes += $changeLogDataForLatestRelease.RawData.Substring(0, (10000 - $overSizeLimitNotice.Length))
+                $moduleManifestReleaseNotes = $overSizeLimitNotice
+                $moduleManifestReleaseNotes += $changeLogDataForLatestRelease.RawData.Substring(0, (10000 - $overSizeLimitNotice.Length))
+            }
+            else
+            {
+                $moduleManifestReleaseNotes = $changeLogDataForLatestRelease.RawData.Substring(0, 10000)
+            }
         }
         else
         {
