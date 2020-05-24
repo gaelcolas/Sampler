@@ -6,7 +6,7 @@
 # SourcePath: ./Sampler/Sampler.psd1
 # Output Directory where ModuleBuilder will build the Module, relative to module manifest
 # OutputDirectory: ../output/Sampler
-CopyDirectories:
+CopyPaths:
   #- HelperSubmodule # This will be built as submodule instead
   - DSCResources
   - ../.build/tasks
