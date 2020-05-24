@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Changed
+  - Added a reference to the GitHub release's release notes when the max
+    size limit for releases notes in PowerShell Gallery is reached ([issue #170](https://github.com/gaelcolas/Sampler/issues/170)).
+
 ## [0.105.3] - 2020-05-09
 
 ### Removed
