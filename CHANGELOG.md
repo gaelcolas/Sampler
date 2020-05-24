@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 - Changed
+  - Change the build.yaml to use `CopyPaths` instead of `CopyDirectories`.
   - Added a reference to the GitHub release's release notes when the max
     size limit for releases notes in PowerShell Gallery is reached ([issue #170](https://github.com/gaelcolas/Sampler/issues/170)).
 
