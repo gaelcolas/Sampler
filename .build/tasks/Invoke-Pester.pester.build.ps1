@@ -130,11 +130,15 @@ task Invoke_Pester_Tests {
     {
         $taskParamName = "Pester$paramName"
 
+        $pesterBuildConfig = $BuildInfo.Pester
+
         # Skip if a value was passed as a parameter.
-        if (-not (Get-Variable -Name $taskParamName -ValueOnly -ErrorAction 'SilentlyContinue') -and ($pesterBuildConfig = $BuildInfo.Pester))
+        if (-not (Get-Variable -Name $taskParamName -ValueOnly -ErrorAction 'SilentlyContinue') -and ($pesterBuildConfig))
         {
+            $paramValue = $pesterBuildConfig.($paramName)
+
             # The Variable is set to '' so we should try to use the Config'd one if exists
-            if ($paramValue = $pesterBuildConfig.($paramName))
+            if ($paramValue)
             {
                 Write-Build -Color 'DarkGray' -Text "Using $taskParamName from Build Config"
 
@@ -162,8 +166,10 @@ task Invoke_Pester_Tests {
         $PesterScript = $PesterPath
     }
 
+    $pesterBuildConfig = $BuildInfo.Pester
+
     # Code Coverage Exclude
-    if (-not $ExcludeFromCodeCoverage -and ($pesterBuildConfig = $BuildInfo.Pester))
+    if (-not $ExcludeFromCodeCoverage -and ($pesterBuildConfig))
     {
         if ($pesterBuildConfig.ContainsKey('ExcludeFromCodeCoverage'))
         {
@@ -311,7 +317,7 @@ task Invoke_Pester_Tests {
             {
                 foreach ($testFolder in $PesterScript)
                 {
-                    if (-not (Split-Path -isAbsolute $testFolder))
+                    if (-not (Split-Path -IsAbsolute $testFolder))
                     {
                         $testFolder = Join-Path -Path $ProjectPath -ChildPath $testFolder
                     }
@@ -391,14 +397,14 @@ task Fail_Build_If_Pester_Tests_Failed {
         $ProjectName = Get-ProjectName -BuildRoot $BuildRoot
     }
 
-    if (-not (Split-Path -isAbsolute $OutputDirectory))
+    if (-not (Split-Path -IsAbsolute $OutputDirectory))
     {
         $OutputDirectory = Join-Path -Path $ProjectPath -ChildPath $OutputDirectory
 
         Write-Build -Color 'Yellow' -Text "Absolute path to Output Directory is $OutputDirectory"
     }
 
-    if (-not (Split-Path -isAbsolute $PesterOutputFolder))
+    if (-not (Split-Path -IsAbsolute $PesterOutputFolder))
     {
         $PesterOutputFolder = Join-Path -Path $OutputDirectory -ChildPath $PesterOutputFolder
     }
@@ -427,7 +433,7 @@ task Fail_Build_If_Pester_Tests_Failed {
 
     Write-Build -Color 'White' -Text "`tPester Output Object = $PesterResultObjectClixml"
 
-    if (-not (Test-Path $PesterResultObjectClixml)) {
+    if (-not (Test-Path -Path $PesterResultObjectClixml)) {
         if ($CodeCoverageThreshold -eq 0)
         {
             Write-Build -Color 'Green' -Text "Pester run and Coverage bypassed. No Pester output found but allowed."
@@ -466,14 +472,14 @@ task Pester_If_Code_Coverage_Under_Threshold {
         }
     }
 
-    if (-not (Split-Path -isAbsolute $OutputDirectory))
+    if (-not (Split-Path -IsAbsolute $OutputDirectory))
     {
         $OutputDirectory = Join-Path -Path $ProjectPath -ChildPath $OutputDirectory
 
         Write-Build -Color 'Yellow' -Text "Absolute path to Output Directory is $OutputDirectory"
     }
 
-    if (-not (Split-Path -isAbsolute $PesterOutputFolder))
+    if (-not (Split-Path -IsAbsolute $PesterOutputFolder))
     {
         $PesterOutputFolder = Join-Path -Path $OutputDirectory -ChildPath $PesterOutputFolder
     }
@@ -540,19 +546,19 @@ task Upload_Test_Results_To_AppVeyor -If { (property BuildSystem 'unknown') -eq 
         $ProjectName = Get-ProjectName -BuildRoot $BuildRoot
     }
 
-    if (-not (Split-Path -isAbsolute $OutputDirectory))
+    if (-not (Split-Path -IsAbsolute $OutputDirectory))
     {
         $OutputDirectory = Join-Path -Path $ProjectPath -ChildPath $OutputDirectory
 
         Write-Build -Color 'Yellow' -Text "Absolute path to Output Directory is $OutputDirectory"
     }
 
-    if (-not (Split-Path -isAbsolute $PesterOutputFolder))
+    if (-not (Split-Path -IsAbsolute $PesterOutputFolder))
     {
         $PesterOutputFolder = Join-Path $OutputDirectory $PesterOutputFolder
     }
 
-    if (-not (Test-Path $PesterOutputFolder))
+    if (-not (Test-Path -Path $PesterOutputFolder))
     {
         Write-Build -Color 'Yellow' -Text "Creating folder $PesterOutputFolder"
 
