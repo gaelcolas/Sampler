@@ -84,6 +84,8 @@ task Invoke_DscResource_Tests {
         PassThru = $true
     }
 
+    $isPester5 = (Get-Module -Name 'Pester').Version -ge '5.0.0'
+
     if ($isPester5)
     {
         $defaultDscTestParams['Output'] = 'Detailed'
@@ -96,8 +98,6 @@ task Invoke_DscResource_Tests {
 
     Import-Module -Name 'DscResource.Test' -ErrorAction 'Stop'
     Import-Module -Name 'Pester' -MinimumVersion 4.0 -ErrorAction 'Stop'
-
-    $isPester5 = (Get-Module -Name 'Pester').Version -ge '5.0.0'
 
     $dscTestCmd = Get-Command -Name Invoke-DscResourceTest
 
@@ -195,39 +195,18 @@ task Invoke_DscResource_Tests {
 
     if ($DscTestExcludeTag.Count -gt 0)
     {
-        if ($isPester5)
-        {
-            $dscTestParams.Add('ExcludeTagFilter', $DscTestExcludeTag)
-        }
-        else
-        {
-            $dscTestParams.Add('ExcludeTag', $DscTestExcludeTag)
-        }
+        $dscTestParams.Add('ExcludeTag', $DscTestExcludeTag)
     }
 
     if ($DscTestTag.Count -gt 0)
     {
-        if ($isPester5)
-        {
-            $dscTestParams.Add('TagFilter', $DscTestTag)
-        }
-        else
-        {
-            $dscTestParams.Add('Tag', $DscTestTag)
-        }
+        $dscTestParams.Add('Tag', $DscTestTag)
     }
 
     # Test folders is specified, override invoke-DscResourceTest internal default
     if ($DscTestScript.Count -gt 0)
     {
-        if ($isPester5)
-        {
-            $dscTestParams.Add('Path', @())
-        }
-        else
-        {
-            $dscTestParams.Add('Script', @())
-        }
+        $dscTestParams.Add('Path', @())
 
         Write-Build -Color 'DarkGray' -Text " Adding DscTestScript to params"
 
