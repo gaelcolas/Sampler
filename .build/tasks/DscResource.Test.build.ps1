@@ -1,61 +1,64 @@
-Param (
+param
+(
     # Project path
     [Parameter()]
-    [string]
+    [System.String]
     $ProjectPath = (property ProjectPath $BuildRoot),
 
     [Parameter()]
     # Base directory of all output (default to 'output')
-    [string]
+    [System.String]
     $OutputDirectory = (property OutputDirectory (Join-Path $BuildRoot 'output')),
 
     [Parameter()]
-    [string]
+    [System.String]
     $ProjectName = (property ProjectName ''),
 
     [Parameter()]
-    [string]
+    [System.String]
     $DscTestOutputFolder = (property DscTestOutputFolder 'testResults'),
 
     [Parameter()]
-    [string]
+    [System.String]
     $DscTestOutputFormat = (property DscTestOutputFormat ''),
 
     [Parameter()]
-    [string[]]
+    [System.String[]]
     $DscTestScript = (property DscTestScript ''),
 
     [Parameter()]
-    [string[]]
+    [System.String[]]
     $DscTestTag = (property DscTestTag @()),
 
     [Parameter()]
-    [string[]]
+    [System.String[]]
     $DscTestExcludeTag = (property DscTestExcludeTag @()),
 
     # Build Configuration object
     [Parameter()]
+    [System.Collections.Hashtable]
     $BuildInfo = (property BuildInfo @{ })
 )
 
 Import-Module -Name "$PSScriptRoot/Common.Functions.psm1"
 
 # Synopsis: Making sure the Module meets some quality standard (help, tests)
-task Invoke_DscResource_tests {
+task Invoke_DscResource_Tests {
     if ([System.String]::IsNullOrEmpty($ProjectName))
     {
         $ProjectName = Get-ProjectName -BuildRoot $BuildRoot
     }
 
-    if (!(Split-Path -isAbsolute $OutputDirectory))
+    if (-not (Split-Path -IsAbsolute $OutputDirectory))
     {
         $OutputDirectory = Join-Path -Path $ProjectPath -ChildPath $OutputDirectory
+
         Write-Build Yellow "Absolute path to Output Directory is $OutputDirectory"
     }
 
-    if (!(Split-Path -isAbsolute $DscTestOutputFolder))
+    if (-not (Split-Path -IsAbsolute $DscTestOutputFolder))
     {
-        $DscTestOutputFolder = Join-Path $OutputDirectory $DscTestOutputFolder
+        $DscTestOutputFolder = Join-Path -Path $OutputDirectory -ChildPath $DscTestOutputFolder
     }
 
     $getModuleVersionParameters = @{
@@ -65,57 +68,77 @@ task Invoke_DscResource_tests {
 
     $ModuleVersion = Get-BuiltModuleVersion @getModuleVersionParameters
 
-    if (!(Test-Path $DscTestOutputFolder))
+    if (-not (Test-Path $DscTestOutputFolder))
     {
-        Write-Build Yellow "Creating folder $DscTestOutputFolder"
-        $null = New-Item -ItemType Directory -force $DscTestOutputFolder -ErrorAction Stop
+        Write-Build -Color 'Yellow' -Text "Creating folder $DscTestOutputFolder"
+
+        $null = New-Item $DscTestOutputFolder -Path -ItemType Directory -Force -ErrorAction 'Stop'
     }
 
-    $DscTestScript = $DscTestScript.Where{ ![string]::IsNullOrEmpty($_) }
-    $DscTestTag = $DscTestTag.Where{ ![string]::IsNullOrEmpty($_) }
-    $DscTestExcludeTag = $DscTestExcludeTag.Where{ ![string]::IsNullOrEmpty($_) }
+    $DscTestScript = $DscTestScript.Where{ -not [System.String]::IsNullOrEmpty($_) }
+    $DscTestTag = $DscTestTag.Where{ -not [System.String]::IsNullOrEmpty($_) }
+    $DscTestExcludeTag = $DscTestExcludeTag.Where{ -not [System.String]::IsNullOrEmpty($_) }
 
-    $DefaultDscTestParams = @{
+    $defaultDscTestParams = @{
         OutputFormat = 'NUnitXML'
         OutputFile   = $DscTestOutputFullPath
         PassThru     = $true
         # ProjectPath  = $ProjectPath
     }
 
-    # Build.ps1 parameters should be top priority
-    # BuildInfo values should come next
-    # Otherwise we should set some defaults
-    Import-Module Pester, DscResource.Test -ErrorAction Stop
-    $DscTestCmd = Get-Command Invoke-DscResourceTest
-    foreach ($ParamName in $DscTestCmd.Parameters.Keys)
+    Import-Module -Name 'DscResource.Test' -ErrorAction 'Stop'
+    Import-Module -Name 'Pester' -MinimumVersion 4.0 -ErrorAction 'Stop'
+
+    $isPester5 = (Get-Module -Name 'Pester').Version -ge '5.0.0'
+
+    $dscTestCmd = Get-Command -Name Invoke-DscResourceTest
+
+    <#
+        This will build the DscTest* variables (e.g. PesterScript, or
+        PesterOutputFormat) in this scope that are used in the rest of the code.
+        It will use values for the variables in the following order:
+
+        1. Skip creating the variable if a variable is already available because
+           it was already set in a passed parameter (Pester*).
+        2. Use the value from a property in the build.yaml under the key 'Pester:'.
+        3. Use the default value set previously in the variable $defaultPesterParams.
+    #>
+    foreach ($paramName in $dscTestCmd.Parameters.Keys)
     {
-        $TaskParamName = "DscTest$ParamName"
-        if (!(Get-Variable -Name $TaskParamName -ValueOnly -ErrorAction SilentlyContinue) -and ($DscTestBuildConfig = $BuildInfo.DscTest))
+        $taskParamName = "DscTest$paramName"
+
+        $DscTestBuildConfig = $BuildInfo.DscTest
+
+        if (-not (Get-Variable -Name $taskParamName -ValueOnly -ErrorAction 'SilentlyContinue') -and ($DscTestBuildConfig))
         {
+            $paramValue = $DscTestBuildConfig.($paramName)
+
             # The Variable is set to '' so we should try to use the Config'd one if exists
-            if ($ParamValue = $DscTestBuildConfig.($ParamName))
+            if ($paramValue)
             {
-                Write-Build DarkGray "Using $TaskParamName from Build Config"
-                Set-Variable -Name $TaskParamName -Value $ParamValue
+                Write-Build -Color 'DarkGray' -Text "Using $taskParamName from Build Config"
+
+                Set-Variable -Name $taskParamName -Value $paramValue
             } # or use a default if available
-            elseif ($DefaultDscTestParams.ContainsKey($ParamName))
+            elseif ($defaultDscTestParams.ContainsKey($paramName))
             {
-                Write-Build DarkGray "Using $TaskParamName from Defaults"
-                Set-Variable -Name $TaskParamName -Value $DefaultDscTestParams.($ParamName)
+                Write-Build -Color 'DarkGray' -Text "Using $taskParamName from Defaults"
+
+                Set-Variable -Name $taskParamName -Value $defaultDscTestParams.($paramName)
             }
         }
         else
         {
-            Write-Build DarkGray "Using $TaskParamName from Build Invocation Parameters"
+            Write-Build -Color 'DarkGray' -Text "Using $taskParamName from Build Invocation Parameters"
         }
     }
 
-    "`tProject Path  = $ProjectPath"
-    "`tProject Name  = $ProjectName"
-    "`tTest Scripts  = $($DscTestScript -join ', ')"
-    "`tTags          = $($DscTestTag -join ', ')"
-    "`tExclude Tags  = $($DscTestExcludeTag -join ', ')"
-    "`tModuleVersion = $ModuleVersion"
+    "`tProject Path      = $ProjectPath"
+    "`tProject Name      = $ProjectName"
+    "`tTest Scripts      = $($DscTestScript -join ', ')"
+    "`tTags              = $($DscTestTag -join ', ')"
+    "`tExclude Tags      = $($DscTestExcludeTag -join ', ')"
+    "`tModuleVersion     = $ModuleVersion"
     "`tBuildModuleOutput = $BuildModuleOutput"
 
     $os = if ($isWindows -or $PSVersionTable.PSVersion.Major -le 5)
@@ -131,77 +154,124 @@ task Invoke_DscResource_tests {
         'Linux'
     }
 
-    $PSVersion = 'PSv.{0}' -f $PSVersionTable.PSVersion
-    $DscTestOutputFileFileName = "DscTest_{0}_v{1}.{2}.{3}.xml" -f $ProjectName, $ModuleVersion, $os, $PSVersion
+    $psVersion = 'PSv.{0}' -f $PSVersionTable.PSVersion
+    $DscTestOutputFileFileName = "DscTest_{0}_v{1}.{2}.{3}.xml" -f $ProjectName, $ModuleVersion, $os, $psVersion
     $DscTestOutputFullPath = Join-Path $DscTestOutputFolder "$($DscTestOutputFormat)_$DscTestOutputFileFileName"
 
-    $DscTestParams = @{
-        OutputFormat = $DscTestOutputFormat
-        OutputFile   = $DscTestOutputFullPath
-        PassThru     = $true
+    $dscTestParams = @{
+        PassThru = $true
+    }
+
+    if ($isPester5)
+    {
+        $dscTestParams['Output'] = $PesterOutput
+    }
+    else
+    {
+        $dscTestParams['OutputFormat'] = $DscTestOutputFormat
+        $dscTestParams['OutputFile'] = $DscTestOutputFullPath
     }
 
     if ($DscTestModule)
     {
-        $DscTestParams.Add('Module', $DscTestModule)
+        $dscTestParams.Add('Module', $DscTestModule)
     }
     elseif ($DscTestFullyQualifiedModule)
     {
-        $DscTestParams.Add('FullyQualifiedModule', $DscTestFullyQualifiedModule)
+        $dscTestParams.Add('FullyQualifiedModule', $DscTestFullyQualifiedModule)
     }
     else
     {
-        $DscTestParams.Add('ProjectPath', $ProjectPath)
+        $dscTestParams.Add('ProjectPath', $ProjectPath)
     }
 
-    if ($DscTestExcludeTag.count -gt 0)
+    if ($DscTestExcludeTag.Count -gt 0)
     {
-        $DscTestParams.Add('ExcludeTag', $DscTestExcludeTag)
+        if ($isPester5)
+        {
+            $dscTestParams.Add('ExcludeTagFilter', $DscTestExcludeTag)
+        }
+        else
+        {
+            $dscTestParams.Add('ExcludeTag', $DscTestExcludeTag)
+        }
     }
 
     if ($DscTestTag.Count -gt 0)
     {
-        $DscTestParams.Add('Tag', $DscTestTag)
+        if ($isPester5)
+        {
+            $dscTestParams.Add('TagFilter', $DscTestTag)
+        }
+        else
+        {
+            $dscTestParams.Add('Tag', $DscTestTag)
+        }
     }
 
     # Test folders is specified, override invoke-DscResourceTest internal default
-    if ($DscTestScript.count -gt 0)
+    if ($DscTestScript.Count -gt 0)
     {
-        $DscTestParams.Add('Script', @())
-        Write-Build DarkGray " Adding DscTestScript to params"
-        foreach ($TestFolder in $DscTestScript)
+        if ($isPester5)
         {
-            if (!(Split-Path -isAbsolute $TestFolder))
+            $dscTestParams.Add('Path', @())
+        }
+        else
+        {
+            $dscTestParams.Add('Script', @())
+        }
+
+        Write-Build -Color 'DarkGray' -Text " Adding DscTestScript to params"
+
+        foreach ($testFolder in $DscTestScript)
+        {
+            if (-not (Split-Path -IsAbsolute $testFolder))
             {
-                $TestFolder = Join-Path $ProjectPath $TestFolder
+                $testFolder = Join-Path -Path $ProjectPath -ChildPath $testFolder
             }
 
-            Write-Build DarkGray "      ... $TestFolder"
-            # The Absolute path to this folder exists, adding to the list of DscTest scripts to run
-            if (Test-Path $TestFolder)
+            Write-Build -Color 'DarkGray' -Text "      ... $testFolder"
+
+            <#
+                The Absolute path to this folder exists, adding to the list of
+                DscTest scripts to run.
+            #>
+            if (Test-Path -Path $testFolder)
             {
-                $DscTestParams.Script += $TestFolder
+                if ($isPester5)
+                {
+                    $dscTestParams.Path += $testFolder
+                }
+                else
+                {
+                    $dscTestParams.Script += $testFolder
+                }
             }
         }
     }
 
-    foreach ($ParamName in $DscTestCmd.Parameters.keys)
+    # Add all DscTest* variables in current scope into the $dscTestParams hashtable.
+    foreach ($paramName in $DscTestCmd.Parameters.keys)
     {
-        $ParamValueFromScope = (Get-Variable "DscTest$ParamName" -ValueOnly -ErrorAction SilentlyContinue)
-        if (!$DscTestParams.ContainsKey($ParamName) -and $ParamValueFromScope)
+        $paramValueFromScope = (Get-Variable -Name "DscTest$paramName" -ValueOnly -ErrorAction 'SilentlyContinue')
+
+        if (-not $dscTestParams.ContainsKey($paramName) -and $paramValueFromScope)
         {
-            $DscTestParams.Add($ParamName, $ParamValueFromScope)
+            $dscTestParams.Add($paramName, $paramValueFromScope)
         }
     }
-    Write-Verbose -Message ($DscTestParams | ConvertTo-Json)
-    $script:TestResults = Invoke-DscResourceTest @DscTestParams
-    $DscTestResultObjectCliXml = Join-Path $DscTestOutputFolder "DscTestObject_$DscTestOutputFileFileName"
-    $null = $script:TestResults | Export-CliXml -Path $DscTestResultObjectCliXml -Force
 
+    Write-Verbose -Message ($dscTestParams | ConvertTo-Json)
+
+    $script:testResults = Invoke-DscResourceTest @dscTestParams
+
+    $DscTestResultObjectCliXml = Join-Path -Path $DscTestOutputFolder -ChildPath "DscTestObject_$DscTestOutputFileFileName"
+
+    $null = $script:testResults | Export-CliXml -Path $DscTestResultObjectCliXml -Force
 }
 
 # Synopsis: This task ensures the build job fails if the test aren't successful.
-task Fail_Build_if_DscResource_Tests_failed {
+task Fail_Build_If_DscResource_Tests_Failed {
     "Asserting that no test failed"
 
     if ([System.String]::IsNullOrEmpty($ProjectName))
@@ -209,15 +279,16 @@ task Fail_Build_if_DscResource_Tests_failed {
         $ProjectName = Get-ProjectName -BuildRoot $BuildRoot
     }
 
-    if (!(Split-Path -isAbsolute $OutputDirectory))
+    if (-not (Split-Path -IsAbsolute $OutputDirectory))
     {
         $OutputDirectory = Join-Path -Path $ProjectPath -ChildPath $OutputDirectory
-        Write-Build Yellow "Absolute path to Output Directory is $OutputDirectory"
+
+        Write-Build -Color 'Yellow' -Text "Absolute path to Output Directory is $OutputDirectory"
     }
 
-    if (!(Split-Path -isAbsolute $DscTestOutputFolder))
+    if (-not (Split-Path -IsAbsolute $DscTestOutputFolder))
     {
-        $DscTestOutputFolder = Join-Path $OutputDirectory $DscTestOutputFolder
+        $DscTestOutputFolder = Join-Path -Path $OutputDirectory -ChildPath $DscTestOutputFolder
     }
 
     $os = if ($isWindows -or $PSVersionTable.PSVersion.Major -le 5)
@@ -240,22 +311,22 @@ task Fail_Build_if_DscResource_Tests_failed {
 
     $ModuleVersion = Get-BuiltModuleVersion @getModuleVersionParameters
 
-    $PSVersion = 'PSv.{0}' -f $PSVersionTable.PSVersion
-    $DscTestOutputFileFileName = "DscTest_{0}_v{1}.{2}.{3}.xml" -f $ProjectName, $ModuleVersion, $os, $PSVersion
-    $DscTestResultObjectClixml = Join-Path $DscTestOutputFolder "DscTestObject_$DscTestOutputFileFileName"
-    Write-Build White "`tDscTest Output Object = $DscTestResultObjectClixml"
+    $psVersion = 'PSv.{0}' -f $PSVersionTable.PSVersion
+    $DscTestOutputFileFileName = "DscTest_{0}_v{1}.{2}.{3}.xml" -f $ProjectName, $ModuleVersion, $os, $psVersion
+    $DscTestResultObjectClixml = Join-Path -Path $DscTestOutputFolder -ChildPath "DscTestObject_$DscTestOutputFileFileName"
 
+    Write-Build -Color 'White' -Text "`tDscTest Output Object = $DscTestResultObjectClixml"
 
-    if (-Not (Test-Path $DscTestResultObjectClixml))
+    if (-not (Test-Path -Path $DscTestResultObjectClixml))
     {
-        Throw "No command were tested. $DscTestResultObjectClixml not found"
+        throw "No command were tested. $DscTestResultObjectClixml not found"
     }
     else
     {
-        $DscTestObject = Import-Clixml -Path $DscTestResultObjectClixml -ErrorAction Stop
-        assert ($DscTestObject.FailedCount -eq 0) ('Failed {0} tests. Aborting Build' -f $DscTestObject.FailedCount)
-    }
+        $DscTestObject = Import-Clixml -Path $DscTestResultObjectClixml -ErrorAction 'Stop'
 
+        Assert-Build -Condition ($DscTestObject.FailedCount -eq 0) -Message ('Failed {0} tests. Aborting Build' -f $DscTestObject.FailedCount)
+    }
 }
 
 # Synopsis: Uploading Unit Test results to AppVeyor
@@ -265,21 +336,23 @@ task Upload_DscResourceTest_Results_To_AppVeyor -If { (property BuildSystem 'unk
         $ProjectName = Get-ProjectName -BuildRoot $BuildRoot
     }
 
-    if (!(Split-Path -isAbsolute $OutputDirectory))
+    if (-not (Split-Path -IsAbsolute $OutputDirectory))
     {
         $OutputDirectory = Join-Path -Path $ProjectPath -ChildPath $OutputDirectory
-        Write-Build Yellow "Absolute path to Output Directory is $OutputDirectory"
+
+        Write-Build -Color 'Yellow' -Text "Absolute path to Output Directory is $OutputDirectory"
     }
 
-    if (!(Split-Path -isAbsolute $DscTestOutputFolder))
+    if (-not (Split-Path -IsAbsolute $DscTestOutputFolder))
     {
-        $DscTestOutputFolder = Join-Path $OutputDirectory $DscTestOutputFolder
+        $DscTestOutputFolder = Join-Path -Path $OutputDirectory -ChildPath $DscTestOutputFolder
     }
 
-    if (!(Test-Path $DscTestOutputFolder))
+    if (-not (Test-Path -Path $DscTestOutputFolder))
     {
-        Write-Build Yellow "Creating folder $DscTestOutputFolder"
-        $null = New-Item -ItemType Directory -force $DscTestOutputFolder -ErrorAction Stop
+        Write-Build -Color 'Yellow' -Text "Creating folder $DscTestOutputFolder"
+
+        $null = New-Item -Path $DscTestOutputFolder -ItemType Directory -Force -ErrorAction 'Stop'
     }
 
     $os = if ($isWindows -or $PSVersionTable.PSVersion.Major -le 5)
@@ -302,18 +375,22 @@ task Upload_DscResourceTest_Results_To_AppVeyor -If { (property BuildSystem 'unk
 
     $ModuleVersion = Get-BuiltModuleVersion @getModuleVersionParameters
 
-    $PSVersion = 'PSv.{0}' -f $PSVersionTable.PSVersion
-    $DscTestOutputFileFileName = "DscResource.Test_{0}_v{1}.{2}.{3}.xml" -f $ProjectName, $ModuleVersion, $os, $PSVersion
-    $DscTestOutputFullPath = Join-Path $DscTestOutputFolder "$($DscTestOutputFormat)_$DscTestOutputFileFileName"
+    $psVersion = 'PSv.{0}' -f $PSVersionTable.PSVersion
+    $DscTestOutputFileFileName = "DscResource.Test_{0}_v{1}.{2}.{3}.xml" -f $ProjectName, $ModuleVersion, $os, $psVersion
 
-    $TestResultFile = Get-Item $DscTestOutputFullPath -ErrorAction Ignore
-    if ($TestResultFile)
+    $DscTestOutputFullPath = Join-Path -Path $DscTestOutputFolder -ChildPath "$($DscTestOutputFormat)_$DscTestOutputFileFileName"
+
+    $testResultFile = Get-Item -Path $DscTestOutputFullPath -ErrorAction 'Ignore'
+
+    if ($testResultFile)
     {
-        Write-Build Green "  Uploading test results $TestResultFile to Appveyor"
-        $TestResultFile | Add-TestResultToAppveyor
-        Write-Build Green "  Upload Complete"
+        Write-Build -Color 'Green' -Text "  Uploading test results $testResultFile to Appveyor"
+
+        $testResultFile | Add-TestResultToAppveyor
+
+        Write-Build -Color 'Green' -Text "  Upload Complete"
     }
 }
 
 # Synopsis: Meta task that runs Quality Tests, and fails if they're not successful
-task DscResource_Tests_Stop_On_Fail Invoke_DscResource_tests, Upload_DscResourceTest_Results_To_AppVeyor, Fail_Build_if_DscResource_Tests_failed
+task DscResource_Tests_Stop_On_Fail Invoke_DscResource_Tests, Upload_DscResourceTest_Results_To_AppVeyor, Fail_Build_If_DscResource_Tests_Failed
