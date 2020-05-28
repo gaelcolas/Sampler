@@ -86,7 +86,7 @@ task Invoke_Pester_Tests {
 
     $CodeCoverageThreshold = Get-CodeCoverageThreshold @GetCodeCoverageThresholdParameters
 
-    Import-Module -Name 'Pester' -MinimumVersion 4.0
+    Import-Module -Name 'Pester' -MinimumVersion 4.0 -ErrorAction 'Stop'
 
     $isPester5 = (Get-Module -Name 'Pester').Version -ge '5.0.0'
 
@@ -117,9 +117,9 @@ task Invoke_Pester_Tests {
     $pesterCmd = Get-Command -Name 'Invoke-Pester'
 
     <#
-        This will build the Pester* (e.g. PesterScript, or PesterOutputFormat)
-        variables in this scope that are used in the rest of the code. It will
-        use values for the variables in the following order:
+        This will build the Pester* variables (e.g. PesterScript, or
+        PesterOutputFormat) in this scope that are used in the rest of the code.
+        It will use values for the variables in the following order:
 
         1. Skip creating the variable if a variable is already available because
            it was already set in a passed parameter (Pester*).
