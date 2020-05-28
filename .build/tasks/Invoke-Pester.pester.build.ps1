@@ -273,11 +273,11 @@ task Invoke_Pester_Tests {
     if ($PesterExcludeTag.Count -gt 0) {
         if ($isPester5)
         {
-            $pesterParams.Add('ExcludeTag', $PesterExcludeTag)
+            $pesterParams.Add('ExcludeTagFilter', $PesterExcludeTag)
         }
         else
         {
-            $pesterParams.Add('ExcludeTagFilter', $PesterExcludeTag)
+            $pesterParams.Add('ExcludeTag', $PesterExcludeTag)
         }
     }
 
