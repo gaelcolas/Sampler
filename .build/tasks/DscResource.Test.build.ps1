@@ -79,11 +79,19 @@ task Invoke_DscResource_Tests {
     $DscTestTag = $DscTestTag.Where{ -not [System.String]::IsNullOrEmpty($_) }
     $DscTestExcludeTag = $DscTestExcludeTag.Where{ -not [System.String]::IsNullOrEmpty($_) }
 
+    # Same parameters for both Pester 4 and Pester 5.
     $defaultDscTestParams = @{
-        OutputFormat = 'NUnitXML'
-        OutputFile   = $DscTestOutputFullPath
-        PassThru     = $true
-        # ProjectPath  = $ProjectPath
+        PassThru = $true
+    }
+
+    if ($isPester5)
+    {
+        $defaultDscTestParams['Output'] = 'Detailed'
+    }
+    else
+    {
+        $defaultDscTestParams['OutputFile'] = $DscTestOutputFullPath
+        $defaultDscTestParams['OutputFormat'] = 'NUnitXML'
     }
 
     Import-Module -Name 'DscResource.Test' -ErrorAction 'Stop'
@@ -164,7 +172,7 @@ task Invoke_DscResource_Tests {
 
     if ($isPester5)
     {
-        $dscTestParams['Output'] = $PesterOutput
+        $dscTestParams['Output'] = $DscTestOutput
     }
     else
     {
