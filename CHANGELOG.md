@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Added Pester 5 support in the CI pipeline test task.
+- Added Pester 5 support in the CI pipeline `test` and `hqrmtest` task.
 - Pinned the module Pester to v4.10.1 in the file `RequiredModule.psd1`
   until this repo is converted to Pester 5.
 
