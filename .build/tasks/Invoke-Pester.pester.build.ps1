@@ -361,7 +361,7 @@ task Invoke_Pester_Tests {
     # Add all Pester* variables in current scope into the $pesterParams hashtable.
     foreach ($paramName in $PesterCmd.Parameters.keys)
     {
-        $ParamValueFromScope = (Get-Variable "Pester$paramName" -ValueOnly -ErrorAction 'SilentlyContinue')
+        $ParamValueFromScope = (Get-Variable -Name "Pester$paramName" -ValueOnly -ErrorAction 'SilentlyContinue')
 
         if (-not $pesterParams.ContainsKey($paramName) -and $ParamValueFromScope)
         {
