@@ -1,7 +1,7 @@
 param
 (
     [Parameter()]
-    [Sytem.IO.DirectoryInfo]
+    [System.IO.DirectoryInfo]
     $ProjectPath = (property ProjectPath $BuildRoot),
 
     [Parameter()]
