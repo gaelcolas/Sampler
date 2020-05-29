@@ -68,11 +68,11 @@ task Invoke_DscResource_Tests {
 
     $ModuleVersion = Get-BuiltModuleVersion @getModuleVersionParameters
 
-    if (-not (Test-Path $DscTestOutputFolder))
+    if (-not (Test-Path -Path $DscTestOutputFolder))
     {
         Write-Build -Color 'Yellow' -Text "Creating folder $DscTestOutputFolder"
 
-        $null = New-Item $DscTestOutputFolder -Path -ItemType Directory -Force -ErrorAction 'Stop'
+        $null = New-Item -Path $DscTestOutputFolder -ItemType Directory -Force -ErrorAction 'Stop'
     }
 
     $DscTestScript = $DscTestScript.Where{ -not [System.String]::IsNullOrEmpty($_) }
@@ -164,7 +164,7 @@ task Invoke_DscResource_Tests {
 
     $psVersion = 'PSv.{0}' -f $PSVersionTable.PSVersion
     $DscTestOutputFileFileName = "DscTest_{0}_v{1}.{2}.{3}.xml" -f $ProjectName, $ModuleVersion, $os, $psVersion
-    $DscTestOutputFullPath = Join-Path $DscTestOutputFolder "$($DscTestOutputFormat)_$DscTestOutputFileFileName"
+    $DscTestOutputFullPath = Join-Path -Path $DscTestOutputFolder -ChildPath "$($DscTestOutputFormat)_$DscTestOutputFileFileName"
 
     $dscTestParams = @{
         PassThru = $true
