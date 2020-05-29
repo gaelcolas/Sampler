@@ -270,7 +270,8 @@ task Invoke_Pester_Tests {
 
     "`tCodeCoverageOutputFileEncoding  = $($pesterParams['CodeCoverageOutputFileEncoding'])"
 
-    if ($PesterExcludeTag.Count -gt 0) {
+    if ($PesterExcludeTag.Count -gt 0)
+    {
         if ($isPester5)
         {
             $pesterParams.Add('ExcludeTagFilter', $PesterExcludeTag)
@@ -359,13 +360,16 @@ task Invoke_Pester_Tests {
     }
 
     # Add all Pester* variables in current scope into the $pesterParams hashtable.
-    foreach ($paramName in $PesterCmd.Parameters.keys)
+    foreach ($paramName in $pesterCmd.Parameters.keys)
     {
-        $ParamValueFromScope = (Get-Variable -Name "Pester$paramName" -ValueOnly -ErrorAction 'SilentlyContinue')
-
-        if (-not $pesterParams.ContainsKey($paramName) -and $ParamValueFromScope)
+        if (-not $isPester5 -or ($isPester5 -and 'Simple' -in $pesterCmd.Parameters.$paramName.ParameterSets.Keys))
         {
-            $pesterParams.Add($paramName, $ParamValueFromScope)
+            $paramValueFromScope = (Get-Variable -Name "Pester$paramName" -ValueOnly -ErrorAction 'SilentlyContinue')
+
+            if (-not $pesterParams.ContainsKey($paramName) -and $paramValueFromScope)
+            {
+                $pesterParams.Add($paramName, $paramValueFromScope)
+            }
         }
     }
 
@@ -433,7 +437,8 @@ task Fail_Build_If_Pester_Tests_Failed {
 
     Write-Build -Color 'White' -Text "`tPester Output Object = $PesterResultObjectClixml"
 
-    if (-not (Test-Path -Path $PesterResultObjectClixml)) {
+    if (-not (Test-Path -Path $PesterResultObjectClixml))
+    {
         if ($CodeCoverageThreshold -eq 0)
         {
             Write-Build -Color 'Green' -Text "Pester run and Coverage bypassed. No Pester output found but allowed."
@@ -508,7 +513,8 @@ task Pester_If_Code_Coverage_Under_Threshold {
 
     Write-Build -Color 'White' -Text "`tPester Output Object = $PesterResultObjectClixml"
 
-    if (-not (Test-Path -Path $PesterResultObjectClixml)) {
+    if (-not (Test-Path -Path $PesterResultObjectClixml))
+    {
         if ($CodeCoverageThreshold -eq 0)
         {
             Write-Build -Color 'Green' -Text "Pester run and Coverage bypassed. No Pester output found but allowed."
