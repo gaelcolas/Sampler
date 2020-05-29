@@ -1,22 +1,23 @@
-Param (
+param
+(
     [Parameter()]
-    [io.DirectoryInfo]
+    [System.IO.DirectoryInfo]
     $ProjectPath = (property ProjectPath $BuildRoot),
 
     [Parameter()]
-    [string]
+    [System.String]
     $ProjectName = (property ProjectName ''),
 
     [Parameter()]
-    [string]
+    [System.String]
     $SourcePath = (property SourcePath ''),
 
     [Parameter()]
-    [string]
+    [System.String]
     $HelpFolder = (property HelpFolder 'docs'),
 
     [Parameter()]
-    [string]
+    [System.String]
     $BuildOutput = (property BuildOutput 'C:\BuildOutput'),
 
     [Parameter()]
@@ -24,7 +25,7 @@ Param (
     $HelpCultureInfo = 'en-US',
 
     [Parameter()]
-    [string]
+    [System.String]
     $LineSeparation = (property LineSeparation ('-' * 78))
 
 )
@@ -44,18 +45,17 @@ Task UpdateHelp {
     "`t`t`t UPDATE HELP MARKDOWN FILE"
     $LineSeparation
 
-    if (!(Split-Path -IsAbsolute $BuildOutput))
+    if (-not (Split-Path -Path $BuildOutput -IsAbsolute))
     {
         $BuildOutput = Join-Path -Path $ProjectPath.FullName -ChildPath $BuildOutput
     }
 
-    if (!(Split-Path -IsAbsolute $HelpFolder))
+    if (-not (Split-Path -Path $HelpFolder -IsAbsolute))
     {
-        $HelpFolder = Join-Path $SourcePath $HelpFolder
+        $HelpFolder = Join-Path -Path $SourcePath -ChildPath $HelpFolder
     }
 
-
-    import-module -Force $ProjectName
+    Import-Module -Name $ProjectName -Force
     Update-MarkdownHelpModule -Path $HelpFolder
 }
 
@@ -75,20 +75,17 @@ Task GenerateMamlFromMd {
     "`t`t`t GENERATE MAML IN BUILD OUTPUT"
     $LineSeparation
 
-    if (!(Split-Path -IsAbsolute $BuildOutput))
+    if (-not (Split-Path -Path $BuildOutput -IsAbsolute))
     {
         $BuildOutput = Join-Path -Path $ProjectPath.FullName -ChildPath $BuildOutput
     }
 
-    if (!(Split-Path -IsAbsolute $HelpFolder))
+    if (-not (Split-Path -Path $HelpFolder -IsAbsolute))
     {
-        $HelpFolder = Join-Path $SourcePath $HelpFolder
+        $HelpFolder = Join-Path -Path $SourcePath -ChildPath $HelpFolder
     }
 
-
-    $BuiltModuleFolder = Join-Path $BuildOutput $ProjectName
-
-    $HelpFolder = Join-Path $SourcePath $HelpFolder
+    $BuiltModuleFolder = Join-Path -Path $BuildOutput -ChildPath $ProjectName
+    $HelpFolder = Join-Path -Path $SourcePath -ChildPath $HelpFolder
     New-ExternalHelp -Path $HelpFolder -OutputPath "$(Join-Path $BuiltModuleFolder $HelpCultureInfo)" -Force
-
 }
