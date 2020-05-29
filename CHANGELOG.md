@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.105.4] - 2020-05-29
+
 ### Fixed
 
 - Added Pester 5 support in the CI pipeline `test` and `hqrmtest` task.
