@@ -95,7 +95,8 @@ Task Build_Module_ModuleBuilder {
             #>
             if ($ValueFromBuildParam = Get-Variable -Name $ParamName -ValueOnly -ErrorAction SilentlyContinue)
             {
-                Write-Build -Color DarkGray "Adding $ParamName with value $ValueFromBuildParam from current Variables"
+                Write-Build -Color DarkGray -Text "Adding $ParamName with value $ValueFromBuildParam from current Variables"
+
                 if ($ParamName -eq 'OutputDirectory')
                 {
                     $BuildModuleParams.Add($ParamName, (Join-Path $BuildModuleOutput $ProjectName))
