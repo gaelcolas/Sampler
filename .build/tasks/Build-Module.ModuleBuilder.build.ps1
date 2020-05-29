@@ -1,35 +1,35 @@
 param
 (
     [Parameter()]
-    [string]
+    [System.String]
     $ProjectName = (property ProjectName ''),
 
     [Parameter()]
-    [string]
+    [System.String]
     $SourcePath = (property SourcePath ''),
 
     [Parameter()]
-    [string]
+    [System.String]
     $OutputDirectory = (property OutputDirectory (Join-Path $BuildRoot "output")),
 
     [Parameter()]
-    [String]
+    [System.String]
     $BuiltModuleSubdirectory = (property BuiltModuleSubdirectory ''),
 
     [Parameter()]
-    [String]
+    [System.String]
     $BuildModuleOutput = (property BuildModuleOutput (Join-Path $OutputDirectory $BuiltModuleSubdirectory)),
 
     [Parameter()]
-    [String]
+    [System.String]
     $ReleaseNotesPath = (property ReleaseNotesPath (Join-Path $OutputDirectory 'ReleaseNotes.md')),
 
     [Parameter()]
-    [string]
+    [System.String]
     $ModuleVersion = (property ModuleVersion ''),
 
     [Parameter()]
-    [System.Collections.IDictionary]
+    [System.Collections.Hashtable]
     $BuildInfo = (property BuildInfo @{ })
 )
 
@@ -47,8 +47,10 @@ Task Build_Module_ModuleBuilder {
         $SourcePath = Get-SourcePath -BuildRoot $BuildRoot
     }
 
+    $moduleManifestPath = "$SourcePath/$ProjectName.psd1"
+
     $getBuildVersionParameters = @{
-        ModuleManifestPath = "$SourcePath\$ProjectName.psd1"
+        ModuleManifestPath = $moduleManifestPath
         ModuleVersion      = $ModuleVersion
     }
 
@@ -60,56 +62,78 @@ Task Build_Module_ModuleBuilder {
     #>
     $ModuleVersion = Get-BuildVersion @getBuildVersionParameters
 
-    " Project Name        = $ProjectName"
-    " Module Version      = $ModuleVersion"
-    " Source Path         = $SourcePath"
-    " Output Directory    = $OutputDirectory"
-    " Build Module Output = $BuildModuleOutput"
+    "`tProject Name         = $ProjectName"
+    "`tModule Version       = $ModuleVersion"
+    "`tSource Path          = $SourcePath"
+    "`tOutput Directory     = $OutputDirectory"
+    "`tBuild Module Output  = $BuildModuleOutput"
+    "`tModule Manifest Path = $moduleManifestPath"
 
-
-    if (!(Split-Path -isAbsolute $ReleaseNotesPath))
+    if (-not (Split-Path -IsAbsolute $ReleaseNotesPath))
     {
-        $ReleaseNotesPath = Join-Path $OutputDirectory $ReleaseNotesPath
+        $ReleaseNotesPath = Join-Path -Path $OutputDirectory -ChildPath $ReleaseNotesPath
     }
 
-    Import-Module ModuleBuilder -ErrorAction Stop
-    $BuildModuleParams = @{ }
+    Import-Module -Name ModuleBuilder -ErrorAction 'Stop'
 
-    foreach ($ParamName in (Get-Command Build-Module).Parameters.Keys)
+    $buildModuleParams = @{}
+
+    foreach ($paramName in (Get-Command -Name Build-Module).Parameters.Keys)
     {
-        # If Build-Module parameters are available in current session, use those
-        # otherwise use params from BuildInfo if specified
-        if ($ValueFromBuildParam = Get-Variable -Name $ParamName -ValueOnly -ErrorAction SilentlyContinue)
+        if ($paramName -eq 'SourcePath')
         {
-            Write-Build -Color DarkGray "Adding $ParamName with value $ValueFromBuildParam from current Variables"
-            if ($ParamName -eq 'OutputDirectory')
-            {
-                $BuildModuleParams.add($ParamName, (Join-Path $BuildModuleOutput $ProjectName))
-            }
-            else
-            {
-                $BuildModuleParams.Add($ParamName, $ValueFromBuildParam)
-            }
-        }
-        elseif ($ValueFromBuildInfo = $BuildInfo[$ParamName])
-        {
-            Write-Build -Color DarkGray "Adding $ParamName with value $ValueFromBuildInfo from Build Info"
-            $BuildModuleParams.Add($ParamName, $ValueFromBuildInfo)
+            <#
+                To support building the without a build manifest the SourcePath must be
+                set to the path to the source module manifest.
+            #>
+            $buildModuleParams.Add($paramName, $moduleManifestPath)
         }
         else
         {
-            Write-Debug -Message "No value specified for $ParamName"
+            $valueFromBuildParam = Get-Variable -Name $paramName -ValueOnly -ErrorAction 'SilentlyContinue'
+            $valueFromBuildInfo = $BuildInfo[$paramName]
+
+            <#
+                If Build-Module parameters are available in current session, use those
+                otherwise use params from BuildInfo if specified.
+            #>
+            if ($valueFromBuildParam)
+            {
+                Write-Build -Color 'DarkGray' -Text "Adding $paramName with value $valueFromBuildParam from current Variables"
+
+                if ($paramName -eq 'OutputDirectory')
+                {
+                    $buildModuleParams.Add($paramName, (Join-Path -Path $BuildModuleOutput -ChildPath $ProjectName))
+                }
+                else
+                {
+                    $buildModuleParams.Add($paramName, $valueFromBuildParam)
+                }
+            }
+            elseif ($valueFromBuildInfo)
+            {
+                Write-Build -Color 'DarkGray' "Adding $paramName with value $valueFromBuildInfo from Build Info"
+
+                $buildModuleParams.Add($paramName, $valueFromBuildInfo)
+            }
+            else
+            {
+                Write-Debug -Message "No value specified for $paramName"
+            }
         }
     }
 
-    Write-Build -Color Green "Building Module to $($BuildModuleParams['OutputDirectory'])..."
-    $BuiltModule = Build-Module @BuildModuleParams -SemVer $ModuleVersion -Passthru
+    Write-Build -Color 'Green' -text "Building Module to $($buildModuleParams['OutputDirectory'])..."
 
-    if (Test-Path $ReleaseNotesPath)
+    $BuiltModule = Build-Module @buildModuleParams -SemVer $ModuleVersion -PassThru
+
+    if (Test-Path -Path $ReleaseNotesPath)
     {
-        $RelNote = Get-Content -raw $ReleaseNotesPath
-        $OutputManifest = $BuiltModule.Path
-        Update-Metadata -Path $OutputManifest -PropertyName PrivateData.PSData.ReleaseNotes -Value $RelNote
+        $releaseNotes = Get-Content -Path $ReleaseNotesPath -Raw
+
+        $outputManifest = $BuiltModule.Path
+
+        Update-Metadata -Path $outputManifest -PropertyName 'PrivateData.PSData.ReleaseNotes' -Value $releaseNotes
     }
 }
 
@@ -124,15 +148,16 @@ Task Build_NestedModules_ModuleBuilder {
         $SourcePath = Get-SourcePath -BuildRoot $BuildRoot
     }
 
-    " Project Name          = $ProjectName"
-    " Source Path           = $SourcePath"
-    " Output Directory      = $OutputDirectory"
-    " Build Module Output   = $BuildModuleOutput"
+    "`tProject Name          = $ProjectName"
+    "`tSource Path           = $SourcePath"
+    "`tOutput Directory      = $OutputDirectory"
+    "`tBuild Module Output   = $BuildModuleOutput"
 
-    Import-Module ModuleBuilder -ErrorAction Stop
-    $BuiltModuleManifest = "$BuildModuleOutput/$ProjectName/*/$ProjectName.psd1"
+    Import-Module -Name 'ModuleBuilder' -ErrorAction 'Stop'
 
-    " Built Module Manifest = $BuiltModuleManifest"
+    $builtModuleManifest = "$BuildModuleOutput/$ProjectName/*/$ProjectName.psd1"
+
+    "`tBuilt Module Manifest = $builtModuleManifest"
 
     $getModuleVersionParameters = @{
         OutputDirectory = $BuildModuleOutput
@@ -140,132 +165,159 @@ Task Build_NestedModules_ModuleBuilder {
     }
 
     $ModuleVersion = Get-BuiltModuleVersion @getModuleVersionParameters
-    $ModuleVersionFolder, $PreReleaseTag = $ModuleVersion -split '\-', 2
+    $ModuleVersionFolder, $preReleaseTag = $ModuleVersion -split '\-', 2
 
-    " Module Version        = $ModuleVersion"
-    " Module Version Folder = $ModuleVersionFolder"
-    " Pre-release Tag       = $PreReleaseTag"
+    "`tModule Version        = $ModuleVersion"
+    "`tModule Version Folder = $ModuleVersionFolder"
+    "`tPre-release Tag       = $preReleaseTag"
 
-    $NestedModule = $BuildInfo.NestedModule
-    $NestedModulesToAdd = @()
+    $nestedModule = $BuildInfo.NestedModule
+    $nestedModulesToAdd = @()
 
-    foreach ($NestedModuleName in $NestedModule.Keys)
+    foreach ($nestedModuleName in $nestedModule.Keys)
     {
-        $cmdParam = $NestedModule[$NestedModuleName]
-        $AddToManifest = [bool]$cmdParam['AddToManifest']
-        # either copy only or Build
-        if ([bool]$cmdParam['CopyOnly'])
+        $cmdParam = $nestedModule[$nestedModuleName]
+
+        $addToManifest = [bool]$cmdParam['AddToManifest']
+
+        # Either copy only or Build
+        if ([System.Boolean] $cmdParam['CopyOnly'])
         {
-            Write-Debug "Using parameters to copy nested module from Source to Destination"
-            $cmd = Get-Command Copy-Item
-            if (!$cmdParam.ContainsKey('Path'))
+            Write-Debug -Message "Using parameters to copy nested module from Source to Destination"
+
+            $cmd = Get-Command -Name 'Copy-Item'
+
+            if (-not $cmdParam.ContainsKey('Path'))
             {
-                $cmdParam['Path'] = '$SourcePath/Modules/$NestedModuleName'
+                $cmdParam['Path'] = '$SourcePath/Modules/$nestedModuleName'
             }
 
-            if (!$cmdParam.ContainsKey('Recurse'))
+            if (-not $cmdParam.ContainsKey('Recurse'))
             {
                 $cmdParam['Recurse'] = $true
             }
+
             # Set default Destination (substitute later)
-            if (!$cmdParam.ContainsKey('Destination'))
+            if (-not $cmdParam.ContainsKey('Destination'))
             {
-                $cmdParam['Destination'] = '$BuildModuleOutput/$ProjectName/$ModuleVersionFolder/Modules/$NestedModuleName'
+                $cmdParam['Destination'] = '$BuildModuleOutput/$ProjectName/$ModuleVersionFolder/Modules/$nestedModuleName'
             }
-            Write-Build -color yellow "Copying Nested Module files for $NestedModuleName"
+
+            Write-Build -Color 'Yellow' -Text "Copying Nested Module files for $nestedModuleName"
         }
         else
         {
-            $cmd = Get-Command Build-Module
-            Write-Build -color yellow "Building Nested Module $NestedModuleName"
+            $cmd = Get-Command -Name 'Build-Module'
+
+            Write-Build -Color 'Yellow' -Text "Building Nested Module $nestedModuleName"
         }
 
         $cmdParamKeys = @() + $cmdParam.Keys
-        foreach ($ParamName in $cmdParamKeys)
+
+        foreach ($paramName in $cmdParamKeys)
         {
             # remove param not available in command
-            if ($ParamName -notin @($cmd.Parameters.keys + $cmd.Parameters.values.aliases) )
+            if ($paramName -notin @($cmd.Parameters.keys + $cmd.Parameters.values.aliases))
             {
-                Write-Build White "Removing Parameter $ParamName for $($cmd.Name)"
-                $cmdParam.remove($ParamName)
+                Write-Build -Color 'White' -Text "Removing Parameter $paramName for $($cmd.Name)"
+
+                $cmdParam.Remove($paramName)
             }
-            elseif ($ParamName -in @('Path', 'Destination', 'OutputDirectory', 'SemVer'))
+            elseif ($paramName -in @('Path', 'Destination', 'OutputDirectory', 'SemVer'))
             {
                 # Substitute & Resolve Resolve Path to absolutes (relative assumed is $BuildRoot)
-                Write-Build White "Resolving Absolute path for $ParamName $($cmdParam[$ParamName])"
-                $cmdParam[$ParamName] = $ExecutionContext.InvokeCommand.ExpandString($cmdParam[$ParamName])
-                if (!(Split-Path -IsAbsolute $cmdParam[$ParamName]) -and $ParamName -ne 'SemVer')
+                Write-Build -Color 'White' -Text "Resolving Absolute path for $paramName $($cmdParam[$paramName])"
+
+                $cmdParam[$paramName] = $ExecutionContext.InvokeCommand.ExpandString($cmdParam[$paramName])
+
+                if (-not (Split-Path -Path $cmdParam[$paramName] -IsAbsolute) -and $paramName -ne 'SemVer')
                 {
-                    $cmdParam[$ParamName] = Join-Path -Path $BuildRoot -ChildPath $cmdParam[$ParamName]
+                    $cmdParam[$paramName] = Join-Path -Path $BuildRoot -ChildPath $cmdParam[$paramName]
                 }
-                Write-Build -color White "    The $ParamName is: $($cmdParam[$ParamName])"
+
+                Write-Build -Color 'White' -Text "    The $paramName is: $($cmdParam[$paramName])"
             }
         }
-        $BuiltModuleBase = Split-Path -Parent -Path $BuiltModuleManifest
-        Write-Build -color Green "$($cmd.Verb) $NestedModuleName..."
+
+        $builtModuleBase = Split-Path -Parent -Path $BuiltModuleManifest
+
+        Write-Build -Color 'Green' -Text "$($cmd.Verb) $nestedModuleName..."
+
         if ($cmdParam.Verbose)
         {
-            Write-Verbose ($CmdParam | ConvertTo-Json) -Verbose
+            Write-Verbose -Message ($CmdParam | ConvertTo-Json) -Verbose
         }
-        &$cmd @cmdParam
 
-        if ($AddToManifest)
+        & $cmd @cmdParam
+
+        if ($addToManifest)
         {
-            Write-Build DarkMagenta "  Preparing to Add to Manifest"
+            Write-Build -Color 'DarkMagenta' -Text "  Preparing to Add to Manifest"
+
             if ($cmd.Name -eq 'Copy-Item')
             {
-                $NestedModulePath = $cmdParam['Destination']
+                $nestedModulePath = $cmdParam['Destination']
             }
             else
             {
-                $NestedModulePath = $cmdParam['OutputDirectory']
+                $nestedModulePath = $cmdParam['OutputDirectory']
             }
-            Write-Build DarkMagenta "  Looking in $NestedModulePath"
-            $NestedModuleFile = (Get-ChildItem -Path $NestedModulePath -Recurse -Include *.psd1 |
-                    Where-Object {
-                        ($_.Directory.Name -eq $_.BaseName -or $_.Directory.Name -as [version]) -and
-                        $(try
-                            {
-                                Test-ModuleManifest $_.FullName -ErrorAction Stop
-                            }
-                            catch
-                            {
-                                $false
-                            })
+
+            Write-Build -Color 'DarkMagenta' -Text "  Looking in $nestedModulePath"
+
+            $nestedModuleFile = (Get-ChildItem -Path $nestedModulePath -Recurse -Include '*.psd1' |
+                    Where-Object -FilterScript {
+                        (
+                            $_.Directory.Name -eq $_.BaseName -or $_.Directory.Name -as [version]) `
+                            -and $(
+                                try
+                                {
+                                    Test-ModuleManifest -Path $_.FullName -ErrorAction 'Stop'
+                                }
+                                catch
+                                {
+                                    $false
+                                }
+                            )
                     }
-            ).FullName -replace [Regex]::Escape($BuiltModuleBase), ".$([io.path]::DirectorySeparatorChar)"
+            ).FullName -replace [Regex]::Escape($builtModuleBase), ".$([System.IO.Path]::DirectorySeparatorChar)"
 
 
-            if (!$NestedModuleFile)
+            if (-not $nestedModuleFile)
             {
-                $NestedModuleFile = Get-ChildItem -Path $NestedModulePath -Recurse -Include *.psm1 |
-                    ForEach-Object {
-                        $_.FullName -replace [Regex]::Escape($BuiltModuleBase), ".$([io.path]::DirectorySeparatorChar)"
+                $nestedModuleFile = Get-ChildItem -Path $nestedModulePath -Recurse -Include '*.psm1' |
+                    ForEach-Object -Process {
+                        $_.FullName -replace [Regex]::Escape($builtModuleBase), ".$([System.IO.Path]::DirectorySeparatorChar)"
                     }
             }
-            Write-Build DarkMagenta "Found $($NestedModuleFile -join ';')"
 
-            $NestedModulesToAdd += $NestedModuleFile
+            Write-Build -Color 'DarkMagenta' -Text "Found $($nestedModuleFile -join ';')"
+
+            $nestedModulesToAdd += $nestedModuleFile
         }
 
-        Write-Build -color Green "Done `r`n"
+        Write-Build -Color 'Green' -Text "Done `r`n"
     }
 
-    $ModuleInfo = Import-PowerShellDataFile $BuiltModuleManifest -ErrorAction Stop
+    $ModuleInfo = Import-PowerShellDataFile -Path $BuiltModuleManifest -ErrorAction 'Stop'
 
     # Add to NestedModules to ModuleManifest
-    if ($ModuleInfo.containsKey('NestedModules') -and $NestedModulesToAdd)
+    if ($ModuleInfo.ContainsKey('NestedModules') -and $nestedModulesToAdd)
     {
-        Write-Build -color Green "Updating the Module Manifest's NestedModules key..."
-        $NestedModulesToAdd = $ModuleInfo.NestedModules + $NestedModulesToAdd
+        Write-Build -Color 'Green' -Text "Updating the Module Manifest's NestedModules key..."
+
+        $nestedModulesToAdd = $ModuleInfo.NestedModules + $nestedModulesToAdd
+
         # Get Nested Module Manifest or PSM1
         $updateMetadataParams = @{
-            Path         = (Get-Item $BuiltModuleManifest).FullName
+            Path         = (Get-Item -Path $BuiltModuleManifest).FullName
             PropertyName = 'NestedModules'
-            Value        = $NestedModulesToAdd
+            Value        = $nestedModulesToAdd
             ErrorAction  = 'Stop'
         }
-        Write-Build Green "  Adding $($NestedModuleToAdd -join ', ') to Module Manifest $($updateMetadataParams.Path)"
+
+        Write-Build -Color 'Green' -Text "  Adding $($NestedModuleToAdd -join ', ') to Module Manifest $($updateMetadataParams.Path)"
+
         Update-Metadata @updateMetadataParams
     }
 }

@@ -99,6 +99,12 @@ BuildWorkflow:
       # Create a Build task from the Yaml (Because we don't want this task to be in the .build folder)
       # so that it's not copied and made accessible in the Sampler Module.
       $PlasterTemplateFolder = Get-Item $BuildModuleOutput/$ProjectName/*/Templates/Sampler
+
+      " Project Name            = $ProjectName"
+      " Output Directory        = $OutputDirectory"
+      " Build Module Output     = $BuildModuleOutput"
+      " Plaster Template Folder = $PlasterTemplateFolder"
+
       # ./output/Sampler/*/Templates/Sampler
       $ToCopy = Get-ChildItem -Force . -Exclude .git,output
       foreach ($item in $toCopy) {
