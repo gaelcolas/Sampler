@@ -113,6 +113,11 @@ task Invoke_DscResource_Tests {
     #>
     foreach ($paramName in $dscTestCmd.Parameters.Keys)
     {
+        if (($paramName -eq 'ExcludeTagFilter' -or $paramName -eq 'TagFilter') -and -not $isPester5)
+        {
+            $paramName = ($paramName -Split 'Filter')[0]
+        }
+
         $taskParamName = "DscTest$paramName"
 
         $DscTestBuildConfig = $BuildInfo.DscTest
@@ -144,7 +149,7 @@ task Invoke_DscResource_Tests {
     "`tProject Path      = $ProjectPath"
     "`tProject Name      = $ProjectName"
     "`tTest Scripts      = $($DscTestScript -join ', ')"
-    "`tTags              = $($DscTestTag -join ', ')"
+    "`tTags              = $($DscTestTagFilter -join ', ')"
     "`tExclude Tags      = $($DscTestExcludeTag -join ', ')"
     "`tModuleVersion     = $ModuleVersion"
     "`tBuildModuleOutput = $BuildModuleOutput"
