@@ -113,6 +113,11 @@ task Invoke_DscResource_Tests {
     #>
     foreach ($paramName in $dscTestCmd.Parameters.Keys)
     {
+        if (($paramName -eq 'ExcludeTagFilter' -or $paramName -eq 'TagFilter') -and -not $isPester5)
+        {
+            $paramName = $paramName -replace 'Filter'
+        }
+
         $taskParamName = "DscTest$paramName"
 
         $DscTestBuildConfig = $BuildInfo.DscTest
