@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix for Pester 5.0.1 making sure only to use the `Simple` ParameterSet.
 - Fix typo in `DscResource.Test` task.
 - Updated style in `generateHelp.PlatyPS` task.
+- Added fix to support Pester 4 parameters.
 
 ## [0.105.4] - 2020-05-29
 
