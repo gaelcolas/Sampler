@@ -115,7 +115,7 @@ task Invoke_DscResource_Tests {
     {
         if (($paramName -eq 'ExcludeTagFilter' -or $paramName -eq 'TagFilter') -and -not $isPester5)
         {
-            $paramName = ($paramName -split 'Filter')[0]
+            $paramName = $paramName -replace 'Filter'
         }
 
         $taskParamName = "DscTest$paramName"
