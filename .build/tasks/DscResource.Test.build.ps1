@@ -149,7 +149,7 @@ task Invoke_DscResource_Tests {
     "`tProject Path      = $ProjectPath"
     "`tProject Name      = $ProjectName"
     "`tTest Scripts      = $($DscTestScript -join ', ')"
-    "`tTags              = $($DscTestTagFilter -join ', ')"
+    "`tTags              = $($DscTestTag -join ', ')"
     "`tExclude Tags      = $($DscTestExcludeTag -join ', ')"
     "`tModuleVersion     = $ModuleVersion"
     "`tBuildModuleOutput = $BuildModuleOutput"
