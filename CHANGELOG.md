@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added integration tests for the Plaster templates
+
 ## [0.105.6] - 2020-06-01
 
 - Added fix to support Pester 4 parameters.
