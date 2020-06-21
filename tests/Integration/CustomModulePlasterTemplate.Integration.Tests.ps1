@@ -56,7 +56,7 @@ Describe 'Custom Module Plaster Template' {
         }
 
         It 'Should have the expected folder and file structure' {
-            $modulePaths = Get-ChildItem -Path $mockModuleRootPath -Recurse
+            $modulePaths = Get-ChildItem -Path $mockModuleRootPath -Recurse -Force
 
             # Make the path relative to module root.
             $relativeModulePaths = $modulePaths.FullName -replace [RegEx]::Escape($mockModuleRootPath)
@@ -179,7 +179,7 @@ Describe 'Custom Module Plaster Template' {
         }
 
         It 'Should have the expected folder and file structure' {
-            $modulePaths = Get-ChildItem -Path $mockModuleRootPath -Recurse
+            $modulePaths = Get-ChildItem -Path $mockModuleRootPath -Recurse -Force
 
             # Make the path relative to module root.
             $relativeModulePaths = $modulePaths.FullName -replace [RegEx]::Escape($mockModuleRootPath)
@@ -303,7 +303,7 @@ Describe 'Custom Module Plaster Template' {
         }
 
         It 'Should have the expected folder and file structure' {
-            $modulePaths = Get-ChildItem -Path $mockModuleRootPath -Recurse
+            $modulePaths = Get-ChildItem -Path $mockModuleRootPath -Recurse -Force
 
             # Make the path relative to module root.
             $relativeModulePaths = $modulePaths.FullName -replace [RegEx]::Escape($mockModuleRootPath)
@@ -427,7 +427,7 @@ Describe 'Custom Module Plaster Template' {
         }
 
         It 'Should have the expected folder and file structure' {
-            $modulePaths = Get-ChildItem -Path $mockModuleRootPath -Recurse
+            $modulePaths = Get-ChildItem -Path $mockModuleRootPath -Recurse -Force
 
             # Make the path relative to module root.
             $relativeModulePaths = $modulePaths.FullName -replace [RegEx]::Escape($mockModuleRootPath)
@@ -550,7 +550,7 @@ Describe 'Custom Module Plaster Template' {
         }
 
         It 'Should have the expected folder and file structure' {
-            $modulePaths = Get-ChildItem -Path $mockModuleRootPath -Recurse
+            $modulePaths = Get-ChildItem -Path $mockModuleRootPath -Recurse -Force
 
             # Make the path relative to module root.
             $relativeModulePaths = $modulePaths.FullName -replace [RegEx]::Escape($mockModuleRootPath)
@@ -618,7 +618,7 @@ Describe 'Custom Module Plaster Template' {
         }
 
         It 'Should have the expected folder and file structure' {
-            $modulePaths = Get-ChildItem -Path $mockModuleRootPath -Recurse
+            $modulePaths = Get-ChildItem -Path $mockModuleRootPath -Recurse -Force
 
             # Make the path relative to module root.
             $relativeModulePaths = $modulePaths.FullName -replace [RegEx]::Escape($mockModuleRootPath)
@@ -686,7 +686,7 @@ Describe 'Custom Module Plaster Template' {
         }
 
         It 'Should have the expected folder and file structure' {
-            $modulePaths = Get-ChildItem -Path $mockModuleRootPath -Recurse
+            $modulePaths = Get-ChildItem -Path $mockModuleRootPath -Recurse -Force
 
             # Make the path relative to module root.
             $relativeModulePaths = $modulePaths.FullName -replace [RegEx]::Escape($mockModuleRootPath)
@@ -754,7 +754,7 @@ Describe 'Custom Module Plaster Template' {
         }
 
         It 'Should have the expected folder and file structure' {
-            $modulePaths = Get-ChildItem -Path $mockModuleRootPath -Recurse
+            $modulePaths = Get-ChildItem -Path $mockModuleRootPath -Recurse -Force
 
             # Make the path relative to module root.
             $relativeModulePaths = $modulePaths.FullName -replace [RegEx]::Escape($mockModuleRootPath)
@@ -823,7 +823,7 @@ Describe 'Custom Module Plaster Template' {
         }
 
         It 'Should have the expected folder and file structure' {
-            $modulePaths = Get-ChildItem -Path $mockModuleRootPath -Recurse
+            $modulePaths = Get-ChildItem -Path $mockModuleRootPath -Recurse -Force
 
             # Make the path relative to module root.
             $relativeModulePaths = $modulePaths.FullName -replace [RegEx]::Escape($mockModuleRootPath)
@@ -895,7 +895,7 @@ Describe 'Custom Module Plaster Template' {
         }
 
         It 'Should have the expected folder and file structure' {
-            $modulePaths = Get-ChildItem -Path $mockModuleRootPath -Recurse
+            $modulePaths = Get-ChildItem -Path $mockModuleRootPath -Recurse -Force
 
             # Make the path relative to module root.
             $relativeModulePaths = $modulePaths.FullName -replace [RegEx]::Escape($mockModuleRootPath)
@@ -964,7 +964,7 @@ Describe 'Custom Module Plaster Template' {
         }
 
         It 'Should have the expected folder and file structure' {
-            $modulePaths = Get-ChildItem -Path $mockModuleRootPath -Recurse
+            $modulePaths = Get-ChildItem -Path $mockModuleRootPath -Recurse -Force
 
             # Make the path relative to module root.
             $relativeModulePaths = $modulePaths.FullName -replace [RegEx]::Escape($mockModuleRootPath)
@@ -1031,7 +1031,7 @@ Describe 'Custom Module Plaster Template' {
         }
 
         It 'Should have the expected folder and file structure' {
-            $modulePaths = Get-ChildItem -Path $mockModuleRootPath -Recurse
+            $modulePaths = Get-ChildItem -Path $mockModuleRootPath -Recurse -Force
 
             # Make the path relative to module root.
             $relativeModulePaths = $modulePaths.FullName -replace [RegEx]::Escape($mockModuleRootPath)
@@ -1101,7 +1101,7 @@ Describe 'Custom Module Plaster Template' {
         }
 
         It 'Should have the expected folder and file structure' {
-            $modulePaths = Get-ChildItem -Path $mockModuleRootPath -Recurse
+            $modulePaths = Get-ChildItem -Path $mockModuleRootPath -Recurse -Force
 
             # Make the path relative to module root.
             $relativeModulePaths = $modulePaths.FullName -replace [RegEx]::Escape($mockModuleRootPath)
@@ -1173,7 +1173,7 @@ Describe 'Custom Module Plaster Template' {
         }
 
         It 'Should have the expected folder and file structure' {
-            $modulePaths = Get-ChildItem -Path $mockModuleRootPath -Recurse
+            $modulePaths = Get-ChildItem -Path $mockModuleRootPath -Recurse -Force
 
             # Make the path relative to module root.
             $relativeModulePaths = $modulePaths.FullName -replace [RegEx]::Escape($mockModuleRootPath)
@@ -1241,7 +1241,7 @@ Describe 'Custom Module Plaster Template' {
         }
 
         It 'Should have the expected folder and file structure' {
-            $modulePaths = Get-ChildItem -Path $mockModuleRootPath -Recurse
+            $modulePaths = Get-ChildItem -Path $mockModuleRootPath -Recurse -Force
 
             # Make the path relative to module root.
             $relativeModulePaths = $modulePaths.FullName -replace [RegEx]::Escape($mockModuleRootPath)
