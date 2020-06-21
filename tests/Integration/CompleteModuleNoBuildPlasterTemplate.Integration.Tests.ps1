@@ -121,7 +121,7 @@ Describe 'Complete Module No Build Plaster Template' {
             'tests/Unit/Private/Get-PrivateFunction.tests.ps1' | Should -BeIn $relativeModulePaths
             'tests/Unit/Public/Get-Something.tests.ps1' | Should -BeIn $relativeModulePaths
 
-            $relativeModulePaths | Should -HaveCount 54
+            $relativeModulePaths | Should -HaveCount 53
         } -ErrorVariable itBlockError
 
         # Check if previous It-block failed. If so output the module directory tree.
