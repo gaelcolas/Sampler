@@ -19,6 +19,10 @@ $importedModule = Import-Module $script:moduleName -Force -PassThru -ErrorAction
 
 #endregion HEADER
 
+Import-Module -Name "$PSScriptRoot\IntegrationTestHelpers.psm1"
+
+Install-TreeCommand
+
 Describe 'Complete Module No Build Plaster Template' {
     Context 'When creating a new module project' {
         BeforeAll {
@@ -117,13 +121,15 @@ Describe 'Complete Module No Build Plaster Template' {
             'tests/Unit/Private/Get-PrivateFunction.tests.ps1' | Should -BeIn $relativeModulePaths
             'tests/Unit/Public/Get-Something.tests.ps1' | Should -BeIn $relativeModulePaths
 
-            $relativeModulePaths | Should -HaveCount 53
+            $relativeModulePaths | Should -HaveCount 54
         } -ErrorVariable itBlockError
 
         # Check if previous It-block failed. If so output the module directory tree.
         if ( $itBlockError.Count -ne 0 )
         {
-            Write-Verbose -Message (tree /f $mockModuleRootPath | Out-String) -Verbose
+            $treeOutput = Get-DirectoryTree
+
+            Write-Verbose -Message ($treeOutput | Out-String) -Verbose
         }
     }
 }

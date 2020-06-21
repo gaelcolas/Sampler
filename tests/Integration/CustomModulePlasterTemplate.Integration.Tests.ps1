@@ -19,6 +19,10 @@ $importedModule = Import-Module $script:moduleName -Force -PassThru -ErrorAction
 
 #endregion HEADER
 
+Import-Module -Name "$PSScriptRoot\IntegrationTestHelpers.psm1"
+
+Install-TreeCommand
+
 Describe 'Custom Module Plaster Template' {
     Context 'When creating a new module project with all features but without a license' {
         BeforeAll {
@@ -136,7 +140,9 @@ Describe 'Custom Module Plaster Template' {
         # Check if previous It-block failed. If so output the module directory tree.
         if ( $itBlockError.Count -ne 0 )
         {
-            Write-Verbose -Message (tree /f $mockModuleRootPath | Out-String) -Verbose
+            $treeOutput = Get-DirectoryTree
+
+            Write-Verbose -Message ($treeOutput | Out-String) -Verbose
         }
     }
 
@@ -258,7 +264,9 @@ Describe 'Custom Module Plaster Template' {
         # Check if previous It-block failed. If so output the module directory tree.
         if ( $itBlockError.Count -ne 0 )
         {
-            Write-Verbose -Message (tree /f $mockModuleRootPath | Out-String) -Verbose
+            $treeOutput = Get-DirectoryTree
+
+            Write-Verbose -Message ($treeOutput | Out-String) -Verbose
         }
     }
 
@@ -380,7 +388,9 @@ Describe 'Custom Module Plaster Template' {
         # Check if previous It-block failed. If so output the module directory tree.
         if ( $itBlockError.Count -ne 0 )
         {
-            Write-Verbose -Message (tree /f $mockModuleRootPath | Out-String) -Verbose
+            $treeOutput = Get-DirectoryTree
+
+            Write-Verbose -Message ($treeOutput | Out-String) -Verbose
         }
     }
 
@@ -502,7 +512,9 @@ Describe 'Custom Module Plaster Template' {
         # Check if previous It-block failed. If so output the module directory tree.
         if ( $itBlockError.Count -ne 0 )
         {
-            Write-Verbose -Message (tree /f $mockModuleRootPath | Out-String) -Verbose
+            $treeOutput = Get-DirectoryTree
+
+            Write-Verbose -Message ($treeOutput | Out-String) -Verbose
         }
     }
 
@@ -568,7 +580,9 @@ Describe 'Custom Module Plaster Template' {
         # Check if previous It-block failed. If so output the module directory tree.
         if ( $itBlockError.Count -ne 0 )
         {
-            Write-Verbose -Message (tree /f $mockModuleRootPath | Out-String) -Verbose
+            $treeOutput = Get-DirectoryTree
+
+            Write-Verbose -Message ($treeOutput | Out-String) -Verbose
         }
     }
 
@@ -634,7 +648,9 @@ Describe 'Custom Module Plaster Template' {
         # Check if previous It-block failed. If so output the module directory tree.
         if ( $itBlockError.Count -ne 0 )
         {
-            Write-Verbose -Message (tree /f $mockModuleRootPath | Out-String) -Verbose
+            $treeOutput = Get-DirectoryTree
+
+            Write-Verbose -Message ($treeOutput | Out-String) -Verbose
         }
     }
 
@@ -700,7 +716,9 @@ Describe 'Custom Module Plaster Template' {
         # Check if previous It-block failed. If so output the module directory tree.
         if ( $itBlockError.Count -ne 0 )
         {
-            Write-Verbose -Message (tree /f $mockModuleRootPath | Out-String) -Verbose
+            $treeOutput = Get-DirectoryTree
+
+            Write-Verbose -Message ($treeOutput | Out-String) -Verbose
         }
     }
 
@@ -767,7 +785,9 @@ Describe 'Custom Module Plaster Template' {
         # Check if previous It-block failed. If so output the module directory tree.
         if ( $itBlockError.Count -ne 0 )
         {
-            Write-Verbose -Message (tree /f $mockModuleRootPath | Out-String) -Verbose
+            $treeOutput = Get-DirectoryTree
+
+            Write-Verbose -Message ($treeOutput | Out-String) -Verbose
         }
     }
 
@@ -837,7 +857,9 @@ Describe 'Custom Module Plaster Template' {
         # Check if previous It-block failed. If so output the module directory tree.
         if ( $itBlockError.Count -ne 0 )
         {
-            Write-Verbose -Message (tree /f $mockModuleRootPath | Out-String) -Verbose
+            $treeOutput = Get-DirectoryTree
+
+            Write-Verbose -Message ($treeOutput | Out-String) -Verbose
         }
     }
 
@@ -904,7 +926,9 @@ Describe 'Custom Module Plaster Template' {
         # Check if previous It-block failed. If so output the module directory tree.
         if ( $itBlockError.Count -ne 0 )
         {
-            Write-Verbose -Message (tree /f $mockModuleRootPath | Out-String) -Verbose
+            $treeOutput = Get-DirectoryTree
+
+            Write-Verbose -Message ($treeOutput | Out-String) -Verbose
         }
     }
 
@@ -969,7 +993,9 @@ Describe 'Custom Module Plaster Template' {
         # Check if previous It-block failed. If so output the module directory tree.
         if ( $itBlockError.Count -ne 0 )
         {
-            Write-Verbose -Message (tree /f $mockModuleRootPath | Out-String) -Verbose
+            $treeOutput = Get-DirectoryTree
+
+            Write-Verbose -Message ($treeOutput | Out-String) -Verbose
         }
     }
 
@@ -1037,7 +1063,9 @@ Describe 'Custom Module Plaster Template' {
         # Check if previous It-block failed. If so output the module directory tree.
         if ( $itBlockError.Count -ne 0 )
         {
-            Write-Verbose -Message (tree /f $mockModuleRootPath | Out-String) -Verbose
+            $treeOutput = Get-DirectoryTree
+
+            Write-Verbose -Message ($treeOutput | Out-String) -Verbose
         }
     }
 
@@ -1107,7 +1135,9 @@ Describe 'Custom Module Plaster Template' {
         # Check if previous It-block failed. If so output the module directory tree.
         if ( $itBlockError.Count -ne 0 )
         {
-            Write-Verbose -Message (tree /f $mockModuleRootPath | Out-String) -Verbose
+            $treeOutput = Get-DirectoryTree
+
+            Write-Verbose -Message ($treeOutput | Out-String) -Verbose
         }
     }
 
@@ -1173,7 +1203,9 @@ Describe 'Custom Module Plaster Template' {
         # Check if previous It-block failed. If so output the module directory tree.
         if ( $itBlockError.Count -ne 0 )
         {
-            Write-Verbose -Message (tree /f $mockModuleRootPath | Out-String) -Verbose
+            $treeOutput = Get-DirectoryTree
+
+            Write-Verbose -Message ($treeOutput | Out-String) -Verbose
         }
     }
 
@@ -1240,7 +1272,9 @@ Describe 'Custom Module Plaster Template' {
         # Check if previous It-block failed. If so output the module directory tree.
         if ( $itBlockError.Count -ne 0 )
         {
-            Write-Verbose -Message (tree /f $mockModuleRootPath | Out-String) -Verbose
+            $treeOutput = Get-DirectoryTree
+
+            Write-Verbose -Message ($treeOutput | Out-String) -Verbose
         }
     }
 }
