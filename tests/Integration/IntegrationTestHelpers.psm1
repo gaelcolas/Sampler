@@ -9,7 +9,7 @@ function Install-TreeCommand
 
         if ($IsLinux)
         {
-            apt-get install tree
+            sudo apt-get install tree
         }
     }
 }
