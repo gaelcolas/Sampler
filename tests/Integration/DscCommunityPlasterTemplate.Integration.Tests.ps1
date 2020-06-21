@@ -92,7 +92,7 @@ Describe 'DSC Community Plaster Template' {
         # Check if previous It-block failed. If so output the module directory tree.
         if ( $itBlockError.Count -ne 0 )
         {
-            $treeOutput = Get-DirectoryTree
+            $treeOutput = Get-DirectoryTree -Path $mockModuleRootPath
 
             Write-Verbose -Message ($treeOutput | Out-String) -Verbose
         }

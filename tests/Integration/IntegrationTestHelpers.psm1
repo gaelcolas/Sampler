@@ -18,19 +18,24 @@ function Get-DirectoryTree
 {
     [CmdletBinding()]
     [OutputType([System.String])]
-    param ()
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [System.String]
+        $Path
+    )
 
     $treeOutput = switch ($true)
         {
             { $IsLinux -or $IsMacOS }
             {
-                tree -a $mockModuleRootPath
+                tree -a $Path
             }
 
             # Assume Windows
             default
             {
-                tree /f $mockModuleRootPath
+                tree /f $Path
             }
         }
 
