@@ -38,7 +38,10 @@ param(
     $BuildInfo = (property BuildInfo @{ }),
 
     [Parameter()]
-    $SkipPublish = (property SkipPublish '')
+    $SkipPublish = (property SkipPublish ''),
+
+    [Parameter()]
+    $MainGitBranch = (property MainGitBranch 'master')
 )
 
 Import-Module -Name "$PSScriptRoot/Common.Functions.psm1"
@@ -126,9 +129,9 @@ task Create_ChangeLog_GitHub_PR -if ($GitHubToken) {
     # git remote add origin https://github.com/gaelcolas/Sampler
     # git config gc.auto 0
     # git config --get-all http.https://github.com/gaelcolas/Sampler.extraheader
-    # git pull origin master
+    # git pull origin $MainGitBranch
     # # git fetch --force --tags --prune --progress --no-recurse-submodules origin
-    # # git checkout --progress --force (git rev-parse origin/master)
+    # # git checkout --progress --force (git rev-parse origin/$MainGitBranch)
 
     foreach ($GitHubConfigKey in @('GitHubFilesToAdd', 'GitHubConfigUserName', 'GitHubConfigUserEmail', 'UpdateChangelogOnPrerelease'))
     {
@@ -141,9 +144,9 @@ task Create_ChangeLog_GitHub_PR -if ($GitHubToken) {
         }
     }
 
-    git pull origin master --tag
-    # Look at the tags on latest commit for origin/master (assume we're on detached head)
-    $TagsAtCurrentPoint = git tag -l --points-at (git rev-parse origin/master)
+    git pull origin $MainGitBranch --tag
+    # Look at the tags on latest commit for origin/$MainGitBranch (assume we're on detached head)
+    $TagsAtCurrentPoint = git tag -l --points-at (git rev-parse origin/$MainGitBranch)
     # Only Update changelog if last commit is a full release
     if ($UpdateChangelogOnPrerelease)
     {
