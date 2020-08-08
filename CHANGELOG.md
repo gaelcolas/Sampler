@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added integration tests for the Plaster templates
+- Added support to use an alternate name for the trunk branch in
+  `New-Release.GitHub.build.ps1` ([issue #182](https://github.com/gaelcolas/Sampler/issues/182)).
+
+### Fixed
+
+- Fix `module.tests.ps1` to be able to run locally.
 
 ## [0.105.6] - 2020-06-01
 
