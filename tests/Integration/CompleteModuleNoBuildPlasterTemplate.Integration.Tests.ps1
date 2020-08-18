@@ -71,7 +71,7 @@ Describe 'Complete Module No Build Plaster Template' {
             'source/DSCResources' | Should -BeIn $relativeModulePaths
             'source/DSCResources/DSC_Folder' | Should -BeIn $relativeModulePaths
             'source/DSCResources/DSC_Folder/en-US' | Should -BeIn $relativeModulePaths
-            'source/Enums' | Should -BeIn $relativeModulePaths
+            'source/Enum' | Should -BeIn $relativeModulePaths
             'source/en-US' | Should -BeIn $relativeModulePaths
             'source/Examples' | Should -BeIn $relativeModulePaths
             'source/Examples/Resources' | Should -BeIn $relativeModulePaths
