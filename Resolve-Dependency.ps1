@@ -61,6 +61,20 @@ param
 # Load Defaults for parameters values from Resolve-Dependency.psd1 if not provided as parameter
 try
 {
+    if ($PSversionTable.PSversion.Major -le 5)
+    {
+        if (!(Get-Command -name Import-PowerShellDataFile -ErrorAction SilentlyContinue))
+        {
+            Import-Module Microsoft.PowerShell.Utility -RequiredVersion 3.1.0.0
+        }
+
+        # Making sure the Imported PackageManagement module is not from PS7 module path
+        # The vscode PS extension is changing the $Env:PSModulePath and prioritise the PS7 path
+        # This is an issue with PowerShellGet because it loads an old version if available (or fail to load latest)
+        Get-Module -ListAvailable PackageManagement | Where-Object ModuleBase -notmatch 'powershell.7' |
+            Select-Object -First 1 | Import-Module -Force
+    }
+
     Write-Verbose -Message "Importing Bootstrap default parameters from '$PSScriptRoot/Resolve-Dependency.psd1'."
     $ResolveDependencyDefaults = Import-PowerShellDataFile -Path (Join-Path $PSScriptRoot '.\Resolve-Dependency.psd1' -Resolve -ErrorAction Stop)
     $ParameterToDefault = $MyInvocation.MyCommand.ParameterSets.Where{ $_.Name -eq $PSCmdlet.ParameterSetName }.Parameters.Keys
@@ -98,7 +112,7 @@ catch
 
 Write-Progress -Activity "Bootstrap:" -PercentComplete 0 -CurrentOperation "NuGet Bootstrap"
 
-if (!(Get-PackageProvider -Name NuGet -ForceBootstrap -ErrorAction SilentlyContinue))
+if (!(Import-Module -Name PowerShellGet -MinimumVersion 2.0 -ErrorAction SilentlyContinue -PassThru ) -and !(Get-PackageProvider -Name NuGet -ForceBootstrap -ErrorAction SilentlyContinue))
 {
     $providerBootstrapParams = @{
         Name           = 'nuget'
@@ -147,8 +161,8 @@ try
     $PowerShellGetVersion = (Import-Module PowerShellGet -PassThru -ErrorAction SilentlyContinue).Version
 
     Write-Verbose "Bootstrap: The PowerShellGet version is $PowerShellGetVersion"
-    # Versions below 1.6.0 are considered old, unreliable & not recommended
-    if (!$PowerShellGetVersion -or ($PowerShellGetVersion -lt [System.version]'1.6.0' -and !$AllowOldPowerShellGetModule))
+    # Versions below 2.0 are considered old, unreliable & not recommended
+    if (!$PowerShellGetVersion -or ($PowerShellGetVersion -lt [System.version]'2.0' -and !$AllowOldPowerShellGetModule))
     {
         Write-Progress -Activity "Bootstrap:" -PercentComplete 40 -CurrentOperation "Installing newer version of PowerShellGet"
         $InstallPSGetParam = @{
@@ -178,8 +192,9 @@ try
 
         Install-Module @InstallPSGetParam
         Remove-Module PowerShellGet -force -ErrorAction SilentlyContinue
-        Import-Module PowerShellGet -Force
-        $NewLoadedVersion = (Get-Module PowerShellGet).Version.ToString()
+        Remove-Module PackageManagement -Force
+        $PSGetImport = Import-Module PowerShellGet -Force -PassThru
+        $NewLoadedVersion = $PSGetImport.Version.ToString()
         Write-Information "Bootstrap: PowerShellGet version loaded is $NewLoadedVersion"
         Write-Progress -Activity "Bootstrap:" -PercentComplete 60 -CurrentOperation "Installing newer version of PowerShellGet"
     }

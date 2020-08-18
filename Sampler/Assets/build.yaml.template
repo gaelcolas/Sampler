@@ -128,15 +128,6 @@ DscTest:
     }
 %>
 
-Resolve-Dependency: #Parameters for Resolve-Dependency
-  #PSDependTarget: ./output/modules
-  #Proxy: ''
-  #ProxyCredential:
-  Gallery: '<%=$PLASTER_PARAM_CustomRepo%>'
-  #MinimumPSDependVersion = '0.3.0'
-  AllowPrerelease: false
-  Verbose: false
-
 ModuleBuildTasks:
   Sampler:
     - '*.build.Sampler.ib.tasks' # this means: import (dot source) all aliases ending with .ib.tasks exported by sampler module
