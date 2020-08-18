@@ -109,6 +109,11 @@ process
                         # Native Support for PSD1
                         '\.psd1'
                         {
+                            if (-not (Get-Command -Name Import-PowerShellDataFile -ErrorAction SilentlyContinue))
+                            {
+                                Import-Module Microsoft.PowerShell.Utility -RequiredVersion 3.1.0.0
+                            }
+
                             Import-PowerShellDataFile -Path $BuildConfig
                         }
                         # Support for yaml when module PowerShell-Yaml is available
@@ -122,8 +127,7 @@ process
                         {
                             $JSONC = (Get-Content -Raw -Path $ConfigFile)
                             $JSON = $JSONC -replace '(?m)\s*//.*?$' -replace '(?ms)/\*.*?\*/'
-                            # This should probably be converted to hashtable for splatting
-                            $JSON | ConvertFrom-Json
+                            ConvertFrom-Yaml -Yaml $JSON # Yaml is superset of JSON
                         }
                         default
                         {
