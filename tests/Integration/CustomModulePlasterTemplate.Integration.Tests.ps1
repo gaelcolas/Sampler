@@ -75,7 +75,7 @@ Describe 'Custom Module Plaster Template' {
             'source/DSCResources' | Should -BeIn $relativeModulePaths
             'source/DSCResources/DSC_Folder' | Should -BeIn $relativeModulePaths
             'source/DSCResources/DSC_Folder/en-US' | Should -BeIn $relativeModulePaths
-            'source/Enums' | Should -BeIn $relativeModulePaths
+            'source/Enum' | Should -BeIn $relativeModulePaths
             'source/en-US' | Should -BeIn $relativeModulePaths
             'source/Examples' | Should -BeIn $relativeModulePaths
             'source/Examples/Resources' | Should -BeIn $relativeModulePaths
@@ -198,7 +198,7 @@ Describe 'Custom Module Plaster Template' {
             'source/DSCResources' | Should -BeIn $relativeModulePaths
             'source/DSCResources/DSC_Folder' | Should -BeIn $relativeModulePaths
             'source/DSCResources/DSC_Folder/en-US' | Should -BeIn $relativeModulePaths
-            'source/Enums' | Should -BeIn $relativeModulePaths
+            'source/Enum' | Should -BeIn $relativeModulePaths
             'source/en-US' | Should -BeIn $relativeModulePaths
             'source/Examples' | Should -BeIn $relativeModulePaths
             'source/Examples/Resources' | Should -BeIn $relativeModulePaths
@@ -322,7 +322,7 @@ Describe 'Custom Module Plaster Template' {
             'source/DSCResources' | Should -BeIn $relativeModulePaths
             'source/DSCResources/DSC_Folder' | Should -BeIn $relativeModulePaths
             'source/DSCResources/DSC_Folder/en-US' | Should -BeIn $relativeModulePaths
-            'source/Enums' | Should -BeIn $relativeModulePaths
+            'source/Enum' | Should -BeIn $relativeModulePaths
             'source/en-US' | Should -BeIn $relativeModulePaths
             'source/Examples' | Should -BeIn $relativeModulePaths
             'source/Examples/Resources' | Should -BeIn $relativeModulePaths
@@ -446,7 +446,7 @@ Describe 'Custom Module Plaster Template' {
             'source/DSCResources' | Should -BeIn $relativeModulePaths
             'source/DSCResources/DSC_Folder' | Should -BeIn $relativeModulePaths
             'source/DSCResources/DSC_Folder/en-US' | Should -BeIn $relativeModulePaths
-            'source/Enums' | Should -BeIn $relativeModulePaths
+            'source/Enum' | Should -BeIn $relativeModulePaths
             'source/en-US' | Should -BeIn $relativeModulePaths
             'source/Examples' | Should -BeIn $relativeModulePaths
             'source/Examples/Resources' | Should -BeIn $relativeModulePaths
@@ -518,7 +518,7 @@ Describe 'Custom Module Plaster Template' {
         }
     }
 
-    Context 'When creating a new module project with only the feature ''Enums''' {
+    Context 'When creating a new module project with only the feature ''Enum''' {
         BeforeAll {
             $mockModuleName = 'ModuleDsc'
 
@@ -543,7 +543,7 @@ Describe 'Custom Module Plaster Template' {
                 ModuleVersion     = '1.0.0'
                 CustomRepo        = 'PSGallery'
                 License           = 'false'
-                Features          = 'Enums'
+                Features          = 'Enum'
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw
@@ -561,7 +561,7 @@ Describe 'Custom Module Plaster Template' {
             # Folders (relative to module root)
 
             'source' | Should -BeIn $relativeModulePaths
-            'source/Enums' | Should -BeIn $relativeModulePaths
+            'source/Enum' | Should -BeIn $relativeModulePaths
             'source/en-US' | Should -BeIn $relativeModulePaths
             'source/Examples' | Should -BeIn $relativeModulePaths
             'source/Private' | Should -BeIn $relativeModulePaths
@@ -611,7 +611,7 @@ Describe 'Custom Module Plaster Template' {
                 ModuleVersion     = '1.0.0'
                 CustomRepo        = 'PSGallery'
                 License           = 'false'
-                Features          = 'Classes' # All,Enums,Classes,DSCResources,SampleScripts,git,Gherkin,UnitTests,ModuleQuality,Build,AppVeyor,TestKitchen
+                Features          = 'Classes' # All,Enum,Classes,DSCResources,SampleScripts,git,Gherkin,UnitTests,ModuleQuality,Build,AppVeyor,TestKitchen
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw
@@ -679,7 +679,7 @@ Describe 'Custom Module Plaster Template' {
                 ModuleVersion     = '1.0.0'
                 CustomRepo        = 'PSGallery'
                 License           = 'false'
-                Features          = 'DSCResources' # All,Enums,Classes,DSCResources,SampleScripts,git,Gherkin,UnitTests,ModuleQuality,Build,AppVeyor,TestKitchen
+                Features          = 'DSCResources' # All,Enum,Classes,DSCResources,SampleScripts,git,Gherkin,UnitTests,ModuleQuality,Build,AppVeyor,TestKitchen
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw
@@ -747,7 +747,7 @@ Describe 'Custom Module Plaster Template' {
                 ModuleVersion     = '1.0.0'
                 CustomRepo        = 'PSGallery'
                 License           = 'false'
-                Features          = 'SampleScripts' # All,Enums,Classes,DSCResources,SampleScripts,git,Gherkin,UnitTests,ModuleQuality,Build,AppVeyor,TestKitchen
+                Features          = 'SampleScripts' # All,Enum,Classes,DSCResources,SampleScripts,git,Gherkin,UnitTests,ModuleQuality,Build,AppVeyor,TestKitchen
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw
@@ -816,7 +816,7 @@ Describe 'Custom Module Plaster Template' {
                 ModuleVersion     = '1.0.0'
                 CustomRepo        = 'PSGallery'
                 License           = 'false'
-                Features          = 'git' # All,Enums,Classes,DSCResources,SampleScripts,git,Gherkin,UnitTests,ModuleQuality,Build,AppVeyor,TestKitchen
+                Features          = 'git' # All,Enum,Classes,DSCResources,SampleScripts,git,Gherkin,UnitTests,ModuleQuality,Build,AppVeyor,TestKitchen
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw
@@ -888,7 +888,7 @@ Describe 'Custom Module Plaster Template' {
                 ModuleVersion     = '1.0.0'
                 CustomRepo        = 'PSGallery'
                 License           = 'false'
-                Features          = 'Gherkin' # All,Enums,Classes,DSCResources,SampleScripts,git,Gherkin,UnitTests,ModuleQuality,Build,AppVeyor,TestKitchen
+                Features          = 'Gherkin' # All,Enum,Classes,DSCResources,SampleScripts,git,Gherkin,UnitTests,ModuleQuality,Build,AppVeyor,TestKitchen
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw
@@ -957,7 +957,7 @@ Describe 'Custom Module Plaster Template' {
                 ModuleVersion     = '1.0.0'
                 CustomRepo        = 'PSGallery'
                 License           = 'false'
-                Features          = 'UnitTests' # All,Enums,Classes,DSCResources,SampleScripts,git,Gherkin,UnitTests,ModuleQuality,Build,AppVeyor,TestKitchen
+                Features          = 'UnitTests' # All,Enum,Classes,DSCResources,SampleScripts,git,Gherkin,UnitTests,ModuleQuality,Build,AppVeyor,TestKitchen
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw
@@ -1024,7 +1024,7 @@ Describe 'Custom Module Plaster Template' {
                 ModuleVersion     = '1.0.0'
                 CustomRepo        = 'PSGallery'
                 License           = 'false'
-                Features          = 'ModuleQuality' # All,Enums,Classes,DSCResources,SampleScripts,git,Gherkin,UnitTests,ModuleQuality,Build,AppVeyor,TestKitchen
+                Features          = 'ModuleQuality' # All,Enum,Classes,DSCResources,SampleScripts,git,Gherkin,UnitTests,ModuleQuality,Build,AppVeyor,TestKitchen
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw
@@ -1094,7 +1094,7 @@ Describe 'Custom Module Plaster Template' {
                 ModuleVersion     = '1.0.0'
                 CustomRepo        = 'PSGallery'
                 License           = 'false'
-                Features          = 'Build' # All,Enums,Classes,DSCResources,SampleScripts,git,Gherkin,UnitTests,ModuleQuality,Build,AppVeyor,TestKitchen
+                Features          = 'Build' # All,Enum,Classes,DSCResources,SampleScripts,git,Gherkin,UnitTests,ModuleQuality,Build,AppVeyor,TestKitchen
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw
@@ -1166,7 +1166,7 @@ Describe 'Custom Module Plaster Template' {
                 ModuleVersion     = '1.0.0'
                 CustomRepo        = 'PSGallery'
                 License           = 'false'
-                Features          = 'AppVeyor' # All,Enums,Classes,DSCResources,SampleScripts,git,Gherkin,UnitTests,ModuleQuality,Build,AppVeyor,TestKitchen
+                Features          = 'AppVeyor' # All,Enum,Classes,DSCResources,SampleScripts,git,Gherkin,UnitTests,ModuleQuality,Build,AppVeyor,TestKitchen
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw
@@ -1234,7 +1234,7 @@ Describe 'Custom Module Plaster Template' {
                 ModuleVersion     = '1.0.0'
                 CustomRepo        = 'PSGallery'
                 License           = 'false'
-                Features          = 'TestKitchen' # All,Enums,Classes,DSCResources,SampleScripts,git,Gherkin,UnitTests,ModuleQuality,Build,AppVeyor,TestKitchen
+                Features          = 'TestKitchen' # All,Enum,Classes,DSCResources,SampleScripts,git,Gherkin,UnitTests,ModuleQuality,Build,AppVeyor,TestKitchen
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw

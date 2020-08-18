@@ -1,0 +1,14 @@
+Configuration DSC_Composite
+{
+    param (
+
+    )
+
+    # Import-DscResource -ModuleName x -ModuleVersion y
+
+    File MyFileResource {
+        Ensure = 'Present'
+        DestinationPath = 'C:\txt.txt'
+    }
+
+}
