@@ -11,7 +11,7 @@ InModuleScope $ProjectName {
 <%
         if ($PLASTER_PARAM_PrivateFunctionName)
         {
-"        Mock $PLASTER_PARAM_PrivateFunctionName { `$PrivateData }"
+"        Mock $PLASTER_PARAM_PrivateFunctionName { `$PrivateData }`r`n"
         }
 %>
         Context 'Return values' {
