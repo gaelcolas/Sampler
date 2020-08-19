@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Adding DSC Composite & Class based DSC Resource template.
 - Updated Resolve-Dependency to cater for vscode modifying PSModulePath.
 - Added integration tests for the Plaster templates
 - Added support to use an alternate name for the trunk branch in
