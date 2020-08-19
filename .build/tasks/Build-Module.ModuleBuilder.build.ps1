@@ -153,6 +153,11 @@ Task Build_NestedModules_ModuleBuilder {
     "`tOutput Directory      = $OutputDirectory"
     "`tBuild Module Output   = $BuildModuleOutput"
 
+    if ($PSversionTable.PSversion.Major -le 5 -and !(Get-Command -name Import-PowerShellDataFile -ErrorAction SilentlyContinue))
+    {
+        Import-Module Microsoft.PowerShell.Utility -RequiredVersion 3.1.0.0
+    }
+
     Import-Module -Name 'ModuleBuilder' -ErrorAction 'Stop'
 
     $builtModuleManifest = "$BuildModuleOutput/$ProjectName/*/$ProjectName.psd1"
