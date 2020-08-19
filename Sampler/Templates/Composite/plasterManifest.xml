@@ -11,21 +11,14 @@
     <tags>Sampler,Template, Build, Module</tags>
   </metadata>
   <parameters>
+    <parameter store="text"  name="ModuleAuthor" type="text" prompt="Author's name" default="$Env:Username" />
     <parameter store="text"  name="CompositeName" type="text" prompt="Name of your Composite Resource" />
-    <parameter store="text" name="SourceDirectory" type="text" prompt="What is your source folder?" default="source" />
+    <parameter store="text"  name="SourceDirectory" type="text" prompt="What is your source folder?" default="source" />
   </parameters>
     <!--
-      condition=''
-      ${PLASTER_PARAM_ModuleType}         SimpleModule CustomModule CompleteModule SimpleModule_NoBuild CompleteModule_NoBuild  SharedDscConfig
-      -in @("SimpleModule","CustomModule","CompleteModule","SimpleModule_NoBuild","CompleteModule_NoBuild","SharedDscConfig")
       ${PLASTER_PARAM_ModuleAuthor}
-      ${PLASTER_PARAM_ModuleName}
-      ${PLASTER_PARAM_ModuleDescription}
-      ${PLASTER_PARAM_ModuleVersion}
-      ${PLASTER_PARAM_License}            true false
-      ${PLASTER_PARAM_LicenseType}        Apache MIT None
-      ${PLASTER_PARAM_Features}           All UnitTests ModuleQuality AppVeyor TestKitchen Gherkin DSCResources Enum Classes SampleScripts git
-
+      ${PLASTER_PARAM_CompositeName}
+      ${PLASTER_PARAM_SourceDirectory}
      -->
   <content>
     <!-- MODULES FOLDER SCAFFOLDING -->
