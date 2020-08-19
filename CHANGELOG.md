@@ -10,14 +10,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Adding DSC Composite & Class based DSC Resource template.
-- Updated Resolve-Dependency to cater for vscode modifying PSModulePath.
 - Added integration tests for the Plaster templates
 - Added support to use an alternate name for the trunk branch in
   `New-Release.GitHub.build.ps1` ([issue #182](https://github.com/gaelcolas/Sampler/issues/182)).
 
 ### Fixed
 
-- Fix `module.tests.ps1` to be able to run locally.
+- Removing main module's BOM from built PSM1 when built in Windows PowerShell.
+- Resolve-Dependency when running in vscode and PS7 is installed.
+- Fixed `module.tests.ps1` to be able to run locally.
 
 ## [0.105.6] - 2020-06-01
 
