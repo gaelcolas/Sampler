@@ -131,7 +131,7 @@ Task Build_Module_ModuleBuilder {
     if ($PSVersionTable.PSVersion.Major -le 5)
     {
         $Psm1Path = Join-Path -Path $BuiltModule.ModuleBase -ChildPath $BuiltModule.RootModule
-        $RootModuleDefinition = Get-Content -Raw $Psm1Path
+        $RootModuleDefinition = Get-Content -Raw -Path $Psm1Path
         [System.IO.File]::WriteAllLines($Psm1Path, $RootModuleDefinition)
     }
 
@@ -161,9 +161,11 @@ Task Build_NestedModules_ModuleBuilder {
     "`tOutput Directory      = $OutputDirectory"
     "`tBuild Module Output   = $BuildModuleOutput"
 
-    if ($PSversionTable.PSversion.Major -le 5 -and !(Get-Command -name Import-PowerShellDataFile -ErrorAction SilentlyContinue))
+    $isImportPowerShellDataFileAvailable = Get-Command -Name Import-PowerShellDataFile -ErrorAction SilentlyContinue
+
+    if ($PSversionTable.PSversion.Major -le 5 -and -not $isImportPowerShellDataFileAvailable)
     {
-        Import-Module Microsoft.PowerShell.Utility -RequiredVersion 3.1.0.0
+        Import-Module -Name Microsoft.PowerShell.Utility -RequiredVersion 3.1.0.0
     }
 
     Import-Module -Name 'ModuleBuilder' -ErrorAction 'Stop'
