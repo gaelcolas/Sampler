@@ -1,4 +1,4 @@
-Configuration DSC_Composite
+Configuration <%=$PLASTER_PARAM_CompositeName %>
 {
     param (
 
@@ -10,5 +10,4 @@ Configuration DSC_Composite
         Ensure = 'Present'
         DestinationPath = 'C:\txt.txt'
     }
-
 }
