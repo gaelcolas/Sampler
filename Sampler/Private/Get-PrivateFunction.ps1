@@ -15,6 +15,7 @@ function Get-PrivateFunction
 
       #>
     [cmdletBinding()]
+    [OutputType([string])]
     param
     (
         [Parameter()]
