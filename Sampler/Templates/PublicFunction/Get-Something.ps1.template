@@ -1,4 +1,4 @@
-function Get-Something
+function <%= $PLASTER_PARAM_PublicFunctionName %>
 {
     <#
       .SYNOPSIS
@@ -35,7 +35,15 @@ function Get-Something
         if ($pscmdlet.ShouldProcess($Data))
         {
             Write-Verbose ('Returning the data: {0}' -f $Data)
-            Get-PrivateFunction -PrivateData $Data
+<%          if ($PLASTER_PARAM_PrivateFunctionName)
+            {
+"            $PLASTER_PARAM_PrivateFunctionName -PrivateData `$Data"
+            }
+            else
+            {
+"            `$Data"
+            }
+%>
         }
         else
         {

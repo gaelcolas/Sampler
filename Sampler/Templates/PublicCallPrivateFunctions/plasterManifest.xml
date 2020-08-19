@@ -46,11 +46,11 @@
       <templateFile source='../PrivateFunction/Get-PrivateFunction.tests.ps1.template' destination='tests/Unit/Private/${PLASTER_PARAM_PrivateFunctionName}.tests.ps1' />
 
 
-      <!--   SOURCE/Private/Get-PrivateFunction.ps1 -->
-      <templateFile source='Get-Something.ps1.template' destination='${PLASTER_PARAM_SourceDirectory}/Public/${PLASTER_PARAM_PublicFunctionName}.ps1' />
+      <!--   SOURCE/Public/Get-PrivateFunction.ps1 -->
+      <templateFile source='../PublicFunction/Get-Something.ps1.template' destination='${PLASTER_PARAM_SourceDirectory}/Public/${PLASTER_PARAM_PublicFunctionName}.ps1' />
 
-      <!--   tests/Unit/Private/Get-PrivateFunction.ps1 -->
-      <templateFile source='Get-Something.tests.ps1.template' destination='tests/Unit/Public/${PLASTER_PARAM_PublicFunctionName}.tests.ps1' />
+      <!--   tests/Unit/Public/Get-PrivateFunction.ps1 -->
+      <templateFile source='../PublicFunction/Get-Something.tests.ps1.template' destination='tests/Unit/Public/${PLASTER_PARAM_PublicFunctionName}.tests.ps1' />
 
   </content>
 </plasterManifest>
