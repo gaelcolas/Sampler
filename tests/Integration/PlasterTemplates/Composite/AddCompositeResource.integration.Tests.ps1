@@ -70,8 +70,10 @@ Describe 'DSC Composite resource Plaster Template' {
             # check files & folders discrepencies
             $ExtraFilesOrFolders    = $listOfExpectedFilesAndFolders.Where{$_ -notin $relativeModulePaths}
             $MissingFilesOrFolders  = $relativeModulePaths.Where{$_ -notin $listOfExpectedFilesAndFolders}
-            $report = ":`r`n  Missing:`r`n`t$($MissingFilesOrFolders -join "`r`n`t")`r`n  Extra:`r`n`t$($ExtraFilesOrFolders -join "`r`n`t")`r`n."
             $TreeStructureIsOk = ($ExtraFilesOrFolders.count -eq 0 -and $MissingFilesOrFolders.count -eq 0)
+
+            # format the report to be used in because
+            $report = ":`r`n  Missing:`r`n`t$($MissingFilesOrFolders -join "`r`n`t")`r`n  Extra:`r`n`t$($ExtraFilesOrFolders -join "`r`n`t")`r`n."
 
             # Check if tree structure failed. If so output the module directory tree.
             if ( -not $TreeStructureIsOk)
