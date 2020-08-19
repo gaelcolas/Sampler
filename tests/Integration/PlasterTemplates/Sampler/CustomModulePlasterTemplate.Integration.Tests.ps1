@@ -1,5 +1,5 @@
 #region HEADER
-$script:projectPath = "$PSScriptRoot\..\.." | Convert-Path
+$script:projectPath = "$PSScriptRoot\..\..\..\.." | Convert-Path
 $script:projectName = (Get-ChildItem -Path "$script:projectPath\*\*.psd1" | Where-Object -FilterScript {
         ($_.Directory.Name -match 'source|src' -or $_.Directory.Name -eq $_.BaseName) -and
         $(try
@@ -19,7 +19,7 @@ $importedModule = Import-Module $script:moduleName -Force -PassThru -ErrorAction
 
 #endregion HEADER
 
-Import-Module -Name "$PSScriptRoot\IntegrationTestHelpers.psm1"
+Import-Module -Name "$PSScriptRoot\..\..\IntegrationTestHelpers.psm1"
 
 Install-TreeCommand
 

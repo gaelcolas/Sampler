@@ -1,5 +1,5 @@
 #region HEADER
-$script:projectPath = "$PSScriptRoot\..\.." | Convert-Path
+$script:projectPath = "$PSScriptRoot\..\..\..\.." | Convert-Path
 $script:projectName = (Get-ChildItem -Path "$script:projectPath\*\*.psd1" | Where-Object -FilterScript {
         ($_.Directory.Name -match 'source|src' -or $_.Directory.Name -eq $_.BaseName) -and
         $(try
@@ -19,11 +19,11 @@ $importedModule = Import-Module $script:moduleName -Force -PassThru -ErrorAction
 
 #endregion HEADER
 
-Import-Module -Name "$PSScriptRoot\IntegrationTestHelpers.psm1"
+Import-Module -Name "$PSScriptRoot\..\..\IntegrationTestHelpers.psm1"
 
 Install-TreeCommand
 
-Describe 'Complete Module No Build Plaster Template' {
+Describe 'Complete Module Plaster Template' {
     Context 'When creating a new module project' {
         BeforeAll {
             $mockModuleName = 'ModuleDsc'
@@ -40,7 +40,7 @@ Describe 'Complete Module No Build Plaster Template' {
                 Force             = $true
 
                 # Template
-                ModuleType        = 'CompleteModule_NoBuild'
+                ModuleType        = 'CompleteModule'
 
                 # Template properties
                 ModuleName        = $mockModuleName
@@ -66,6 +66,8 @@ Describe 'Complete Module No Build Plaster Template' {
 
             '.github' | Should -BeIn $relativeModulePaths
             '.vscode' | Should -BeIn $relativeModulePaths
+            'output' | Should -BeIn $relativeModulePaths
+            'output/RequiredModules' | Should -BeIn $relativeModulePaths
             'source' | Should -BeIn $relativeModulePaths
             'source/Classes' | Should -BeIn $relativeModulePaths
             'source/DSCResources' | Should -BeIn $relativeModulePaths
@@ -90,10 +92,18 @@ Describe 'Complete Module No Build Plaster Template' {
 
             '.gitattributes' | Should -BeIn $relativeModulePaths
             '.gitignore' | Should -BeIn $relativeModulePaths
+            '.markdownlint.json' | Should -BeIn $relativeModulePaths
+            'azure-pipelines.yml' | Should -BeIn $relativeModulePaths
+            'build.ps1' | Should -BeIn $relativeModulePaths
+            'build.yaml' | Should -BeIn $relativeModulePaths
             'CHANGELOG.md' | Should -BeIn $relativeModulePaths
             'CODE_OF_CONDUCT.md' | Should -BeIn $relativeModulePaths
             'CONTRIBUTING.md' | Should -BeIn $relativeModulePaths
+            'GitVersion.yml' | Should -BeIn $relativeModulePaths
             'README.md' | Should -BeIn $relativeModulePaths
+            'RequiredModules.psd1' | Should -BeIn $relativeModulePaths
+            'Resolve-Dependency.ps1' | Should -BeIn $relativeModulePaths
+            'Resolve-Dependency.psd1' | Should -BeIn $relativeModulePaths
             '.vscode/analyzersettings.psd1' | Should -BeIn $relativeModulePaths
             '.vscode/settings.json' | Should -BeIn $relativeModulePaths
             '.vscode/tasks.json' | Should -BeIn $relativeModulePaths
@@ -121,7 +131,7 @@ Describe 'Complete Module No Build Plaster Template' {
             'tests/Unit/Private/Get-PrivateFunction.tests.ps1' | Should -BeIn $relativeModulePaths
             'tests/Unit/Public/Get-Something.tests.ps1' | Should -BeIn $relativeModulePaths
 
-            $relativeModulePaths | Should -HaveCount 53
+            $relativeModulePaths | Should -HaveCount 63
         } -ErrorVariable itBlockError
 
         # Check if previous It-block failed. If so output the module directory tree.
