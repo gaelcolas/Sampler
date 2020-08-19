@@ -127,6 +127,14 @@ Task Build_Module_ModuleBuilder {
 
     $BuiltModule = Build-Module @buildModuleParams -SemVer $ModuleVersion -PassThru
 
+    # if we built the PSM1 on Windows with a BOM, re-write without BOM
+    if ($PSVersionTable.PSVersion.Major -le 5 -and -not ($IsLinux -or $IsMacOS))
+    {
+        $Psm1Path = Join-Path -Path $BuiltModule.ModuleBase -ChildPath $BuiltModule.RootModule
+        $RootModuleDefinition = Get-Content -Raw $Psm1Path
+        [System.IO.File]::WriteAllLines($Psm1Path, $RootModuleDefinition)
+    }
+
     if (Test-Path -Path $ReleaseNotesPath)
     {
         $releaseNotes = Get-Content -Path $ReleaseNotesPath -Raw
