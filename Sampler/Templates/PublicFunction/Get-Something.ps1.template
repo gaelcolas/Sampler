@@ -8,7 +8,7 @@ function <%= $PLASTER_PARAM_PublicFunctionName %>
       This function is only a sample Advanced function that returns the Data given via parameter Data.
 
       .EXAMPLE
-      Get-Something -Data 'Get me this text'
+      <%= $PLASTER_PARAM_PublicFunctionName %> -Data 'Get me this text'
 
 
       .PARAMETER Data
@@ -19,6 +19,7 @@ function <%= $PLASTER_PARAM_PublicFunctionName %>
         SupportsShouldProcess = $true,
         ConfirmImpact = 'Low'
     )]
+    [OutputType([string)]
     param
     (
         [Parameter(
@@ -35,7 +36,8 @@ function <%= $PLASTER_PARAM_PublicFunctionName %>
         if ($pscmdlet.ShouldProcess($Data))
         {
             Write-Verbose ('Returning the data: {0}' -f $Data)
-<%          if ($PLASTER_PARAM_PrivateFunctionName)
+<%
+            if ($PLASTER_PARAM_PrivateFunctionName)
             {
 "            $PLASTER_PARAM_PrivateFunctionName -PrivateData `$Data"
             }

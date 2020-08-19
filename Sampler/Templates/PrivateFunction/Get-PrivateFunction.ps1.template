@@ -15,6 +15,7 @@ function <%= $PLASTER_PARAM_PrivateFunctionName %>
 
       #>
     [cmdletBinding()]
+    [OutputType([string])]
     param
     (
         [Parameter()]
