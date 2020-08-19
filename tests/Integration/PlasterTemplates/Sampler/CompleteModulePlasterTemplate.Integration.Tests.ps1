@@ -1,5 +1,5 @@
 #region HEADER
-$script:projectPath = "$PSScriptRoot\..\.." | Convert-Path
+$script:projectPath = "$PSScriptRoot\..\..\..\.." | Convert-Path
 $script:projectName = (Get-ChildItem -Path "$script:projectPath\*\*.psd1" | Where-Object -FilterScript {
         ($_.Directory.Name -match 'source|src' -or $_.Directory.Name -eq $_.BaseName) -and
         $(try
@@ -19,7 +19,7 @@ $importedModule = Import-Module $script:moduleName -Force -PassThru -ErrorAction
 
 #endregion HEADER
 
-Import-Module -Name "$PSScriptRoot\IntegrationTestHelpers.psm1"
+Import-Module -Name "$PSScriptRoot\..\..\IntegrationTestHelpers.psm1"
 
 Install-TreeCommand
 
@@ -73,7 +73,7 @@ Describe 'Complete Module Plaster Template' {
             'source/DSCResources' | Should -BeIn $relativeModulePaths
             'source/DSCResources/DSC_Folder' | Should -BeIn $relativeModulePaths
             'source/DSCResources/DSC_Folder/en-US' | Should -BeIn $relativeModulePaths
-            'source/Enums' | Should -BeIn $relativeModulePaths
+            'source/Enum' | Should -BeIn $relativeModulePaths
             'source/en-US' | Should -BeIn $relativeModulePaths
             'source/Examples' | Should -BeIn $relativeModulePaths
             'source/Examples/Resources' | Should -BeIn $relativeModulePaths

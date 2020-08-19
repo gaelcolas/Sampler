@@ -1,0 +1,13 @@
+Configuration <%=$PLASTER_PARAM_CompositeName %>
+{
+    param (
+
+    )
+
+    # Import-DscResource -ModuleName x -ModuleVersion y
+
+    File MyFileResource {
+        Ensure = 'Present'
+        DestinationPath = 'C:\txt.txt'
+    }
+}

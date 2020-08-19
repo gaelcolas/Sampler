@@ -127,6 +127,14 @@ Task Build_Module_ModuleBuilder {
 
     $BuiltModule = Build-Module @buildModuleParams -SemVer $ModuleVersion -PassThru
 
+    # if we built the PSM1 on Windows with a BOM, re-write without BOM
+    if ($PSVersionTable.PSVersion.Major -le 5)
+    {
+        $Psm1Path = Join-Path -Path $BuiltModule.ModuleBase -ChildPath $BuiltModule.RootModule
+        $RootModuleDefinition = Get-Content -Raw -Path $Psm1Path
+        [System.IO.File]::WriteAllLines($Psm1Path, $RootModuleDefinition)
+    }
+
     if (Test-Path -Path $ReleaseNotesPath)
     {
         $releaseNotes = Get-Content -Path $ReleaseNotesPath -Raw
@@ -152,6 +160,13 @@ Task Build_NestedModules_ModuleBuilder {
     "`tSource Path           = $SourcePath"
     "`tOutput Directory      = $OutputDirectory"
     "`tBuild Module Output   = $BuildModuleOutput"
+
+    $isImportPowerShellDataFileAvailable = Get-Command -Name Import-PowerShellDataFile -ErrorAction SilentlyContinue
+
+    if ($PSversionTable.PSversion.Major -le 5 -and -not $isImportPowerShellDataFileAvailable)
+    {
+        Import-Module -Name Microsoft.PowerShell.Utility -RequiredVersion 3.1.0.0
+    }
 
     Import-Module -Name 'ModuleBuilder' -ErrorAction 'Stop'
 

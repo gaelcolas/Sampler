@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<plasterManifest
+  schemaVersion="1.0" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+  <metadata>
+    <name>Composite</name>
+    <id>d784c581-4659-4864-92b5-656d5c172cb1</id>
+    <version>0.0.1</version>
+    <title>DSC Composite Resource Template</title>
+    <description>A template to add a Composite resource (aka Configuration) to a Sampler Project</description>
+    <author>Gael Colas</author>
+    <tags>Sampler,Template, Build, Module</tags>
+  </metadata>
+  <parameters>
+    <parameter store="text"  name="ModuleAuthor" type="text" prompt="Author's name" default="$Env:Username" />
+    <parameter store="text"  name="CompositeName" type="text" prompt="Name of your Composite Resource" />
+    <parameter store="text"  name="SourceDirectory" type="text" prompt="What is your source folder?" default="source" />
+  </parameters>
+    <!--
+      ${PLASTER_PARAM_ModuleAuthor}
+      ${PLASTER_PARAM_CompositeName}
+      ${PLASTER_PARAM_SourceDirectory}
+     -->
+  <content>
+    <!-- MODULES FOLDER SCAFFOLDING -->
+
+      <!--   SOURCE/DSCResources Folder -->
+      <file source=''
+            destination='${PLASTER_PARAM_SourceDirectory}/DSCResources'
+      />
+
+<!--   SOURCE/DSCResources/Composite Folder -->
+      <file source=''
+            destination='${PLASTER_PARAM_SourceDirectory}/DSCResources/${PLASTER_PARAM_CompositeName}'
+      />
+
+      <!--   SOURCE/Classes/DSC_Resource.ps1 file -->
+      <templateFile source='Composite.schema.psm1.template'
+                        destination='${PLASTER_PARAM_SourceDirectory}/DSCResources/${PLASTER_PARAM_CompositeName}/${PLASTER_PARAM_CompositeName}.schema.psm1'
+      />
+
+      <newModuleManifest destination='${PLASTER_PARAM_SourceDirectory}/DSCResources/${PLASTER_PARAM_CompositeName}/${PLASTER_PARAM_CompositeName}.psd1'
+        moduleVersion='0.0.1'
+        author='$PLASTER_PARAM_ModuleAuthor'
+        rootModule='$PLASTER_PARAM_CompositeName.schema.psm1'
+    />
+
+      <!--   tests/Classes Folder -->
+      <!--   tests/Classes/ClassResource.Tests.ps1 file -->
+      <!--   tests/Example/Resources/1-ClassResource_doSomethingConfig.ps1 file -->
+      <!--   modify module manifest add ClassResource to DscResourcesToExport ? -->
+
+  </content>
+</plasterManifest>

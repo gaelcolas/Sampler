@@ -86,7 +86,7 @@ task Invoke_Pester_Tests {
 
     $CodeCoverageThreshold = Get-CodeCoverageThreshold @GetCodeCoverageThresholdParameters
 
-    Import-Module -Name 'Pester' -MinimumVersion 4.0 -ErrorAction 'Stop'
+    Import-Module -Name 'Pester' -MinimumVersion 4.0 -ErrorAction Stop
 
     $isPester5 = (Get-Module -Name 'Pester').Version -ge '5.0.0'
 

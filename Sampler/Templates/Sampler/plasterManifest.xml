@@ -73,9 +73,9 @@
               help="Adds all features below."
               value="All"/>
 
-      <choice label='&amp;Enums'
+      <choice label='&amp;Enum'
               help="Adds enum folders and an example."
-              value="Enums"/>
+              value="Enum"/>
 
       <choice label='&amp;Classes'
               help="Adds PSv5+ Classes folders and an example."
@@ -128,7 +128,7 @@
       ${PLASTER_PARAM_ModuleVersion}
       ${PLASTER_PARAM_License}            true false
       ${PLASTER_PARAM_LicenseType}        Apache MIT None
-      ${PLASTER_PARAM_Features}           All UnitTests ModuleQuality AppVeyor TestKitchen Gherkin DSCResources Enums Classes SampleScripts git
+      ${PLASTER_PARAM_Features}           All UnitTests ModuleQuality AppVeyor TestKitchen Gherkin DSCResources Enum Classes SampleScripts git
 
      -->
   <content>
@@ -144,10 +144,10 @@
           condition='(${PLASTER_PARAM_Features} -in @("All","Classes")) -or ${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild")'
     />
 
-    <!--   Enums Folder-->
+    <!--   Enum Folder-->
     <file source=''
-          destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/Enums'
-          condition='${PLASTER_PARAM_Features} -in @("All","Enums") -or ${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild")'
+          destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/Enum'
+          condition='${PLASTER_PARAM_Features} -in @("All","Enum") -or ${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild")'
     />
 
     <!--   PRIVATE FUNCTIONS Folder-->

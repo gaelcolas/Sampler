@@ -93,7 +93,8 @@ PrivateData = @{
                     minimumVersion = '1.1.3'
                     Details = @{
                         TemplatePaths = @(
-                            'Templates\Sampler'
+                            'Templates\Sampler',
+                            'Templates\ClassResource'
                         )
                     }
                 }

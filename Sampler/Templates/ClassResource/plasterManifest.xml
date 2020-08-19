@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<plasterManifest
+  schemaVersion="1.0" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+  <metadata>
+    <name>ClassResource</name>
+    <id>a5cbc533-2add-4652-ad43-62d44c3eae5f</id>
+    <version>0.0.1</version>
+    <title>DSC Class Based Resource Template</title>
+    <description>A template to add a Class based resource to a Sampler Project</description>
+    <author>Gael Colas</author>
+    <tags>Sampler,Template, Build, Module</tags>
+  </metadata>
+  <parameters>
+    <parameter store="text"  name="ResourceName" type="text" prompt="Name of your Resource" />
+    <parameter store="text" name="SourceDirectory" type="text" prompt="What is your source folder?" default="source" />
+  </parameters>
+    <!--
+      condition=''
+      ${PLASTER_PARAM_ModuleType}         SimpleModule CustomModule CompleteModule SimpleModule_NoBuild CompleteModule_NoBuild  SharedDscConfig
+      -in @("SimpleModule","CustomModule","CompleteModule","SimpleModule_NoBuild","CompleteModule_NoBuild","SharedDscConfig")
+      ${PLASTER_PARAM_ModuleAuthor}
+      ${PLASTER_PARAM_ModuleName}
+      ${PLASTER_PARAM_ModuleDescription}
+      ${PLASTER_PARAM_ModuleVersion}
+      ${PLASTER_PARAM_License}            true false
+      ${PLASTER_PARAM_LicenseType}        Apache MIT None
+      ${PLASTER_PARAM_Features}           All UnitTests ModuleQuality AppVeyor TestKitchen Gherkin DSCResources Enum Classes SampleScripts git
+
+     -->
+  <content>
+    <!-- MODULES FOLDER SCAFFOLDING -->
+
+      <!--   SOURCE/Enum Folder -->
+      <file source=''
+            destination='${PLASTER_PARAM_SourceDirectory}/Enum'
+      />
+
+      <file source='1.Ensure.ps1.template'
+            destination='${PLASTER_PARAM_SourceDirectory}/Enum/1.Ensure.ps1'
+      />
+
+      <!--   SOURCE/Classes Folder -->
+      <file source=''
+            destination='${PLASTER_PARAM_SourceDirectory}/Classes'
+      />
+
+      <!--   SOURCE/Classes/DSC_Resource.ps1 file -->
+      <templateFile source='ClassResource.ps1.template'
+                        destination='${PLASTER_PARAM_SourceDirectory}/Classes/DSC_${PLASTER_PARAM_ResourceName}.ps1'
+      />
+
+      <!--   tests/Classes Folder -->
+      <!--   tests/Classes/ClassResource.Tests.ps1 file -->
+      <!--   tests/Example/Resources/1-ClassResource_doSomethingConfig.ps1 file -->
+      <!--   modify module manifest add ClassResource to DscResourcesToExport ? -->
+
+  </content>
+</plasterManifest>

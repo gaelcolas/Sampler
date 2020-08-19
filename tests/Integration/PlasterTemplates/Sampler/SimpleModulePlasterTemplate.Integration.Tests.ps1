@@ -1,5 +1,5 @@
 #region HEADER
-$script:projectPath = "$PSScriptRoot\..\.." | Convert-Path
+$script:projectPath = "$PSScriptRoot\..\..\..\.." | Convert-Path
 $script:projectName = (Get-ChildItem -Path "$script:projectPath\*\*.psd1" | Where-Object -FilterScript {
         ($_.Directory.Name -match 'source|src' -or $_.Directory.Name -eq $_.BaseName) -and
         $(try
@@ -19,11 +19,11 @@ $importedModule = Import-Module $script:moduleName -Force -PassThru -ErrorAction
 
 #endregion HEADER
 
-Import-Module -Name "$PSScriptRoot\IntegrationTestHelpers.psm1"
+Import-Module -Name "$PSScriptRoot\..\..\IntegrationTestHelpers.psm1"
 
 Install-TreeCommand
 
-Describe 'Simple Module No Build Plaster Template' {
+Describe 'Simple Module Plaster Template' {
     Context 'When creating a new module project' {
         BeforeAll {
             $mockModuleName = 'ModuleDsc'
@@ -40,7 +40,7 @@ Describe 'Simple Module No Build Plaster Template' {
                 Force             = $true
 
                 # Template
-                ModuleType        = 'SimpleModule_NoBuild'
+                ModuleType        = 'SimpleModule'
 
                 # Template properties
                 ModuleName        = $mockModuleName
@@ -65,24 +65,33 @@ Describe 'Simple Module No Build Plaster Template' {
             # Folders (relative to module root)
 
             'source' | Should -BeIn $relativeModulePaths
+            'source/DSCResources' | Should -BeIn $relativeModulePaths
             'source/en-US' | Should -BeIn $relativeModulePaths
             'source/Examples' | Should -BeIn $relativeModulePaths
             'source/Private' | Should -BeIn $relativeModulePaths
             'source/Public' | Should -BeIn $relativeModulePaths
             'tests' | Should -BeIn $relativeModulePaths
             'tests/QA' | Should -BeIn $relativeModulePaths
+            'output' | Should -BeIn $relativeModulePaths
+            'output/RequiredModules' | Should -BeIn $relativeModulePaths
 
             # Files (relative to module root)
 
             '.gitattributes' | Should -BeIn $relativeModulePaths
             '.gitignore' | Should -BeIn $relativeModulePaths
+            'build.ps1' | Should -BeIn $relativeModulePaths
+            'build.yaml' | Should -BeIn $relativeModulePaths
+            'CHANGELOG.md' | Should -BeIn $relativeModulePaths
             'README.md' | Should -BeIn $relativeModulePaths
+            'RequiredModules.psd1' | Should -BeIn $relativeModulePaths
+            'Resolve-Dependency.ps1' | Should -BeIn $relativeModulePaths
+            'Resolve-Dependency.psd1' | Should -BeIn $relativeModulePaths
             'source/ModuleDsc.psd1' | Should -BeIn $relativeModulePaths
             'source/ModuleDsc.psm1' | Should -BeIn $relativeModulePaths
             'source/en-US/about_ModuleDsc.help.txt' | Should -BeIn $relativeModulePaths
             'tests/QA/module.tests.ps1' | Should -BeIn $relativeModulePaths
 
-            $relativeModulePaths | Should -HaveCount 14
+            $relativeModulePaths | Should -HaveCount 23
         } -ErrorVariable itBlockError
 
         # Check if previous It-block failed. If so output the module directory tree.
