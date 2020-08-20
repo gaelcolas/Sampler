@@ -141,16 +141,6 @@ BuildWorkflow:
     - publish_module_to_gallery # runs if nuget is not available
     - Publish_release_to_GitHub
 
-Resolve-Dependency: #Parameters for Resolve-Dependency
-  #PSDependTarget: ./output/modules
-  #Proxy: ''
-  #ProxyCredential:
-  Gallery: 'PSGallery'
-  # AllowOldPowerShellGetModule: true
-  #MinimumPSDependVersion = '0.3.0'
-  AllowPrerelease: false
-  Verbose: false
-
 ModuleBuildTasks:
 #   # - ModuleName: 'alias to search'
 #  - Sampler: '*.ib.tasks' # this means: import (dot source) all aliases ending with .ib.tasks exported by sampler module
