@@ -187,8 +187,20 @@
     />
 
     <!--   UNIT TESTS Classes Sample Files -->
-    <file source='tests/Unit/Classes/**'
-          destination='${PLASTER_PARAM_ModuleName}/tests/Unit/Classes/'
+    <file source='../Classes/tests/Unit/Classes/class1.tests.ps1'
+          destination='${PLASTER_PARAM_ModuleName}/tests/Unit/Classes/class1.tests.ps1'
+          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild") -or ${PLASTER_PARAM_Features} -in @("All") -or (${PLASTER_PARAM_Features} -Contains "UnitTests" -and ${PLASTER_PARAM_Features} -Contains "Classes")'
+    />
+    <file source='../Classes/tests/Unit/Classes/class2.tests.ps1'
+          destination='${PLASTER_PARAM_ModuleName}/tests/Unit/Classes/class2.tests.ps1'
+          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild") -or ${PLASTER_PARAM_Features} -in @("All") -or (${PLASTER_PARAM_Features} -Contains "UnitTests" -and ${PLASTER_PARAM_Features} -Contains "Classes")'
+    />
+    <file source='../Classes/tests/Unit/Classes/class11.tests.ps1'
+          destination='${PLASTER_PARAM_ModuleName}/tests/Unit/Classes/class11.tests.ps1'
+          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild") -or ${PLASTER_PARAM_Features} -in @("All") -or (${PLASTER_PARAM_Features} -Contains "UnitTests" -and ${PLASTER_PARAM_Features} -Contains "Classes")'
+    />
+    <file source='../Classes/tests/Unit/Classes/class12.tests.ps1'
+          destination='${PLASTER_PARAM_ModuleName}/tests/Unit/Classes/class12.tests.ps1'
           condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild") -or ${PLASTER_PARAM_Features} -in @("All") -or (${PLASTER_PARAM_Features} -Contains "UnitTests" -and ${PLASTER_PARAM_Features} -Contains "Classes")'
     />
 
@@ -239,9 +251,26 @@
           condition='${PLASTER_PARAM_ModuleType} -ne "SharedDscConfig" -and (${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("SampleScripts"))'
     />
 
-    <!--   CLASSES Samples -->
-    <file source='Sampler/Classes/**'
+    <!--   CLASSES Samples Folder -->
+    <file source=''
           destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/Classes/'
+          condition='${PLASTER_PARAM_Features} -Contains "All" -or (${PLASTER_PARAM_Features} -Contains "Classes" -and ${PLASTER_PARAM_Features} -Contains "SampleScripts") -or ${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild")'
+    />
+    <!--   CLASSES Samples Files -->
+    <file source='../Classes/Classes/1.class1.ps1'
+          destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/Classes/1.class1.ps1'
+          condition='${PLASTER_PARAM_Features} -Contains "All" -or (${PLASTER_PARAM_Features} -Contains "Classes" -and ${PLASTER_PARAM_Features} -Contains "SampleScripts") -or ${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild")'
+    />
+    <file source='../Classes/Classes/2.class2.ps1'
+          destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/Classes/2.class2.ps1'
+          condition='${PLASTER_PARAM_Features} -Contains "All" -or (${PLASTER_PARAM_Features} -Contains "Classes" -and ${PLASTER_PARAM_Features} -Contains "SampleScripts") -or ${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild")'
+    />
+    <file source='../Classes/Classes/3.class11.ps1'
+          destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/Classes/3.class11.ps1'
+          condition='${PLASTER_PARAM_Features} -Contains "All" -or (${PLASTER_PARAM_Features} -Contains "Classes" -and ${PLASTER_PARAM_Features} -Contains "SampleScripts") -or ${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild")'
+    />
+    <file source='../Classes/Classes/4.class12.ps1'
+          destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/Classes/4.class12.ps1'
           condition='${PLASTER_PARAM_Features} -Contains "All" -or (${PLASTER_PARAM_Features} -Contains "Classes" -and ${PLASTER_PARAM_Features} -Contains "SampleScripts") -or ${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild")'
     />
 
