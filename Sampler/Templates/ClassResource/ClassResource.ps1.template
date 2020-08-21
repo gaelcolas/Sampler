@@ -1,5 +1,5 @@
 [DscResource()]
-class DSC_<%=$PLASTER_PARAM_ResourceName.TrimStart('DSC_')%>
+class DSC_<%=$PLASTER_PARAM_ResourceName %>
 {
     [DscProperty(Mandatory)]
     [Ensure] $Ensure
@@ -15,7 +15,7 @@ class DSC_<%=$PLASTER_PARAM_ResourceName.TrimStart('DSC_')%>
         # Do something
     }
 
-    [DSC_<%=$PLASTER_PARAM_ResourceName.TrimStart('DSC_')%>] Get()
+    [DSC_<%=$PLASTER_PARAM_ResourceName %>] Get()
     {
         return $this
     }
