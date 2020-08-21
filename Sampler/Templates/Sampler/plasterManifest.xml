@@ -168,6 +168,18 @@
           condition='${PLASTER_PARAM_ModuleType} -in @("dsccommunity","SimpleModule","CompleteModule","SimpleModule_NoBuild","CompleteModule_NoBuild","SharedDscConfig") -or ${PLASTER_PARAM_Features} -in @("All","UnitTests","ModuleQuality","TestKitchen")'
     />
 
+    <!--   UNIT TESTS Private Functions folder -->
+    <file source=''
+          destination='${PLASTER_PARAM_ModuleName}/tests/Unit/Private'
+          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild") -or (${PLASTER_PARAM_Features} -Contains "All" -or (${PLASTER_PARAM_Features} -Contains "UnitTests" -and ${PLASTER_PARAM_Features} -contains "SampleScripts"))'
+    />
+
+    <!--   UNIT TESTS Public folder -->
+    <file source=''
+          destination='${PLASTER_PARAM_ModuleName}/tests/Unit/Public'
+          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild") -or (${PLASTER_PARAM_Features} -Contains "All" -or (${PLASTER_PARAM_Features} -Contains "UnitTests" -and ${PLASTER_PARAM_Features} -contains "SampleScripts"))'
+    />
+
     <!--   GHERKIN -->
     <file source=''
           destination='${PLASTER_PARAM_ModuleName}/specs/steps'
@@ -181,20 +193,31 @@
     />
 
     <!--   UNIT TESTS Private Functions Sample Files -->
-    <file source='tests/Unit/Private/**'
-          destination='${PLASTER_PARAM_ModuleName}/tests/Unit/Private/'
+    <file source='Get-PrivateFunction.tests.ps1'
+          destination='${PLASTER_PARAM_ModuleName}/tests/Unit/Private/Get-PrivateFunction.tests.ps1'
           condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild") -or (${PLASTER_PARAM_Features} -Contains "All" -or (${PLASTER_PARAM_Features} -Contains "UnitTests" -and ${PLASTER_PARAM_Features} -contains "SampleScripts"))'
     />
 
     <!--   UNIT TESTS Public Functions Sample Files -->
-    <file source='tests/Unit/Public/**'
-          destination='${PLASTER_PARAM_ModuleName}/tests/Unit/Public/'
+    <file source='Get-Something.tests.ps1'
+          destination='${PLASTER_PARAM_ModuleName}/tests/Unit/Public/Get-Something.tests.ps1'
           condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild") -or (${PLASTER_PARAM_Features} -Contains "All" -or (${PLASTER_PARAM_Features} -Contains "UnitTests" -and ${PLASTER_PARAM_Features} -contains "SampleScripts"))'
     />
 
-    <!--   UNIT TESTS DSC Resources Sample Files -->
-    <file source='tests/Unit/DSCResources/**'
+    <!--   UNIT TESTS DSC Resources folder -->
+    <file source=''
           destination='${PLASTER_PARAM_ModuleName}/tests/Unit/DSCResources'
+          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild") -or (${PLASTER_PARAM_Features} -Contains "All" -or (${PLASTER_PARAM_Features} -Contains "UnitTests" -and ${PLASTER_PARAM_Features} -contains "DSCResources"))'
+    />
+
+    <!--   UNIT TESTS DSC Resources Sample Files -->
+    <file source=''
+          destination='${PLASTER_PARAM_ModuleName}/tests/Unit/DSCResources/'
+          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild") -or (${PLASTER_PARAM_Features} -Contains "All" -or (${PLASTER_PARAM_Features} -Contains "UnitTests" -and ${PLASTER_PARAM_Features} -contains "DSCResources"))'
+    />
+
+    <file source='../MofResource/tests/Unit/DSCResources/DSC_Folder.tests.ps1'
+          destination='${PLASTER_PARAM_ModuleName}/tests/Unit/DSCResources/DSC_Folder.tests.ps1'
           condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild") -or (${PLASTER_PARAM_Features} -Contains "All" -or (${PLASTER_PARAM_Features} -Contains "UnitTests" -and ${PLASTER_PARAM_Features} -contains "DSCResources"))'
     />
 
@@ -205,13 +228,13 @@
     />
 
     <!--   PUBLIC FUNCTION Sample -->
-    <file source='Sampler/Public/Get-Something.ps1'
+    <file source='Get-Something.ps1'
           destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/Public/Get-Something.ps1'
           condition='${PLASTER_PARAM_ModuleType} -ne "SharedDscConfig" -and (${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild") -or ${PLASTER_PARAM_Features} -Contains "All" -or ${PLASTER_PARAM_Features} -Contains "SampleScripts")'
     />
 
     <!--   PRIVATE FUNCTION Sample -->
-    <file source='Sampler/Private/Get-PrivateFunction.ps1'
+    <file source='Get-PrivateFunction.ps1'
           destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/Private/Get-PrivateFunction.ps1'
           condition='${PLASTER_PARAM_ModuleType} -ne "SharedDscConfig" -and (${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("SampleScripts"))'
     />
@@ -253,12 +276,6 @@
                   destination='${PLASTER_PARAM_ModuleName}/.kitchen.yml'
                   condition='${PLASTER_PARAM_Features} -Contains "All" -or ${PLASTER_PARAM_Features} -Contains "TestKitchen"'
     />
-
-    <!--   PSDEPLOY Sample -->
-    <!-- <templateFile source='Sampler/Assets/Deploy.PSDeploy.template'
-                  destination='${PLASTER_PARAM_ModuleName}/Deploy.PSDeploy.ps1'
-                  condition='${PLASTER_PARAM_ModuleType} -in @("SimpleModule","CompleteModule","SharedDscConfig") -or ${PLASTER_PARAM_Features} -Contains "All" -or (${PLASTER_PARAM_Features} -Contains "Build" -and !${PLASTER_PARAM_Features} -Contains "AppVeyor")'
-    /> -->
 
     <!-- BUILD SCRIPTS -->
     <!--   BUILD.ps1 (ENTRY POINT) -->
@@ -330,9 +347,28 @@
 
 
     <!--   DSCResource Sample Files -->
+    <file source=''
+          destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/DSCResources/DSC_Folder/'
+          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild") -or ${PLASTER_PARAM_Features} -Contains ("All") -or (${PLASTER_PARAM_Features} -Contains ("DSCResources") -and ${PLASTER_PARAM_Features} -Contains ("SampleScripts"))'
+    />
 
-    <file source='Sampler/DSCResources/**'
-          destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/DSCResources/'
+    <file source='../MofResource/DSC_Folder/DSC_Folder.schema.mof'
+          destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/DSCResources/DSC_Folder/DSC_Folder.schema.mof'
+          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild") -or ${PLASTER_PARAM_Features} -Contains ("All") -or (${PLASTER_PARAM_Features} -Contains ("DSCResources") -and ${PLASTER_PARAM_Features} -Contains ("SampleScripts"))'
+    />
+
+    <file source='../MofResource/DSC_Folder/DSC_Folder.psm1'
+          destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/DSCResources/DSC_Folder/DSC_Folder.psm1'
+          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild") -or ${PLASTER_PARAM_Features} -Contains ("All") -or (${PLASTER_PARAM_Features} -Contains ("DSCResources") -and ${PLASTER_PARAM_Features} -Contains ("SampleScripts"))'
+    />
+
+    <file source=''
+          destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/DSCResources/DSC_Folder/en-US'
+          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild") -or ${PLASTER_PARAM_Features} -Contains ("All") -or (${PLASTER_PARAM_Features} -Contains ("DSCResources") -and ${PLASTER_PARAM_Features} -Contains ("SampleScripts"))'
+    />
+
+    <file source='../MofResource/DSC_Folder/en-US/DSC_Folder.strings.psd1'
+          destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/DSCResources/DSC_Folder/en-US/DSC_Folder.strings.psd1'
           condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild") -or ${PLASTER_PARAM_Features} -Contains ("All") -or (${PLASTER_PARAM_Features} -Contains ("DSCResources") -and ${PLASTER_PARAM_Features} -Contains ("SampleScripts"))'
     />
 

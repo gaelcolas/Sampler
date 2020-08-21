@@ -27,8 +27,81 @@ Describe 'Custom Module Plaster Template' {
     Context 'When creating a new module project with all features but without a license' {
         BeforeAll {
             $mockModuleName = 'ModuleDsc'
-
             $mockModuleRootPath = Join-Path -Path $TestDrive -ChildPath $mockModuleName
+
+            $listOfExpectedFilesAndFolders = @(
+
+            # Folders (relative to module root)
+
+            '.github'
+            '.vscode'
+            'output'
+            'output/RequiredModules'
+            'source'
+            'source/Classes'
+            'source/DSCResources'
+            'source/DSCResources/DSC_Folder'
+            'source/DSCResources/DSC_Folder/en-US'
+            'source/Enum'
+            'source/en-US'
+            'source/Examples'
+            'source/Examples/Resources'
+            'source/Examples/Resources/Folder'
+            'source/Private'
+            'source/Public'
+            'tests'
+            'tests/QA'
+            'tests/Unit'
+            'tests/Unit/Classes'
+            'tests/Unit/DSCResources'
+            'tests/Unit/Private'
+            'tests/Unit/Public'
+
+            # Files (relative to module root)
+
+            '.gitattributes'
+            '.gitignore'
+            '.kitchen.yml'
+            '.markdownlint.json'
+            'azure-pipelines.yml'
+            'build.ps1'
+            'build.yaml'
+            'CHANGELOG.md'
+            'CODE_OF_CONDUCT.md'
+            'CONTRIBUTING.md'
+            'GitVersion.yml'
+            'README.md'
+            'RequiredModules.psd1'
+            'Resolve-Dependency.ps1'
+            'Resolve-Dependency.psd1'
+            '.vscode/analyzersettings.psd1'
+            '.vscode/settings.json'
+            '.vscode/tasks.json'
+            'source/ModuleDsc.psd1'
+            'source/ModuleDsc.psm1'
+            'source/Classes/1.class1.ps1'
+            'source/Classes/2.class2.ps1'
+            'source/Classes/3.class11.ps1'
+            'source/Classes/4.class12.ps1'
+            'source/DSCResources/DSC_Folder/DSC_Folder.psm1'
+            'source/DSCResources/DSC_Folder/DSC_Folder.schema.mof'
+            'source/DSCResources/DSC_Folder/en-US/DSC_Folder.strings.psd1'
+            'source/en-US/about_ModuleDsc.help.txt'
+            'source/Examples/Resources/Folder/1-DscResourceTemplate_CreateFolderAsSystemConfig.ps1'
+            'source/Examples/Resources/Folder/2-DscResourceTemplate_CreateFolderAsUserConfig.ps1'
+            'source/Examples/Resources/Folder/3-DscResourceTemplate_RemoveFolderConfig.ps1'
+            'source/Private/Get-PrivateFunction.ps1'
+            'source/Public/Get-Something.ps1'
+            'tests/QA/module.tests.ps1'
+            'tests/Unit/Classes/class1.tests.ps1'
+            'tests/Unit/Classes/class11.tests.ps1'
+            'tests/Unit/Classes/class12.tests.ps1'
+            'tests/Unit/Classes/class2.tests.ps1'
+            'tests/Unit/DSCResources/DSC_Folder.Tests.ps1'
+            'tests/Unit/Private/Get-PrivateFunction.tests.ps1'
+            'tests/Unit/Public/Get-Something.tests.ps1'
+
+            )
         }
 
         It 'Should create a new module without throwing' {
@@ -64,93 +137,102 @@ Describe 'Custom Module Plaster Template' {
             # Change to slash when testing on Windows.
             $relativeModulePaths = ($relativeModulePaths -replace '\\', '/').TrimStart('/')
 
-            # Folders (relative to module root)
+            # check files & folders discrepencies
+            $missingFilesOrFolders    = $listOfExpectedFilesAndFolders.Where{$_ -notin $relativeModulePaths}
+            $unexpectedFilesAndFolders  = $relativeModulePaths.Where{$_ -notin $listOfExpectedFilesAndFolders}
+            $TreeStructureIsOk = ($missingFilesOrFolders.count -eq 0 -and $unexpectedFilesAndFolders.count -eq 0)
 
-            '.github' | Should -BeIn $relativeModulePaths
-            '.vscode' | Should -BeIn $relativeModulePaths
-            'output' | Should -BeIn $relativeModulePaths
-            'output/RequiredModules' | Should -BeIn $relativeModulePaths
-            'source' | Should -BeIn $relativeModulePaths
-            'source/Classes' | Should -BeIn $relativeModulePaths
-            'source/DSCResources' | Should -BeIn $relativeModulePaths
-            'source/DSCResources/DSC_Folder' | Should -BeIn $relativeModulePaths
-            'source/DSCResources/DSC_Folder/en-US' | Should -BeIn $relativeModulePaths
-            'source/Enum' | Should -BeIn $relativeModulePaths
-            'source/en-US' | Should -BeIn $relativeModulePaths
-            'source/Examples' | Should -BeIn $relativeModulePaths
-            'source/Examples/Resources' | Should -BeIn $relativeModulePaths
-            'source/Examples/Resources/Folder' | Should -BeIn $relativeModulePaths
-            'source/Private' | Should -BeIn $relativeModulePaths
-            'source/Public' | Should -BeIn $relativeModulePaths
-            'tests' | Should -BeIn $relativeModulePaths
-            'tests/QA' | Should -BeIn $relativeModulePaths
-            'tests/Unit' | Should -BeIn $relativeModulePaths
-            'tests/Unit/Classes' | Should -BeIn $relativeModulePaths
-            'tests/Unit/DSCResources' | Should -BeIn $relativeModulePaths
-            'tests/Unit/Private' | Should -BeIn $relativeModulePaths
-            'tests/Unit/Public' | Should -BeIn $relativeModulePaths
+            # format the report to be used in because
+            $report = ":`r`n  Missing:`r`n`t$($missingFilesOrFolders -join "`r`n`t")`r`n  Unexpected:`r`n`t$($unexpectedFilesAndFolders -join "`r`n`t")`r`n."
 
-            # Files (relative to module root)
+            # Check if tree structure failed. If so output the module directory tree.
+            if ( -not $TreeStructureIsOk)
+            {
+                $treeOutput = Get-DirectoryTree -Path $mockModuleRootPath
+                Write-Verbose -Message ($treeOutput | Out-String) -Verbose
+            }
 
-            '.gitattributes' | Should -BeIn $relativeModulePaths
-            '.gitignore' | Should -BeIn $relativeModulePaths
-            '.kitchen.yml' | Should -BeIn $relativeModulePaths
-            '.markdownlint.json' | Should -BeIn $relativeModulePaths
-            'azure-pipelines.yml' | Should -BeIn $relativeModulePaths
-            'build.ps1' | Should -BeIn $relativeModulePaths
-            'build.yaml' | Should -BeIn $relativeModulePaths
-            'CHANGELOG.md' | Should -BeIn $relativeModulePaths
-            'CODE_OF_CONDUCT.md' | Should -BeIn $relativeModulePaths
-            'CONTRIBUTING.md' | Should -BeIn $relativeModulePaths
-            'GitVersion.yml' | Should -BeIn $relativeModulePaths
-            'README.md' | Should -BeIn $relativeModulePaths
-            'RequiredModules.psd1' | Should -BeIn $relativeModulePaths
-            'Resolve-Dependency.ps1' | Should -BeIn $relativeModulePaths
-            'Resolve-Dependency.psd1' | Should -BeIn $relativeModulePaths
-            '.vscode/analyzersettings.psd1' | Should -BeIn $relativeModulePaths
-            '.vscode/settings.json' | Should -BeIn $relativeModulePaths
-            '.vscode/tasks.json' | Should -BeIn $relativeModulePaths
-            'source/ModuleDsc.psd1' | Should -BeIn $relativeModulePaths
-            'source/ModuleDsc.psm1' | Should -BeIn $relativeModulePaths
-            'source/Classes/1.class1.ps1' | Should -BeIn $relativeModulePaths
-            'source/Classes/2.class2.ps1' | Should -BeIn $relativeModulePaths
-            'source/Classes/3.class11.ps1' | Should -BeIn $relativeModulePaths
-            'source/Classes/4.class12.ps1' | Should -BeIn $relativeModulePaths
-            'source/DSCResources/DSC_Folder/DSC_Folder.psm1' | Should -BeIn $relativeModulePaths
-            'source/DSCResources/DSC_Folder/DSC_Folder.schema.mof' | Should -BeIn $relativeModulePaths
-            'source/DSCResources/DSC_Folder/en-US/DSC_Folder.psd1' | Should -BeIn $relativeModulePaths
-            'source/en-US/about_ModuleDsc.help.txt' | Should -BeIn $relativeModulePaths
-            'source/Examples/Resources/Folder/1-DscResourceTemplate_CreateFolderAsSystemConfig.ps1' | Should -BeIn $relativeModulePaths
-            'source/Examples/Resources/Folder/2-DscResourceTemplate_CreateFolderAsUserConfig.ps1' | Should -BeIn $relativeModulePaths
-            'source/Examples/Resources/Folder/3-DscResourceTemplate_RemoveFolderConfig.ps1' | Should -BeIn $relativeModulePaths
-            'source/Private/Get-PrivateFunction.ps1' | Should -BeIn $relativeModulePaths
-            'source/Public/Get-Something.ps1' | Should -BeIn $relativeModulePaths
-            'tests/QA/module.tests.ps1' | Should -BeIn $relativeModulePaths
-            'tests/Unit/Classes/class1.tests.ps1' | Should -BeIn $relativeModulePaths
-            'tests/Unit/Classes/class11.tests.ps1' | Should -BeIn $relativeModulePaths
-            'tests/Unit/Classes/class12.tests.ps1' | Should -BeIn $relativeModulePaths
-            'tests/Unit/Classes/class2.tests.ps1' | Should -BeIn $relativeModulePaths
-            'tests/Unit/DSCResources/DSC_Folder.Tests.ps1' | Should -BeIn $relativeModulePaths
-            'tests/Unit/Private/Get-PrivateFunction.tests.ps1' | Should -BeIn $relativeModulePaths
-            'tests/Unit/Public/Get-Something.tests.ps1' | Should -BeIn $relativeModulePaths
-
-            $relativeModulePaths | Should -HaveCount 64
-        } -ErrorVariable itBlockError
-
-        # Check if previous It-block failed. If so output the module directory tree.
-        if ( $itBlockError.Count -ne 0 )
-        {
-            $treeOutput = Get-DirectoryTree -Path $mockModuleRootPath
-
-            Write-Verbose -Message ($treeOutput | Out-String) -Verbose
+            $TreeStructureIsOk | Should -BeTrue -Because $report
         }
     }
 
     Context 'When creating a new module project with license MIT and all features' {
         BeforeAll {
             $mockModuleName = 'ModuleDsc'
-
             $mockModuleRootPath = Join-Path -Path $TestDrive -ChildPath $mockModuleName
+
+            $listOfExpectedFilesAndFolders = @(
+                # Folders (relative to module root)
+
+                '.github'
+                '.vscode'
+                'output'
+                'output/RequiredModules'
+                'source'
+                'source/Classes'
+                'source/DSCResources'
+                'source/DSCResources/DSC_Folder'
+                'source/DSCResources/DSC_Folder/en-US'
+                'source/Enum'
+                'source/en-US'
+                'source/Examples'
+                'source/Examples/Resources'
+                'source/Examples/Resources/Folder'
+                'source/Private'
+                'source/Public'
+                'tests'
+                'tests/QA'
+                'tests/Unit'
+                'tests/Unit/Classes'
+                'tests/Unit/DSCResources'
+                'tests/Unit/Private'
+                'tests/Unit/Public'
+
+                # Files (relative to module root)
+
+                '.gitattributes'
+                '.gitignore'
+                '.kitchen.yml'
+                '.markdownlint.json'
+                'azure-pipelines.yml'
+                'build.ps1'
+                'build.yaml'
+                'CHANGELOG.md'
+                'CODE_OF_CONDUCT.md'
+                'CONTRIBUTING.md'
+                'GitVersion.yml'
+                'LICENSE'
+                'README.md'
+                'RequiredModules.psd1'
+                'Resolve-Dependency.ps1'
+                'Resolve-Dependency.psd1'
+                '.vscode/analyzersettings.psd1'
+                '.vscode/settings.json'
+                '.vscode/tasks.json'
+                'source/ModuleDsc.psd1'
+                'source/ModuleDsc.psm1'
+                'source/Classes/1.class1.ps1'
+                'source/Classes/2.class2.ps1'
+                'source/Classes/3.class11.ps1'
+                'source/Classes/4.class12.ps1'
+                'source/DSCResources/DSC_Folder/DSC_Folder.psm1'
+                'source/DSCResources/DSC_Folder/DSC_Folder.schema.mof'
+                'source/DSCResources/DSC_Folder/en-US/DSC_Folder.strings.psd1'
+                'source/en-US/about_ModuleDsc.help.txt'
+                'source/Examples/Resources/Folder/1-DscResourceTemplate_CreateFolderAsSystemConfig.ps1'
+                'source/Examples/Resources/Folder/2-DscResourceTemplate_CreateFolderAsUserConfig.ps1'
+                'source/Examples/Resources/Folder/3-DscResourceTemplate_RemoveFolderConfig.ps1'
+                'source/Private/Get-PrivateFunction.ps1'
+                'source/Public/Get-Something.ps1'
+                'tests/QA/module.tests.ps1'
+                'tests/Unit/Classes/class1.tests.ps1'
+                'tests/Unit/Classes/class11.tests.ps1'
+                'tests/Unit/Classes/class12.tests.ps1'
+                'tests/Unit/Classes/class2.tests.ps1'
+                'tests/Unit/DSCResources/DSC_Folder.Tests.ps1'
+                'tests/Unit/Private/Get-PrivateFunction.tests.ps1'
+                'tests/Unit/Public/Get-Something.tests.ps1'
+            )
         }
 
         It 'Should create a new module without throwing' {
@@ -187,94 +269,101 @@ Describe 'Custom Module Plaster Template' {
             # Change to slash when testing on Windows.
             $relativeModulePaths = ($relativeModulePaths -replace '\\', '/').TrimStart('/')
 
-            # Folders (relative to module root)
+            # check files & folders discrepencies
+            $missingFilesOrFolders    = $listOfExpectedFilesAndFolders.Where{$_ -notin $relativeModulePaths}
+            $unexpectedFilesAndFolders  = $relativeModulePaths.Where{$_ -notin $listOfExpectedFilesAndFolders}
+            $TreeStructureIsOk = ($missingFilesOrFolders.count -eq 0 -and $unexpectedFilesAndFolders.count -eq 0)
 
-            '.github' | Should -BeIn $relativeModulePaths
-            '.vscode' | Should -BeIn $relativeModulePaths
-            'output' | Should -BeIn $relativeModulePaths
-            'output/RequiredModules' | Should -BeIn $relativeModulePaths
-            'source' | Should -BeIn $relativeModulePaths
-            'source/Classes' | Should -BeIn $relativeModulePaths
-            'source/DSCResources' | Should -BeIn $relativeModulePaths
-            'source/DSCResources/DSC_Folder' | Should -BeIn $relativeModulePaths
-            'source/DSCResources/DSC_Folder/en-US' | Should -BeIn $relativeModulePaths
-            'source/Enum' | Should -BeIn $relativeModulePaths
-            'source/en-US' | Should -BeIn $relativeModulePaths
-            'source/Examples' | Should -BeIn $relativeModulePaths
-            'source/Examples/Resources' | Should -BeIn $relativeModulePaths
-            'source/Examples/Resources/Folder' | Should -BeIn $relativeModulePaths
-            'source/Private' | Should -BeIn $relativeModulePaths
-            'source/Public' | Should -BeIn $relativeModulePaths
-            'tests' | Should -BeIn $relativeModulePaths
-            'tests/QA' | Should -BeIn $relativeModulePaths
-            'tests/Unit' | Should -BeIn $relativeModulePaths
-            'tests/Unit/Classes' | Should -BeIn $relativeModulePaths
-            'tests/Unit/DSCResources' | Should -BeIn $relativeModulePaths
-            'tests/Unit/Private' | Should -BeIn $relativeModulePaths
-            'tests/Unit/Public' | Should -BeIn $relativeModulePaths
+            # format the report to be used in because
+            $report = ":`r`n  Missing:`r`n`t$($missingFilesOrFolders -join "`r`n`t")`r`n  Unexpected:`r`n`t$($unexpectedFilesAndFolders -join "`r`n`t")`r`n."
 
-            # Files (relative to module root)
+            # Check if tree structure failed. If so output the module directory tree.
+            if ( -not $TreeStructureIsOk)
+            {
+                $treeOutput = Get-DirectoryTree -Path $mockModuleRootPath
+                Write-Verbose -Message ($treeOutput | Out-String) -Verbose
+            }
 
-            '.gitattributes' | Should -BeIn $relativeModulePaths
-            '.gitignore' | Should -BeIn $relativeModulePaths
-            '.kitchen.yml' | Should -BeIn $relativeModulePaths
-            '.markdownlint.json' | Should -BeIn $relativeModulePaths
-            'azure-pipelines.yml' | Should -BeIn $relativeModulePaths
-            'build.ps1' | Should -BeIn $relativeModulePaths
-            'build.yaml' | Should -BeIn $relativeModulePaths
-            'CHANGELOG.md' | Should -BeIn $relativeModulePaths
-            'CODE_OF_CONDUCT.md' | Should -BeIn $relativeModulePaths
-            'CONTRIBUTING.md' | Should -BeIn $relativeModulePaths
-            'GitVersion.yml' | Should -BeIn $relativeModulePaths
-            'LICENSE' | Should -BeIn $relativeModulePaths
-            'README.md' | Should -BeIn $relativeModulePaths
-            'RequiredModules.psd1' | Should -BeIn $relativeModulePaths
-            'Resolve-Dependency.ps1' | Should -BeIn $relativeModulePaths
-            'Resolve-Dependency.psd1' | Should -BeIn $relativeModulePaths
-            '.vscode/analyzersettings.psd1' | Should -BeIn $relativeModulePaths
-            '.vscode/settings.json' | Should -BeIn $relativeModulePaths
-            '.vscode/tasks.json' | Should -BeIn $relativeModulePaths
-            'source/ModuleDsc.psd1' | Should -BeIn $relativeModulePaths
-            'source/ModuleDsc.psm1' | Should -BeIn $relativeModulePaths
-            'source/Classes/1.class1.ps1' | Should -BeIn $relativeModulePaths
-            'source/Classes/2.class2.ps1' | Should -BeIn $relativeModulePaths
-            'source/Classes/3.class11.ps1' | Should -BeIn $relativeModulePaths
-            'source/Classes/4.class12.ps1' | Should -BeIn $relativeModulePaths
-            'source/DSCResources/DSC_Folder/DSC_Folder.psm1' | Should -BeIn $relativeModulePaths
-            'source/DSCResources/DSC_Folder/DSC_Folder.schema.mof' | Should -BeIn $relativeModulePaths
-            'source/DSCResources/DSC_Folder/en-US/DSC_Folder.psd1' | Should -BeIn $relativeModulePaths
-            'source/en-US/about_ModuleDsc.help.txt' | Should -BeIn $relativeModulePaths
-            'source/Examples/Resources/Folder/1-DscResourceTemplate_CreateFolderAsSystemConfig.ps1' | Should -BeIn $relativeModulePaths
-            'source/Examples/Resources/Folder/2-DscResourceTemplate_CreateFolderAsUserConfig.ps1' | Should -BeIn $relativeModulePaths
-            'source/Examples/Resources/Folder/3-DscResourceTemplate_RemoveFolderConfig.ps1' | Should -BeIn $relativeModulePaths
-            'source/Private/Get-PrivateFunction.ps1' | Should -BeIn $relativeModulePaths
-            'source/Public/Get-Something.ps1' | Should -BeIn $relativeModulePaths
-            'tests/QA/module.tests.ps1' | Should -BeIn $relativeModulePaths
-            'tests/Unit/Classes/class1.tests.ps1' | Should -BeIn $relativeModulePaths
-            'tests/Unit/Classes/class11.tests.ps1' | Should -BeIn $relativeModulePaths
-            'tests/Unit/Classes/class12.tests.ps1' | Should -BeIn $relativeModulePaths
-            'tests/Unit/Classes/class2.tests.ps1' | Should -BeIn $relativeModulePaths
-            'tests/Unit/DSCResources/DSC_Folder.Tests.ps1' | Should -BeIn $relativeModulePaths
-            'tests/Unit/Private/Get-PrivateFunction.tests.ps1' | Should -BeIn $relativeModulePaths
-            'tests/Unit/Public/Get-Something.tests.ps1' | Should -BeIn $relativeModulePaths
-
-            $relativeModulePaths | Should -HaveCount 65
-        } -ErrorVariable itBlockError
-
-        # Check if previous It-block failed. If so output the module directory tree.
-        if ( $itBlockError.Count -ne 0 )
-        {
-            $treeOutput = Get-DirectoryTree -Path $mockModuleRootPath
-
-            Write-Verbose -Message ($treeOutput | Out-String) -Verbose
+            $TreeStructureIsOk | Should -BeTrue -Because $report
         }
     }
 
     Context 'When creating a new module project with license Apache and all features' {
         BeforeAll {
             $mockModuleName = 'ModuleDsc'
-
             $mockModuleRootPath = Join-Path -Path $TestDrive -ChildPath $mockModuleName
+
+            $listOfExpectedFilesAndFolders = @(
+
+                '.github'
+                '.vscode'
+                'output'
+                'output/RequiredModules'
+                'source'
+                'source/Classes'
+                'source/DSCResources'
+                'source/DSCResources/DSC_Folder'
+                'source/DSCResources/DSC_Folder/en-US'
+                'source/Enum'
+                'source/en-US'
+                'source/Examples'
+                'source/Examples/Resources'
+                'source/Examples/Resources/Folder'
+                'source/Private'
+                'source/Public'
+                'tests'
+                'tests/QA'
+                'tests/Unit'
+                'tests/Unit/Classes'
+                'tests/Unit/DSCResources'
+                'tests/Unit/Private'
+                'tests/Unit/Public'
+
+                # Files (relative to module root)
+
+                '.gitattributes'
+                '.gitignore'
+                '.kitchen.yml'
+                '.markdownlint.json'
+                'azure-pipelines.yml'
+                'build.ps1'
+                'build.yaml'
+                'CHANGELOG.md'
+                'CODE_OF_CONDUCT.md'
+                'CONTRIBUTING.md'
+                'GitVersion.yml'
+                'LICENSE'
+                'README.md'
+                'RequiredModules.psd1'
+                'Resolve-Dependency.ps1'
+                'Resolve-Dependency.psd1'
+                '.vscode/analyzersettings.psd1'
+                '.vscode/settings.json'
+                '.vscode/tasks.json'
+                'source/ModuleDsc.psd1'
+                'source/ModuleDsc.psm1'
+                'source/Classes/1.class1.ps1'
+                'source/Classes/2.class2.ps1'
+                'source/Classes/3.class11.ps1'
+                'source/Classes/4.class12.ps1'
+                'source/DSCResources/DSC_Folder/DSC_Folder.psm1'
+                'source/DSCResources/DSC_Folder/DSC_Folder.schema.mof'
+                'source/DSCResources/DSC_Folder/en-US/DSC_Folder.strings.psd1'
+                'source/en-US/about_ModuleDsc.help.txt'
+                'source/Examples/Resources/Folder/1-DscResourceTemplate_CreateFolderAsSystemConfig.ps1'
+                'source/Examples/Resources/Folder/2-DscResourceTemplate_CreateFolderAsUserConfig.ps1'
+                'source/Examples/Resources/Folder/3-DscResourceTemplate_RemoveFolderConfig.ps1'
+                'source/Private/Get-PrivateFunction.ps1'
+                'source/Public/Get-Something.ps1'
+                'tests/QA/module.tests.ps1'
+                'tests/Unit/Classes/class1.tests.ps1'
+                'tests/Unit/Classes/class11.tests.ps1'
+                'tests/Unit/Classes/class12.tests.ps1'
+                'tests/Unit/Classes/class2.tests.ps1'
+                'tests/Unit/DSCResources/DSC_Folder.tests.ps1'
+                'tests/Unit/Private/Get-PrivateFunction.tests.ps1'
+                'tests/Unit/Public/Get-Something.tests.ps1'
+            )
         }
 
         It 'Should create a new module without throwing' {
@@ -311,94 +400,104 @@ Describe 'Custom Module Plaster Template' {
             # Change to slash when testing on Windows.
             $relativeModulePaths = ($relativeModulePaths -replace '\\', '/').TrimStart('/')
 
-            # Folders (relative to module root)
+            # check files & folders discrepencies
+            $missingFilesOrFolders    = $listOfExpectedFilesAndFolders.Where{$_ -notin $relativeModulePaths}
+            $unexpectedFilesAndFolders  = $relativeModulePaths.Where{$_ -notin $listOfExpectedFilesAndFolders}
+            $TreeStructureIsOk = ($missingFilesOrFolders.count -eq 0 -and $unexpectedFilesAndFolders.count -eq 0)
 
-            '.github' | Should -BeIn $relativeModulePaths
-            '.vscode' | Should -BeIn $relativeModulePaths
-            'output' | Should -BeIn $relativeModulePaths
-            'output/RequiredModules' | Should -BeIn $relativeModulePaths
-            'source' | Should -BeIn $relativeModulePaths
-            'source/Classes' | Should -BeIn $relativeModulePaths
-            'source/DSCResources' | Should -BeIn $relativeModulePaths
-            'source/DSCResources/DSC_Folder' | Should -BeIn $relativeModulePaths
-            'source/DSCResources/DSC_Folder/en-US' | Should -BeIn $relativeModulePaths
-            'source/Enum' | Should -BeIn $relativeModulePaths
-            'source/en-US' | Should -BeIn $relativeModulePaths
-            'source/Examples' | Should -BeIn $relativeModulePaths
-            'source/Examples/Resources' | Should -BeIn $relativeModulePaths
-            'source/Examples/Resources/Folder' | Should -BeIn $relativeModulePaths
-            'source/Private' | Should -BeIn $relativeModulePaths
-            'source/Public' | Should -BeIn $relativeModulePaths
-            'tests' | Should -BeIn $relativeModulePaths
-            'tests/QA' | Should -BeIn $relativeModulePaths
-            'tests/Unit' | Should -BeIn $relativeModulePaths
-            'tests/Unit/Classes' | Should -BeIn $relativeModulePaths
-            'tests/Unit/DSCResources' | Should -BeIn $relativeModulePaths
-            'tests/Unit/Private' | Should -BeIn $relativeModulePaths
-            'tests/Unit/Public' | Should -BeIn $relativeModulePaths
+            # format the report to be used in because
+            $report = ":`r`n  Missing:`r`n`t$($missingFilesOrFolders -join "`r`n`t")`r`n  Unexpected:`r`n`t$($unexpectedFilesAndFolders -join "`r`n`t")`r`n."
 
-            # Files (relative to module root)
+            # Check if tree structure failed. If so output the module directory tree.
+            if ( -not $TreeStructureIsOk)
+            {
+                $treeOutput = Get-DirectoryTree -Path $mockModuleRootPath
+                Write-Verbose -Message ($treeOutput | Out-String) -Verbose
+            }
 
-            '.gitattributes' | Should -BeIn $relativeModulePaths
-            '.gitignore' | Should -BeIn $relativeModulePaths
-            '.kitchen.yml' | Should -BeIn $relativeModulePaths
-            '.markdownlint.json' | Should -BeIn $relativeModulePaths
-            'azure-pipelines.yml' | Should -BeIn $relativeModulePaths
-            'build.ps1' | Should -BeIn $relativeModulePaths
-            'build.yaml' | Should -BeIn $relativeModulePaths
-            'CHANGELOG.md' | Should -BeIn $relativeModulePaths
-            'CODE_OF_CONDUCT.md' | Should -BeIn $relativeModulePaths
-            'CONTRIBUTING.md' | Should -BeIn $relativeModulePaths
-            'GitVersion.yml' | Should -BeIn $relativeModulePaths
-            'LICENSE' | Should -BeIn $relativeModulePaths
-            'README.md' | Should -BeIn $relativeModulePaths
-            'RequiredModules.psd1' | Should -BeIn $relativeModulePaths
-            'Resolve-Dependency.ps1' | Should -BeIn $relativeModulePaths
-            'Resolve-Dependency.psd1' | Should -BeIn $relativeModulePaths
-            '.vscode/analyzersettings.psd1' | Should -BeIn $relativeModulePaths
-            '.vscode/settings.json' | Should -BeIn $relativeModulePaths
-            '.vscode/tasks.json' | Should -BeIn $relativeModulePaths
-            'source/ModuleDsc.psd1' | Should -BeIn $relativeModulePaths
-            'source/ModuleDsc.psm1' | Should -BeIn $relativeModulePaths
-            'source/Classes/1.class1.ps1' | Should -BeIn $relativeModulePaths
-            'source/Classes/2.class2.ps1' | Should -BeIn $relativeModulePaths
-            'source/Classes/3.class11.ps1' | Should -BeIn $relativeModulePaths
-            'source/Classes/4.class12.ps1' | Should -BeIn $relativeModulePaths
-            'source/DSCResources/DSC_Folder/DSC_Folder.psm1' | Should -BeIn $relativeModulePaths
-            'source/DSCResources/DSC_Folder/DSC_Folder.schema.mof' | Should -BeIn $relativeModulePaths
-            'source/DSCResources/DSC_Folder/en-US/DSC_Folder.psd1' | Should -BeIn $relativeModulePaths
-            'source/en-US/about_ModuleDsc.help.txt' | Should -BeIn $relativeModulePaths
-            'source/Examples/Resources/Folder/1-DscResourceTemplate_CreateFolderAsSystemConfig.ps1' | Should -BeIn $relativeModulePaths
-            'source/Examples/Resources/Folder/2-DscResourceTemplate_CreateFolderAsUserConfig.ps1' | Should -BeIn $relativeModulePaths
-            'source/Examples/Resources/Folder/3-DscResourceTemplate_RemoveFolderConfig.ps1' | Should -BeIn $relativeModulePaths
-            'source/Private/Get-PrivateFunction.ps1' | Should -BeIn $relativeModulePaths
-            'source/Public/Get-Something.ps1' | Should -BeIn $relativeModulePaths
-            'tests/QA/module.tests.ps1' | Should -BeIn $relativeModulePaths
-            'tests/Unit/Classes/class1.tests.ps1' | Should -BeIn $relativeModulePaths
-            'tests/Unit/Classes/class11.tests.ps1' | Should -BeIn $relativeModulePaths
-            'tests/Unit/Classes/class12.tests.ps1' | Should -BeIn $relativeModulePaths
-            'tests/Unit/Classes/class2.tests.ps1' | Should -BeIn $relativeModulePaths
-            'tests/Unit/DSCResources/DSC_Folder.Tests.ps1' | Should -BeIn $relativeModulePaths
-            'tests/Unit/Private/Get-PrivateFunction.tests.ps1' | Should -BeIn $relativeModulePaths
-            'tests/Unit/Public/Get-Something.tests.ps1' | Should -BeIn $relativeModulePaths
-
-            $relativeModulePaths | Should -HaveCount 65
-        } -ErrorVariable itBlockError
-
-        # Check if previous It-block failed. If so output the module directory tree.
-        if ( $itBlockError.Count -ne 0 )
-        {
-            $treeOutput = Get-DirectoryTree -Path $mockModuleRootPath
-
-            Write-Verbose -Message ($treeOutput | Out-String) -Verbose
+            $TreeStructureIsOk | Should -BeTrue -Because $report
         }
     }
 
     Context 'When creating a new module project with all features but with the license type ''None''' {
         BeforeAll {
             $mockModuleName = 'ModuleDsc'
-
             $mockModuleRootPath = Join-Path -Path $TestDrive -ChildPath $mockModuleName
+
+            $listOfExpectedFilesAndFolders = @(
+
+                # Folders (relative to module root)
+
+                '.github'
+                '.vscode'
+                'output'
+                'output/RequiredModules'
+                'source'
+                'source/Classes'
+                'source/DSCResources'
+                'source/DSCResources/DSC_Folder'
+                'source/DSCResources/DSC_Folder/en-US'
+                'source/Enum'
+                'source/en-US'
+                'source/Examples'
+                'source/Examples/Resources'
+                'source/Examples/Resources/Folder'
+                'source/Private'
+                'source/Public'
+                'tests'
+                'tests/QA'
+                'tests/Unit'
+                'tests/Unit/Classes'
+                'tests/Unit/DSCResources'
+                'tests/Unit/Private'
+                'tests/Unit/Public'
+
+                # Files (relative to module root)
+
+                '.gitattributes'
+                '.gitignore'
+                '.kitchen.yml'
+                '.markdownlint.json'
+                'azure-pipelines.yml'
+                'build.ps1'
+                'build.yaml'
+                'CHANGELOG.md'
+                'CODE_OF_CONDUCT.md'
+                'CONTRIBUTING.md'
+                'GitVersion.yml'
+                'LICENSE'
+                'README.md'
+                'RequiredModules.psd1'
+                'Resolve-Dependency.ps1'
+                'Resolve-Dependency.psd1'
+                '.vscode/analyzersettings.psd1'
+                '.vscode/settings.json'
+                '.vscode/tasks.json'
+                'source/ModuleDsc.psd1'
+                'source/ModuleDsc.psm1'
+                'source/Classes/1.class1.ps1'
+                'source/Classes/2.class2.ps1'
+                'source/Classes/3.class11.ps1'
+                'source/Classes/4.class12.ps1'
+                'source/DSCResources/DSC_Folder/DSC_Folder.psm1'
+                'source/DSCResources/DSC_Folder/DSC_Folder.schema.mof'
+                'source/DSCResources/DSC_Folder/en-US/DSC_Folder.strings.psd1'
+                'source/en-US/about_ModuleDsc.help.txt'
+                'source/Examples/Resources/Folder/1-DscResourceTemplate_CreateFolderAsSystemConfig.ps1'
+                'source/Examples/Resources/Folder/2-DscResourceTemplate_CreateFolderAsUserConfig.ps1'
+                'source/Examples/Resources/Folder/3-DscResourceTemplate_RemoveFolderConfig.ps1'
+                'source/Private/Get-PrivateFunction.ps1'
+                'source/Public/Get-Something.ps1'
+                'tests/QA/module.tests.ps1'
+                'tests/Unit/Classes/class1.tests.ps1'
+                'tests/Unit/Classes/class11.tests.ps1'
+                'tests/Unit/Classes/class12.tests.ps1'
+                'tests/Unit/Classes/class2.tests.ps1'
+                'tests/Unit/DSCResources/DSC_Folder.tests.ps1'
+                'tests/Unit/Private/Get-PrivateFunction.tests.ps1'
+                'tests/Unit/Public/Get-Something.tests.ps1'
+
+            )
         }
 
         It 'Should create a new module without throwing' {
@@ -435,94 +534,49 @@ Describe 'Custom Module Plaster Template' {
             # Change to slash when testing on Windows.
             $relativeModulePaths = ($relativeModulePaths -replace '\\', '/').TrimStart('/')
 
-            # Folders (relative to module root)
+            # check files & folders discrepencies
+            $missingFilesOrFolders    = $listOfExpectedFilesAndFolders.Where{$_ -notin $relativeModulePaths}
+            $unexpectedFilesAndFolders  = $relativeModulePaths.Where{$_ -notin $listOfExpectedFilesAndFolders}
+            $TreeStructureIsOk = ($missingFilesOrFolders.count -eq 0 -and $unexpectedFilesAndFolders.count -eq 0)
 
-            '.github' | Should -BeIn $relativeModulePaths
-            '.vscode' | Should -BeIn $relativeModulePaths
-            'output' | Should -BeIn $relativeModulePaths
-            'output/RequiredModules' | Should -BeIn $relativeModulePaths
-            'source' | Should -BeIn $relativeModulePaths
-            'source/Classes' | Should -BeIn $relativeModulePaths
-            'source/DSCResources' | Should -BeIn $relativeModulePaths
-            'source/DSCResources/DSC_Folder' | Should -BeIn $relativeModulePaths
-            'source/DSCResources/DSC_Folder/en-US' | Should -BeIn $relativeModulePaths
-            'source/Enum' | Should -BeIn $relativeModulePaths
-            'source/en-US' | Should -BeIn $relativeModulePaths
-            'source/Examples' | Should -BeIn $relativeModulePaths
-            'source/Examples/Resources' | Should -BeIn $relativeModulePaths
-            'source/Examples/Resources/Folder' | Should -BeIn $relativeModulePaths
-            'source/Private' | Should -BeIn $relativeModulePaths
-            'source/Public' | Should -BeIn $relativeModulePaths
-            'tests' | Should -BeIn $relativeModulePaths
-            'tests/QA' | Should -BeIn $relativeModulePaths
-            'tests/Unit' | Should -BeIn $relativeModulePaths
-            'tests/Unit/Classes' | Should -BeIn $relativeModulePaths
-            'tests/Unit/DSCResources' | Should -BeIn $relativeModulePaths
-            'tests/Unit/Private' | Should -BeIn $relativeModulePaths
-            'tests/Unit/Public' | Should -BeIn $relativeModulePaths
+            # format the report to be used in because
+            $report = ":`r`n  Missing:`r`n`t$($missingFilesOrFolders -join "`r`n`t")`r`n  Unexpected:`r`n`t$($unexpectedFilesAndFolders -join "`r`n`t")`r`n."
 
-            # Files (relative to module root)
+            # Check if tree structure failed. If so output the module directory tree.
+            if ( -not $TreeStructureIsOk)
+            {
+                $treeOutput = Get-DirectoryTree -Path $mockModuleRootPath
+                Write-Verbose -Message ($treeOutput | Out-String) -Verbose
+            }
 
-            '.gitattributes' | Should -BeIn $relativeModulePaths
-            '.gitignore' | Should -BeIn $relativeModulePaths
-            '.kitchen.yml' | Should -BeIn $relativeModulePaths
-            '.markdownlint.json' | Should -BeIn $relativeModulePaths
-            'azure-pipelines.yml' | Should -BeIn $relativeModulePaths
-            'build.ps1' | Should -BeIn $relativeModulePaths
-            'build.yaml' | Should -BeIn $relativeModulePaths
-            'CHANGELOG.md' | Should -BeIn $relativeModulePaths
-            'CODE_OF_CONDUCT.md' | Should -BeIn $relativeModulePaths
-            'CONTRIBUTING.md' | Should -BeIn $relativeModulePaths
-            'GitVersion.yml' | Should -BeIn $relativeModulePaths
-            'LICENSE' | Should -BeIn $relativeModulePaths
-            'README.md' | Should -BeIn $relativeModulePaths
-            'RequiredModules.psd1' | Should -BeIn $relativeModulePaths
-            'Resolve-Dependency.ps1' | Should -BeIn $relativeModulePaths
-            'Resolve-Dependency.psd1' | Should -BeIn $relativeModulePaths
-            '.vscode/analyzersettings.psd1' | Should -BeIn $relativeModulePaths
-            '.vscode/settings.json' | Should -BeIn $relativeModulePaths
-            '.vscode/tasks.json' | Should -BeIn $relativeModulePaths
-            'source/ModuleDsc.psd1' | Should -BeIn $relativeModulePaths
-            'source/ModuleDsc.psm1' | Should -BeIn $relativeModulePaths
-            'source/Classes/1.class1.ps1' | Should -BeIn $relativeModulePaths
-            'source/Classes/2.class2.ps1' | Should -BeIn $relativeModulePaths
-            'source/Classes/3.class11.ps1' | Should -BeIn $relativeModulePaths
-            'source/Classes/4.class12.ps1' | Should -BeIn $relativeModulePaths
-            'source/DSCResources/DSC_Folder/DSC_Folder.psm1' | Should -BeIn $relativeModulePaths
-            'source/DSCResources/DSC_Folder/DSC_Folder.schema.mof' | Should -BeIn $relativeModulePaths
-            'source/DSCResources/DSC_Folder/en-US/DSC_Folder.psd1' | Should -BeIn $relativeModulePaths
-            'source/en-US/about_ModuleDsc.help.txt' | Should -BeIn $relativeModulePaths
-            'source/Examples/Resources/Folder/1-DscResourceTemplate_CreateFolderAsSystemConfig.ps1' | Should -BeIn $relativeModulePaths
-            'source/Examples/Resources/Folder/2-DscResourceTemplate_CreateFolderAsUserConfig.ps1' | Should -BeIn $relativeModulePaths
-            'source/Examples/Resources/Folder/3-DscResourceTemplate_RemoveFolderConfig.ps1' | Should -BeIn $relativeModulePaths
-            'source/Private/Get-PrivateFunction.ps1' | Should -BeIn $relativeModulePaths
-            'source/Public/Get-Something.ps1' | Should -BeIn $relativeModulePaths
-            'tests/QA/module.tests.ps1' | Should -BeIn $relativeModulePaths
-            'tests/Unit/Classes/class1.tests.ps1' | Should -BeIn $relativeModulePaths
-            'tests/Unit/Classes/class11.tests.ps1' | Should -BeIn $relativeModulePaths
-            'tests/Unit/Classes/class12.tests.ps1' | Should -BeIn $relativeModulePaths
-            'tests/Unit/Classes/class2.tests.ps1' | Should -BeIn $relativeModulePaths
-            'tests/Unit/DSCResources/DSC_Folder.Tests.ps1' | Should -BeIn $relativeModulePaths
-            'tests/Unit/Private/Get-PrivateFunction.tests.ps1' | Should -BeIn $relativeModulePaths
-            'tests/Unit/Public/Get-Something.tests.ps1' | Should -BeIn $relativeModulePaths
-
-            $relativeModulePaths | Should -HaveCount 65
-        } -ErrorVariable itBlockError
-
-        # Check if previous It-block failed. If so output the module directory tree.
-        if ( $itBlockError.Count -ne 0 )
-        {
-            $treeOutput = Get-DirectoryTree -Path $mockModuleRootPath
-
-            Write-Verbose -Message ($treeOutput | Out-String) -Verbose
+            $TreeStructureIsOk | Should -BeTrue -Because $report
         }
     }
 
     Context 'When creating a new module project with only the feature ''Enum''' {
         BeforeAll {
             $mockModuleName = 'ModuleDsc'
-
             $mockModuleRootPath = Join-Path -Path $TestDrive -ChildPath $mockModuleName
+
+            $listOfExpectedFilesAndFolders = @(
+
+            # Folders (relative to module root)
+
+            'source'
+            'source/Enum'
+            'source/en-US'
+            'source/Examples'
+            'source/Private'
+            'source/Public'
+
+            # Files (relative to module root)
+
+            'README.md'
+            'source/ModuleDsc.psd1'
+            'source/ModuleDsc.psm1'
+            'source/en-US/about_ModuleDsc.help.txt'
+
+            )
         }
 
         It 'Should create a new module without throwing' {
@@ -558,39 +612,49 @@ Describe 'Custom Module Plaster Template' {
             # Change to slash when testing on Windows.
             $relativeModulePaths = ($relativeModulePaths -replace '\\', '/').TrimStart('/')
 
-            # Folders (relative to module root)
+            # check files & folders discrepencies
+            $missingFilesOrFolders    = $listOfExpectedFilesAndFolders.Where{$_ -notin $relativeModulePaths}
+            $unexpectedFilesAndFolders  = $relativeModulePaths.Where{$_ -notin $listOfExpectedFilesAndFolders}
+            $TreeStructureIsOk = ($missingFilesOrFolders.count -eq 0 -and $unexpectedFilesAndFolders.count -eq 0)
 
-            'source' | Should -BeIn $relativeModulePaths
-            'source/Enum' | Should -BeIn $relativeModulePaths
-            'source/en-US' | Should -BeIn $relativeModulePaths
-            'source/Examples' | Should -BeIn $relativeModulePaths
-            'source/Private' | Should -BeIn $relativeModulePaths
-            'source/Public' | Should -BeIn $relativeModulePaths
+            # format the report to be used in because
+            $report = ":`r`n  Missing:`r`n`t$($missingFilesOrFolders -join "`r`n`t")`r`n  Unexpected:`r`n`t$($unexpectedFilesAndFolders -join "`r`n`t")`r`n."
 
-            # Files (relative to module root)
+            # Check if tree structure failed. If so output the module directory tree.
+            if ( -not $TreeStructureIsOk)
+            {
+                $treeOutput = Get-DirectoryTree -Path $mockModuleRootPath
+                Write-Verbose -Message ($treeOutput | Out-String) -Verbose
+            }
 
-            'README.md' | Should -BeIn $relativeModulePaths
-            'source/ModuleDsc.psd1' | Should -BeIn $relativeModulePaths
-            'source/ModuleDsc.psm1' | Should -BeIn $relativeModulePaths
-            'source/en-US/about_ModuleDsc.help.txt' | Should -BeIn $relativeModulePaths
-
-            $relativeModulePaths | Should -HaveCount 10
-        } -ErrorVariable itBlockError
-
-        # Check if previous It-block failed. If so output the module directory tree.
-        if ( $itBlockError.Count -ne 0 )
-        {
-            $treeOutput = Get-DirectoryTree -Path $mockModuleRootPath
-
-            Write-Verbose -Message ($treeOutput | Out-String) -Verbose
+            $TreeStructureIsOk | Should -BeTrue -Because $report
         }
     }
 
     Context 'When creating a new module project with only the feature ''Classes''' {
         BeforeAll {
             $mockModuleName = 'ModuleDsc'
-
             $mockModuleRootPath = Join-Path -Path $TestDrive -ChildPath $mockModuleName
+
+            $listOfExpectedFilesAndFolders = @(
+
+            # Folders (relative to module root)
+
+            'source'
+            'source/Classes'
+            'source/en-US'
+            'source/Examples'
+            'source/Private'
+            'source/Public'
+
+            # Files (relative to module root)
+
+            'README.md'
+            'source/ModuleDsc.psd1'
+            'source/ModuleDsc.psm1'
+            'source/en-US/about_ModuleDsc.help.txt'
+
+            )
         }
 
         It 'Should create a new module without throwing' {
@@ -626,39 +690,49 @@ Describe 'Custom Module Plaster Template' {
             # Change to slash when testing on Windows.
             $relativeModulePaths = ($relativeModulePaths -replace '\\', '/').TrimStart('/')
 
-            # Folders (relative to module root)
+            # check files & folders discrepencies
+            $missingFilesOrFolders    = $listOfExpectedFilesAndFolders.Where{$_ -notin $relativeModulePaths}
+            $unexpectedFilesAndFolders  = $relativeModulePaths.Where{$_ -notin $listOfExpectedFilesAndFolders}
+            $TreeStructureIsOk = ($missingFilesOrFolders.count -eq 0 -and $unexpectedFilesAndFolders.count -eq 0)
 
-            'source' | Should -BeIn $relativeModulePaths
-            'source/Classes' | Should -BeIn $relativeModulePaths
-            'source/en-US' | Should -BeIn $relativeModulePaths
-            'source/Examples' | Should -BeIn $relativeModulePaths
-            'source/Private' | Should -BeIn $relativeModulePaths
-            'source/Public' | Should -BeIn $relativeModulePaths
+            # format the report to be used in because
+            $report = ":`r`n  Missing:`r`n`t$($missingFilesOrFolders -join "`r`n`t")`r`n  Unexpected:`r`n`t$($unexpectedFilesAndFolders -join "`r`n`t")`r`n."
 
-            # Files (relative to module root)
+            # Check if tree structure failed. If so output the module directory tree.
+            if ( -not $TreeStructureIsOk)
+            {
+                $treeOutput = Get-DirectoryTree -Path $mockModuleRootPath
+                Write-Verbose -Message ($treeOutput | Out-String) -Verbose
+            }
 
-            'README.md' | Should -BeIn $relativeModulePaths
-            'source/ModuleDsc.psd1' | Should -BeIn $relativeModulePaths
-            'source/ModuleDsc.psm1' | Should -BeIn $relativeModulePaths
-            'source/en-US/about_ModuleDsc.help.txt' | Should -BeIn $relativeModulePaths
-
-            $relativeModulePaths | Should -HaveCount 10
-        } -ErrorVariable itBlockError
-
-        # Check if previous It-block failed. If so output the module directory tree.
-        if ( $itBlockError.Count -ne 0 )
-        {
-            $treeOutput = Get-DirectoryTree -Path $mockModuleRootPath
-
-            Write-Verbose -Message ($treeOutput | Out-String) -Verbose
+            $TreeStructureIsOk | Should -BeTrue -Because $report
         }
     }
 
     Context 'When creating a new module project with only the feature ''DSCResources''' {
         BeforeAll {
             $mockModuleName = 'ModuleDsc'
-
             $mockModuleRootPath = Join-Path -Path $TestDrive -ChildPath $mockModuleName
+
+            $listOfExpectedFilesAndFolders = @(
+
+            # Folders (relative to module root)
+
+            'source'
+            'source/DSCResources'
+            'source/en-US'
+            'source/Examples'
+            'source/Private'
+            'source/Public'
+
+            # Files (relative to module root)
+
+            'README.md'
+            'source/ModuleDsc.psd1'
+            'source/ModuleDsc.psm1'
+            'source/en-US/about_ModuleDsc.help.txt'
+
+            )
         }
 
         It 'Should create a new module without throwing' {
@@ -694,39 +768,50 @@ Describe 'Custom Module Plaster Template' {
             # Change to slash when testing on Windows.
             $relativeModulePaths = ($relativeModulePaths -replace '\\', '/').TrimStart('/')
 
-            # Folders (relative to module root)
+            # check files & folders discrepencies
+            $missingFilesOrFolders    = $listOfExpectedFilesAndFolders.Where{$_ -notin $relativeModulePaths}
+            $unexpectedFilesAndFolders  = $relativeModulePaths.Where{$_ -notin $listOfExpectedFilesAndFolders}
+            $TreeStructureIsOk = ($missingFilesOrFolders.count -eq 0 -and $unexpectedFilesAndFolders.count -eq 0)
 
-            'source' | Should -BeIn $relativeModulePaths
-            'source/DSCResources' | Should -BeIn $relativeModulePaths
-            'source/en-US' | Should -BeIn $relativeModulePaths
-            'source/Examples' | Should -BeIn $relativeModulePaths
-            'source/Private' | Should -BeIn $relativeModulePaths
-            'source/Public' | Should -BeIn $relativeModulePaths
+            # format the report to be used in because
+            $report = ":`r`n  Missing:`r`n`t$($missingFilesOrFolders -join "`r`n`t")`r`n  Unexpected:`r`n`t$($unexpectedFilesAndFolders -join "`r`n`t")`r`n."
 
-            # Files (relative to module root)
+            # Check if tree structure failed. If so output the module directory tree.
+            if ( -not $TreeStructureIsOk)
+            {
+                $treeOutput = Get-DirectoryTree -Path $mockModuleRootPath
+                Write-Verbose -Message ($treeOutput | Out-String) -Verbose
+            }
 
-            'README.md' | Should -BeIn $relativeModulePaths
-            'source/ModuleDsc.psd1' | Should -BeIn $relativeModulePaths
-            'source/ModuleDsc.psm1' | Should -BeIn $relativeModulePaths
-            'source/en-US/about_ModuleDsc.help.txt' | Should -BeIn $relativeModulePaths
-
-            $relativeModulePaths | Should -HaveCount 10
-        } -ErrorVariable itBlockError
-
-        # Check if previous It-block failed. If so output the module directory tree.
-        if ( $itBlockError.Count -ne 0 )
-        {
-            $treeOutput = Get-DirectoryTree -Path $mockModuleRootPath
-
-            Write-Verbose -Message ($treeOutput | Out-String) -Verbose
+            $TreeStructureIsOk | Should -BeTrue -Because $report
         }
     }
 
     Context 'When creating a new module project with only the feature ''SampleScripts''' {
         BeforeAll {
             $mockModuleName = 'ModuleDsc'
-
             $mockModuleRootPath = Join-Path -Path $TestDrive -ChildPath $mockModuleName
+
+            $listOfExpectedFilesAndFolders = @(
+
+                # Folders (relative to module root)
+
+                'source'
+                'source/en-US'
+                'source/Examples'
+                'source/Private'
+                'source/Public'
+
+                # Files (relative to module root)
+
+                'README.md'
+                'source/ModuleDsc.psd1'
+                'source/ModuleDsc.psm1'
+                'source/en-US/about_ModuleDsc.help.txt'
+                'source/Private/Get-PrivateFunction.ps1'
+                'source/Public/Get-Something.ps1'
+
+            )
         }
 
         It 'Should create a new module without throwing' {
@@ -762,40 +847,53 @@ Describe 'Custom Module Plaster Template' {
             # Change to slash when testing on Windows.
             $relativeModulePaths = ($relativeModulePaths -replace '\\', '/').TrimStart('/')
 
-            # Folders (relative to module root)
+            # check files & folders discrepencies
+            $missingFilesOrFolders    = $listOfExpectedFilesAndFolders.Where{$_ -notin $relativeModulePaths}
+            $unexpectedFilesAndFolders  = $relativeModulePaths.Where{$_ -notin $listOfExpectedFilesAndFolders}
+            $TreeStructureIsOk = ($missingFilesOrFolders.count -eq 0 -and $unexpectedFilesAndFolders.count -eq 0)
 
-            'source' | Should -BeIn $relativeModulePaths
-            'source/en-US' | Should -BeIn $relativeModulePaths
-            'source/Examples' | Should -BeIn $relativeModulePaths
-            'source/Private' | Should -BeIn $relativeModulePaths
-            'source/Public' | Should -BeIn $relativeModulePaths
+            # format the report to be used in because
+            $report = ":`r`n  Missing:`r`n`t$($missingFilesOrFolders -join "`r`n`t")`r`n  Unexpected:`r`n`t$($unexpectedFilesAndFolders -join "`r`n`t")`r`n."
 
-            # Files (relative to module root)
+            # Check if tree structure failed. If so output the module directory tree.
+            if ( -not $TreeStructureIsOk)
+            {
+                $treeOutput = Get-DirectoryTree -Path $mockModuleRootPath
+                Write-Verbose -Message ($treeOutput | Out-String) -Verbose
+            }
 
-            'README.md' | Should -BeIn $relativeModulePaths
-            'source/ModuleDsc.psd1' | Should -BeIn $relativeModulePaths
-            'source/ModuleDsc.psm1' | Should -BeIn $relativeModulePaths
-            'source/en-US/about_ModuleDsc.help.txt' | Should -BeIn $relativeModulePaths
-            'source/Private/Get-PrivateFunction.ps1' | Should -BeIn $relativeModulePaths
-            'source/Public/Get-Something.ps1' | Should -BeIn $relativeModulePaths
-
-            $relativeModulePaths | Should -HaveCount 11
-        } -ErrorVariable itBlockError
-
-        # Check if previous It-block failed. If so output the module directory tree.
-        if ( $itBlockError.Count -ne 0 )
-        {
-            $treeOutput = Get-DirectoryTree -Path $mockModuleRootPath
-
-            Write-Verbose -Message ($treeOutput | Out-String) -Verbose
+            $TreeStructureIsOk | Should -BeTrue -Because $report
         }
     }
 
     Context 'When creating a new module project with only the feature ''git''' {
         BeforeAll {
             $mockModuleName = 'ModuleDsc'
-
             $mockModuleRootPath = Join-Path -Path $TestDrive -ChildPath $mockModuleName
+
+            $listOfExpectedFilesAndFolders = @(
+
+            # Folders (relative to module root)
+
+            'source'
+            'source/en-US'
+            'source/Examples'
+            'source/Private'
+            'source/Public'
+
+            # Files (relative to module root)
+
+            '.gitattributes'
+            '.gitignore'
+            'CHANGELOG.md'
+            'CODE_OF_CONDUCT.md'
+            'GitVersion.yml'
+            'README.md'
+            'source/ModuleDsc.psd1'
+            'source/ModuleDsc.psm1'
+            'source/en-US/about_ModuleDsc.help.txt'
+
+            )
         }
 
         It 'Should create a new module without throwing' {
@@ -831,43 +929,50 @@ Describe 'Custom Module Plaster Template' {
             # Change to slash when testing on Windows.
             $relativeModulePaths = ($relativeModulePaths -replace '\\', '/').TrimStart('/')
 
-            # Folders (relative to module root)
+            # check files & folders discrepencies
+            $missingFilesOrFolders    = $listOfExpectedFilesAndFolders.Where{$_ -notin $relativeModulePaths}
+            $unexpectedFilesAndFolders  = $relativeModulePaths.Where{$_ -notin $listOfExpectedFilesAndFolders}
+            $TreeStructureIsOk = ($missingFilesOrFolders.count -eq 0 -and $unexpectedFilesAndFolders.count -eq 0)
 
-            'source' | Should -BeIn $relativeModulePaths
-            'source/en-US' | Should -BeIn $relativeModulePaths
-            'source/Examples' | Should -BeIn $relativeModulePaths
-            'source/Private' | Should -BeIn $relativeModulePaths
-            'source/Public' | Should -BeIn $relativeModulePaths
+            # format the report to be used in because
+            $report = ":`r`n  Missing:`r`n`t$($missingFilesOrFolders -join "`r`n`t")`r`n  Unexpected:`r`n`t$($unexpectedFilesAndFolders -join "`r`n`t")`r`n."
 
-            # Files (relative to module root)
+            # Check if tree structure failed. If so output the module directory tree.
+            if ( -not $TreeStructureIsOk)
+            {
+                $treeOutput = Get-DirectoryTree -Path $mockModuleRootPath
+                Write-Verbose -Message ($treeOutput | Out-String) -Verbose
+            }
 
-            '.gitattributes' | Should -BeIn $relativeModulePaths
-            '.gitignore' | Should -BeIn $relativeModulePaths
-            'CHANGELOG.md' | Should -BeIn $relativeModulePaths
-            'CODE_OF_CONDUCT.md' | Should -BeIn $relativeModulePaths
-            'GitVersion.yml' | Should -BeIn $relativeModulePaths
-            'README.md' | Should -BeIn $relativeModulePaths
-            'source/ModuleDsc.psd1' | Should -BeIn $relativeModulePaths
-            'source/ModuleDsc.psm1' | Should -BeIn $relativeModulePaths
-            'source/en-US/about_ModuleDsc.help.txt' | Should -BeIn $relativeModulePaths
-
-            $relativeModulePaths | Should -HaveCount 14
-        } -ErrorVariable itBlockError
-
-        # Check if previous It-block failed. If so output the module directory tree.
-        if ( $itBlockError.Count -ne 0 )
-        {
-            $treeOutput = Get-DirectoryTree -Path $mockModuleRootPath
-
-            Write-Verbose -Message ($treeOutput | Out-String) -Verbose
+            $TreeStructureIsOk | Should -BeTrue -Because $report
         }
     }
 
     Context 'When creating a new module project with only the feature ''Gherkin''' {
         BeforeAll {
             $mockModuleName = 'ModuleDsc'
-
             $mockModuleRootPath = Join-Path -Path $TestDrive -ChildPath $mockModuleName
+
+            $listOfExpectedFilesAndFolders = @(
+
+            # Folders (relative to module root)
+
+            'source'
+            'source/en-US'
+            'source/Examples'
+            'source/Private'
+            'source/Public'
+            'specs'
+            'specs/steps'
+
+            # Files (relative to module root)
+
+            'README.md'
+            'source/ModuleDsc.psd1'
+            'source/ModuleDsc.psm1'
+            'source/en-US/about_ModuleDsc.help.txt'
+
+            )
         }
 
         It 'Should create a new module without throwing' {
@@ -903,40 +1008,49 @@ Describe 'Custom Module Plaster Template' {
             # Change to slash when testing on Windows.
             $relativeModulePaths = ($relativeModulePaths -replace '\\', '/').TrimStart('/')
 
-            # Folders (relative to module root)
+            # check files & folders discrepencies
+            $missingFilesOrFolders    = $listOfExpectedFilesAndFolders.Where{$_ -notin $relativeModulePaths}
+            $unexpectedFilesAndFolders  = $relativeModulePaths.Where{$_ -notin $listOfExpectedFilesAndFolders}
+            $TreeStructureIsOk = ($missingFilesOrFolders.count -eq 0 -and $unexpectedFilesAndFolders.count -eq 0)
 
-            'source' | Should -BeIn $relativeModulePaths
-            'source/en-US' | Should -BeIn $relativeModulePaths
-            'source/Examples' | Should -BeIn $relativeModulePaths
-            'source/Private' | Should -BeIn $relativeModulePaths
-            'source/Public' | Should -BeIn $relativeModulePaths
-            'specs' | Should -BeIn $relativeModulePaths
-            'specs/steps' | Should -BeIn $relativeModulePaths
+            # format the report to be used in because
+            $report = ":`r`n  Missing:`r`n`t$($missingFilesOrFolders -join "`r`n`t")`r`n  Unexpected:`r`n`t$($unexpectedFilesAndFolders -join "`r`n`t")`r`n."
 
-            # Files (relative to module root)
+            # Check if tree structure failed. If so output the module directory tree.
+            if ( -not $TreeStructureIsOk)
+            {
+                $treeOutput = Get-DirectoryTree -Path $mockModuleRootPath
+                Write-Verbose -Message ($treeOutput | Out-String) -Verbose
+            }
 
-            'README.md' | Should -BeIn $relativeModulePaths
-            'source/ModuleDsc.psd1' | Should -BeIn $relativeModulePaths
-            'source/ModuleDsc.psm1' | Should -BeIn $relativeModulePaths
-            'source/en-US/about_ModuleDsc.help.txt' | Should -BeIn $relativeModulePaths
-
-            $relativeModulePaths | Should -HaveCount 11
-        } -ErrorVariable itBlockError
-
-        # Check if previous It-block failed. If so output the module directory tree.
-        if ( $itBlockError.Count -ne 0 )
-        {
-            $treeOutput = Get-DirectoryTree -Path $mockModuleRootPath
-
-            Write-Verbose -Message ($treeOutput | Out-String) -Verbose
+            $TreeStructureIsOk | Should -BeTrue -Because $report
         }
     }
 
     Context 'When creating a new module project with only the feature ''UnitTests''' {
         BeforeAll {
             $mockModuleName = 'ModuleDsc'
-
             $mockModuleRootPath = Join-Path -Path $TestDrive -ChildPath $mockModuleName
+
+            $listOfExpectedFilesAndFolders = @(
+
+            # Folders (relative to module root)
+
+            'source'
+            'source/en-US'
+            'source/Examples'
+            'source/Private'
+            'source/Public'
+            'tests'
+
+            # Files (relative to module root)
+
+            'README.md'
+            'source/ModuleDsc.psd1'
+            'source/ModuleDsc.psm1'
+            'source/en-US/about_ModuleDsc.help.txt'
+
+            )
         }
 
         It 'Should create a new module without throwing' {
@@ -972,38 +1086,51 @@ Describe 'Custom Module Plaster Template' {
             # Change to slash when testing on Windows.
             $relativeModulePaths = ($relativeModulePaths -replace '\\', '/').TrimStart('/')
 
-            # Folders (relative to module root)
+            # check files & folders discrepencies
+            $missingFilesOrFolders    = $listOfExpectedFilesAndFolders.Where{$_ -notin $relativeModulePaths}
+            $unexpectedFilesAndFolders  = $relativeModulePaths.Where{$_ -notin $listOfExpectedFilesAndFolders}
+            $TreeStructureIsOk = ($missingFilesOrFolders.count -eq 0 -and $unexpectedFilesAndFolders.count -eq 0)
 
-            'source' | Should -BeIn $relativeModulePaths
-            'source/en-US' | Should -BeIn $relativeModulePaths
-            'source/Examples' | Should -BeIn $relativeModulePaths
-            'source/Private' | Should -BeIn $relativeModulePaths
-            'source/Public' | Should -BeIn $relativeModulePaths
+            # format the report to be used in because
+            $report = ":`r`n  Missing:`r`n`t$($missingFilesOrFolders -join "`r`n`t")`r`n  Unexpected:`r`n`t$($unexpectedFilesAndFolders -join "`r`n`t")`r`n."
 
-            # Files (relative to module root)
+            # Check if tree structure failed. If so output the module directory tree.
+            if ( -not $TreeStructureIsOk)
+            {
+                $treeOutput = Get-DirectoryTree -Path $mockModuleRootPath
+                Write-Verbose -Message ($treeOutput | Out-String) -Verbose
+            }
 
-            'README.md' | Should -BeIn $relativeModulePaths
-            'source/ModuleDsc.psd1' | Should -BeIn $relativeModulePaths
-            'source/ModuleDsc.psm1' | Should -BeIn $relativeModulePaths
-            'source/en-US/about_ModuleDsc.help.txt' | Should -BeIn $relativeModulePaths
-
-            $relativeModulePaths | Should -HaveCount 10
-        } -ErrorVariable itBlockError
-
-        # Check if previous It-block failed. If so output the module directory tree.
-        if ( $itBlockError.Count -ne 0 )
-        {
-            $treeOutput = Get-DirectoryTree -Path $mockModuleRootPath
-
-            Write-Verbose -Message ($treeOutput | Out-String) -Verbose
+            $TreeStructureIsOk | Should -BeTrue -Because $report
         }
     }
 
     Context 'When creating a new module project with only the feature ''ModuleQuality''' {
         BeforeAll {
             $mockModuleName = 'ModuleDsc'
-
             $mockModuleRootPath = Join-Path -Path $TestDrive -ChildPath $mockModuleName
+
+            $listOfExpectedFilesAndFolders = @(
+
+            # Folders (relative to module root)
+
+            'source'
+            'source/en-US'
+            'source/Examples'
+            'source/Private'
+            'source/Public'
+            'tests'
+            'tests/QA'
+
+            # Files (relative to module root)
+
+            'README.md'
+            'source/ModuleDsc.psd1'
+            'source/ModuleDsc.psm1'
+            'source/en-US/about_ModuleDsc.help.txt'
+            'tests/QA/module.tests.ps1'
+
+            )
         }
 
         It 'Should create a new module without throwing' {
@@ -1039,41 +1166,53 @@ Describe 'Custom Module Plaster Template' {
             # Change to slash when testing on Windows.
             $relativeModulePaths = ($relativeModulePaths -replace '\\', '/').TrimStart('/')
 
-            # Folders (relative to module root)
+            # check files & folders discrepencies
+            $missingFilesOrFolders    = $listOfExpectedFilesAndFolders.Where{$_ -notin $relativeModulePaths}
+            $unexpectedFilesAndFolders  = $relativeModulePaths.Where{$_ -notin $listOfExpectedFilesAndFolders}
+            $TreeStructureIsOk = ($missingFilesOrFolders.count -eq 0 -and $unexpectedFilesAndFolders.count -eq 0)
 
-            'source' | Should -BeIn $relativeModulePaths
-            'source/en-US' | Should -BeIn $relativeModulePaths
-            'source/Examples' | Should -BeIn $relativeModulePaths
-            'source/Private' | Should -BeIn $relativeModulePaths
-            'source/Public' | Should -BeIn $relativeModulePaths
-            'tests' | Should -BeIn $relativeModulePaths
-            'tests/QA' | Should -BeIn $relativeModulePaths
+            # format the report to be used in because
+            $report = ":`r`n  Missing:`r`n`t$($missingFilesOrFolders -join "`r`n`t")`r`n  Unexpected:`r`n`t$($unexpectedFilesAndFolders -join "`r`n`t")`r`n."
 
-            # Files (relative to module root)
+            # Check if tree structure failed. If so output the module directory tree.
+            if ( -not $TreeStructureIsOk)
+            {
+                $treeOutput = Get-DirectoryTree -Path $mockModuleRootPath
+                Write-Verbose -Message ($treeOutput | Out-String) -Verbose
+            }
 
-            'README.md' | Should -BeIn $relativeModulePaths
-            'source/ModuleDsc.psd1' | Should -BeIn $relativeModulePaths
-            'source/ModuleDsc.psm1' | Should -BeIn $relativeModulePaths
-            'source/en-US/about_ModuleDsc.help.txt' | Should -BeIn $relativeModulePaths
-            'tests/QA/module.tests.ps1' | Should -BeIn $relativeModulePaths
-
-            $relativeModulePaths | Should -HaveCount 12
-        } -ErrorVariable itBlockError
-
-        # Check if previous It-block failed. If so output the module directory tree.
-        if ( $itBlockError.Count -ne 0 )
-        {
-            $treeOutput = Get-DirectoryTree -Path $mockModuleRootPath
-
-            Write-Verbose -Message ($treeOutput | Out-String) -Verbose
+            $TreeStructureIsOk | Should -BeTrue -Because $report
         }
     }
 
     Context 'When creating a new module project with only the feature ''Build''' {
         BeforeAll {
             $mockModuleName = 'ModuleDsc'
-
             $mockModuleRootPath = Join-Path -Path $TestDrive -ChildPath $mockModuleName
+
+            $listOfExpectedFilesAndFolders = @(
+
+            # Folders (relative to module root)
+
+            'source'
+            'source/en-US'
+            'source/Examples'
+            'source/Private'
+            'source/Public'
+
+            # Files (relative to module root)
+
+            'build.ps1'
+            'build.yaml'
+            'README.md'
+            'RequiredModules.psd1'
+            'Resolve-Dependency.ps1'
+            'Resolve-Dependency.psd1'
+            'source/ModuleDsc.psd1'
+            'source/ModuleDsc.psm1'
+            'source/en-US/about_ModuleDsc.help.txt'
+
+            )
         }
 
         It 'Should create a new module without throwing' {
@@ -1109,43 +1248,48 @@ Describe 'Custom Module Plaster Template' {
             # Change to slash when testing on Windows.
             $relativeModulePaths = ($relativeModulePaths -replace '\\', '/').TrimStart('/')
 
-            # Folders (relative to module root)
+            # check files & folders discrepencies
+            $missingFilesOrFolders    = $listOfExpectedFilesAndFolders.Where{$_ -notin $relativeModulePaths}
+            $unexpectedFilesAndFolders  = $relativeModulePaths.Where{$_ -notin $listOfExpectedFilesAndFolders}
+            $TreeStructureIsOk = ($missingFilesOrFolders.count -eq 0 -and $unexpectedFilesAndFolders.count -eq 0)
 
-            'source' | Should -BeIn $relativeModulePaths
-            'source/en-US' | Should -BeIn $relativeModulePaths
-            'source/Examples' | Should -BeIn $relativeModulePaths
-            'source/Private' | Should -BeIn $relativeModulePaths
-            'source/Public' | Should -BeIn $relativeModulePaths
+            # format the report to be used in because
+            $report = ":`r`n  Missing:`r`n`t$($missingFilesOrFolders -join "`r`n`t")`r`n  Unexpected:`r`n`t$($unexpectedFilesAndFolders -join "`r`n`t")`r`n."
 
-            # Files (relative to module root)
+            # Check if tree structure failed. If so output the module directory tree.
+            if ( -not $TreeStructureIsOk)
+            {
+                $treeOutput = Get-DirectoryTree -Path $mockModuleRootPath
+                Write-Verbose -Message ($treeOutput | Out-String) -Verbose
+            }
 
-            'build.ps1' | Should -BeIn $relativeModulePaths
-            'build.yaml' | Should -BeIn $relativeModulePaths
-            'README.md' | Should -BeIn $relativeModulePaths
-            'RequiredModules.psd1' | Should -BeIn $relativeModulePaths
-            'Resolve-Dependency.ps1' | Should -BeIn $relativeModulePaths
-            'Resolve-Dependency.psd1' | Should -BeIn $relativeModulePaths
-            'source/ModuleDsc.psd1' | Should -BeIn $relativeModulePaths
-            'source/ModuleDsc.psm1' | Should -BeIn $relativeModulePaths
-            'source/en-US/about_ModuleDsc.help.txt' | Should -BeIn $relativeModulePaths
-
-            $relativeModulePaths | Should -HaveCount 14
-        } -ErrorVariable itBlockError
-
-        # Check if previous It-block failed. If so output the module directory tree.
-        if ( $itBlockError.Count -ne 0 )
-        {
-            $treeOutput = Get-DirectoryTree -Path $mockModuleRootPath
-
-            Write-Verbose -Message ($treeOutput | Out-String) -Verbose
+            $TreeStructureIsOk | Should -BeTrue -Because $report
         }
     }
 
     Context 'When creating a new module project with only the feature ''AppVeyor''' {
         BeforeAll {
             $mockModuleName = 'ModuleDsc'
-
             $mockModuleRootPath = Join-Path -Path $TestDrive -ChildPath $mockModuleName
+
+            $listOfExpectedFilesAndFolders = @(
+            # Folders (relative to module root)
+
+            'source'
+            'source/en-US'
+            'source/Examples'
+            'source/Private'
+            'source/Public'
+
+            # Files (relative to module root)
+
+            'appveyor.yml'
+            'README.md'
+            'source/ModuleDsc.psd1'
+            'source/ModuleDsc.psm1'
+            'source/en-US/about_ModuleDsc.help.txt'
+
+            )
         }
 
         It 'Should create a new module without throwing' {
@@ -1181,39 +1325,50 @@ Describe 'Custom Module Plaster Template' {
             # Change to slash when testing on Windows.
             $relativeModulePaths = ($relativeModulePaths -replace '\\', '/').TrimStart('/')
 
-            # Folders (relative to module root)
+            # check files & folders discrepencies
+            $missingFilesOrFolders    = $listOfExpectedFilesAndFolders.Where{$_ -notin $relativeModulePaths}
+            $unexpectedFilesAndFolders  = $relativeModulePaths.Where{$_ -notin $listOfExpectedFilesAndFolders}
+            $TreeStructureIsOk = ($missingFilesOrFolders.count -eq 0 -and $unexpectedFilesAndFolders.count -eq 0)
 
-            'source' | Should -BeIn $relativeModulePaths
-            'source/en-US' | Should -BeIn $relativeModulePaths
-            'source/Examples' | Should -BeIn $relativeModulePaths
-            'source/Private' | Should -BeIn $relativeModulePaths
-            'source/Public' | Should -BeIn $relativeModulePaths
+            # format the report to be used in because
+            $report = ":`r`n  Missing:`r`n`t$($missingFilesOrFolders -join "`r`n`t")`r`n  Unexpected:`r`n`t$($unexpectedFilesAndFolders -join "`r`n`t")`r`n."
 
-            # Files (relative to module root)
+            # Check if tree structure failed. If so output the module directory tree.
+            if ( -not $TreeStructureIsOk)
+            {
+                $treeOutput = Get-DirectoryTree -Path $mockModuleRootPath
+                Write-Verbose -Message ($treeOutput | Out-String) -Verbose
+            }
 
-            'appveyor.yml' | Should -BeIn $relativeModulePaths
-            'README.md' | Should -BeIn $relativeModulePaths
-            'source/ModuleDsc.psd1' | Should -BeIn $relativeModulePaths
-            'source/ModuleDsc.psm1' | Should -BeIn $relativeModulePaths
-            'source/en-US/about_ModuleDsc.help.txt' | Should -BeIn $relativeModulePaths
-
-            $relativeModulePaths | Should -HaveCount 10
-        } -ErrorVariable itBlockError
-
-        # Check if previous It-block failed. If so output the module directory tree.
-        if ( $itBlockError.Count -ne 0 )
-        {
-            $treeOutput = Get-DirectoryTree -Path $mockModuleRootPath
-
-            Write-Verbose -Message ($treeOutput | Out-String) -Verbose
+            $TreeStructureIsOk | Should -BeTrue -Because $report
         }
     }
 
     Context 'When creating a new module project with only the feature ''TestKitchen''' {
         BeforeAll {
             $mockModuleName = 'ModuleDsc'
-
             $mockModuleRootPath = Join-Path -Path $TestDrive -ChildPath $mockModuleName
+
+            $listOfExpectedFilesAndFolders = @(
+
+            # Folders (relative to module root)
+
+            'source'
+            'source/en-US'
+            'source/Examples'
+            'source/Private'
+            'source/Public'
+            'tests'
+
+            # Files (relative to module root)
+
+            '.kitchen.yml'
+            'README.md'
+            'source/ModuleDsc.psd1'
+            'source/ModuleDsc.psm1'
+            'source/en-US/about_ModuleDsc.help.txt'
+
+            )
         }
 
         It 'Should create a new module without throwing' {
@@ -1249,32 +1404,22 @@ Describe 'Custom Module Plaster Template' {
             # Change to slash when testing on Windows.
             $relativeModulePaths = ($relativeModulePaths -replace '\\', '/').TrimStart('/')
 
-            # Folders (relative to module root)
+            # check files & folders discrepencies
+            $missingFilesOrFolders    = $listOfExpectedFilesAndFolders.Where{$_ -notin $relativeModulePaths}
+            $unexpectedFilesAndFolders  = $relativeModulePaths.Where{$_ -notin $listOfExpectedFilesAndFolders}
+            $TreeStructureIsOk = ($missingFilesOrFolders.count -eq 0 -and $unexpectedFilesAndFolders.count -eq 0)
 
-            'source' | Should -BeIn $relativeModulePaths
-            'source/en-US' | Should -BeIn $relativeModulePaths
-            'source/Examples' | Should -BeIn $relativeModulePaths
-            'source/Private' | Should -BeIn $relativeModulePaths
-            'source/Public' | Should -BeIn $relativeModulePaths
-            'tests' | Should -BeIn $relativeModulePaths
+            # format the report to be used in because
+            $report = ":`r`n  Missing:`r`n`t$($missingFilesOrFolders -join "`r`n`t")`r`n  Unexpected:`r`n`t$($unexpectedFilesAndFolders -join "`r`n`t")`r`n."
 
-            # Files (relative to module root)
+            # Check if tree structure failed. If so output the module directory tree.
+            if ( -not $TreeStructureIsOk)
+            {
+                $treeOutput = Get-DirectoryTree -Path $mockModuleRootPath
+                Write-Verbose -Message ($treeOutput | Out-String) -Verbose
+            }
 
-            '.kitchen.yml' | Should -BeIn $relativeModulePaths
-            'README.md' | Should -BeIn $relativeModulePaths
-            'source/ModuleDsc.psd1' | Should -BeIn $relativeModulePaths
-            'source/ModuleDsc.psm1' | Should -BeIn $relativeModulePaths
-            'source/en-US/about_ModuleDsc.help.txt' | Should -BeIn $relativeModulePaths
-
-            $relativeModulePaths | Should -HaveCount 11
-        } -ErrorVariable itBlockError
-
-        # Check if previous It-block failed. If so output the module directory tree.
-        if ( $itBlockError.Count -ne 0 )
-        {
-            $treeOutput = Get-DirectoryTree -Path $mockModuleRootPath
-
-            Write-Verbose -Message ($treeOutput | Out-String) -Verbose
+            $TreeStructureIsOk | Should -BeTrue -Because $report
         }
     }
 }

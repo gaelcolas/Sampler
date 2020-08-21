@@ -23,91 +23,40 @@ Import-Module -Name "$PSScriptRoot\..\..\IntegrationTestHelpers.psm1"
 
 Install-TreeCommand
 
-Describe 'Complete Module No Build Plaster Template' {
-    Context 'When creating a new module project' {
+Describe 'DSC MOF based resource Plaster Template' {
+    Context 'When creating a new MOF DSC Resource' {
         BeforeAll {
-            $mockModuleName = 'ModuleDsc'
-
-            $mockModuleRootPath = Join-Path -Path $TestDrive -ChildPath $mockModuleName
+            $mockResourceName  = 'MyMofResource'
+            $mockModuleRootPath = $TestDrive
 
             $listOfExpectedFilesAndFolders = @(
-
-                '.github'
-                '.vscode'
+                # Folders (relative to module root)
                 'source'
-                'source/Classes'
                 'source/DSCResources'
                 'source/DSCResources/DSC_Folder'
                 'source/DSCResources/DSC_Folder/en-US'
-                'source/Enum'
-                'source/en-US'
-                'source/Examples'
-                'source/Examples/Resources'
-                'source/Examples/Resources/Folder'
-                'source/Private'
-                'source/Public'
                 'tests'
-                'tests/QA'
                 'tests/Unit'
-                'tests/Unit/Classes'
                 'tests/Unit/DSCResources'
-                'tests/Unit/Private'
-                'tests/Unit/Public'
 
                 # Files (relative to module root)
-
-                '.gitattributes'
-                '.gitignore'
-                'CHANGELOG.md'
-                'CODE_OF_CONDUCT.md'
-                'CONTRIBUTING.md'
-                'README.md'
-                '.vscode/analyzersettings.psd1'
-                '.vscode/settings.json'
-                '.vscode/tasks.json'
-                'source/ModuleDsc.psd1'
-                'source/ModuleDsc.psm1'
-                'source/Classes/1.class1.ps1'
-                'source/Classes/2.class2.ps1'
-                'source/Classes/3.class11.ps1'
-                'source/Classes/4.class12.ps1'
                 'source/DSCResources/DSC_Folder/DSC_Folder.psm1'
                 'source/DSCResources/DSC_Folder/DSC_Folder.schema.mof'
                 'source/DSCResources/DSC_Folder/en-US/DSC_Folder.strings.psd1'
-                'source/en-US/about_ModuleDsc.help.txt'
-                'source/Examples/Resources/Folder/1-DscResourceTemplate_CreateFolderAsSystemConfig.ps1'
-                'source/Examples/Resources/Folder/2-DscResourceTemplate_CreateFolderAsUserConfig.ps1'
-                'source/Examples/Resources/Folder/3-DscResourceTemplate_RemoveFolderConfig.ps1'
-                'source/Private/Get-PrivateFunction.ps1'
-                'source/Public/Get-Something.ps1'
-                'tests/QA/module.tests.ps1'
-                'tests/Unit/Classes/class1.tests.ps1'
-                'tests/Unit/Classes/class11.tests.ps1'
-                'tests/Unit/Classes/class12.tests.ps1'
-                'tests/Unit/Classes/class2.tests.ps1'
                 'tests/Unit/DSCResources/DSC_Folder.tests.ps1'
-                'tests/Unit/Private/Get-PrivateFunction.tests.ps1'
-                'tests/Unit/Public/Get-Something.tests.ps1'
             )
         }
 
         It 'Should create a new module without throwing' {
             $invokePlasterParameters = @{
-                TemplatePath      = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
-                DestinationPath   = $TestDrive
-                SourceDirectory   = 'source'
+                TemplatePath      = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/MofResource'
+                DestinationPath   = $testdrive
                 NoLogo            = $true
                 Force             = $true
 
-                # Template
-                ModuleType        = 'CompleteModule_NoBuild'
-
                 # Template properties
-                ModuleName        = $mockModuleName
-                ModuleAuthor      = 'SamplerTestUser'
-                ModuleDescription = 'Module description'
-                ModuleVersion     = '1.0.0'
-                CustomRepo        = 'PSGallery'
+                ResourceName     = $mockResourceName
+                SourceDirectory   = 'source'
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw

@@ -8,7 +8,7 @@
 # OutputDirectory: ../output/Sampler
 CopyPaths:
   #- HelperSubmodule # This will be built as submodule instead
-  - DSCResources
+  # - DSCResources
   - ../.build/tasks
   - en-US
   - Assets
@@ -66,7 +66,7 @@ Pester:
   # - tests/Integration
   ExcludeTag:
   Tag:
-  CodeCoverageThreshold: 40 # Set to 0 to bypass
+  CodeCoverageThreshold: 33 # Set to 0 to bypass
 
 DscTest:
   ExcludeTag:

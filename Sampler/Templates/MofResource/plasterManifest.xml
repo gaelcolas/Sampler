@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<plasterManifest
+  schemaVersion="1.0" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+  <metadata>
+    <name>MofResource</name>
+    <id>a5cbc533-2add-4652-ad43-62d44c3eae5f</id>
+    <version>0.0.1</version>
+    <title>DSC MOF based Resource Template</title>
+    <description>A template to add a Class based resource to a Sampler Project</description>
+    <author>Gael Colas</author>
+    <tags>Sampler,Template, Build, Module</tags>
+  </metadata>
+  <parameters>
+    <parameter store="text"  name="ResourceName" type="text" prompt="Name of your Resource" />
+    <parameter store="text" name="SourceDirectory" type="text" prompt="What is your source folder?" default="source" />
+  </parameters>
+    <!--
+      ${PLASTER_PARAM_SourceDirectory}
+      ${PLASTER_PARAM_ResourceName}
+     -->
+  <content>
+    <!-- MODULES FOLDER SCAFFOLDING -->
+
+      <!--   SOURCE/DSCResource/DSC_Folder/en-US Folder -->
+      <file source=''
+            destination='${PLASTER_PARAM_SourceDirectory}/DSCResources/DSC_Folder/en-US'
+      />
+      <!--   tests/DSCResource/ Folder -->
+      <file source=''
+            destination='tests/Unit/DSCResources/'
+      />
+
+      <!--   SOURCE/DSCResource/** files -->
+      <file source='DSC_Folder/DSC_Folder.psm1'
+            destination='${PLASTER_PARAM_SourceDirectory}/DSCResources/DSC_Folder/DSC_Folder.psm1'
+      />
+      <file source='DSC_Folder/DSC_Folder.schema.mof'
+            destination='${PLASTER_PARAM_SourceDirectory}/DSCResources/DSC_Folder/DSC_Folder.schema.mof'
+      />
+      <file source='DSC_Folder/en-US/DSC_Folder.strings.psd1'
+            destination='${PLASTER_PARAM_SourceDirectory}/DSCResources/DSC_Folder/en-US/DSC_Folder.strings.psd1'
+      />
+
+      <!--   tests/DSCResource/** files -->
+      <file source='tests/Unit/DSCResources/DSC_Folder.tests.ps1'
+            destination='tests/Unit/DSCResources/DSC_Folder.tests.ps1'
+      />
+
+  </content>
+</plasterManifest>
