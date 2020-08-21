@@ -99,7 +99,7 @@ PrivateData = @{
                             'Templates\Enum'
                             'Templates\MofResource'
                             'Templates\PrivateFunction'
-                            'Templates\PublicCallPrivateFunction'
+                            'Templates\PublicCallPrivateFunctions'
                             'Templates\PublicFunction'
                             'Templates\Sampler'
                         )
