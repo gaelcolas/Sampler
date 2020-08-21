@@ -3,10 +3,10 @@
   schemaVersion="1.0" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
   <metadata>
     <name>MofResource</name>
-    <id>a5cbc533-2add-4652-ad43-62d44c3eae5f</id>
+    <id>740f0631-a6bd-42f2-a7b4-9488b83d2fab</id>
     <version>0.0.1</version>
     <title>DSC MOF based Resource Template</title>
-    <description>A template to add a Class based resource to a Sampler Project</description>
+    <description>A template to add a MOF based resource to a Sampler Project</description>
     <author>Gael Colas</author>
     <tags>Sampler,Template, Build, Module</tags>
   </metadata>

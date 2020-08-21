@@ -5,8 +5,8 @@
     <name>PublicCallPrivateFunctions</name>
     <id>d784c581-4659-4864-92b5-656d5c172cb1</id>
     <version>0.0.1</version>
-    <title>Public function calling a public function and tests Template</title>
-    <description>A template to add a Composite resource (aka Configuration) to a Sampler Project</description>
+    <title>Public function calling a private function and tests Template</title>
+    <description>A template to add a Public function calling a private one to a Sampler Project</description>
     <author>Gael Colas</author>
     <tags>Sampler,Template, Build, Module</tags>
   </metadata>

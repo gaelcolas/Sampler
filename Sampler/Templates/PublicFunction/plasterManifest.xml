@@ -5,7 +5,7 @@
     <name>PublicFunction</name>
     <id>e75b7b6a-6ae5-40b7-8ad8-b0bae0512184</id>
     <version>0.0.1</version>
-    <title>Public function calling a public function and tests Template</title>
+    <title>Public function function with tests Template</title>
     <description>A template to add a Public function to a Sampler Project</description>
     <author>Gael Colas</author>
     <tags>Sampler,Template, Build, Module</tags>
