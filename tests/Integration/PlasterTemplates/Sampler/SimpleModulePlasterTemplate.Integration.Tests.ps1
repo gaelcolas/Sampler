@@ -27,8 +27,39 @@ Describe 'Simple Module Plaster Template' {
     Context 'When creating a new module project' {
         BeforeAll {
             $mockModuleName = 'ModuleDsc'
-
             $mockModuleRootPath = Join-Path -Path $TestDrive -ChildPath $mockModuleName
+
+            $listOfExpectedFilesAndFolders = @(
+
+            # Folders (relative to module root)
+
+            'source'
+            'source/DSCResources'
+            'source/en-US'
+            'source/Examples'
+            'source/Private'
+            'source/Public'
+            'tests'
+            'tests/QA'
+            'output'
+            'output/RequiredModules'
+
+            # Files (relative to module root)
+
+            '.gitattributes'
+            '.gitignore'
+            'build.ps1'
+            'build.yaml'
+            'CHANGELOG.md'
+            'README.md'
+            'RequiredModules.psd1'
+            'Resolve-Dependency.ps1'
+            'Resolve-Dependency.psd1'
+            'source/ModuleDsc.psd1'
+            'source/ModuleDsc.psm1'
+            'source/en-US/about_ModuleDsc.help.txt'
+            'tests/QA/module.tests.ps1'
+            )
         }
 
         It 'Should create a new module without throwing' {
@@ -62,44 +93,22 @@ Describe 'Simple Module Plaster Template' {
             # Change to slash when testing on Windows.
             $relativeModulePaths = ($relativeModulePaths -replace '\\', '/').TrimStart('/')
 
-            # Folders (relative to module root)
+            # check files & folders discrepencies
+            $missingFilesOrFolders    = $listOfExpectedFilesAndFolders.Where{$_ -notin $relativeModulePaths}
+            $unexpectedFilesAndFolders  = $relativeModulePaths.Where{$_ -notin $listOfExpectedFilesAndFolders}
+            $TreeStructureIsOk = ($missingFilesOrFolders.count -eq 0 -and $unexpectedFilesAndFolders.count -eq 0)
 
-            'source' | Should -BeIn $relativeModulePaths
-            'source/DSCResources' | Should -BeIn $relativeModulePaths
-            'source/en-US' | Should -BeIn $relativeModulePaths
-            'source/Examples' | Should -BeIn $relativeModulePaths
-            'source/Private' | Should -BeIn $relativeModulePaths
-            'source/Public' | Should -BeIn $relativeModulePaths
-            'tests' | Should -BeIn $relativeModulePaths
-            'tests/QA' | Should -BeIn $relativeModulePaths
-            'output' | Should -BeIn $relativeModulePaths
-            'output/RequiredModules' | Should -BeIn $relativeModulePaths
+            # format the report to be used in because
+            $report = ":`r`n  Missing:`r`n`t$($missingFilesOrFolders -join "`r`n`t")`r`n  Unexpected:`r`n`t$($unexpectedFilesAndFolders -join "`r`n`t")`r`n."
 
-            # Files (relative to module root)
+            # Check if tree structure failed. If so output the module directory tree.
+            if ( -not $TreeStructureIsOk)
+            {
+                $treeOutput = Get-DirectoryTree -Path $mockModuleRootPath
+                Write-Verbose -Message ($treeOutput | Out-String) -Verbose
+            }
 
-            '.gitattributes' | Should -BeIn $relativeModulePaths
-            '.gitignore' | Should -BeIn $relativeModulePaths
-            'build.ps1' | Should -BeIn $relativeModulePaths
-            'build.yaml' | Should -BeIn $relativeModulePaths
-            'CHANGELOG.md' | Should -BeIn $relativeModulePaths
-            'README.md' | Should -BeIn $relativeModulePaths
-            'RequiredModules.psd1' | Should -BeIn $relativeModulePaths
-            'Resolve-Dependency.ps1' | Should -BeIn $relativeModulePaths
-            'Resolve-Dependency.psd1' | Should -BeIn $relativeModulePaths
-            'source/ModuleDsc.psd1' | Should -BeIn $relativeModulePaths
-            'source/ModuleDsc.psm1' | Should -BeIn $relativeModulePaths
-            'source/en-US/about_ModuleDsc.help.txt' | Should -BeIn $relativeModulePaths
-            'tests/QA/module.tests.ps1' | Should -BeIn $relativeModulePaths
-
-            $relativeModulePaths | Should -HaveCount 23
-        } -ErrorVariable itBlockError
-
-        # Check if previous It-block failed. If so output the module directory tree.
-        if ( $itBlockError.Count -ne 0 )
-        {
-            $treeOutput = Get-DirectoryTree -Path $mockModuleRootPath
-
-            Write-Verbose -Message ($treeOutput | Out-String) -Verbose
+            $TreeStructureIsOk | Should -BeTrue -Because $report
         }
     }
 }

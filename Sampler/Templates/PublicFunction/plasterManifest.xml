@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<plasterManifest
+  schemaVersion="1.0" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+  <metadata>
+    <name>PublicFunction</name>
+    <id>e75b7b6a-6ae5-40b7-8ad8-b0bae0512184</id>
+    <version>0.0.1</version>
+    <title>Public function function with tests Template</title>
+    <description>A template to add a Public function to a Sampler Project</description>
+    <author>Gael Colas</author>
+    <tags>Sampler,Template, Build, Module</tags>
+  </metadata>
+  <parameters>
+    <parameter store="text"  name="PublicFunctionName" type="text" prompt="Name of the Public function" default="Get-Something" />
+    <parameter store="text"  name="SourceDirectory" type="text" prompt="What is your source folder?" default="source" />
+  </parameters>
+    <!--
+      ${PLASTER_PARAM_PublicFunctionName}
+      ${PLASTER_PARAM_SourceDirectory}
+     -->
+  <content>
+    <!-- MODULES FOLDER SCAFFOLDING -->
+
+      <!--   SOURCE/Public Folder -->
+      <file source='' destination='${PLASTER_PARAM_SourceDirectory}/Public' />
+
+      <!--   tests/Unit/Public Folder -->
+      <file source='' destination='tests/Unit/Public' />
+
+      <!--   SOURCE/Public/Get-Something.ps1 -->
+      <templateFile source='Get-Something.ps1.template' destination='${PLASTER_PARAM_SourceDirectory}/Public/${PLASTER_PARAM_PublicFunctionName}.ps1' />
+
+      <!--   tests/Unit/Public/Get-Something.ps1 -->
+      <templateFile source='Get-Something.tests.ps1.template' destination='tests/Unit/Public/${PLASTER_PARAM_PublicFunctionName}.tests.ps1' />
+
+
+  </content>
+</plasterManifest>

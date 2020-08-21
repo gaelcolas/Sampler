@@ -1,0 +1,55 @@
+function <%= $PLASTER_PARAM_PublicFunctionName %>
+{
+    <#
+      .SYNOPSIS
+      Sample Function to return input string.
+
+      .DESCRIPTION
+      This function is only a sample Advanced function that returns the Data given via parameter Data.
+
+      .EXAMPLE
+      <%= $PLASTER_PARAM_PublicFunctionName %> -Data 'Get me this text'
+
+
+      .PARAMETER Data
+      The Data parameter is the data that will be returned without transformation.
+
+      #>
+    [cmdletBinding(
+        SupportsShouldProcess = $true,
+        ConfirmImpact = 'Low'
+    )]
+    [OutputType([string)]
+    param
+    (
+        [Parameter(
+            Mandatory = $true
+            , ValueFromPipeline = $true
+            , ValueFromPipelineByPropertyName = $true
+        )]
+        [String]
+        $Data
+    )
+
+    process
+    {
+        if ($pscmdlet.ShouldProcess($Data))
+        {
+            Write-Verbose ('Returning the data: {0}' -f $Data)
+<%
+            if ($PLASTER_PARAM_PrivateFunctionName)
+            {
+"            $PLASTER_PARAM_PrivateFunctionName -PrivateData `$Data"
+            }
+            else
+            {
+"            `$Data"
+            }
+%>
+        }
+        else
+        {
+            Write-Verbose 'oh dear'
+        }
+    }
+}

@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<plasterManifest
+  schemaVersion="1.0" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+  <metadata>
+    <name>PublicCallPrivateFunctions</name>
+    <id>d784c581-4659-4864-92b5-656d5c172cb1</id>
+    <version>0.0.1</version>
+    <title>Public function calling a private function and tests Template</title>
+    <description>A template to add a Public function calling a private one to a Sampler Project</description>
+    <author>Gael Colas</author>
+    <tags>Sampler,Template, Build, Module</tags>
+  </metadata>
+  <parameters>
+    <parameter store="text"  name="PublicFunctionName" type="text" prompt="Name of the Public function" default="Get-Something" />
+    <parameter store="text"  name="PrivateFunctionName" type="text" prompt="Name of the Private function" default="Get-PrivateFunction"  />
+    <parameter store="text"  name="SourceDirectory" type="text" prompt="What is your source folder?" default="source" />
+  </parameters>
+    <!--
+      ${PLASTER_PARAM_ModuleAuthor}
+      ${PLASTER_PARAM_CompositeName}
+      ${PLASTER_PARAM_SourceDirectory}
+     -->
+  <content>
+    <!-- MODULES FOLDER SCAFFOLDING -->
+
+      <!--   SOURCE/Public Folder -->
+      <file source='' destination='${PLASTER_PARAM_SourceDirectory}/Public' />
+
+      <!--   SOURCE/Private Folder -->
+      <file source=''
+            destination='${PLASTER_PARAM_SourceDirectory}/Private'
+      />
+
+      <!--   tests/Public Folder -->
+      <file source='' destination='tests/Unit/Public' />
+
+      <!--   tests/Private Folder -->
+      <file source='' destination='tests/Unit/Private' />
+
+
+
+      <!--   SOURCE/Private/Get-PrivateFunction.ps1 -->
+      <templateFile source='../PrivateFunction/Get-PrivateFunction.ps1.template' destination='${PLASTER_PARAM_SourceDirectory}/Private/${PLASTER_PARAM_PrivateFunctionName}.ps1' />
+
+      <!--   tests/Unit/Private/Get-PrivateFunction.ps1 -->
+      <templateFile source='../PrivateFunction/Get-PrivateFunction.tests.ps1.template' destination='tests/Unit/Private/${PLASTER_PARAM_PrivateFunctionName}.tests.ps1' />
+
+
+      <!--   SOURCE/Public/Get-PrivateFunction.ps1 -->
+      <templateFile source='../PublicFunction/Get-Something.ps1.template' destination='${PLASTER_PARAM_SourceDirectory}/Public/${PLASTER_PARAM_PublicFunctionName}.ps1' />
+
+      <!--   tests/Unit/Public/Get-PrivateFunction.ps1 -->
+      <templateFile source='../PublicFunction/Get-Something.tests.ps1.template' destination='tests/Unit/Public/${PLASTER_PARAM_PublicFunctionName}.tests.ps1' />
+
+  </content>
+</plasterManifest>

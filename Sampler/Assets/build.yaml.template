@@ -9,7 +9,7 @@
 CopyPaths:
   - en-US
 <%
-    if($PLASTER_PARAM_ModuleType -eq 'dsccommunity') {
+    if($PLASTER_PARAM_ModuleType -in @('dsccommunity')) {
 "  - DSCResources"
     }
     else {
@@ -53,7 +53,7 @@ BuildWorkflow:
     - Build_NestedModules_ModuleBuilder
     - Create_changelog_release_output
 <%
-    if($PLASTER_PARAM_ModuleType -eq 'dsccommunity') {
+    if($PLASTER_PARAM_ModuleType -in @('dsccommunity')) {
 @"
     - Generate_Conceptual_Help
     - Generate_Wiki_Content
@@ -76,7 +76,7 @@ BuildWorkflow:
     # code coverage files and needs to get merged into one file.
     #- Merge_CodeCoverage_Files
 <%
-    if($PLASTER_PARAM_ModuleType -eq 'dsccommunity') {
+    if($PLASTER_PARAM_ModuleType -in @('dsccommunity')) {
 "    - hqrmtest"
     }
 %>
@@ -112,7 +112,7 @@ Pester: #Passthru, OutputFile, CodeCoverageOutputFile not supported
   # CodeCoverageOutputFileEncoding: ascii
   # CodeCoverageMergedOutputFile: JaCoCo_Merged.xml
 <%
-    if($PLASTER_PARAM_ModuleType -eq 'dsccommunity') {
+    if($PLASTER_PARAM_ModuleType -in @('dsccommunity')) {
 @"
 
 DscTest:
@@ -132,7 +132,7 @@ ModuleBuildTasks:
   Sampler:
     - '*.build.Sampler.ib.tasks' # this means: import (dot source) all aliases ending with .ib.tasks exported by sampler module
 <%
-    if($PLASTER_PARAM_ModuleType -eq 'dsccommunity') {
+    if($PLASTER_PARAM_ModuleType -in @('dsccommunity')) {
 @"
   DscResource.DocGenerator:
     - 'Task.*'
@@ -153,7 +153,7 @@ TaskHeader: |
   Write-Build DarkGray "  $($Task.InvocationInfo.ScriptName):$($Task.InvocationInfo.ScriptLineNumber)"
   ""
 <%
-    if($PLASTER_PARAM_ModuleType -eq 'dsccommunity') {
+    if($PLASTER_PARAM_ModuleType -in @('dsccommunity')) {
 @"
 
 GitHubConfig:

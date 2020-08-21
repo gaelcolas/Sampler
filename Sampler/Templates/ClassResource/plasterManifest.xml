@@ -44,6 +44,10 @@
             destination='${PLASTER_PARAM_SourceDirectory}/Classes'
       />
 
+      <file source='Reason.ps1.template'
+            destination='${PLASTER_PARAM_SourceDirectory}/Classes/Reason.ps1'
+      />
+
       <!--   SOURCE/Classes/DSC_Resource.ps1 file -->
       <templateFile source='ClassResource.ps1.template'
                         destination='${PLASTER_PARAM_SourceDirectory}/Classes/DSC_${PLASTER_PARAM_ResourceName}.ps1'

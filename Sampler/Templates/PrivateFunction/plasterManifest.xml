@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<plasterManifest
+  schemaVersion="1.0" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+  <metadata>
+    <name>PrivateFunction</name>
+    <id>e75b7b6a-6ae5-40b7-8ad8-b0bae0512184</id>
+    <version>0.0.1</version>
+    <title>Private function with tests Template</title>
+    <description>A template to add a private function to a Sampler Project</description>
+    <author>Gael Colas</author>
+    <tags>Sampler,Template, Build, Module</tags>
+  </metadata>
+  <parameters>
+    <parameter store="text"  name="PrivateFunctionName" type="text" prompt="Name of the Private function" default="Get-PrivateFunction" />
+    <parameter store="text"  name="SourceDirectory" type="text" prompt="What is your source folder?" default="source" />
+  </parameters>
+    <!--
+      ${PLASTER_PARAM_PrivateFunctionName}
+      ${PLASTER_PARAM_SourceDirectory}
+     -->
+  <content>
+    <!-- MODULES FOLDER SCAFFOLDING -->
+
+      <!--   SOURCE/Private Folder -->
+      <file source='' destination='${PLASTER_PARAM_SourceDirectory}/Private' />
+
+      <!--   tests/Unit/Private Folder -->
+      <file source='' destination='tests/Unit/Private' />
+
+      <!--   SOURCE/Private/Get-PrivateFunction.ps1 -->
+      <templateFile source='Get-PrivateFunction.ps1.template' destination='${PLASTER_PARAM_SourceDirectory}/Private/${PLASTER_PARAM_PrivateFunctionName}.ps1' />
+
+      <!--   tests/Unit/Private/Get-PrivateFunction.ps1 -->
+      <templateFile source='Get-PrivateFunction.tests.ps1.template' destination='tests/Unit/Private/${PLASTER_PARAM_PrivateFunctionName}.tests.ps1' />
+
+
+  </content>
+</plasterManifest>

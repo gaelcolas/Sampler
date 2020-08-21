@@ -37,6 +37,7 @@ Describe 'DSC Composite resource Plaster Template' {
 
                 # Files (relative to module root)
                 'source/Enum/1.Ensure.ps1'
+                'source/Classes/Reason.ps1'
                 'source/Classes/DSC_MyDscClassResource.ps1'
             )
         }

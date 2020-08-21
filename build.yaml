@@ -8,7 +8,7 @@
 # OutputDirectory: ../output/Sampler
 CopyPaths:
   #- HelperSubmodule # This will be built as submodule instead
-  - DSCResources
+  # - DSCResources
   - ../.build/tasks
   - en-US
   - Assets
@@ -57,6 +57,7 @@ Pester:
     - tasks
     - Templates
     - Modules/DscResource.Common
+    - Assets
   # Default is to use the tests folder in the project folder or source folder (if present)
   # can use it to prioritize: tests/QA, tests/Unit, tests/Integration
   Script:
@@ -66,7 +67,7 @@ Pester:
   # - tests/Integration
   ExcludeTag:
   Tag:
-  CodeCoverageThreshold: 40 # Set to 0 to bypass
+  CodeCoverageThreshold: 85 # Set to 0 to bypass
 
 DscTest:
   ExcludeTag:
@@ -140,16 +141,6 @@ BuildWorkflow:
     - publish_nupkg_to_gallery  # runs if nuget is available (prefered)
     - publish_module_to_gallery # runs if nuget is not available
     - Publish_release_to_GitHub
-
-Resolve-Dependency: #Parameters for Resolve-Dependency
-  #PSDependTarget: ./output/modules
-  #Proxy: ''
-  #ProxyCredential:
-  Gallery: 'PSGallery'
-  # AllowOldPowerShellGetModule: true
-  #MinimumPSDependVersion = '0.3.0'
-  AllowPrerelease: false
-  Verbose: false
 
 ModuleBuildTasks:
 #   # - ModuleName: 'alias to search'

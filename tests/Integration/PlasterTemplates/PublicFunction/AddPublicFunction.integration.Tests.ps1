@@ -23,56 +23,37 @@ Import-Module -Name "$PSScriptRoot\..\..\IntegrationTestHelpers.psm1"
 
 Install-TreeCommand
 
-Describe 'DSC Community Plaster Template' {
-    Context 'When creating a new module project' {
+Describe 'DSC Composite resource Plaster Template' {
+    Context 'When creating a new composite' {
         BeforeAll {
-            $mockModuleName = 'ModuleDsc'
-            $mockModuleRootPath = Join-Path -Path $TestDrive -ChildPath $mockModuleName
+            $mockPublicFunctionName  = 'Get-Something'
+            $mockModuleRootPath = $TestDrive
+            $templateRelativePath = 'Templates/PublicFunction'
 
             $listOfExpectedFilesAndFolders = @(
                 # Folders (relative to module root)
-
-                '.vscode'
                 'source'
-                'source/en-US'
+                'source/Public'
                 'tests'
-                'output'
-                'output/RequiredModules'
+                'tests/Unit'
+                'tests/Unit/Public'
 
                 # Files (relative to module root)
-
-                '.gitattributes'
-                '.gitignore'
-                '.markdownlint.json'
-                'azure-pipelines.yml'
-                'build.ps1'
-                'build.yaml'
-                'CODE_OF_CONDUCT.md'
-                'CONTRIBUTING.md'
-                'GitVersion.yml'
-                'RequiredModules.psd1'
-                'Resolve-Dependency.ps1'
-                'Resolve-Dependency.psd1'
-                '.vscode/analyzersettings.psd1'
-                '.vscode/settings.json'
-                '.vscode/tasks.json'
-                'source/en-US/about_ModuleDsc.help.txt'
+                'source/Public/Get-Something.ps1'
+                'tests/Unit/Public/Get-Something.tests.ps1'
             )
         }
 
         It 'Should create a new module without throwing' {
             $invokePlasterParameters = @{
-                TemplatePath    = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
-                DestinationPath = $TestDrive
-                SourceDirectory = 'source'
-                NoLogo          = $true
-                Force           = $true
-
-                # Template
-                ModuleType      = 'dsccommunity'
+                TemplatePath      = Join-Path -Path $importedModule.ModuleBase -ChildPath $templateRelativePath
+                DestinationPath   = $testdrive
+                NoLogo            = $true
+                Force             = $true
 
                 # Template properties
-                ModuleName      = $mockModuleName
+                PublicFunctionName = $mockPublicFunctionName
+                SourceDirectory   = 'source'
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw

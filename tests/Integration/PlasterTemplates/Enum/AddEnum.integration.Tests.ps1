@@ -23,56 +23,32 @@ Import-Module -Name "$PSScriptRoot\..\..\IntegrationTestHelpers.psm1"
 
 Install-TreeCommand
 
-Describe 'DSC Community Plaster Template' {
-    Context 'When creating a new module project' {
+Describe 'DSC MOF based resource Plaster Template' {
+    Context 'When creating a new MOF DSC Resource' {
         BeforeAll {
-            $mockModuleName = 'ModuleDsc'
-            $mockModuleRootPath = Join-Path -Path $TestDrive -ChildPath $mockModuleName
+            $mockEnumName  = 'MyEnum'
+            $mockModuleRootPath = $TestDrive
 
             $listOfExpectedFilesAndFolders = @(
                 # Folders (relative to module root)
-
-                '.vscode'
                 'source'
-                'source/en-US'
-                'tests'
-                'output'
-                'output/RequiredModules'
+                'source/Enum'
 
                 # Files (relative to module root)
-
-                '.gitattributes'
-                '.gitignore'
-                '.markdownlint.json'
-                'azure-pipelines.yml'
-                'build.ps1'
-                'build.yaml'
-                'CODE_OF_CONDUCT.md'
-                'CONTRIBUTING.md'
-                'GitVersion.yml'
-                'RequiredModules.psd1'
-                'Resolve-Dependency.ps1'
-                'Resolve-Dependency.psd1'
-                '.vscode/analyzersettings.psd1'
-                '.vscode/settings.json'
-                '.vscode/tasks.json'
-                'source/en-US/about_ModuleDsc.help.txt'
+                'source/Enum/MyEnum.ps1'
             )
         }
 
         It 'Should create a new module without throwing' {
             $invokePlasterParameters = @{
-                TemplatePath    = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
-                DestinationPath = $TestDrive
-                SourceDirectory = 'source'
-                NoLogo          = $true
-                Force           = $true
-
-                # Template
-                ModuleType      = 'dsccommunity'
+                TemplatePath      = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Enum'
+                DestinationPath   = $testdrive
+                NoLogo            = $true
+                Force             = $true
 
                 # Template properties
-                ModuleName      = $mockModuleName
+                EnumName     = $mockEnumName
+                SourceDirectory   = 'source'
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw

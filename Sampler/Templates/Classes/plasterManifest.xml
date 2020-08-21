@@ -1,0 +1,62 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<plasterManifest
+  schemaVersion="1.0" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+  <metadata>
+    <name>Classes</name>
+    <id>94a2bcc5-e4d1-4c45-8949-f693ad57e99e</id>
+    <version>0.0.1</version>
+    <title>Enum Template</title>
+    <description>A template to add some classes with inheritence and order to a Sampler Project</description>
+    <author>Gael Colas</author>
+    <tags>Sampler,Template, Build, Module</tags>
+  </metadata>
+  <parameters>
+    <parameter store="text" name="SourceDirectory" type="text" prompt="What is your source folder?" default="source" />
+  </parameters>
+    <!--
+      ${PLASTER_PARAM_SourceDirectory}
+
+     -->
+  <content>
+    <!-- MODULES FOLDER SCAFFOLDING -->
+
+    <!--   CLASSES Samples Folder -->
+    <file source=''
+          destination='${PLASTER_PARAM_SourceDirectory}/Classes/'
+    />
+    <!--   Test CLASSES Samples Folder -->
+    <file source=''
+          destination='tests/Unit/Classes/'
+    />
+
+
+    <!--   CLASSES Samples Files -->
+    <file source='Classes/1.class1.ps1'
+          destination='${PLASTER_PARAM_SourceDirectory}/Classes/1.class1.ps1'
+    />
+    <file source='Classes/2.class2.ps1'
+          destination='${PLASTER_PARAM_SourceDirectory}/Classes/2.class2.ps1'
+    />
+    <file source='Classes/3.class11.ps1'
+          destination='${PLASTER_PARAM_SourceDirectory}/Classes/3.class11.ps1'
+    />
+    <file source='Classes/4.class12.ps1'
+          destination='${PLASTER_PARAM_SourceDirectory}/Classes/4.class12.ps1'
+    />
+
+    <!--   UNIT TESTS Classes Sample Files -->
+    <file source='tests/Unit/Classes/class1.tests.ps1'
+          destination='tests/Unit/Classes/class1.tests.ps1'
+    />
+    <file source='tests/Unit/Classes/class2.tests.ps1'
+          destination='tests/Unit/Classes/class2.tests.ps1'
+    />
+    <file source='tests/Unit/Classes/class11.tests.ps1'
+          destination='tests/Unit/Classes/class11.tests.ps1'
+    />
+    <file source='tests/Unit/Classes/class12.tests.ps1'
+          destination='tests/Unit/Classes/class12.tests.ps1'
+    />
+
+  </content>
+</plasterManifest>
