@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<plasterManifest
+  schemaVersion="1.0" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+  <metadata>
+    <name>Enum</name>
+    <id>c2e25927-beb3-403c-8436-6df54bd8d512</id>
+    <version>0.0.1</version>
+    <title>Enum Template</title>
+    <description>A template to add an Enum to a Sampler Project</description>
+    <author>Gael Colas</author>
+    <tags>Sampler,Template, Build, Module</tags>
+  </metadata>
+  <parameters>
+    <parameter store="text" name="EnumName" type="text" prompt="Name of your Enum?" default="Stuff" />
+    <parameter store="text" name="SourceDirectory" type="text" prompt="What is your source folder?" default="source" />
+  </parameters>
+    <!--
+      ${PLASTER_PARAM_SourceDirectory}
+      ${PLASTER_PARAM_EnumName}
+
+     -->
+  <content>
+    <!-- MODULES FOLDER SCAFFOLDING -->
+
+      <!--   SOURCE/Enum Folder -->
+      <file source=''
+            destination='${PLASTER_PARAM_SourceDirectory}/Enum'
+      />
+
+      <!--   SOURCE/Enum File -->
+      <templateFile source='Enum.ps1.template'
+            destination='${PLASTER_PARAM_SourceDirectory}/Enum/${PLASTER_PARAM_EnumName}.ps1'
+      />
+
+  </content>
+</plasterManifest>
