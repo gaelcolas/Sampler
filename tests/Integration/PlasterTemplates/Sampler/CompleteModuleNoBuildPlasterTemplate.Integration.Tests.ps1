@@ -75,6 +75,7 @@ Describe 'Complete Module No Build Plaster Template' {
                 'source/DSCResources/DSC_Folder/DSC_Folder.schema.mof'
                 'source/DSCResources/DSC_Folder/en-US/DSC_Folder.strings.psd1'
                 'source/en-US/about_ModuleDsc.help.txt'
+                'source/Examples/README.md'
                 'source/Examples/Resources/Folder/1-DscResourceTemplate_CreateFolderAsSystemConfig.ps1'
                 'source/Examples/Resources/Folder/2-DscResourceTemplate_CreateFolderAsUserConfig.ps1'
                 'source/Examples/Resources/Folder/3-DscResourceTemplate_RemoveFolderConfig.ps1'

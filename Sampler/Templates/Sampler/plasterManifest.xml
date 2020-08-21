@@ -374,8 +374,30 @@
 
     <!--   DSCResource Examples Sample Files -->
 
-    <file source='Sampler/Examples/Resources/**'
+    <file source=''
           destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/Examples/Resources/'
+          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild") -or ${PLASTER_PARAM_Features} -Contains ("All") -or (${PLASTER_PARAM_Features} -Contains ("DSCResources") -and ${PLASTER_PARAM_Features} -Contains ("SampleScripts"))'
+    />
+
+    <file source='../Examples/README.md'
+          destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/Examples/README.md'
+          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild") -or ${PLASTER_PARAM_Features} -Contains ("All") -or (${PLASTER_PARAM_Features} -Contains ("DSCResources") -and ${PLASTER_PARAM_Features} -Contains ("SampleScripts"))'
+    />
+
+    <file source=''
+          destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/Examples/Resources/Folder/'
+          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild") -or ${PLASTER_PARAM_Features} -Contains ("All") -or (${PLASTER_PARAM_Features} -Contains ("DSCResources") -and ${PLASTER_PARAM_Features} -Contains ("SampleScripts"))'
+    />
+    <file source='../Examples/Resources/Folder/1-DscResourceTemplate_CreateFolderAsSystemConfig.ps1'
+          destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/Examples/Resources/Folder/1-DscResourceTemplate_CreateFolderAsSystemConfig.ps1'
+          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild") -or ${PLASTER_PARAM_Features} -Contains ("All") -or (${PLASTER_PARAM_Features} -Contains ("DSCResources") -and ${PLASTER_PARAM_Features} -Contains ("SampleScripts"))'
+    />
+    <file source='../Examples/Resources/Folder/2-DscResourceTemplate_CreateFolderAsUserConfig.ps1'
+          destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/Examples/Resources/Folder/2-DscResourceTemplate_CreateFolderAsUserConfig.ps1'
+          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild") -or ${PLASTER_PARAM_Features} -Contains ("All") -or (${PLASTER_PARAM_Features} -Contains ("DSCResources") -and ${PLASTER_PARAM_Features} -Contains ("SampleScripts"))'
+    />
+    <file source='../Examples/Resources/Folder/3-DscResourceTemplate_RemoveFolderConfig.ps1'
+          destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/Examples/Resources/Folder/3-DscResourceTemplate_RemoveFolderConfig.ps1'
           condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild") -or ${PLASTER_PARAM_Features} -Contains ("All") -or (${PLASTER_PARAM_Features} -Contains ("DSCResources") -and ${PLASTER_PARAM_Features} -Contains ("SampleScripts"))'
     />
     <!-- END OF DSCResources files and folders -->
