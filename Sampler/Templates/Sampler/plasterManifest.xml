@@ -90,7 +90,7 @@
               value="SampleScripts"/>
 
       <choice label='&amp;Git ignore'
-              help="Adds project .gitignore."
+              help="Adds project .gitignore and .gitAttribute."
               value="git"/>
 
       <choice label='Ghe&amp;rkin BDD'
