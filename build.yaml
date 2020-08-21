@@ -57,6 +57,7 @@ Pester:
     - tasks
     - Templates
     - Modules/DscResource.Common
+    - Assets
   # Default is to use the tests folder in the project folder or source folder (if present)
   # can use it to prioritize: tests/QA, tests/Unit, tests/Integration
   Script:
@@ -66,7 +67,7 @@ Pester:
   # - tests/Integration
   ExcludeTag:
   Tag:
-  CodeCoverageThreshold: 33 # Set to 0 to bypass
+  CodeCoverageThreshold: 85 # Set to 0 to bypass
 
 DscTest:
   ExcludeTag:
