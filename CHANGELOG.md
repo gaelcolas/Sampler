@@ -10,18 +10,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Adding Templates for:
-    - DSC Composite
-    - Class-based DSC Resource with reasons
-    - MOF based DSC Resource and tests
-    - Private Function and tests
-    - Public Function and tests
-    - Public function calling a Private function and tests
-    - Classes and tests
-    - Enum
+  - DSC Composite
+  - Class-based DSC Resource with reasons
+  - MOF based DSC Resource and tests
+  - Private Function and tests
+  - Public Function and tests
+  - Public function calling a Private function and tests
+  - Classes and tests
+  - Enum
 - Added integration tests for the Plaster templates
 - Added support to use an alternate name for the trunk branch in
   `New-Release.GitHub.build.ps1` ([issue #182](https://github.com/gaelcolas/Sampler/issues/182)).
 - Added additional log output to `New-Release.GitHub.build.ps1`.
+- Corrected markdown format in CHANGELOG.md to remove linting messages.
 
 ### Fixed
 
