@@ -6,7 +6,7 @@
 # Licensed under the MIT License.
 function Publish-GitHubRelease {
     [CmdletBinding()]
-    param(
+    param (
         [Parameter(Mandatory)]
         [string]
         $Owner,
@@ -102,7 +102,7 @@ function Publish-GitHubRelease {
 
 function Get-GitHubReleaseFromTagName {
     [CmdletBinding()]
-    param(
+    param (
         [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
         [string]
         $Owner,
@@ -141,7 +141,7 @@ function Get-GitHubReleaseFromTagName {
 
 function Get-GitHubReleaseFromReleaseID {
     [CmdletBinding()]
-    param(
+    param (
         [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
         [string]
         $Owner,
@@ -180,7 +180,7 @@ function Get-GitHubReleaseFromReleaseID {
 
 function Set-GitHubRelease {
     [CmdletBinding(DefaultParameterSetName = 'ByTagName')]
-    param(
+    param (
         [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
         [string]
         $Owner,
@@ -272,7 +272,7 @@ function Set-GitHubRelease {
 function Add-GitHubAssetToRelease {
     [CmdletBinding(DefaultParameterSetName = 'ByTagName')]
     [OutputType([PSObject])]
-    param(
+    param (
         [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
         [string]
         $Owner,
@@ -352,7 +352,7 @@ function Add-GitHubAssetToRelease {
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # Licensed under the MIT License.
 filter GetHumanishRepositoryDetails {
-    param(
+    param (
         [Parameter()]
         [string]
         $RemoteUrl
@@ -377,7 +377,7 @@ filter GetHumanishRepositoryDetails {
 }
 
 function New-GitHubPullRequest {
-    param(
+    param (
         [Parameter(Mandatory)]
         [string]
         $Branch,

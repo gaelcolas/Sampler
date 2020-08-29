@@ -1,4 +1,4 @@
-Param (
+param (
     [Parameter()]
     [string]
     $BuildOutput = (property BuildOutput 'BuildOutput'),
