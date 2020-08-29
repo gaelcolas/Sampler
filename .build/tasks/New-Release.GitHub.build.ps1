@@ -119,14 +119,7 @@ task Publish_release_to_GitHub -if ($GitHubToken) {
     if (!$SkipPublish)
     {
         Write-Build DarkGray "Publishing GitHub release:"
-        Write-Build DarkGray "`tOwner       = $($releaseParams.Owner)"
-        Write-Build DarkGray "`tRepository  = $($releaseParams.Repository)"
-        Write-Build DarkGray "`tTag         = $($releaseParams.Tag)"
-        Write-Build DarkGray "`tReleaseName = $($releaseParams.ReleaseName)"
-        Write-Build DarkGray "`tBranch      = $($releaseParams.Branch)"
-        Write-Build DarkGray "`tAssetPath   = $($releaseParams.AssetPath)"
-        Write-Build DarkGray "`tPrerelease  = $($releaseParams.Prerelease)"
-        Write-Build DarkGray "`tDescription = $($releaseParams.Description)"
+        Write-Build DarkGray ($releaseParams | Out-String)
 
         $APIResponse = Publish-GitHubRelease @releaseParams
     }
