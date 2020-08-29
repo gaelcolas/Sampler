@@ -1,4 +1,4 @@
-param(
+param (
     # Base directory of all output (default to 'output')
     [Parameter()]
     [string]

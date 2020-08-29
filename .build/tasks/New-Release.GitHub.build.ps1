@@ -1,4 +1,4 @@
-param(
+param (
     # Base directory of all output (default to 'output')
 
     [Parameter()]
@@ -77,7 +77,7 @@ task Publish_release_to_GitHub -if ($GitHubToken) {
     $PackageToRelease = Get-ChildItem (Join-Path $OutputDirectory "$ProjectName.$ModuleVersion.nupkg")
     $ReleaseTag = "v$ModuleVersion"
 
-    Write-Build DarkGray "About to release $PackageToRelease v$ModuleVersion"
+    Write-Build DarkGray "About to release '$PackageToRelease' with tag and release name '$ReleaseTag'"
     $remoteURL = git remote get-url origin
 
     if ($remoteURL -notMatch 'github')
@@ -118,6 +118,16 @@ task Publish_release_to_GitHub -if ($GitHubToken) {
     }
     if (!$SkipPublish)
     {
+        Write-Build DarkGray "Publishing GitHub release:"
+        Write-Build DarkGray "`tOwner       = $($releaseParams.Owner)"
+        Write-Build DarkGray "`tRepository  = $($releaseParams.Repository)"
+        Write-Build DarkGray "`tTag         = $($releaseParams.Tag)"
+        Write-Build DarkGray "`tReleaseName = $($releaseParams.ReleaseName)"
+        Write-Build DarkGray "`tBranch      = $($releaseParams.Branch)"
+        Write-Build DarkGray "`tAssetPath   = $($releaseParams.AssetPath)"
+        Write-Build DarkGray "`tPrerelease  = $($releaseParams.Prerelease)"
+        Write-Build DarkGray "`tDescription = $($releaseParams.Description)"
+
         $APIResponse = Publish-GitHubRelease @releaseParams
     }
     Write-Build Green "Release Created. Follow the link -> $($APIResponse.html_url)"
