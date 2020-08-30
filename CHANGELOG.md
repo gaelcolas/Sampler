@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed `New-Release.GitHub.build.ps1` task `Create_ChangeLog_GitHub_PR` so that
+  it respects `MainGitBranch` if passed.
+
 ## [0.106.0] - 2020-08-30
 
 ### Added

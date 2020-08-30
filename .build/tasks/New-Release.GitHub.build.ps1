@@ -190,12 +190,13 @@ task Create_ChangeLog_GitHub_PR -if ($GitHubToken) {
         $RepoInfo = GetHumanishRepositoryDetails -RemoteUrl (git remote get-url origin)
 
         $NewPullRequestParams = @{
-            GitHubToken = $GitHubToken
-            Repository  = $RepoInfo.Repository
-            Owner       = $RepoInfo.Owner
-            Title       = "Updating ChangeLog since release of $TagVersion"
-            Branch      = $BranchName
-            ErrorAction = 'Stop'
+            GitHubToken  = $GitHubToken
+            Repository   = $RepoInfo.Repository
+            Owner        = $RepoInfo.Owner
+            Title        = "Updating ChangeLog since release of $TagVersion"
+            Branch       = $BranchName
+            TargetBranch = $MainGitBranch
+            ErrorAction  = 'Stop'
         }
         $Response = New-GitHubPullRequest @NewPullRequestParams
         Write-Build Green "`n --> PR #$($Response.number) opened: $($Response.url)"
