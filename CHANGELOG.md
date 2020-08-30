@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.106.1] - 2020-08-30
+
 ### Fixed
 
 - Fixed `New-Release.GitHub.build.ps1` task `Create_ChangeLog_GitHub_PR` so that
