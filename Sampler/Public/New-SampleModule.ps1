@@ -22,6 +22,7 @@ function New-SampleModule
         $ModuleName,
 
         [Parameter()]
+        [AllowNull()]
         [string]
         $ModuleDescription,
 
