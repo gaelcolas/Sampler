@@ -4,11 +4,14 @@ function Add-Sample
     [OutputType()]
     param (
         [Parameter()]
+        # Add a sample component based on the Plaster templates embedded with this module.
         [ValidateSet('Classes','ClassResource','Composite','Enum','Examples','MofResource','PrivateFunction','PublicCallPrivateFunctions','PublicFunction')]
         [string]
         $Sample,
 
         [Parameter()]
+        # Destination folder where to add the Sample files to the module.
+        # This assume the repository root folder, not the source folder.
         [string]
         $DestinationPath = '.'
     )
@@ -153,6 +156,10 @@ function Add-Sample
         $sampleTemplateFolder = Join-Path -Path 'Templates' -ChildPath $Sample
         $templatePath = Join-Path -Path $MyInvocation.MyCommand.Module.ModuleBase -ChildPath $sampleTemplateFolder
         $plasterParameter.Add('TemplatePath', $templatePath)
+        if (-not $plasterParameter.ContainsKey('DestinationPath'))
+        {
+            $plasterParameter['DestinationPath'] = $DestinationPath
+        }
 
         Invoke-Plaster @plasterParameter
     }
