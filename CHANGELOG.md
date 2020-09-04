@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added New-SampleModule command to invoke the template.
+- Added Add-Sample command to invoke component templates
+
 ## [0.106.1] - 2020-08-30
 
 ### Fixed
@@ -18,7 +23,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added New-SampleModule command to invoke the template.
 - Added Templates for:
     - DSC Composite
     - Class-based DSC Resource with reasons
