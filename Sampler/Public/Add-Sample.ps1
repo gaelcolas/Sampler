@@ -1,5 +1,39 @@
+<#
+.SYNOPSIS
+Adding code elements (function, enum, class, DSC Resource, tests...) to a module's source.
+
+.DESCRIPTION
+Add-Sample is an helper function to invoke a plaster template built-in the Sampler module.
+With this function you can bootstrap your module project by adding classes, functions and
+associated tests, examples and configuration elements.
+
+.PARAMETER Sample
+Type of module element you would like to add:
+    - Classes: A sample of 4 classes with inheritence and how to manage the orders to avoid parsing errors.
+    - ClassResource: A Class-Based DSC Resources showing some best practices including tests, Reasons, localized strings.
+    - Composite: A DSC Composite Resource (a configuration block) packaged the right way to make sure it's visible by Get-DscResource.
+    - Enum: An example of a simple Enum.
+    - MofResource: A sample of a MOF-Based DSC Resource following the DSC Community practices.
+    - PrivateFunction: A sample of a Private function (not exported from the module) and its test.
+    - PublicCallPrivateFunctions: A sample of 2 functions where the exported one (public) calls the private one, with the tests.
+    - PublicFunction: A sample public function and its test.
+
+.PARAMETER DestinationPath
+Destination of your module source root folder, defaults to the current directory ".".
+We assume that your current location is the module folder, and within this folder we
+will find the source folder, the tests folder and other supporting files.
+
+.EXAMPLE
+C:\src\MyModule> Add-Sample -Sample PublicFunction -PublicFunctionName Get-MyStuff
+
+.NOTES
+This module requires and uses Plaster.
+#>
 function Add-Sample
 {
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingFunctions', '')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '')]
+
     [CmdletBinding()]
     [OutputType()]
     param (
@@ -29,11 +63,6 @@ function Add-Sample
         $sampleTemplateFolder = Join-Path -Path 'Templates' -ChildPath $Sample
         $templatePath = Join-Path -Path $MyInvocation.MyCommand.Module.ModuleBase -ChildPath $sampleTemplateFolder
 
-        if (-not (Test-Path $templateManifest))
-        {
-            return
-        }
-
         try
         {
             # Let's convert non-terminating errors in this function to terminating so we
@@ -47,18 +76,18 @@ function Add-Sample
             $templateAbsolutePath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($TemplatePath)
             if (!(Test-Path -LiteralPath $templateAbsolutePath -PathType Container))
             {
-                throw ($LocalizedData.ErrorTemplatePathIsInvalid_F1 -f $templateAbsolutePath)
+                throw ("Can't find plaster template at {0}." -f $templateAbsolutePath)
             }
 
-            $plasterModule = Get-Module Plaster
+            $plasterModule = Get-Module -Name Plaster
 
             # Load manifest file using culture lookup (using Plaster module private function GetPlasterManifestPathForCulture)
             $manifestPath = &$plasterModule {
                 param (
                     $templateAbsolutePath,
-                    $PSCulture
+                    $Culture
                 )
-                 GetPlasterManifestPathForCulture $templateAbsolutePath $PSCulture
+                GetPlasterManifestPathForCulture $templateAbsolutePath $Culture
             } $templateAbsolutePath $PSCulture
 
             if (($null -eq $manifestPath) -or (!(Test-Path $manifestPath)))
@@ -67,13 +96,11 @@ function Add-Sample
             }
 
             $manifest = Plaster\Test-PlasterManifest -Path $manifestPath -ErrorAction Stop 3>$null
-
             # The user-defined parameters in the Plaster manifest are converted to dynamic parameters
             # which allows the user to provide the parameters via the command line.
             # This enables non-interactive use cases.
             foreach ($node in $manifest.plasterManifest.parameters.ChildNodes)
             {
-
                 if ($node -isnot [System.Xml.XmlElement])
                 {
                     continue
@@ -150,7 +177,7 @@ function Add-Sample
         $paramDictionary
     }
 
-    process {
+    end {
         $plasterParameter = $PSBoundParameters
         $null = $plasterParameter.remove('Sample')
         $sampleTemplateFolder = Join-Path -Path 'Templates' -ChildPath $Sample
