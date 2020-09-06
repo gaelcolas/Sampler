@@ -44,7 +44,7 @@ Type of license you would like to add to your repository. We recommend MIT for O
 How you would like to call your Source repository to differentiate from the output and the tests folder. We recommend to call it Source.
 
 .PARAMETER Features
-If you'd rather select specific features this template offers to build your module, use this parameter set instead.
+If you'd rather select specific features from this template to build your module, use this parameter instead.
 
 .EXAMPLE
 C:\src> New-SampleModule -DestinationPath . -ModuleType CompleteModule -ModuleAuthor "Gael Colas" -ModuleName MyModule -ModuleVersion 0.0.1 -ModuleDescription "a sample module" -LicenseType MIT -SourceDirectory Source
