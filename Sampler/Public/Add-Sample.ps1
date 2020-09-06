@@ -50,7 +50,7 @@ function Add-Sample
         $DestinationPath = '.'
     )
 
-    dynamicParam
+    dynamicparam
     {
 
         $paramDictionary = New-Object System.Management.Automation.RuntimeDefinedParameterDictionary
@@ -84,7 +84,12 @@ function Add-Sample
             # Load manifest file using culture lookup (using Plaster module private function GetPlasterManifestPathForCulture)
             $manifestPath = &$plasterModule {
                 param (
+                    [Parameter()]
+                    [string]
                     $templateAbsolutePath,
+
+                    [Parameter()]
+                    [string]
                     $Culture
                 )
                 GetPlasterManifestPathForCulture $templateAbsolutePath $Culture
@@ -108,6 +113,7 @@ function Add-Sample
 
                 $name = $node.name
                 $type = $node.type
+
                 if ($node.prompt)
                 {
                     $prompt = $node.prompt
