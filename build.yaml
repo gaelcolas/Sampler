@@ -61,13 +61,14 @@ Pester:
   # Default is to use the tests folder in the project folder or source folder (if present)
   # can use it to prioritize: tests/QA, tests/Unit, tests/Integration
   Script:
-  # - tests/QA/module.tests.ps1
-  # - tests/QA
-  # - tests/Unit
+    # - tests/Unit/Public/Add-Sample.tests.ps1
+    # - tests/Unit/Public/New-SampleModule.tests.ps1
+    # - tests/QA
+    # - tests/Unit
   # - tests/Integration
   ExcludeTag:
   Tag:
-  CodeCoverageThreshold: 85 # Set to 0 to bypass
+  CodeCoverageThreshold: 35 # Set to 0 to bypass
 
 DscTest:
   ExcludeTag:
