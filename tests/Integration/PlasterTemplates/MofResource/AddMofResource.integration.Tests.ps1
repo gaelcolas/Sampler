@@ -57,6 +57,7 @@ Describe 'DSC MOF based resource Plaster Template' {
                 # Template properties
                 ResourceName     = $mockResourceName
                 SourceDirectory   = 'source'
+                ModuleName        = 'MyModule'
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw

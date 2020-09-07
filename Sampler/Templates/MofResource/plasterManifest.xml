@@ -12,6 +12,7 @@
   </metadata>
   <parameters>
     <parameter store="text"  name="ResourceName" type="text" prompt="Name of your Resource" />
+    <parameter store="text"  name="ModuleName" type="text" prompt="Name of your module" />
     <parameter store="text" name="SourceDirectory" type="text" prompt="What is your source folder?" default="source" />
   </parameters>
     <!--
@@ -42,7 +43,7 @@
       />
 
       <!--   tests/DSCResource/** files -->
-      <file source='tests/Unit/DSCResources/DSC_Folder.tests.ps1'
+      <templateFile source='tests/Unit/DSCResources/DSC_Folder.tests.ps1.template'
             destination='tests/Unit/DSCResources/DSC_Folder.tests.ps1'
       />
 

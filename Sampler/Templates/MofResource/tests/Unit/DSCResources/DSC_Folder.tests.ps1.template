@@ -1,5 +1,5 @@
 #region HEADER
-$script:dscModuleName = 'Sampler'
+$script:dscModuleName = '<%=$PLASTER_PARAM_ModuleName %>'
 $script:dscResourceName = 'DSC_Folder'
 
 $script:moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
