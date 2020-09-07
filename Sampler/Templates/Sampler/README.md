@@ -214,26 +214,3 @@ There is also a community project to create a Plaster template for generating
 a baseline for a DSC resource module. Please see the GitHub repository
 [NewDscHighQualityResourceModule](https://github.com/bgelens/NewDscHighQualityResourceModule)
 for more information.
-
-## Change log
-
-This is the change log for DscResource.Template. Any changes to the
-DscResource.Template should be mentioned here for reference by the users.
-
-### 2019-02-03
-
-- Initial commit to repository DscResource.Template.
-
-### 2018-09-22
-
-- The file appveyor.yml correctly uses named parameters for PowerShell cmdlets.
-
-### 2018-09-20
-
-- Added GitHub standard issue templates and pull request template.
-
-### 2018-09-06
-
-- Added change log for DscResource.Template, there were no change log prior to
-  this date.
-- Added the CODE_OF_CONDUCT.md and updated text for code of conduct in README.md.
