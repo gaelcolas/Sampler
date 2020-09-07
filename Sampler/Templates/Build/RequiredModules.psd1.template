@@ -21,7 +21,7 @@
     ChangelogManagement         = 'latest'
     Sampler                     = 'latest'
 <%
-    If ($PLASTER_PARAM_ModuleType -eq 'dsccommunity') {
+    If ($PLASTER_PARAM_ModuleType -eq 'dsccommunity' -or $PLASTER_PARAM_ModuleType -match 'complete' -or $PLASTER_PARAM_Features -Contains ("All") -or $PLASTER_PARAM_Features -Contains ("DSCResources")) {
 @"
     MarkdownLinkCheck           = 'latest'
     'DscResource.Test'          = 'latest'

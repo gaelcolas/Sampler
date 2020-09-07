@@ -228,7 +228,7 @@
           condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild") -or (${PLASTER_PARAM_Features} -Contains "All" -or (${PLASTER_PARAM_Features} -Contains "UnitTests" -and ${PLASTER_PARAM_Features} -contains "DSCResources"))'
     />
 
-    <file source='../MofResource/tests/Unit/DSCResources/DSC_Folder.tests.ps1'
+    <templateFile source='../MofResource/tests/Unit/DSCResources/DSC_Folder.tests.ps1.template'
           destination='${PLASTER_PARAM_ModuleName}/tests/Unit/DSCResources/DSC_Folder.tests.ps1'
           condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild") -or (${PLASTER_PARAM_Features} -Contains "All" -or (${PLASTER_PARAM_Features} -Contains "UnitTests" -and ${PLASTER_PARAM_Features} -contains "DSCResources"))'
     />
