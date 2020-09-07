@@ -130,7 +130,15 @@ Task Build_Module_ModuleBuilder {
     # if we built the PSM1 on Windows with a BOM, re-write without BOM
     if ($PSVersionTable.PSVersion.Major -le 5)
     {
-        $Psm1Path = Join-Path -Path $BuiltModule.ModuleBase -ChildPath $BuiltModule.RootModule
+        if (Split-Path -IsAbsolute -Path $BuiltModule.RootModule)
+        {
+            $Psm1Path = $BuiltModule.RootModule
+        }
+        else
+        {
+            $Psm1Path = Join-Path -Path $BuiltModule.ModuleBase -ChildPath $BuiltModule.RootModule
+        }
+
         $RootModuleDefinition = Get-Content -Raw -Path $Psm1Path
         [System.IO.File]::WriteAllLines($Psm1Path, $RootModuleDefinition)
     }
