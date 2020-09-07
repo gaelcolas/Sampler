@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.107.0] - 2020-09-07
+
 ### Added
 
 - Added New-SampleModule command to invoke the template.
