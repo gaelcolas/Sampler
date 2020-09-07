@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added New-SampleModule command to invoke the template.
 - Added Add-Sample command to invoke component templates
 
+### Fixed
+
+- Fixed pack action & nuget push.
+
 ## [0.106.1] - 2020-08-30
 
 ### Fixed
