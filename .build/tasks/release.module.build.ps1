@@ -166,6 +166,11 @@ task publish_nupkg_to_gallery -if ((Get-Command nuget -ErrorAction SilentlyConti
         $ProjectName = Get-ProjectName -BuildRoot $BuildRoot
     }
 
+    if (!(Split-Path $OutputDirectory -IsAbsolute))
+    {
+        $OutputDirectory = Join-Path -Path $BuildRoot -ChildPath $OutputDirectory
+    }
+
     $getModuleVersionParameters = @{
         OutputDirectory = $OutputDirectory
         ProjectName     = $ProjectName
@@ -173,25 +178,35 @@ task publish_nupkg_to_gallery -if ((Get-Command nuget -ErrorAction SilentlyConti
 
     $ModuleVersion = Get-BuiltModuleVersion @getModuleVersionParameters
 
+    $ChangeLogOutputPath = Join-Path $OutputDirectory 'CHANGELOG.md'
+    "  ChangeLogOutputPath = $ChangeLogOutputPath"
+
     # find Module's nupkg
-    $PackageToRelease = Get-ChildItem (Join-Path $OutputDirectory "$ProjectName.$PSModuleVersion.nupkg")
-    $ReleaseTag = "v$PSModuleVersion"
+    $PackageToRelease = Get-ChildItem (Join-Path $OutputDirectory "$ProjectName.$ModuleVersion.nupkg")
 
     Write-Build DarkGray "About to release $PackageToRelease"
     if (!$SkipPublish)
     {
         $response = &nuget push $PackageToRelease -source $nugetPublishSource -ApiKey $GalleryApiToken
     }
+
     Write-Build Green "Response = " + $response
 }
 
 # Synopsis: Packaging the module by Publishing to output folder (incl dependencies)
 task package_module_nupkg {
+
     if ([System.String]::IsNullOrEmpty($ProjectName))
     {
         $ProjectName = Get-ProjectName -BuildRoot $BuildRoot
     }
 
+    if (!(Split-Path -isAbsolute $ReleaseNotesPath))
+    {
+        $ReleaseNotesPath = Join-Path -Path $OutputDirectory -ChildPath $ReleaseNotesPath
+    }
+
+    #region Set output/ as PSRepository
     # Force registering the output repository mapping to the Project's output path
     $null = Unregister-PSRepository -Name output -ErrorAction SilentlyContinue
     $RepositoryParams = @{
@@ -208,6 +223,17 @@ task package_module_nupkg {
     {
         Write-Build DarkGray "  Remove existing $ProjectName package"
         Remove-Item -force -Path $ModuleToRemove -ErrorAction Stop
+    }
+    #endregion
+
+    $ChangeLogOutputPath = Join-Path $OutputDirectory 'CHANGELOG.md'
+    "  ChangeLogOutputPath = $ChangeLogOutputPath"
+
+    $changeLogData = Get-ChangelogData -Path $ChangeLogOutputPath
+
+    # Filter out the latest module version change log entries
+    $releaseNotesForLatestRelease = $changeLogData.Released | Where-Object -FilterScript {
+        $_.Version -eq $ModuleVersion
     }
 
     # find Module manifest
@@ -227,7 +253,17 @@ task package_module_nupkg {
     {
         throw "No valid manifest found for project $ProjectName."
     }
+
     Write-Build DarkGray "  Built module's Manifest found at $BuiltModuleManifest"
+
+    # Uncomment release notes (the default in Plaster/New-ModuleManifest)
+    $ManifestString = Get-Content -raw $BuiltModuleManifest
+    if ( $ManifestString -match '#\sReleaseNotes\s?=')
+    {
+        $ManifestString = $ManifestString -replace '#\sReleaseNotes\s?=', '  ReleaseNotes ='
+        $Utf8NoBomEncoding = [System.Text.UTF8Encoding]::new($False)
+        [System.IO.File]::WriteAllLines($BuiltModuleManifest, $ManifestString, $Utf8NoBomEncoding)
+    }
 
     # load module manifest
     $ModuleInfo = Import-PowerShellDataFile -Path $BuiltModuleManifest
@@ -248,12 +284,15 @@ task package_module_nupkg {
         }
     }
 
+    $ModulePath = Join-Path -Path $OutputDirectory -ChildPath $ProjectName
     $PublishModuleParams = @{
-        Path        = (Join-Path $OutputDirectory $ProjectName)
-        Repository  = 'output'
-        Force       = $true
-        ErrorAction = 'Stop'
+        Path            = $ModulePath
+        Repository      = 'output'
+        ErrorAction     = 'Stop'
+        ReleaseNotes    = $releaseNotesForLatestRelease
+        Force           = $true
     }
+
     Publish-Module @PublishModuleParams
     Write-Build Green "`n  Packaged $ProjectName NuGet package `n"
     Write-Build DarkGray "  Cleaning up"
@@ -270,11 +309,6 @@ task publish_module_to_gallery -if ((!(Get-Command nuget -ErrorAction SilentlyCo
     if (!(Split-Path $OutputDirectory -IsAbsolute))
     {
         $OutputDirectory = Join-Path $BuildRoot $OutputDirectory
-    }
-
-    if (!(Split-Path -isAbsolute $ReleaseNotesPath))
-    {
-        $ReleaseNotesPath = Join-Path $OutputDirectory $ReleaseNotesPath
     }
 
     $getModuleVersionParameters = @{
@@ -306,6 +340,7 @@ task publish_module_to_gallery -if ((!(Get-Command nuget -ErrorAction SilentlyCo
                 $false
             }
         }
+
     # No need to test the manifest again here, because the pipeline tested all manifests via the where-clause already
     if (-not $BuiltModuleManifest)
     {
@@ -321,17 +356,19 @@ task publish_module_to_gallery -if ((!(Get-Command nuget -ErrorAction SilentlyCo
         [System.IO.File]::WriteAllLines($BuiltModuleManifest, $ManifestString, $Utf8NoBomEncoding)
     }
 
-    $ModulePath = Join-Path $OutputDirectory $ProjectName
+
+    $ModulePath = Join-Path -Path $OutputDirectory -ChildPath $ProjectName
 
     Write-Build DarkGray "`nAbout to release $ModulePath"
 
     $PublishModuleParams = @{
-        Path         = $ModulePath
-        NuGetApiKey  = $GalleryApiToken
-        Repository   = $PSModuleFeed
-        ErrorAction  = 'Stop'
-        ReleaseNotes = $releaseNotesForLatestRelease
+        Path            = $ModulePath
+        NuGetApiKey     = $GalleryApiToken
+        Repository      = $PSModuleFeed
+        ErrorAction     = 'Stop'
+        ReleaseNotes    = $releaseNotesForLatestRelease
     }
+
     if (!$SkipPublish)
     {
         Publish-Module @PublishModuleParams
