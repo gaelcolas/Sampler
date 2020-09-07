@@ -234,8 +234,8 @@
     />
 
     <!--   QUALITY TESTS for Module -->
-    <file source='tests/QA/**'
-          destination='${PLASTER_PARAM_ModuleName}/tests/QA/'
+    <file source='module.tests.ps1'
+          destination='${PLASTER_PARAM_ModuleName}/tests/QA/module.tests.ps1'
           condition='${PLASTER_PARAM_ModuleType} -in @("SimpleModule","SimpleModule_NoBuild","CompleteModule","CompleteModule_NoBuild","SharedDscConfig") -or (${PLASTER_PARAM_Features} -Contains ("ModuleQuality") -or ${PLASTER_PARAM_Features} -contains "All")'
     />
 
@@ -289,13 +289,13 @@
 
     <!-- REPOSITORY Files -->
     <!--   GITIGNORE -->
-    <file source='gitignore'
+    <file source='../Git/gitignore'
           destination='${PLASTER_PARAM_ModuleName}/.gitignore'
           condition='${PLASTER_PARAM_Features} -Contains "All" -or ${PLASTER_PARAM_Features} -Contains "git" -or ${PLASTER_PARAM_ModuleType} -in @("dsccommunity","SimpleModule","CompleteModule","SimpleModule_NoBuild","CompleteModule_NoBuild","SharedDscConfig")'
     />
 
     <!--   GITATTRIBUTES -->
-    <file source='gitattributes'
+    <file source='../Git/gitattributes'
           destination='${PLASTER_PARAM_ModuleName}/.gitattributes'
           condition='${PLASTER_PARAM_Features} -Contains "All" -or ${PLASTER_PARAM_Features} -Contains "git" -or ${PLASTER_PARAM_ModuleType} -in @("dsccommunity","SimpleModule","CompleteModule","SimpleModule_NoBuild","CompleteModule_NoBuild","SharedDscConfig")'
     />
@@ -308,31 +308,31 @@
 
     <!-- BUILD SCRIPTS -->
     <!--   BUILD.ps1 (ENTRY POINT) -->
-    <file source='build.ps1'
+    <file source='../Build/build.ps1'
           destination='${PLASTER_PARAM_ModuleName}/build.ps1'
           condition='${PLASTER_PARAM_Features} -Contains "All" -or ${PLASTER_PARAM_Features} -Contains ("Build") -or ${PLASTER_PARAM_ModuleType} -in @("dsccommunity","SimpleModule","CompleteModule","SharedDscConfig")'
     />
 
     <!--   REQUIRED MODULES MANIFEST -->
 
-    <templateFile source='RequiredModules.psd1.template'
+    <templateFile source='../Build/RequiredModules.psd1.template'
           destination='${PLASTER_PARAM_ModuleName}/RequiredModules.psd1'
           condition='${PLASTER_PARAM_ModuleType} -in @("dsccommunity","SimpleModule","CompleteModule","SharedDscConfig") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("Build")'
     />
 
     <!--   RESOLVE DEPENDENCY Script (used in build.ps1) -->
-    <file source='Resolve-Dependency.ps1'
+    <file source='../Build/Resolve-Dependency.ps1'
           destination='${PLASTER_PARAM_ModuleName}/Resolve-Dependency.ps1'
           condition='${PLASTER_PARAM_ModuleType} -in @("dsccommunity","SimpleModule","CompleteModule","SharedDscConfig") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("Build")'
     />
 
-    <templateFile source='Resolve-Dependency.psd1.template'
+    <templateFile source='../Build/Resolve-Dependency.psd1.template'
           destination='${PLASTER_PARAM_ModuleName}/Resolve-Dependency.psd1'
           condition='${PLASTER_PARAM_ModuleType} -in @("dsccommunity","SimpleModule","CompleteModule","SharedDscConfig") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("Build")'
     />
 
     <!--   BUILD YAML CONFIGURATION -->
-    <templateFile source='build.yaml.template'
+    <templateFile source='../Build/build.yaml.template'
           destination='${PLASTER_PARAM_ModuleName}/build.yaml'
           condition='${PLASTER_PARAM_ModuleType} -in @("dsccommunity","SimpleModule","CompleteModule","SharedDscConfig") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("Build")'
     />
@@ -491,7 +491,7 @@
     />
 
    <!-- GITVERSION CONFIG YAML -->
-   <file source='GitVersion.yml'
+   <file source='../Git/GitVersion.yml'
           destination='${PLASTER_PARAM_ModuleName}/GitVersion.yml'
           condition='${PLASTER_PARAM_ModuleType} -in @("dsccommunity","CompleteModule","SimpleBuild") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("git")'
     />

@@ -11,7 +11,6 @@ CopyPaths:
   # - DSCResources
   - ../.build/tasks
   - en-US
-  - Assets
   - Templates
 Encoding: UTF8
 
@@ -65,7 +64,7 @@ Pester:
     # - tests/Unit/Public/New-SampleModule.tests.ps1
     # - tests/QA
     # - tests/Unit
-  # - tests/Integration
+    # - tests/Integration
   ExcludeTag:
   Tag:
   CodeCoverageThreshold: 35 # Set to 0 to bypass
@@ -89,30 +88,6 @@ DscTest:
 ####################################################
 # Defining 'Workflows' (suite of InvokeBuild tasks) to be run using their alias
 BuildWorkflow:
-  CopyPlaster: |
-    {
-      Import-Module -Name "$BuildRoot/.build/tasks/Common.Functions.psm1"
-
-      if ([System.String]::IsNullOrEmpty($ProjectName))
-      {
-          $ProjectName = Get-ProjectName -BuildRoot $BuildRoot
-      }
-
-      # Create a Build task from the Yaml (Because we don't want this task to be in the .build folder)
-      # so that it's not copied and made accessible in the Sampler Module.
-      $PlasterTemplateFolder = Get-Item $BuildModuleOutput/$ProjectName/*/Templates/Sampler
-
-      " Project Name            = $ProjectName"
-      " Output Directory        = $OutputDirectory"
-      " Build Module Output     = $BuildModuleOutput"
-      " Plaster Template Folder = $PlasterTemplateFolder"
-
-      # ./output/Sampler/*/Templates/Sampler
-      $ToCopy = Get-ChildItem -Force . -Exclude .git,output
-      foreach ($item in $toCopy) {
-        Copy-Item -recurse -Force -Path $item -Destination (Join-Path $PlasterTemplateFolder $item.Name)
-      }
-    }
 
   '.': # "." is the default Invoke-Build workflow. It is called when no -Tasks is specified to the build.ps1
     - build
@@ -122,7 +97,6 @@ BuildWorkflow:
     - Clean
     - Build_Module_ModuleBuilder
     - Build_NestedModules_ModuleBuilder
-    - CopyPlaster
     - Create_changelog_release_output
 
   pack:
