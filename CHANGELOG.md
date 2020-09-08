@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.107.2] - 2020-09-08
+
 ### Fixed
 
 - Fixed build error when the "Update changelog" PR is created (and no changes exists).
