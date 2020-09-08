@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed build error when the "Update changelog" PR is created (and no changes exists).
+- Fixed when creating a Module from template and the Build.yml does not copyPaths: DscResources.
+
 ## [0.107.1] - 2020-09-08
 
 ### Fixed

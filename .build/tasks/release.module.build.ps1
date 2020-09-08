@@ -226,14 +226,17 @@ task package_module_nupkg {
     }
     #endregion
 
-    $ChangeLogOutputPath = Join-Path $OutputDirectory 'CHANGELOG.md'
+    $ChangeLogOutputPath = Join-Path -Path $OutputDirectory -ChildPath 'CHANGELOG.md'
     "  ChangeLogOutputPath = $ChangeLogOutputPath"
 
-    $changeLogData = Get-ChangelogData -Path $ChangeLogOutputPath
-
-    # Filter out the latest module version change log entries
-    $releaseNotesForLatestRelease = $changeLogData.Released | Where-Object -FilterScript {
-        $_.Version -eq $ModuleVersion
+    # Do not try to generate ReleaseNotesForLatestRelease when updating Changelog after Major Release.
+    if (Test-Path $ChangeLogOutputPath )
+    {
+        $changeLogData = Get-ChangelogData -Path $ChangeLogOutputPath
+        # Filter out the latest module version change log entries
+        $releaseNotesForLatestRelease = $changeLogData.Released | Where-Object -FilterScript {
+            $_.Version -eq $ModuleVersion
+        }
     }
 
     # find Module manifest
