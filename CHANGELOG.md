@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.107.1] - 2020-09-08
+
 ### Fixed
 
 - Fixed #192 where the `Build-Module` command from module builder returns a rooted path (sometimes). 
