@@ -56,6 +56,7 @@ Describe 'Custom Module Plaster Template' {
             'tests/Unit'
             'tests/Unit/Classes'
             'tests/Unit/DSCResources'
+            'tests/Unit/Modules'
             'tests/Unit/Private'
             'tests/Unit/Public'
 
@@ -102,6 +103,7 @@ Describe 'Custom Module Plaster Template' {
             'tests/Unit/Classes/class12.tests.ps1'
             'tests/Unit/Classes/class2.tests.ps1'
             'tests/Unit/DSCResources/DSC_Folder.Tests.ps1'
+            'tests/Unit/Modules/Folder.Common.tests.ps1'
             'tests/Unit/Private/Get-PrivateFunction.tests.ps1'
             'tests/Unit/Public/Get-Something.tests.ps1'
 
@@ -191,6 +193,7 @@ Describe 'Custom Module Plaster Template' {
                 'tests/Unit'
                 'tests/Unit/Classes'
                 'tests/Unit/DSCResources'
+                'tests/Unit/Modules'
                 'tests/Unit/Private'
                 'tests/Unit/Public'
 
@@ -238,6 +241,7 @@ Describe 'Custom Module Plaster Template' {
                 'tests/Unit/Classes/class12.tests.ps1'
                 'tests/Unit/Classes/class2.tests.ps1'
                 'tests/Unit/DSCResources/DSC_Folder.Tests.ps1'
+                'tests/Unit/Modules/Folder.Common.tests.ps1'
                 'tests/Unit/Private/Get-PrivateFunction.tests.ps1'
                 'tests/Unit/Public/Get-Something.tests.ps1'
             )
@@ -326,6 +330,7 @@ Describe 'Custom Module Plaster Template' {
                 'tests/Unit'
                 'tests/Unit/Classes'
                 'tests/Unit/DSCResources'
+                'tests/Unit/Modules'
                 'tests/Unit/Private'
                 'tests/Unit/Public'
 
@@ -373,6 +378,7 @@ Describe 'Custom Module Plaster Template' {
                 'tests/Unit/Classes/class12.tests.ps1'
                 'tests/Unit/Classes/class2.tests.ps1'
                 'tests/Unit/DSCResources/DSC_Folder.tests.ps1'
+                'tests/Unit/Modules/Folder.Common.tests.ps1'
                 'tests/Unit/Private/Get-PrivateFunction.tests.ps1'
                 'tests/Unit/Public/Get-Something.tests.ps1'
             )
@@ -463,6 +469,7 @@ Describe 'Custom Module Plaster Template' {
                 'tests/Unit'
                 'tests/Unit/Classes'
                 'tests/Unit/DSCResources'
+                'tests/Unit/Modules'
                 'tests/Unit/Private'
                 'tests/Unit/Public'
 
@@ -510,6 +517,7 @@ Describe 'Custom Module Plaster Template' {
                 'tests/Unit/Classes/class12.tests.ps1'
                 'tests/Unit/Classes/class2.tests.ps1'
                 'tests/Unit/DSCResources/DSC_Folder.tests.ps1'
+                'tests/Unit/Modules/Folder.Common.tests.ps1'
                 'tests/Unit/Private/Get-PrivateFunction.tests.ps1'
                 'tests/Unit/Public/Get-Something.tests.ps1'
 
