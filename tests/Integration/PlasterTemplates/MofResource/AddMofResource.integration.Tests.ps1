@@ -41,6 +41,7 @@ Describe 'DSC MOF based resource Plaster Template' {
                 'tests'
                 'tests/Unit'
                 'tests/Unit/DSCResources'
+                'tests/Unit/Modules'
 
                 # Files (relative to module root)
                 'source/DSCResources/DSC_Folder/DSC_Folder.psm1'
@@ -50,6 +51,7 @@ Describe 'DSC MOF based resource Plaster Template' {
                 # 'source/Modules/HelperSubmodule/HelperSubmodule.psd1'
                 # 'source/Modules/HelperSubmodule/HelperSubmodule.psm1'
                 'tests/Unit/DSCResources/DSC_Folder.tests.ps1'
+                'tests/Unit/Modules/Folder.Common.tests.ps1'
             )
         }
 

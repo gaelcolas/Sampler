@@ -60,5 +60,14 @@
             destination='tests/Unit/DSCResources/DSC_Folder.tests.ps1'
       />
 
+      <!--   tests/Modules/** files -->
+      <templateFile source=''
+            destination='tests/Unit/Modules'
+      />
+
+      <templateFile source='tests/Unit/Modules/Folder.Common.tests.ps1'
+            destination='tests/Unit/Modules/Folder.Common.tests.ps1'
+      />
+
   </content>
 </plasterManifest>

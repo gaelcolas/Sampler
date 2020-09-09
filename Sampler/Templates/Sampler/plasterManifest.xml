@@ -218,13 +218,18 @@
 
     <!--   UNIT TESTS DSC Resources folder -->
     <file source=''
-          destination='${PLASTER_PARAM_ModuleName}/tests/Unit/DSCResources'
+          destination='${PLASTER_PARAM_ModuleName}/tests/Unit/Modules'
           condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild") -or (${PLASTER_PARAM_Features} -Contains "All" -or (${PLASTER_PARAM_Features} -Contains "UnitTests" -and ${PLASTER_PARAM_Features} -contains "DSCResources"))'
     />
 
-    <!--   UNIT TESTS DSC Resources Sample Files -->
+      <!--   UNIT TESTS DSC module sample file -->
+    <file source='../MofResource/tests/Unit/Modules/Folder.Common.tests.ps1'
+      destination='${PLASTER_PARAM_ModuleName}/tests/Unit/Modules/Folder.Common.tests.ps1'
+      condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild") -or (${PLASTER_PARAM_Features} -Contains "All" -or (${PLASTER_PARAM_Features} -Contains "UnitTests" -and ${PLASTER_PARAM_Features} -contains "DSCResources"))'
+    />
+
     <file source=''
-          destination='${PLASTER_PARAM_ModuleName}/tests/Unit/DSCResources/'
+          destination='${PLASTER_PARAM_ModuleName}/tests/Unit/DSCResources'
           condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild") -or (${PLASTER_PARAM_Features} -Contains "All" -or (${PLASTER_PARAM_Features} -Contains "UnitTests" -and ${PLASTER_PARAM_Features} -contains "DSCResources"))'
     />
 
