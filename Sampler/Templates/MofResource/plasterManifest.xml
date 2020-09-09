@@ -42,6 +42,19 @@
             destination='${PLASTER_PARAM_SourceDirectory}/DSCResources/DSC_Folder/en-US/DSC_Folder.strings.psd1'
       />
 
+      <!--   Modules helpers for DSC resource -->
+      <file source=''
+            destination='${PLASTER_PARAM_SourceDirectory}/Modules'
+      />
+
+      <file source=''
+            destination='${PLASTER_PARAM_SourceDirectory}/Modules/Folder.Common'
+      />
+
+      <file source='Modules/Folder.Common/Folder.Common.psm1'
+            destination='${PLASTER_PARAM_SourceDirectory}/Modules/Folder.Common/Folder.Common.psm1'
+      />
+
       <!--   tests/DSCResource/** files -->
       <templateFile source='tests/Unit/DSCResources/DSC_Folder.tests.ps1.template'
             destination='tests/Unit/DSCResources/DSC_Folder.tests.ps1'

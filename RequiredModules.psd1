@@ -18,6 +18,5 @@
     'DscResource.AnalyzerRules' = 'latest'
     xDscResourceDesigner        = 'latest'
     # PSPKI                       = 'latest'
-    'DscResource.Common'        = 'latest'
 
 }

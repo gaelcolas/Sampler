@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<plasterManifest
+  schemaVersion="1.0" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+  <metadata>
+    <name>Enum</name>
+    <id>c2e25927-beb3-403c-8436-6df54bd8d512</id>
+    <version>0.0.1</version>
+    <title>Submodule Template</title>
+    <description>A template to add a submodule to a Sampler Project</description>
+    <author>Gael Colas</author>
+    <tags>Sampler,Template, Build, Module</tags>
+  </metadata>
+  <parameters>
+    <parameter store="text" name="ModuleAuthor" type="text" prompt="Author's name" default="$Env:Username" />
+    <parameter store="text" name="SubmoduleName" type="text" prompt="Name of your submodule?" default="Stuff" />
+    <parameter store="text" name="SourceDirectory" type="text" prompt="What is your source folder?" default="source" />
+  </parameters>
+    <!--
+      ${PLASTER_PARAM_SourceDirectory}
+      ${PLASTER_PARAM_EnumName}
+
+     -->
+  <content>
+    <!-- MODULES FOLDER SCAFFOLDING -->
+
+      <!--   SOURCE/Modules Folder -->
+      <file source=''
+            destination='${PLASTER_PARAM_SourceDirectory}/Modules'
+      />
+      <file source=''
+            destination='${PLASTER_PARAM_SourceDirectory}/Modules/${PLASTER_PARAM_SubmoduleName}'
+      />
+
+      <!--   SOURCE/Enum File -->
+      <file source='Modules\HelperSubmodule\HelperSubModule.psm1'
+            destination='${PLASTER_PARAM_SourceDirectory}/Modules/${PLASTER_PARAM_SubmoduleName}/${PLASTER_PARAM_SubmoduleName}.psm1'
+      />
+
+      <newModuleManifest destination='${PLASTER_PARAM_SourceDirectory}/Modules/${PLASTER_PARAM_SubmoduleName}/${PLASTER_PARAM_SubmoduleName}.psd1'
+        moduleVersion='0.0.1'
+        author='$PLASTER_PARAM_ModuleAuthor'
+        description='Embedded Submodule'
+        rootModule='$PLASTER_PARAM_SubmoduleName.psm1'
+    />
+
+  </content>
+</plasterManifest>
