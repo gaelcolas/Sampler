@@ -28,15 +28,40 @@ VersionedOutputDirectory: true
 #      ModuleBuilder Submodules Configuration      #
 ####################################################
 
-# NestedModule:
-#   HelperSubmodule: # This is the first submodule to build into the output
-#     Path: ./Sampler/Modules/HelperSubmodule/HelperSubmodule.psd1
-#     # $ModuleVersionFolder is trimmed (remove -.*) and OutputDirectory expanded (the only one)
-#     OutputDirectory: ./output/Sampler/$ModuleVersionFolder/Modules/HelperSubmodule
-#     VersionedOutputDirectory: false
-#     # suffix:
-#     # prefix:
+NestedModule:
+<%
+    If ($PLASTER_PARAM_ModuleType -eq 'dsccommunity' -or $PLASTER_PARAM_ModuleType -match 'complete' -or $PLASTER_PARAM_Features -Contains ("All") -or $PLASTER_PARAM_Features -Contains ("DSCResources"))
+    {
+@"
+  DscResource.Common:
+    CopyOnly: true
+    Path: ./output/RequiredModules/DscResource.Common # relative to $buildroot, default to '$sourcePath/Modules/$NestedModuleName'
+    # Destination: './output/$ProjectName/$ModuleVersionFolder/Modules/$NestedModuleName' # or override with path relative to $buildroot
+    AddToManifest: false
+    # include: '*.*'
+    Exclude: PSGetModuleInfo.xml
+    #Filter:
+  Folder.Common:
+    CopyOnly: true
+    AddToManifest: false
+"@
+  }
+  else
+  {
+@"
+#  HelperSubmodule: # This is the first submodule to build into the output
+#    Path: ./*/Modules/HelperSubmodule/HelperSubmodule.psd1
+#    # $ModuleVersionFolder is trimmed (remove metadata & Prerelease tag) and OutputDirectory expanded (the only one)
+#    OutputDirectory: $BuildModuleOutput/$ProjectName/$ModuleVersionFolder/Modules/HelperSubmodule
+#    VersionedOutputDirectory: false
+#    AddToManifest: false
+#    SemVer: $ModuleVersionFolder
+#    # suffix:
+#    # prefix:
+"@
+}
 
+%>
 
 ####################################################
 #       Sampler Pipeline Configuration             #
@@ -94,6 +119,12 @@ Pester: #Passthru, OutputFile, CodeCoverageOutputFile not supported
   OutputFormat: NUnitXML
   # Will look at every *.ps1 & *.psm1 under ModulePath, excepts when $_.FullName -match (Join-Path $ProjectPath $ExcludeFromCodeCoverageItem)
   ExcludeFromCodeCoverage:
+<%
+    if ($PLASTER_PARAM_ModuleType -eq 'dsccommunity' -or $PLASTER_PARAM_ModuleType -match 'complete' -or $PLASTER_PARAM_Features -Contains ("All") -or $PLASTER_PARAM_Features -Contains ("DSCResources"))
+    {
+"    - Modules/DscResouce.Common"
+    }
+%>
     # - Template
   # Default is to use the tests folder in the project folder or source folder (if present)
   # can use it to prioritize: tests/QA, tests/Unit, tests/Integration
@@ -112,7 +143,8 @@ Pester: #Passthru, OutputFile, CodeCoverageOutputFile not supported
   # CodeCoverageOutputFileEncoding: ascii
   # CodeCoverageMergedOutputFile: JaCoCo_Merged.xml
 <%
-    if($PLASTER_PARAM_ModuleType -in @('dsccommunity')) {
+    if ($PLASTER_PARAM_ModuleType -eq 'dsccommunity' -or $PLASTER_PARAM_ModuleType -match 'complete' -or $PLASTER_PARAM_Features -Contains ("All") -or $PLASTER_PARAM_Features -Contains ("DSCResources"))
+    {
 @"
 
 DscTest:
@@ -123,8 +155,15 @@ DscTest:
     - output
   ExcludeModuleFile:
   #  - Templates
-  #  - Modules/DscResource.Common
 "@
+    }
+    if ($PLASTER_PARAM_ModuleType -eq 'dsccommunity' -or $PLASTER_PARAM_ModuleType -match 'complete' -or $PLASTER_PARAM_Features -Contains ("All") -or $PLASTER_PARAM_Features -Contains ("DSCResources"))
+    {
+"    - Modules/DscResource.Common"
+    }
+    else
+    {
+"  #  - Modules/DscResource.Common"
     }
 %>
 

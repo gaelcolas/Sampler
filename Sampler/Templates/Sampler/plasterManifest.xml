@@ -366,7 +366,6 @@
           condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild","SimpleModule") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("DSCResources")'
     />
 
-
     <!--   Examples -->
 
     <file source=''
@@ -374,6 +373,22 @@
           condition='${PLASTER_PARAM_ModuleType} -notin @("dsccommunity")'
     />
 
+
+    <!--   Modules helpers for DSC resource -->
+    <file source=''
+          destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/Modules'
+          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("DSCResources")'
+    />
+
+    <file source=''
+          destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/Modules/Folder.Common'
+          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("DSCResources")'
+    />
+
+    <file source='../MofResource/Modules/Folder.Common/Folder.Common.psm1'
+          destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/Modules/Folder.Common/Folder.Common.psm1'
+          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild") -or ${PLASTER_PARAM_Features} -Contains ("All") -or (${PLASTER_PARAM_Features} -Contains ("DSCResources") -and ${PLASTER_PARAM_Features} -Contains ("SampleScripts"))'
+    />
 
     <!--   DSCResource Sample Files -->
     <file source=''

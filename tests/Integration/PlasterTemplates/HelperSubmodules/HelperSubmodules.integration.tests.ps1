@@ -23,47 +23,35 @@ Import-Module -Name "$PSScriptRoot\..\..\IntegrationTestHelpers.psm1"
 
 Install-TreeCommand
 
-Describe 'DSC MOF based resource Plaster Template' {
-    Context 'When creating a new MOF DSC Resource' {
+Describe 'Embedded Helper Submodule Plaster Template' {
+    Context 'When creating a new submodule' {
         BeforeAll {
-            $mockResourceName  = 'MyMofResource'
+            $mockSubmoduleName  = 'MySubmoduleName'
             $mockModuleRootPath = $TestDrive
 
             $listOfExpectedFilesAndFolders = @(
                 # Folders (relative to module root)
                 'source'
-                'source/DSCResources'
-                'source/DSCResources/DSC_Folder'
-                'source/DSCResources/DSC_Folder/en-US'
                 'source/Modules'
-                'source/Modules/Folder.Common'
-                # 'source/Modules/HelperSubmodule'
-                'tests'
-                'tests/Unit'
-                'tests/Unit/DSCResources'
+                'source/Modules/MySubmoduleName'
 
                 # Files (relative to module root)
-                'source/DSCResources/DSC_Folder/DSC_Folder.psm1'
-                'source/DSCResources/DSC_Folder/DSC_Folder.schema.mof'
-                'source/DSCResources/DSC_Folder/en-US/DSC_Folder.strings.psd1'
-                'source/Modules/Folder.Common/Folder.Common.psm1'
-                # 'source/Modules/HelperSubmodule/HelperSubmodule.psd1'
-                # 'source/Modules/HelperSubmodule/HelperSubmodule.psm1'
-                'tests/Unit/DSCResources/DSC_Folder.tests.ps1'
+                'source/Modules/MySubmoduleName/MySubmoduleName.psm1'
+                'source/Modules/MySubmoduleName/MySubmoduleName.psd1'
             )
         }
 
         It 'Should create a new module without throwing' {
             $invokePlasterParameters = @{
-                TemplatePath      = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/MofResource'
+                TemplatePath      = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/HelperSubModules'
                 DestinationPath   = $testdrive
                 NoLogo            = $true
                 Force             = $true
 
                 # Template properties
-                ResourceName     = $mockResourceName
+                SubmoduleName     = $mockSubmoduleName
                 SourceDirectory   = 'source'
-                ModuleName        = 'MyModule'
+                ModuleAuthor      = 'TestAuthor'
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw

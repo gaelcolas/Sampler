@@ -23,15 +23,7 @@ VersionedOutputDirectory: true
 ####################################################
 
 NestedModule:
-  HelperSubmodule: # This is the first submodule to build into the output
-    Path: ./*/Modules/HelperSubmodule/HelperSubmodule.psd1
-    # $ModuleVersionFolder is trimmed (remove metadata & Prerelease tag) and OutputDirectory expanded (the only one)
-    OutputDirectory: $BuildModuleOutput/$ProjectName/$ModuleVersionFolder/Modules/HelperSubmodule
-    VersionedOutputDirectory: false
-    AddToManifest: false
-    SemVer: $ModuleVersionFolder
-    # suffix:
-    # prefix:
+
   DscResource.Common:
     CopyOnly: true
     Path: ./output/RequiredModules/DscResource.Common # relative to $buildroot, default to '$sourcePath/Modules/$NestedModuleName'
@@ -40,9 +32,6 @@ NestedModule:
     # include: '*.*'
     Exclude: PSGetModuleInfo.xml
     #Filter:
-  Folder.Common:
-    CopyOnly: true
-    AddToManifest: false
 
 ####################################################
 #       PESTER  Configuration                      #
