@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.107.3] - 2020-09-10
+
 ### Fixed
 
 - Fixed the Build of template with DSC Resource by adding required modules, config & helper modules tests.
