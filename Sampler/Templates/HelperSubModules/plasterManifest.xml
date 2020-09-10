@@ -32,7 +32,7 @@
       />
 
       <!--   SOURCE/Enum File -->
-      <file source='Modules\HelperSubmodule\HelperSubModule.psm1'
+      <file source='Modules\HelperSubmodule\HelperSubmodule.psm1'
             destination='${PLASTER_PARAM_SourceDirectory}/Modules/${PLASTER_PARAM_SubmoduleName}/${PLASTER_PARAM_SubmoduleName}.psm1'
       />
 
