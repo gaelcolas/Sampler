@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fixed the Build of template with DSC Resource by adding required modules, config & helper modules tests.
+- Fixed the issue with the Publish module task (always use Publish-Module unless you want to UseNugetPush).
 
 ## [0.107.2] - 2020-09-08
 
