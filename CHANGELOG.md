@@ -9,8 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Renamed the moduleType 'CompleteModule' to CompleteSample.
 - Updated changelog (removed folder creation on simple modules).
 - Updated doc.
+
+### Removed
+
+- Removed the CompletModule_noBuild template as it's unecessary and add complexity to the template.
 
 ## [0.107.3] - 2020-09-10
 
