@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Updated changelog (removed folder creation on simple modules).
+- Updated doc.
+
 ## [0.107.3] - 2020-09-10
 
 ### Fixed
