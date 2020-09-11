@@ -35,7 +35,6 @@ Describe 'Simple Module No Build Plaster Template' {
 
                 'source'
                 'source/en-US'
-                'source/Examples'
                 'source/Private'
                 'source/Public'
                 'tests'

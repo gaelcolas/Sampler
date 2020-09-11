@@ -34,9 +34,7 @@ Describe 'Simple Module Plaster Template' {
             # Folders (relative to module root)
 
             'source'
-            'source/DSCResources'
             'source/en-US'
-            'source/Examples'
             'source/Private'
             'source/Public'
             'tests'
