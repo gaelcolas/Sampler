@@ -19,7 +19,7 @@ function <%= $PLASTER_PARAM_PublicFunctionName %>
         SupportsShouldProcess = $true,
         ConfirmImpact = 'Low'
     )]
-    [OutputType([string)]
+    [OutputType([string])]
     param
     (
         [Parameter(
