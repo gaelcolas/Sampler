@@ -93,10 +93,6 @@
               help="Adds project .gitignore."
               value="git"/>
 
-      <choice label='Ghe&amp;rkin BDD'
-              help="Adds Gherkin folders"
-              value="Gherkin"/>
-
       <choice label='&amp;Unit Tests'
               help="Adds Tests folders and example with your features."
               value="UnitTests"/>
@@ -128,7 +124,7 @@
       ${PLASTER_PARAM_ModuleVersion}
       ${PLASTER_PARAM_License}            true false
       ${PLASTER_PARAM_LicenseType}        Apache MIT None
-      ${PLASTER_PARAM_Features}           All UnitTests ModuleQuality AppVeyor TestKitchen Gherkin DSCResources Enum Classes SampleScripts git
+      ${PLASTER_PARAM_Features}           All UnitTests ModuleQuality AppVeyor TestKitchen DSCResources Enum Classes SampleScripts git
 
      -->
   <content>
@@ -178,12 +174,6 @@
     <file source=''
           destination='${PLASTER_PARAM_ModuleName}/tests/Unit/Public'
           condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild") -or (${PLASTER_PARAM_Features} -Contains "All" -or (${PLASTER_PARAM_Features} -Contains "UnitTests" -and ${PLASTER_PARAM_Features} -contains "SampleScripts"))'
-    />
-
-    <!--   GHERKIN -->
-    <file source=''
-          destination='${PLASTER_PARAM_ModuleName}/specs/steps'
-          condition='${PLASTER_PARAM_Features} -Contains "Gherkin"'
     />
 
     <!--   UNIT TESTS Classes Sample Files -->
@@ -368,16 +358,15 @@
 
     <file source=''
           destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/DSCResources'
-          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild","SimpleModule") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("DSCResources")'
+          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("DSCResources")'
     />
 
     <!--   Examples -->
 
     <file source=''
           destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/Examples'
-          condition='${PLASTER_PARAM_ModuleType} -notin @("dsccommunity")'
+          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteModule","CompleteModule_NoBuild") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("DSCResources")'
     />
-
 
     <!--   Modules helpers for DSC resource -->
     <file source=''
