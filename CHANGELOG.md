@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added GitHub config element template.
+- Added vscode config element template.
+
 ### Changed
 
 - Renamed the moduleType 'CompleteModule' to CompleteSample.

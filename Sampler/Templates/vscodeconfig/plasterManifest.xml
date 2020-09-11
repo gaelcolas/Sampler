@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<plasterManifest
+  schemaVersion="1.0" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+  <metadata>
+    <name>VscodeConfig</name>
+    <id>48fd55d5-306a-4f98-b65f-a516f652d228</id>
+    <version>0.0.1</version>
+    <title>VscodeConfig Template</title>
+    <description>A template to add a .vscode config with settings, Analyzersettings and tasks to a Sampler Project</description>
+    <author>Gael Colas</author>
+    <tags>Sampler,Template, Build, Module, vscode</tags>
+  </metadata>
+  <parameters>
+  </parameters>
+
+  <content>
+
+   <!-- VSCODE SETTINGS -->
+   <file source='settings.json'
+          destination='.vscode/settings.json'
+    />
+
+    <!-- PSScriptAnalyzer VSCODE CONFIG -->
+    <file source='analyzersettings.psd1'
+          destination='.vscode/analyzersettings.psd1'
+    />
+
+    <!-- VSCODE SETTINGS -->
+    <file source='tasks.json'
+          destination='.vscode/tasks.json'
+    />
+
+  </content>
+</plasterManifest>

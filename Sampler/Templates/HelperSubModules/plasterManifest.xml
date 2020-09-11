@@ -3,7 +3,7 @@
   schemaVersion="1.0" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
   <metadata>
     <name>Enum</name>
-    <id>c2e25927-beb3-403c-8436-6df54bd8d512</id>
+    <id>8ef55295-024e-4677-9760-1ae3e27131d7</id>
     <version>0.0.1</version>
     <title>Submodule Template</title>
     <description>A template to add a submodule to a Sampler Project</description>

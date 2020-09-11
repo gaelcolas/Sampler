@@ -23,27 +23,25 @@ Import-Module -Name "$PSScriptRoot\..\..\IntegrationTestHelpers.psm1"
 
 Install-TreeCommand
 
-Describe 'Github repo config files Plaster Template' {
-    Context 'When creating a new submodule' {
+Describe 'Vscode repo config files Plaster Template' {
+    Context 'When adding to a module' {
         BeforeAll {
             $mockModuleRootPath = $TestDrive
 
             $listOfExpectedFilesAndFolders = @(
                 # Folders (relative to module root)
-                '.github'
-                '.github/ISSUE_TEMPLATE'
+                '.vscode'
 
                 # Files (relative to module folder)
-                '.github/ISSUE_TEMPLATE/General.md'
-                '.github/ISSUE_TEMPLATE/Problem_with_resource.md'
-                '.github/ISSUE_TEMPLATE/Resource_proposal.md'
-                '.github/PULL_REQUEST_TEMPLATE.md'
+                '.vscode/analyzersettings.psd1'
+                '.vscode/settings.json'
+                '.vscode/tasks.json'
             )
         }
 
         It 'Should create a new module without throwing' {
             $invokePlasterParameters = @{
-                TemplatePath      = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/GithubConfig'
+                TemplatePath      = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/VscodeConfig'
                 DestinationPath   = $testdrive
                 NoLogo            = $true
                 Force             = $true
