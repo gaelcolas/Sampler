@@ -6,18 +6,52 @@
 ![Azure DevOps coverage](https://img.shields.io/azure-devops/coverage/Synedgy/Sampler/1)
 ![PowerShell Gallery](https://img.shields.io/powershellgallery/p/Sampler)
 
-This project is a Module and template of a PowerShell module and DSC Resources (soon)
-with its PowerShell Build Pipeline automation.
+This project is a Module and template of a PowerShell module and DSC Resources with its
+PowerShell Build Pipeline automation.
+
+Check the video for a quick intro:  
+[![Sampler demo video](https://img.youtube.com/vi/bbpFBsl8K9k/0.jpg)](https://www.youtube.com/watch?v=bbpFBsl8K9k&ab_channel=DSCCommunity)
 
 The Sampler module in itself serves several purposes:
 
-- illustrate what a module source repository and its pipeline could look like
-- Publish Sampler to PSGallery to provide `InvokeBuild` tasks that can be re-used by anyone
-- Provide a Plaster template to create similar module easily and quickly
+- Quickly scaffold a PowerShell module project that can build and enforce some good practices.
+- Provide a minimum set of [InvokeBuild](https://github.com/nightroman/Invoke-Build)
+tasks that help you build, test, pack and publish your module.
+- Help building your module with adding dummy but elaborate elements to your module (Classes, DSC Resources, Class DSC Resource, Helper Module, Embedded helper module...).
+
+## Preqrequisites
+
+### __PowerShellGet__
+
+Because we resolve dependencies from a nuget feed, whether the public PowerShellGallery or your private repository, a working version of PowerShellGallery is required.
+
+We recommend the latest version of PowerShellv2.
+
+### __Managing the Module versions__
+
+Managing the versions of your module is tedious, and it's
+hard to be consistent over time.
+The usual tricks like checking what the latest version on the PSGallery is, or use the `BuildNumber` to increment a `0.0.x`
+version works but aren't ideal, especially if we want to stick to [semver](https://semver.org/).
+
+While you can manage the version by updating the psd1 or letting your CI tool to update the `ModuleVersion` environment variable, we thing the best is to rely on [`GitVersion`](https://gitversion.net/docs/).
+
+GitVersion will generate the version for you, based on the git history.
+
+As a rule of thumb, it will look at the latest version tag, and will look at the branches and their name, or the commit messages, to try to update the Major/Minor/Patch based on detected change (configurable in [`GitVersion.yml`](GitVersion.yml)).
+
+What that means is that we recommend you to install
+`GitVersion` on your dev environent, and your CI.
+
+If you use choco:
+```PowerShell
+C:\> choco upgrade gitversion.portable
+```
+---
 
 ## Usage
 
-When you clone this module locally, or if you create a module from its template,
+As per the video above, you can create a new Module project with all files & and pipeline scripts,
 the `build.ps1` is how you interact with the built-in pipeline automation, and
 `build.yaml` how you configure and customize it.
 
@@ -26,17 +60,15 @@ the `build.ps1` is how you interact with the built-in pipeline automation, and
 Quick Start:
 
 ```PowerShell
-PS C:\src\Sampler> build.ps1 -ResolveDependency
-# this will first bootstrap the environment by downloading dependencies required for the automation
-# then run the '.' task workflow as defined in build.yaml (a list of Invoke-Build tasks)
+PS C:\src\Sampler> build.ps1
 ```
 
 The `build.ps1` is the _entry point_ to invoke any task or a list of build tasks (workflow),
 leveraging the [`Invoke-Build`](https://www.powershellgallery.com/packages/InvokeBuild/) task runner.
 
-But we don't assume your environment has the required PowerShell modules,
+The script do not assume your environment has the required PowerShell modules,
 so the `bootstrap` is done by `build.ps1`, and can resolves the dependencies listed
-in `RequiredModules.ps1` using `PSDepend`.
+in [`RequiredModules.psd1`](RequiredModules.psd1) using `PSDepend`.
 
 Invoking `build.ps1` with the `-ResolveDependency` parameter will prepare your environment like so:
 
@@ -63,10 +95,6 @@ the RequiredModules.psd1
 
 Once the `-ResolveDependency` has been called once, there should not be a need
 to call it again until the `RequiredModules.psd1` is changed.
-
-Although you can use `Invoke-Build` to call the tasks, ensuring you are
-using `build.ps1` instead will make sure the right environment variables
-are set in your session.
 
 ### Discoverability & noop
 
@@ -192,35 +220,29 @@ and its configured workflow.
 ### Bootstrap and re-hydration process
 
 This is the beginning of the build process so that anyone doing a git clone
-can re-hydrate the project and start testing and producing the artefacts locally
+can 're-hydrate' the project and start testing and producing the artefacts locally
 with minimum environment dependency. You need `git`, `PowerShell` and
-preferably `GitVersion` (but not mandatory).
+preferably `GitVersion`.
 
 This avoid the "it works on my machine" or removes the dependence on specific
 tools (such as CI tool). It also ensures the build process can be run anywhere
 the same way (whether behind a firewall, on a dev workstation or in a build agent)
 
 
-- [x] Bootstrap (optional) the repository & resolve Dependencies (Module restore).
-Handled by the `.build.ps1`'s **BEGIN** block, and `Resolve-Dependency.ps1`:
+- Bootstrap the repository & resolve Dependencies (Module restore).
 
   - Assume nothing is set up, and you don't have Admin rights
-  - pushd in `$PSScriptRoot`
-  - Create `.\output` if not exist
-  - Prepend `.\output` to your `$Env:PSModulePath`
+  - Prepend `.\output\RequiredModules` to your `$Env:PSModulePath`
+  - Prepend `.\output\` to your `$Env:PSModulePath`
   - If Nuget package provider not present, Install & Import nuget PackageProvider (Proxy enabled)
-  - Update `$PSRepository`'s Installation Policy to Trusted for the duration of the build
-  - Bootstrap PowerShellGet `if ($_.version -le '1.6.0')` to latest (Save-Module to `.\output\RequiredModules` or install to CurrentUser/AllUsers, Remove-Module -Force,  Import-Module -Force )
-  - Import-Module PSDepend or install/save it, then import
-  - [optional] Bootstrap `powershell-yaml` if we need to read further config from Yaml files instead of PSD1 (not sure about that one yet)
-  - Invoke PSDepend based on the dependency file [.\RequiredModules.psd1](RequiredModules.psd1) <-- this could be made to support Yaml
-  - Hand back over to InvokeBuild task (as per the invoked task/workflow)
+  - Invoke PSDepend based on the dependency file [.\RequiredModules.psd1](RequiredModules.psd1)
+  - Hand back over to InvokeBuild task, loaded as per the [`build.yml`](build.yml)
 
   > Example:
   >
   > `C:\ > .build.ps1 -ResolveDependency -Tasks noop`
   >
-  > This should setup your repository by re-hydrating all required dependencies to build and test your module, and invoke the (empty) task `noop`, so that it does not invoke the default workflow '.'
+  > This should setup your project folder by re-hydrating all required dependencies to build and test your module, and invoke the (empty) task `noop`, so that it does not invoke the default workflow '.'
   >
   > The `-ResolveDependency` does not need to be invoked again to speed things up, unless a dependency file/version changes
   >
@@ -228,72 +250,61 @@ Handled by the `.build.ps1`'s **BEGIN** block, and `Resolve-Dependency.ps1`:
   >
   > `C:\ > .build.ps1 -Tasks noop`
 
-- [ ] Configure & Import the InvokeBuild tasks and workflow. Handled by the `.build.ps1`'s **PROCESS** block:
-
-  - Only execute the PROCESS block through InvokeBuild task runner
-  - Load Build Configuration Data from `.\build.psd1`
-  - Set Build tasks header & footer to give more verbosity and structure to build logs
-  - Import all Build tasks from the `.Build` folder (enable custom tasks defined in the repo, great for development as well)
-  - [ ] Import Build tasks from the RequiredModules we decide (TODO: Defined in PSData or by $ModuleBase + relative directory )
-  - Define basic/default tasks
-    1. noop, so we can call the build script just to resolve dependency, or without doing anything
-    2. The "." default meta-task (workflow). Currently doing Clean, Set build variables, build module with module builder and test
-  - Load other workflows (or override the ones above) from the Build configuration file (a workflow is a list of task name that we imported earlier.)
-  - InvokeBuild will then execute the task or workflow requested, and using "." if not specified
 
 ### Default Workflow Currently configured
 
 As seen in the bootstrap process above, the different workflows can be configured by editing the `build.psd1`: new tasks can be loaded, and the sequence can be added under the `BuildWorkflow` key by listing the names.
 
-In our case, [the Build.psd1](build.yaml#L89) defines several workflows (., build, pack, hqrmtest,test, and publish) that can be called by using:
+In our case, [the Build.yml](build.yml#L79) defines several workflows (`.`, `build`, `pack`, `hqrmtest`, `test`, and `publish`) that can be called by using:
+
 ```PowerShell
  .build.ps1 -Tasks Workflow_or_task_Name
 ```
 
 The detail of the **default workflow** is as follow (InvokeBuild defaults to the workflow named '.' when no tasks is specified):
 
-- [X] **Clean** the built artefacts & test results (clean everything under output), except Required modules (for performance, and because any loaded module with DLL will have an Handle, like Pester)
-- **Set_Build_Environment_Variables**: Uses `BuildHelpers` from Warren Frame to abstract CI Tools' specific Environment variable under same name (not sure still needed/worth it).
-- **Build_Module_ModuleBuilder**: Uses [`PoShCode/ModuleBuilder`](https://github.com/PoshCode/ModuleBuilder/)'s `Build-Module` command to [merge](.build/tasks/Build-Module.ModuleBuilder.build.ps1) public/private functions, classes, enums into a single PSM1 under a versioned directory in the `output` folder. Then update Module manifest's Module version (based on [GitVersion](GitVersion.yml)), and the Exported functions. Need to add update to DscResources exported, DSC Composite Resources version (same as Module version).
-- **Pester_Tests_Stop_On_Fail**: This is actually a meta task of:
-- **Invoke_pester_tests**: run `Invoke-Pester -Script $TestFolder` and other arguments
-- **Upload_Test_Results_To_AppVeyor**: push the Test results XML to AppVeyor [if running in AppVeyor](.build/tasks/Invoke-Pester.pester.build.ps1#L139)
-- **Fail_Build_if_Pester_Tests_failed**: Fails the build if any test failed
-- **Pester_if_Code_Coverage_Under_Threshold**: This fails the build if the Pester Code Coverage is under the [configured](build.yaml#L69) threshold.
+```yml
+BuildWorkflow:
+  '.':
+    - build
+    - test
+```
 
-### What needs to be added next
+The tasks `build` and `tests` are meta-tasks or workflow calling other tasks:
 
-- [ ] Run Quality tests
-  - [ ] Ensure each function/class file has an associated test file
-  - [ ] Ensure PSSA is clean for the built module
-  - [ ] Ensure each function as minimum help
-  - [ ] Enable DSC Resource linting & Unit testing (need to make a module or several out of [DscResource.Tests](https://github.com/PowerShell/DscResource.Tests), and I intend to use this template to do so)
-  - [ ] Module Integration Testing with Test-Kitchen
+```yml
+  build:
+    - Clean
+    - Build_Module_ModuleBuilder
+    - Build_NestedModules_ModuleBuilder
+    - Create_changelog_release_output
+  test:
+    - Pester_Tests_Stop_On_Fail
+    - Pester_if_Code_Coverage_Under_Threshold
+    - hqrmtest
+```
 
-- [ ] Prepare Module for export
-  - [ ] Update Metadata with DscResources to export
-  - [ ] Update Metadata for Composite Resources
-  - [ ] Update Import-DscResource pinned version when needed
-  - [ ] Update RequiredModules with what it has been tested with
-  - [ ] Sign module
+Those tasks are imported from a module, in this case from
+the `.build/` folder, from this `Sampler` module,
+but for another module you would use this line in your `build.yml` config:
 
-- [ ] Deploy artefacts tasks
-  - [ ] PSDeploy MAML?
-  - [ ] Push test results to Azure DevOps
-  - [ ] PSDeploy Module to Appveyor/Azure DevOps Gallery
-  - [ ] Promote corresponding preview on git tag (pull preview, unpack, make non-preview, test, deploy)
+```yaml
+ModuleBuildTasks:
+  Sampler:
+    - '*.build.Sampler.ib.tasks' # this means: import (dot source) all aliases ending with .ib.tasks exported by 'Sampler' module
+```
 
----------------
+You can edit your `build.yml` to change the workflow, add a custom task,
+create repository-specific task in a `.build/` folder named `*.build.ps1`.
 
-- Build Tasks:
-  - [ ] Move Sampler build tasks from \.build\ folder into compiled module so it can be used from module instead of in-repo (to benefit from version)
-  - [ ] make those tasks discoverable (i.e. Extension metadata, similar to Plaster Templates)
+```yml
+  MyTask: {
+    # do something with some PowerShellCode
+    Write-Host "Doing something in a task"
+  }
 
-- Tests
-  - [ ] Create Test function to run tests based on folder, so that tasks don't duplicate code (Unit,Integration,QA)
-  - [ ] Allow Module Quality by Managing Quality level i.e. `Invoke-pester -ExcludeTag HelpQuality`
-  - ~~[ ] Allow tests to be run either in current session or in New PSSession with no-profile (to have no Class / Assemblies loaded)~~ <-- Less important within CI
-
-- Build & CI tools
-  - [ ] Extend the project to DSC Builds
-  - [ ] add Azure DevOps Pipeline builds for different platforms
+  build:
+    - Clean
+    - MyTask
+    - call_another_task
+```
