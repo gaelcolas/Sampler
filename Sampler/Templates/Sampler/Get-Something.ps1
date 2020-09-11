@@ -14,18 +14,14 @@ function Get-Something
       .PARAMETER Data
       The Data parameter is the data that will be returned without transformation.
 
-      #>
+    #>
     [cmdletBinding(
         SupportsShouldProcess = $true,
         ConfirmImpact = 'Low'
     )]
     param
     (
-        [Parameter(
-            Mandatory = $true
-            , ValueFromPipeline = $true
-            , ValueFromPipelineByPropertyName = $true
-        )]
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)]
         [String]
         $Data
     )
