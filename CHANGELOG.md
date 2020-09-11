@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Updated changelog (removed folder creation on simple modules).
 - Updated doc.
+- Updated code style to match the DSC Community style guideline.
+
+### Fixed
+
+- Fixed missing 'PSGallery' in build files when the Plaster parameter
+  `CustomRepo` is not assigned a value.
 
 ## [0.107.3] - 2020-09-10
 

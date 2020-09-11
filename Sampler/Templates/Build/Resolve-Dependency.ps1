@@ -1,7 +1,6 @@
 [CmdletBinding()]
 param
 (
-
     [Parameter()]
     [String]
     $DependencyFile = 'RequiredModules.psd1',

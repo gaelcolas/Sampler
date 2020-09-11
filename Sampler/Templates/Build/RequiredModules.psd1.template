@@ -1,14 +1,16 @@
 @{
-    # Set up a mini virtual environment...
     PSDependOptions             = @{
         AddToPath  = $true
         Target     = 'output\RequiredModules'
         Parameters = @{
 <%
-                If ($PLASTER_PARAM_CustomRepo -ne 'PSGallery') {
+    if (-not [System.String]::IsNullOrEmpty($PLASTER_PARAM_CustomRepo)) {
                     # Pull Modules from Custom Repository Name
 "           Repository = '$PLASTER_PARAM_CustomRepo'"
-                }
+    }
+    else {
+"           Repository = 'PSGallery'"
+    }
 %>
         }
     }
