@@ -19,14 +19,14 @@ InModuleScope $ProjectName {
                 # The template integration is done separately, hence why we don't need to test it here.
                 # We only test that the New-SampleModule parameters & parameter set work with the template we have defined.
                 @{
-                    TestCaseName = 'CompleteModule_NoLicense'
+                    TestCaseName = 'CompleteSample_NoLicense'
                     NewSampleModuleParams = @{
                         DestinationPath = $TestDrive
                         ModuleName      = 'MyModule'
                         ModuleVersion   = '0.0.1'
                         ModuleAuthor    = "test user"
                         LicenseType     = 'None'
-                        ModuleType      = 'CompleteModule'
+                        ModuleType      = 'CompleteSample'
                     }
                 }
 

@@ -16,10 +16,9 @@ will find the source folder, the tests folder and other supporting files.
 
 .PARAMETER ModuleType
 Preset of module you would like to create:
+    - CompleteSample
     - SimpleModule_NoBuild
     - SimpleModule
-    - CompleteModule
-    - CompleteModule_NoBuild
     - dsccommunity
 
 .PARAMETER ModuleAuthor
@@ -47,7 +46,7 @@ How you would like to call your Source repository to differentiate from the outp
 If you'd rather select specific features from this template to build your module, use this parameter instead.
 
 .EXAMPLE
-C:\src> New-SampleModule -DestinationPath . -ModuleType CompleteModule -ModuleAuthor "Gael Colas" -ModuleName MyModule -ModuleVersion 0.0.1 -ModuleDescription "a sample module" -LicenseType MIT -SourceDirectory Source
+C:\src> New-SampleModule -DestinationPath . -ModuleType CompleteSample -ModuleAuthor "Gael Colas" -ModuleName MyModule -ModuleVersion 0.0.1 -ModuleDescription "a sample module" -LicenseType MIT -SourceDirectory Source
 
 .NOTES
 See Add-Sample to add elements such as functions (private or public), tests, DSC Resources to your project.
@@ -67,7 +66,7 @@ function New-SampleModule
 
         [Parameter(ParameterSetName = 'ByModuleType')]
         [string]
-        [ValidateSet('SimpleModule_NoBuild','SimpleModule', 'CompleteModule', 'CompleteModule_NoBuild', 'dsccommunity')]
+        [ValidateSet('SimpleModule_NoBuild','SimpleModule', 'CompleteSample', 'dsccommunity')]
         $ModuleType = 'SimpleModule',
 
         [Parameter()]
