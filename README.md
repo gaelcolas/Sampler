@@ -236,7 +236,7 @@ the same way (whether behind a firewall, on a dev workstation or in a build agen
   - Prepend `.\output\` to your `$Env:PSModulePath`
   - If Nuget package provider not present, Install & Import nuget PackageProvider (Proxy enabled)
   - Invoke PSDepend based on the dependency file [.\RequiredModules.psd1](RequiredModules.psd1)
-  - Hand back over to InvokeBuild task, loaded as per the [`build.yml`](build.yml)
+  - Hand back over to InvokeBuild task, loaded as per the [`build.yml`](build.yaml)
 
   > Example:
   >
@@ -255,7 +255,7 @@ the same way (whether behind a firewall, on a dev workstation or in a build agen
 
 As seen in the bootstrap process above, the different workflows can be configured by editing the `build.psd1`: new tasks can be loaded, and the sequence can be added under the `BuildWorkflow` key by listing the names.
 
-In our case, [the Build.yml](build.yml#L79) defines several workflows (`.`, `build`, `pack`, `hqrmtest`, `test`, and `publish`) that can be called by using:
+In our case, [the Build.yml](build.yml) defines several workflows (`.`, `build`, `pack`, `hqrmtest`, `test`, and `publish`) that can be called by using:
 
 ```PowerShell
  .build.ps1 -Tasks Workflow_or_task_Name
