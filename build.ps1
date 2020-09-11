@@ -276,12 +276,7 @@ process
         # Load Invoke-Build task sequences/workflows from $BuildInfo.
         foreach ($workflow in $BuildInfo.BuildWorkflow.keys)
         {
-            Write-Verbose -Message (
-                'Creating Build Workflow ''{0}'' with tasks ''{1}''' -f @(
-                    $workflow,
-                    $BuildInfo.BuildWorkflow.($workflow) -join ', '
-                )
-            )
+            Write-Verbose -Message "Creating Build Workflow '$Workflow' with tasks $($BuildInfo.BuildWorkflow.($Workflow) -join ', ')."
 
             $workflowItem = $BuildInfo.BuildWorkflow.($workflow)
 
