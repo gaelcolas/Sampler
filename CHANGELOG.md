@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated code style to match the DSC Community style guideline.
 - Updated logic that handles the installation on PSDepend in the bootstrap
   file `Resolve-Dependency.ps1`.
+- Updated year in LICENSE.
   
 ### Fixed
 
