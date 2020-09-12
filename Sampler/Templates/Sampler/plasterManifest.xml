@@ -31,7 +31,6 @@
       <choice label='&amp;DSC Community Release Conversion'
             help="Creates or replace the files needed for the conversion to the new release automation."
             value="dsccommunity"/>
-
     </parameter>
     <parameter store="text"  name="ModuleAuthor" type="text" prompt="Author's name" default="$Env:Username" condition='${PLASTER_PARAM_ModuleType} -notin @("dsccommunity")' />
     <parameter store="text"  name="ModuleName" type="text" prompt="Name of your module" />

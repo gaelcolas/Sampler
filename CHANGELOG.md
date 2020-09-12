@@ -17,6 +17,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Renamed the moduleType 'CompleteModule' to CompleteSample.
 - Updated changelog (removed folder creation on simple modules).
 - Updated doc.
+- Updated code style to match the DSC Community style guideline.
+- Updated logic that handles the installation on PSDepend in the bootstrap
+  file `Resolve-Dependency.ps1`.
+- Updated year in LICENSE.
+  
+### Fixed
+
+- Fixed missing 'PSGallery' in build files when the Plaster parameter
+  `CustomRepo` is not assigned a value.
 
 ### Removed
 
