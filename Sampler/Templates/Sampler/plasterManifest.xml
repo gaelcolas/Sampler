@@ -508,19 +508,19 @@
     />
 
    <!-- VSCODE SETTINGS -->
-   <file source='../vscodeconfig/settings.json'
+   <file source='../VscodeConfig/settings.json'
           destination='${PLASTER_PARAM_ModuleName}/.vscode/settings.json'
           condition='${PLASTER_PARAM_ModuleType} -in @("dsccommunity","CompleteSample","SimpleBuild") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("vscode")'
     />
 
     <!-- PSScriptAnalyzer VSCODE CONFIG -->
-    <file source='../vscodeconfig/analyzersettings.psd1'
+    <file source='../VscodeConfig/analyzersettings.psd1'
           destination='${PLASTER_PARAM_ModuleName}/.vscode/analyzersettings.psd1'
           condition='${PLASTER_PARAM_ModuleType} -in @("dsccommunity","CompleteSample","SimpleBuild") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("vscode")'
     />
 
     <!-- VSCODE SETTINGS -->
-    <file source='../vscodeconfig/tasks.json'
+    <file source='../VscodeConfig/tasks.json'
           destination='${PLASTER_PARAM_ModuleName}/.vscode/tasks.json'
           condition='${PLASTER_PARAM_ModuleType} -in @("dsccommunity","CompleteSample","SimpleBuild") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("vscode")'
     />
