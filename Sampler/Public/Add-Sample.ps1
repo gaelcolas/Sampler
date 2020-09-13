@@ -39,8 +39,9 @@ function Add-Sample
     param
     (
         [Parameter()]
-        [ValidateSet('Classes', 'ClassResource', 'Composite', 'Enum', 'Examples', 'HelperSubModules', 'MofResource', 'PrivateFunction', 'PublicCallPrivateFunctions', 'PublicFunction')]
-        [System.String]
+        # Add a sample component based on the Plaster templates embedded with this module.
+        [ValidateSet('Classes', 'ClassResource', 'Composite', 'Enum', 'Examples', 'GithubConfig', 'HelperSubModules', 'MofResource', 'PrivateFunction', 'PublicCallPrivateFunctions', 'PublicFunction', 'VscodeConfig')]
+        [string]
         $Sample,
 
         [Parameter()]

@@ -3,7 +3,7 @@
   schemaVersion="1.0" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
   <metadata>
     <name>Enum</name>
-    <id>c2e25927-beb3-403c-8436-6df54bd8d512</id>
+    <id>52746f4d-8270-4e0b-8bd8-a8a5e9619a6b</id>
     <version>0.0.1</version>
     <title>Enum Template</title>
     <description>A template to add an Enum to a Sampler Project</description>

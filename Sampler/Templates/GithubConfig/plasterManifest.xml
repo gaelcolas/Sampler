@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<plasterManifest
+  schemaVersion="1.0" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+  <metadata>
+    <name>GithubConfig</name>
+    <id>56036e8d-ce2e-4b9c-82e4-156443cd0a25</id>
+    <version>0.0.1</version>
+    <title>GithubConfig Template</title>
+    <description>A template to add a .github config to a Sampler Project</description>
+    <author>Gael Colas</author>
+    <tags>Sampler,Template, Build, Module, github</tags>
+  </metadata>
+  <parameters>
+  </parameters>
+
+  <content>
+
+      <!-- GITHUB TEMPLATES -->
+   <file source=''
+          destination='.github'
+          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteSample") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("github")'
+    />
+
+    <file source=''
+          destination='.github/ISSUE_TEMPLATE'
+    />
+
+    <file source='PULL_REQUEST_TEMPLATE.md'
+          destination='.github/PULL_REQUEST_TEMPLATE.md'
+    />
+
+    <file source='ISSUE_TEMPLATE/General.md'
+          destination='.github/ISSUE_TEMPLATE/General.md'
+    />
+
+    <file source='ISSUE_TEMPLATE/Problem_with_resource.md'
+          destination='.github/ISSUE_TEMPLATE/Problem_with_resource.md'
+    />
+
+    <file source='ISSUE_TEMPLATE/Resource_proposal.md'
+          destination='.github/ISSUE_TEMPLATE/Resource_proposal.md'
+    />
+
+  </content>
+</plasterManifest>

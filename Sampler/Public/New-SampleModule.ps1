@@ -17,10 +17,9 @@
     .PARAMETER ModuleType
         Specifies the type of module to create. The default value is 'SimpleModule'.
         Preset of module you would like to create:
-            - SimpleModule_NoBuild
+            - CompleteSample
             - SimpleModule
-            - CompleteModule
-            - CompleteModule_NoBuild
+            - SimpleModule_NoBuild
             - dsccommunity
 
     .PARAMETER ModuleAuthor
@@ -49,7 +48,7 @@
         If you'd rather select specific features from this template to build your module, use this parameter instead.
 
     .EXAMPLE
-        C:\src> New-SampleModule -DestinationPath . -ModuleType CompleteModule -ModuleAuthor "Gael Colas" -ModuleName MyModule -ModuleVersion 0.0.1 -ModuleDescription "a sample module" -LicenseType MIT -SourceDirectory Source
+        C:\src> New-SampleModule -DestinationPath . -ModuleType CompleteSample -ModuleAuthor "Gael Colas" -ModuleName MyModule -ModuleVersion 0.0.1 -ModuleDescription "a sample module" -LicenseType MIT -SourceDirectory Source
 
     .NOTES
         See Add-Sample to add elements such as functions (private or public), tests, DSC Resources to your project.
@@ -67,8 +66,8 @@ function New-SampleModule
         $DestinationPath,
 
         [Parameter(ParameterSetName = 'ByModuleType')]
-        [System.String]
-        [ValidateSet('SimpleModule_NoBuild','SimpleModule', 'CompleteModule', 'CompleteModule_NoBuild', 'dsccommunity')]
+        [string]
+        [ValidateSet('SimpleModule', 'CompleteSample', 'SimpleModule_NoBuild',  'dsccommunity')]
         $ModuleType = 'SimpleModule',
 
         [Parameter()]

@@ -16,8 +16,8 @@
   </parameters>
     <!--
       condition=''
-      ${PLASTER_PARAM_ModuleType}         SimpleModule CustomModule CompleteModule SimpleModule_NoBuild CompleteModule_NoBuild  SharedDscConfig
-      -in @("SimpleModule","CustomModule","CompleteModule","SimpleModule_NoBuild","CompleteModule_NoBuild","SharedDscConfig")
+      ${PLASTER_PARAM_ModuleType}         SimpleModule CustomModule CompleteSample SimpleModule_NoBuild  SharedDscConfig
+      -in @("SimpleModule","CustomModule","CompleteSample","SimpleModule_NoBuild","SharedDscConfig")
       ${PLASTER_PARAM_ModuleAuthor}
       ${PLASTER_PARAM_ModuleName}
       ${PLASTER_PARAM_ModuleDescription}

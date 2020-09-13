@@ -7,8 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added GitHub config element template.
+- Added vscode config element template.
+
 ### Changed
 
+- Renamed the moduleType 'CompleteModule' to CompleteSample.
 - Updated changelog (removed folder creation on simple modules).
 - Updated doc.
 - Updated code style to match the DSC Community style guideline.
@@ -20,6 +26,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixed missing 'PSGallery' in build files when the Plaster parameter
   `CustomRepo` is not assigned a value.
+
+### Removed
+
+- Removed the CompletModule_noBuild template as it's unecessary and add complexity to the template.
 
 ## [0.107.3] - 2020-09-10
 

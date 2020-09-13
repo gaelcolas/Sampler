@@ -32,8 +32,8 @@ Describe 'Custom Module Plaster Template' {
             $listOfExpectedFilesAndFolders = @(
 
             # Folders (relative to module root)
-
             '.github'
+            '.github/ISSUE_TEMPLATE'
             '.vscode'
             'output'
             'output/RequiredModules'
@@ -61,7 +61,10 @@ Describe 'Custom Module Plaster Template' {
             'tests/Unit/Public'
 
             # Files (relative to module root)
-
+            '.github/ISSUE_TEMPLATE/General.md'
+            '.github/ISSUE_TEMPLATE/Problem_with_resource.md'
+            '.github/ISSUE_TEMPLATE/Resource_proposal.md'
+            '.github/PULL_REQUEST_TEMPLATE.md'
             '.gitattributes'
             '.gitignore'
             '.kitchen.yml'
@@ -171,6 +174,7 @@ Describe 'Custom Module Plaster Template' {
                 # Folders (relative to module root)
 
                 '.github'
+                '.github/ISSUE_TEMPLATE'
                 '.vscode'
                 'output'
                 'output/RequiredModules'
@@ -199,6 +203,10 @@ Describe 'Custom Module Plaster Template' {
 
                 # Files (relative to module root)
 
+                '.github/ISSUE_TEMPLATE/General.md'
+                '.github/ISSUE_TEMPLATE/Problem_with_resource.md'
+                '.github/ISSUE_TEMPLATE/Resource_proposal.md'
+                '.github/PULL_REQUEST_TEMPLATE.md'
                 '.gitattributes'
                 '.gitignore'
                 '.kitchen.yml'
@@ -308,6 +316,7 @@ Describe 'Custom Module Plaster Template' {
             $listOfExpectedFilesAndFolders = @(
 
                 '.github'
+                '.github/ISSUE_TEMPLATE'
                 '.vscode'
                 'output'
                 'output/RequiredModules'
@@ -336,6 +345,10 @@ Describe 'Custom Module Plaster Template' {
 
                 # Files (relative to module root)
 
+                '.github/ISSUE_TEMPLATE/General.md'
+                '.github/ISSUE_TEMPLATE/Problem_with_resource.md'
+                '.github/ISSUE_TEMPLATE/Resource_proposal.md'
+                '.github/PULL_REQUEST_TEMPLATE.md'
                 '.gitattributes'
                 '.gitignore'
                 '.kitchen.yml'
@@ -445,8 +458,8 @@ Describe 'Custom Module Plaster Template' {
             $listOfExpectedFilesAndFolders = @(
 
                 # Folders (relative to module root)
-
                 '.github'
+                '.github/ISSUE_TEMPLATE'
                 '.vscode'
                 'output'
                 'output/RequiredModules'
@@ -475,6 +488,10 @@ Describe 'Custom Module Plaster Template' {
 
                 # Files (relative to module root)
 
+                '.github/ISSUE_TEMPLATE/General.md'
+                '.github/ISSUE_TEMPLATE/Problem_with_resource.md'
+                '.github/ISSUE_TEMPLATE/Resource_proposal.md'
+                '.github/PULL_REQUEST_TEMPLATE.md'
                 '.gitattributes'
                 '.gitignore'
                 '.kitchen.yml'
