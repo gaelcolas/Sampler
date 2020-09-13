@@ -486,10 +486,10 @@
     />
 
    <!-- CHANGELOG MD -->
-   <templatefile source='CHANGELOG.md.template'
+   <templateFile source='CHANGELOG.md.template'
           destination='${PLASTER_PARAM_ModuleName}/CHANGELOG.md'
           condition='${PLASTER_PARAM_ModuleType} -in @("dsccommunity","CompleteSample","SimpleModule") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("git")'
-    />
+   />
 
    <!-- GITVERSION CONFIG YAML -->
    <file source='../Git/GitVersion.yml'
