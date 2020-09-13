@@ -1,7 +1,7 @@
 @{
 <%
     if (-not [System.String]::IsNullOrEmpty($PLASTER_PARAM_CustomRepo)) {
-"    Gallery = '$PLASTER_PARAM_CustomRepo'"
+"    Gallery         = '$PLASTER_PARAM_CustomRepo'"
     }
     else {
 "    Gallery         = 'PSGallery'"
