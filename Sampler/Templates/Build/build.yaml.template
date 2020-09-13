@@ -2,14 +2,20 @@
 ####################################################
 #          ModuleBuilder Configuration             #
 ####################################################
+<%
+    if ($PLASTER_PARAM_ModuleType -ne 'dsccommunity') {
+@"
 # Path to the Module Manifest to build (where path will be resolved from)
 # SourcePath: ./Sampler/Sampler.psd1
 # Output Directory where ModuleBuilder will build the Module, relative to module manifest
 # OutputDirectory: ../output/Sampler
+"@
+    }
+%>
 CopyPaths:
   - en-US
 <%
-    If ($PLASTER_PARAM_ModuleType -eq 'dsccommunity' -or $PLASTER_PARAM_ModuleType -match 'complete' -or $PLASTER_PARAM_Features -Contains ("All") -or $PLASTER_PARAM_Features -Contains ("DSCResources")) {
+    if ($PLASTER_PARAM_ModuleType -eq 'dsccommunity' -or $PLASTER_PARAM_ModuleType -match 'complete' -or $PLASTER_PARAM_Features -Contains ("All") -or $PLASTER_PARAM_Features -Contains ("DSCResources")) {
 "  - DSCResources"
     }
     else {
@@ -17,12 +23,17 @@ CopyPaths:
     }
 %>
   # - Modules
-Encoding: UTF8 # With BOM in WinPS, noBOM in PSCore.
-
+Encoding: UTF8
+<%
+    if ($PLASTER_PARAM_ModuleType -ne 'dsccommunity') {
+@"
 # Suffix to add to Root module PSM1 after merge (here, the Set-Alias exporting IB tasks)
 # suffix: suffix.ps1
 # prefix: prefix.ps1
-VersionedOutputDirectory: true
+"@
+    }
+"VersionedOutputDirectory: true"
+%>
 
 ####################################################
 #      ModuleBuilder Submodules Configuration      #
@@ -30,8 +41,16 @@ VersionedOutputDirectory: true
 
 NestedModule:
 <%
-    If ($PLASTER_PARAM_ModuleType -eq 'dsccommunity' -or $PLASTER_PARAM_ModuleType -match 'complete' -or $PLASTER_PARAM_Features -Contains ("All") -or $PLASTER_PARAM_Features -Contains ("DSCResources"))
-    {
+    if ($PLASTER_PARAM_ModuleType -eq 'dsccommunity') {
+@"
+    DscResource.Common:
+      CopyOnly: true
+      Path: ./output/RequiredModules/DscResource.Common
+      AddToManifest: false
+      Exclude: PSGetModuleInfo.xml
+"@
+    }
+    elseif ($PLASTER_PARAM_ModuleType -match 'complete' -or $PLASTER_PARAM_Features -Contains ("All") -or $PLASTER_PARAM_Features -Contains ("DSCResources")) {
 @"
   DscResource.Common:
     CopyOnly: true
@@ -46,8 +65,7 @@ NestedModule:
     AddToManifest: false
 "@
   }
-  else
-  {
+  else {
 @"
 #  HelperSubmodule: # This is the first submodule to build into the output
 #    Path: ./*/Modules/HelperSubmodule/HelperSubmodule.psd1
@@ -66,11 +84,25 @@ NestedModule:
 ####################################################
 #       Sampler Pipeline Configuration             #
 ####################################################
+<%
+    if ($PLASTER_PARAM_ModuleType -eq 'dsccommunity') {
+@"
+BuildWorkflow:
+  '.':
+    - build
+    - test
+"@
+    }
+    else {
+@"
 # Defining 'Workflows' (suite of InvokeBuild tasks) to be run using their alias
 BuildWorkflow:
   '.': # "." is the default Invoke-Build workflow. It is called when no -Tasks is specified to the build.ps1
     - build
     - test
+"@
+    }
+%>
 
   build:
     - Clean
@@ -93,41 +125,53 @@ BuildWorkflow:
   hqrmtest:
     - DscResource_Tests_Stop_On_Fail
 
-  # defining test task to be run when invoking `./build.ps1 -Tasks test`
+  # Defining test task to be run when invoking `./build.ps1 -Tasks test`
   test:
     - Pester_Tests_Stop_On_Fail
     - Pester_if_Code_Coverage_Under_Threshold
     # Use this task when you have multiple parallel tests, which produce multiple
     # code coverage files and needs to get merged into one file.
     #- Merge_CodeCoverage_Files
-<%
-    if($PLASTER_PARAM_ModuleType -in @('dsccommunity')) {
-"    - hqrmtest"
-    }
-%>
 
   publish:
-    - publish_module_to_gallery # runs if nuget is not available
+    - publish_module_to_gallery
 
 
 ####################################################
 #       PESTER  Configuration                      #
 ####################################################
 
-Pester: #Passthru, OutputFile, CodeCoverageOutputFile not supported
+Pester:
   OutputFormat: NUnitXML
-  # Will look at every *.ps1 & *.psm1 under ModulePath, excepts when $_.FullName -match (Join-Path $ProjectPath $ExcludeFromCodeCoverageItem)
+  # Excludes one or more paths from being used to calculate code coverage.
   ExcludeFromCodeCoverage:
 <%
-    if ($PLASTER_PARAM_ModuleType -eq 'dsccommunity' -or $PLASTER_PARAM_ModuleType -match 'complete' -or $PLASTER_PARAM_Features -Contains ("All") -or $PLASTER_PARAM_Features -Contains ("DSCResources"))
+    if ($PLASTER_PARAM_ModuleType -eq 'dsccommunity') {
+@"
+    - Modules/DscResource.Common
+"@
+    }
+    elseif ($PLASTER_PARAM_ModuleType -match 'complete' -or $PLASTER_PARAM_Features -Contains ("All") -or $PLASTER_PARAM_Features -Contains ("DSCResources"))
     {
-"    - Modules/DscResource.Common"
+@"
+    - Modules/DscResource.Common
+    # - Template
+"@
     }
 %>
-    # - Template
-  # Default is to use the tests folder in the project folder or source folder (if present)
-  # can use it to prioritize: tests/QA, tests/Unit, tests/Integration
+  # If no scripts are defined the default is to use all the tests under the project's
+  # tests folder or source folder (if present). Test script paths can be defined to
+  # only run tests in certain folders, or run specific test files, or can be use to
+  # specify the order tests are run.
   Script:
+<%
+    if ($PLASTER_PARAM_ModuleType -eq 'dsccommunity') {
+@"
+    - tests/Unit
+"@
+    }
+    else {
+@"
   # - tests/QA/module.tests.ps1
   # - tests/QA
   # - tests/Unit
@@ -136,11 +180,27 @@ Pester: #Passthru, OutputFile, CodeCoverageOutputFile not supported
     - helpQuality
     - FunctionalQuality
     - TestQuality
+"@
+    }
+%>
   Tag:
   CodeCoverageThreshold: 85 # Set to 0 to bypass
+<%
+    if ($PLASTER_PARAM_ModuleType -eq 'dsccommunity') {
+@"
+  CodeCoverageOutputFile: JaCoCo_coverage.xml
+  CodeCoverageOutputFileEncoding: ascii
+  # CodeCoverageMergedOutputFile: JaCoCo_Merged.xml
+"@
+    }
+    else {
+@"
   # CodeCoverageOutputFile: JaCoCo_$OsShortName.xml
   # CodeCoverageOutputFileEncoding: ascii
   # CodeCoverageMergedOutputFile: JaCoCo_Merged.xml
+"@
+    }
+%>
 <%
     if ($PLASTER_PARAM_ModuleType -eq 'dsccommunity' -or $PLASTER_PARAM_ModuleType -match 'complete' -or $PLASTER_PARAM_Features -Contains ("All") -or $PLASTER_PARAM_Features -Contains ("DSCResources"))
     {
@@ -153,22 +213,37 @@ DscTest:
   ExcludeSourceFile:
     - output
   ExcludeModuleFile:
+"@
+    }
+
+    if ($PLASTER_PARAM_ModuleType -eq 'dsccommunity') {
+@"
+    - Modules/DscResource.Common
+"@
+    }
+    elseif ($PLASTER_PARAM_ModuleType -match 'complete' -or $PLASTER_PARAM_Features -Contains ("All") -or $PLASTER_PARAM_Features -Contains ("DSCResources"))
+    {
+@"
+    - Modules/DscResource.Common
   #  - Templates
 "@
     }
-    if ($PLASTER_PARAM_ModuleType -eq 'dsccommunity' -or $PLASTER_PARAM_ModuleType -match 'complete' -or $PLASTER_PARAM_Features -Contains ("All") -or $PLASTER_PARAM_Features -Contains ("DSCResources"))
-    {
-"    - Modules/DscResource.Common"
-    }
     else
     {
-"  #  - Modules/DscResource.Common"
+@"
+  #  - Modules/DscResource.Common
+  #  - Templates
+"@
     }
 %>
 
+# Import ModuleBuilder tasks from a specific PowerShell module using the build
+# task's alias. Wildcard * can be used to specify all tasks that has a similar
+# prefix and or suffix. The module contain the task must be added as a required
+# module in the file RequiredModules.psd1.
 ModuleBuildTasks:
   Sampler:
-    - '*.build.Sampler.ib.tasks' # this means: import (dot source) all aliases ending with .ib.tasks exported by sampler module
+    - '*.build.Sampler.ib.tasks'
 <%
     if($PLASTER_PARAM_ModuleType -in @('dsccommunity')) {
 @"
@@ -177,7 +252,6 @@ ModuleBuildTasks:
 "@
     }
 %>
-
 
 # Invoke-Build Header to be used to 'decorate' the terminal output of the tasks.
 TaskHeader: |
@@ -200,6 +274,25 @@ GitHubConfig:
   GitHubConfigUserName: dscbot
   GitHubConfigUserEmail: dsccommunity@outlook.com
   UpdateChangelogOnPrerelease: false
+"@
+    }
+%>
+
+<%
+    if ($PLASTER_PARAM_ModuleType -eq 'dsccommunity') {
+@"
+####################################################
+#      DscResource.DocGenerator Configuration      #
+####################################################
+DscResource.DocGenerator:
+  Generate_Conceptual_Help:
+    MarkdownCodeRegularExpression:
+      - '\`(.+?)\`' # Match inline code-block
+      - '\\(\\)' # Match escaped backslash
+      - '\[[^\[]+\]\((.+?)\)' # Match markdown URL
+      - '_(.+?)_' # Match Italic (underscore)
+      - '\*\*(.+?)\*\*' # Match bold
+      - '\*(.+?)\*' # Match Italic (asterisk)
 "@
     }
 %>
