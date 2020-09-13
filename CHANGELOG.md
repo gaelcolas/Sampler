@@ -30,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the commit message even if it was part of for example a code variable).
 - Updated the template file build.yaml to make it more clean when using
   the module type `'dsccommunity'`.
+- Updated so that the module type `'dsccommunity'` will add a CHANGELOG.md.
 
 ### Fixed
 
