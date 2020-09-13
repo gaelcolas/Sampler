@@ -31,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated the template file build.yaml to make it more clean when using
   the module type `'dsccommunity'`.
 - Updated so that the module type `'dsccommunity'` will add a CHANGELOG.md.
+- Updated so that the module type `'dsccommunity'` will add the GitHub templates.
 
 ### Fixed
 
