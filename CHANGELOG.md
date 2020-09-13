@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new template file for azure-pipelines.yml when using the
   module type `'dsccommunity'`.
 - Added a new template and configuration for Codecov.io when using
-  module type `'dsccommuntity'`.
+  module type `'dsccommunity'`.
 
 ### Changed
 
