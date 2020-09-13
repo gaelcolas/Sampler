@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added GitHub config element template.
 - Added vscode config element template.
+- Added a new template file for azure-pipelines.yml when using the
+  module type `'dsccommunity'`.
+- Added a new template and configuration for Codecov.io when using
+  module type `'dsccommuntity'`.
 
 ### Changed
 
@@ -21,11 +25,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated logic that handles the installation on PSDepend in the bootstrap
   file `Resolve-Dependency.ps1`.
 - Updated year in LICENSE.
-  
+- Updated the template GitVersion.yml to use specific words to bump
+  major version (previously it bumped if the word was found anywhere in
+  the commit message even if it was part of for example a code variable).
+- Updated the template file build.yaml to make it more clean when using
+  the module type `'dsccommunity'`.
+
 ### Fixed
 
 - Fixed missing 'PSGallery' in build files when the Plaster parameter
   `CustomRepo` is not assigned a value.
+- Fixed a whitespace issue in the template file Resolve-Dependency.psd1.
+- Rephrased comments in the template file build.yaml.
 
 ### Removed
 
