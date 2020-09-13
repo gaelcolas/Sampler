@@ -33,7 +33,7 @@
           destination='.github/ISSUE_TEMPLATE/General.md'
     />
 
-    <file source='ISSUE_TEMPLATE/Problem_with_resource.md'
+    <templateFile source='ISSUE_TEMPLATE/Problem_with_resource.md.template'
           destination='.github/ISSUE_TEMPLATE/Problem_with_resource.md'
     />
 
