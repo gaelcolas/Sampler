@@ -486,7 +486,7 @@
     />
 
    <!-- CHANGELOG MD -->
-   <file source='CHANGELOG.md.template'
+   <templatefile source='CHANGELOG.md.template'
           destination='${PLASTER_PARAM_ModuleName}/CHANGELOG.md'
           condition='${PLASTER_PARAM_ModuleType} -in @("dsccommunity","CompleteSample","SimpleModule") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("git")'
     />
