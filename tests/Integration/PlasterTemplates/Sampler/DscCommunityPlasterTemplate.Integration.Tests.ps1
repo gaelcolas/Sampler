@@ -48,6 +48,7 @@ Describe 'DSC Community Plaster Template' {
                 'build.ps1'
                 'build.yaml'
                 'CODE_OF_CONDUCT.md'
+                'codecov.yml'
                 'CONTRIBUTING.md'
                 'GitVersion.yml'
                 'RequiredModules.psd1'
