@@ -336,16 +336,13 @@
     <!--   AZURE PIPELINES -->
     <file source='azure-pipelines.yml'
           destination='${PLASTER_PARAM_ModuleName}/azure-pipelines.yml'
-          condition='${PLASTER_PARAM_ModuleType} -in @("dsccommunity","CompleteSample") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("Azure-Pipelines")'
+          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteSample") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("Azure-Pipelines")'
     />
 
-    <modify path='${PLASTER_PARAM_ModuleName}/azure-pipelines.yml'
-            condition='$PLASTER_PARAM_ModuleType -in @("dsccommunity")'>
-        <replace condition="$PLASTER_FileContent -notmatch 'contains\(variables\[''System\.TeamFoundationCollectionUri''\], ''dsccommunity''\)'">
-            <original>contains\(variables\['System\.TeamFoundationCollectionUri'\], 'synedgy'\)</original>
-            <substitute>contains(variables['System.TeamFoundationCollectionUri'], 'dsccommunity')</substitute>
-        </replace>
-    </modify>
+    <file source='azure-pipelines_dsccommunity.yml'
+          destination='${PLASTER_PARAM_ModuleName}/azure-pipelines.yml'
+          condition='${PLASTER_PARAM_ModuleType} -in @("dsccommunity")'
+    />
     <!-- END OF BUILD SCRIPTS -->
 
     <!-- DSC RESOURCES files and folders -->
@@ -555,5 +552,10 @@
           condition='${PLASTER_PARAM_ModuleType} -in @("CompleteSample") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("github")'
     />
 
+   <!-- Codecov.io -->
+   <file source='../Sampler/codecov_dsccommunity.yml'
+          destination='${PLASTER_PARAM_ModuleName}/codecov.yml'
+          condition='${PLASTER_PARAM_ModuleType} -in @("dsccommunity")'
+    />
   </content>
 </plasterManifest>
