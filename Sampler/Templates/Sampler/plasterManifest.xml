@@ -537,19 +537,24 @@
           condition='${PLASTER_PARAM_ModuleType} -in @("CompleteSample") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("github")'
     />
 
-    <file source='../GithubConfig/ISSUE_TEMPLATE/General.md'
-          destination='${PLASTER_PARAM_ModuleName}/.github/ISSUE_TEMPLATE/General.md'
-          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteSample") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("github")'
+    <file source='../GithubConfig/PULL_REQUEST_TEMPLATE_dsccommunity.md'
+          destination='${PLASTER_PARAM_ModuleName}/.github/PULL_REQUEST_TEMPLATE.md'
+          condition='${PLASTER_PARAM_ModuleType} -in @("dsccommunity")'
     />
 
-    <file source='../GithubConfig/ISSUE_TEMPLATE/Problem_with_resource.md'
+    <file source='../GithubConfig/ISSUE_TEMPLATE/General.md'
+          destination='${PLASTER_PARAM_ModuleName}/.github/ISSUE_TEMPLATE/General.md'
+          condition='${PLASTER_PARAM_ModuleType} -in @("dsccommunity","CompleteSample") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("github")'
+    />
+
+    <templateFile source='../GithubConfig/ISSUE_TEMPLATE/Problem_with_resource.md.template'
           destination='${PLASTER_PARAM_ModuleName}/.github/ISSUE_TEMPLATE/Problem_with_resource.md'
-          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteSample") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("github")'
+          condition='${PLASTER_PARAM_ModuleType} -in @("dsccommunity","CompleteSample") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("github")'
     />
 
     <file source='../GithubConfig/ISSUE_TEMPLATE/Resource_proposal.md'
           destination='${PLASTER_PARAM_ModuleName}/.github/ISSUE_TEMPLATE/Resource_proposal.md'
-          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteSample") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("github")'
+          condition='${PLASTER_PARAM_ModuleType} -in @("dsccommunity","CompleteSample") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("github")'
     />
 
    <!-- Codecov.io -->

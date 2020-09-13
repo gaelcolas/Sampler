@@ -57,5 +57,7 @@ about: If you have a problem, bug, or enhancement with a resource in this resour
 #### Version of the DSC module that was used ('dev' if using current dev branch)
 <!--
     To help with this information, please run this command:
-    Get-Module -Name 'SqlServerDsc' -ListAvailable | ft Name,Version,Path
+<%
+"    Get-Module -Name '${PLASTER_PARAM_ModuleName}' -ListAvailable | ft Name,Version,Path"
+%>
 -->
