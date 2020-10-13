@@ -36,12 +36,13 @@ stages:
             env:
               ModuleVersion: $(gitVersion.NuGetVersionV2)
 
-          - task: PublishBuildArtifacts@1
-            displayName: 'Publish Build Artifact'
+          - task: PublishPipelineArtifact@1
+            displayName: 'Publish Pipeline Artifact'
             inputs:
-              pathToPublish: 'output/'
-              artifactName: 'output'
-              publishLocation: 'Container'
+              targetPath: 'output/'
+              artifact: 'output'
+              publishLocation: 'pipeline'
+              parallel: true
 
   - stage: Test
     dependsOn: Build
@@ -52,13 +53,12 @@ stages:
         pool:
           vmImage: 'ubuntu 16.04'
         steps:
-          - task: DownloadBuildArtifacts@0
-            displayName: 'Download Build Artifact'
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download Pipeline Artifact'
             inputs:
               buildType: 'current'
-              downloadType: 'single'
               artifactName: 'output'
-              downloadPath: '$(Build.SourcesDirectory)'
+              targetPath: '$(Build.SourcesDirectory)/output'
 
           - powershell: |
               $repositoryOwner,$repositoryName = $env:BUILD_REPOSITORY_NAME -split '/'
@@ -96,13 +96,12 @@ stages:
         pool:
           vmImage: 'windows-2019'
         steps:
-          - task: DownloadBuildArtifacts@0
-            displayName: 'Download Build Artifact'
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download Pipeline Artifact'
             inputs:
               buildType: 'current'
-              downloadType: 'single'
               artifactName: 'output'
-              downloadPath: '$(Build.SourcesDirectory)'
+              targetPath: '$(Build.SourcesDirectory)/output'
 
           - powershell: |
               $repositoryOwner,$repositoryName = $env:BUILD_REPOSITORY_NAME -split '/'
@@ -141,13 +140,12 @@ stages:
         pool:
           vmImage: 'windows-2019'
         steps:
-          - task: DownloadBuildArtifacts@0
-            displayName: 'Download Build Artifact'
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download Pipeline Artifact'
             inputs:
               buildType: 'current'
-              downloadType: 'single'
               artifactName: 'output'
-              downloadPath: '$(Build.SourcesDirectory)'
+              targetPath: '$(Build.SourcesDirectory)/output'
 
           - powershell: |
               $repositoryOwner,$repositoryName = $env:BUILD_REPOSITORY_NAME -split '/'
@@ -186,13 +184,12 @@ stages:
         pool:
           vmImage: 'macos-latest'
         steps:
-          - task: DownloadBuildArtifacts@0
-            displayName: 'Download Build Artifact'
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download Pipeline Artifact'
             inputs:
               buildType: 'current'
-              downloadType: 'single'
               artifactName: 'output'
-              downloadPath: '$(Build.SourcesDirectory)'
+              targetPath: '$(Build.SourcesDirectory)/output'
 
           - powershell: |
               $repositoryOwner,$repositoryName = $env:BUILD_REPOSITORY_NAME -split '/'
@@ -243,13 +240,12 @@ stages:
         pool:
           vmImage: 'ubuntu 16.04'
         steps:
-          - task: DownloadBuildArtifacts@0
-            displayName: 'Download Build Artifact'
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download Pipeline Artifact'
             inputs:
               buildType: 'current'
-              downloadType: 'single'
               artifactName: 'output'
-              downloadPath: '$(Build.SourcesDirectory)'
+              targetPath: '$(Build.SourcesDirectory)/output'
           - task: PowerShell@2
             name: publishRelease
             displayName: 'Publish Release'

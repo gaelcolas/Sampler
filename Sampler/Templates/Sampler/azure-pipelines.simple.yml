@@ -42,8 +42,9 @@ steps:
     codeCoverageTool: 'JaCoCo'
     summaryFileLocation: 'output/testResults/CodeCov*.xml'
 
-- task: PublishBuildArtifacts@1
+- task: PublishPipelineArtifact@1
   inputs:
-    PathtoPublish: 'output/'
-    ArtifactName: 'BuiltModule'
-    publishLocation: 'Container'
+    targetPath: 'output/'
+    artifact: 'BuiltModule'
+    publishLocation: 'pipeline'
+    parallel: true
