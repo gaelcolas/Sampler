@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Add section modify to replace "FunctionsToExport = '*'" by "FunctionsToExport = ''" in new module manifest ([issue #67](https://github.com/gaelcolas/Sampler/issues/67)).
     - Add section modify to add "Prerelease = ''" in "PSData" block  in new module manifest ([issue #69](https://github.com/gaelcolas/Sampler/issues/69)). 
 
+### Added
+
+- Add DSC_ClassFolder template
+
 ## [0.108.0] - 2020-09-14
 
 ### Added
