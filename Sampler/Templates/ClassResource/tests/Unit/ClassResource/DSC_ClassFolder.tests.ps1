@@ -86,7 +86,6 @@ InModuleScope $ProjectName {
                 { $script:instance.SetFileAttribute($script:mockFolderObject,'Hidden') } | Should -Not -Throw
 
                 $script:instance.TestFileAttribute($script:mockFolderObject,'Hidden') | Should -BeFalse
-
             }
         }
     }
@@ -95,7 +94,6 @@ InModuleScope $ProjectName {
         BeforeAll {
             $script:mockFolderObjectPath = Join-Path -Path $TestDrive -ChildPath 'FolderTest'
             $script:mockFolderObject = New-Item -Path $script:mockFolderObjectPath -ItemType 'Directory' -Force
-
         }
 
         BeforeEach {
@@ -602,5 +600,4 @@ InModuleScope $ProjectName {
             Assert-VerifiableMock
         }
     }
-
 }

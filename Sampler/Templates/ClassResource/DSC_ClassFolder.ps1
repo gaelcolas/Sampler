@@ -46,10 +46,8 @@ class DSC_ClassFolder
                     -f $this.Path
             )
 
-
             $this.SetFileAttribute($folder, 'ReadOnly')
             $this.SetFileAttribute($folder, 'Hidden')
-
         }
         else
         {
@@ -202,5 +200,4 @@ class DSC_ClassFolder
 
         return $hashResult
     }
-
 }
