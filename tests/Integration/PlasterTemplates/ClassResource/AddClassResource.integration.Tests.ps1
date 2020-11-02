@@ -32,13 +32,27 @@ Describe 'DSC Composite resource Plaster Template' {
             $listOfExpectedFilesAndFolders = @(
                 # Folders (relative to module root)
                 'source'
-                'source/Classes'
                 'source/Enum'
+                'source/Classes'
+                'source/Private'
+                'source/en-US'
+                'tests'
+                'tests/Unit'
+                'tests/Unit/Classes'
+                'tests/Unit/Private'
 
                 # Files (relative to module root)
                 'source/Enum/1.Ensure.ps1'
                 'source/Classes/Reason.ps1'
                 'source/Classes/DSC_MyDscClassResource.ps1'
+                'source/Private/ConvertTo-HashtableFromObject.ps1'
+                'source/Private/Get-DummyObject.ps1'
+                'source/Private/Set-HelpFunctionProperty.ps1'
+                'source/en-US/DSC_MyDscClassResource.strings.psd1'
+                'tests/Unit/Classes/DSC_MyDscClassResource.tests.ps1'
+                'tests/Unit/Private/ConvertTo-HashtableFromObject.tests.ps1'
+                #'tests/Unit/Private/Set-HelpFunctionProperty.tests.ps1'
+
             )
         }
 
