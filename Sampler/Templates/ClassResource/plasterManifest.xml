@@ -49,12 +49,44 @@
       />
 
       <!--   SOURCE/Classes/DSC_Resource.ps1 file -->
-      <templateFile source='ClassResource.ps1.template'
-                        destination='${PLASTER_PARAM_SourceDirectory}/Classes/DSC_${PLASTER_PARAM_ResourceName}.ps1'
+      <templateFile source='DSC_ClassResource.ps1.template'
+            destination='${PLASTER_PARAM_SourceDirectory}/Classes/DSC_${PLASTER_PARAM_ResourceName}.ps1'
       />
 
-      <!--   tests/Classes Folder -->
-      <!--   tests/Classes/ClassResource.Tests.ps1 file -->
+      <!--   SOURCE/en-US/DSC_Resource.strings.pd1 file -->
+      <templateFile source='en-US/DSC_ClassResource.strings.psd1.template'
+            destination='${PLASTER_PARAM_SourceDirectory}/en-US/DSC_${PLASTER_PARAM_ResourceName}.strings.psd1'
+      />
+
+      <!--   SOURCE/Private Folder -->
+      <file source='' destination='${PLASTER_PARAM_SourceDirectory}/Private' />
+
+      <!--   SOURCE/Private/Get-DummyObject.ps1 -->
+      <file source='Private/Get-DummyObject.ps1' destination='${PLASTER_PARAM_SourceDirectory}/Private/Get-DummyObject.ps1' />
+
+      <!--   SOURCE/Private/Set-HelpFunctionProperty.ps1 -->
+      <file source='Private/Set-HelpFunctionProperty.ps1' destination='${PLASTER_PARAM_SourceDirectory}/Private/Set-HelpFunctionProperty.ps1' />
+
+      <!--   SOURCE/Private/ConvertTo-HashtableFromObject.ps1 -->
+      <file source='Private/ConvertTo-HashtableFromObject.ps1' destination='${PLASTER_PARAM_SourceDirectory}/Private/ConvertTo-HashtableFromObject.ps1' />
+
+      <!--   tests/Unit/Classes Folder -->
+      <file source='' destination='tests/Unit/Classes' />
+
+      <!--   tests/Classes/tests/Unit/ClassResource/DSC_ClassResource.tests.ps1.template -->
+      <templateFile source='tests/Unit/ClassResource/DSC_ClassResource.tests.ps1.template'
+            destination='tests/Unit/Classes/DSC_${PLASTER_PARAM_ResourceName}.tests.ps1'
+      />
+
+      <!--   tests/Unit/Private Folder -->
+      <file source='' destination='tests/Unit/Private' />
+
+      <!--   tests/Unit/Private/ConvertTo-HashtableFromObject.tests.ps1 -->
+      <templateFile source='tests/Unit/Private/ConvertTo-HashtableFromObject.tests.ps1.template' destination='tests/Unit/Private/ConvertTo-HashtableFromObject.tests.ps1' />
+
+      <!--   tests/Unit/Private/Set-HelpFunctionProperty.tests.ps1 -->
+      <!--file source='tests/Unit/Private/Set-HelpFunctionProperty.tests.ps1' destination='tests/Unit/Private/Set-HelpFunctionProperty.tests.ps1' /-->
+
       <!--   tests/Example/Resources/1-ClassResource_doSomethingConfig.ps1 file -->
       <!--   modify module manifest add ClassResource to DscResourcesToExport ? -->
 

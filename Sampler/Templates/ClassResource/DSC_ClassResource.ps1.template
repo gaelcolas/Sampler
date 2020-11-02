@@ -1,0 +1,230 @@
+$script:localizedData<%=$PLASTER_PARAM_ResourceName %> = Get-LocalizedData -DefaultUICulture en-US -FileName 'DSC_<%=$PLASTER_PARAM_ResourceName %>.strings.psd1'
+
+[DscResource()]
+class DSC_<%=$PLASTER_PARAM_ResourceName %>
+{
+    [DscProperty(Key)]
+    [string] $Name
+
+    [DscProperty(Mandatory)]
+    [bool] $PropertyMandatory
+
+    [DscProperty()]
+    [bool] $PropertyBoolReadWrite
+
+    [DscProperty()]
+    [Ensure] $Ensure
+
+    [DscProperty()]
+    [Reason[]] $Reasons
+
+    [DscProperty(NotConfigurable)]
+    [bool] $PropertyBoolReadOnly
+
+    [DscProperty(NotConfigurable)]
+    [String] $PropertyStringReadOnly
+
+
+    ### DSC methods
+
+    [DSC_<%=$PLASTER_PARAM_ResourceName %>] Get()
+    {
+        Write-Verbose -Message (
+            $script:localizedData<%=$PLASTER_PARAM_ResourceName %>.RetrieveItem `
+                -f $this.Name
+        )
+
+        $currentState = [DSC_<%=$PLASTER_PARAM_ResourceName %>]::New()
+        $currentState.Name = $this.Name
+
+        <#
+            Replace this part by the command use for get the current value of composant.
+            Example : Get-Item for get the current state of a folder or a file.
+
+            $item = Get-Item -Path $Path
+
+            Note : $Path is a property of this class like than $Name.
+        #>
+
+        #This is juste an example to validate pester tests.
+        $item = Get-DummyObject -Name $this.Name
+
+        if ($item)
+        {
+            Write-Verbose -Message $script:localizedData<%=$PLASTER_PARAM_ResourceName %>.ItemFound
+
+            <#
+                In this part, you get the information of object, and add it to $currentState property.
+                You can use another cmdlet to get futher information an like SMB informations for folder :
+
+                $folderShare = Get-SmbShare |
+                    Where-Object -FilterScript {
+                        $_.Path -eq $this.Path
+                    }
+
+                $isShared = [System.Boolean] $folderShare
+                if ($isShared)
+                {
+                    $currentState.ShareName = $folderShare.Name
+                }
+                else
+                {
+                    $currentState.ShareName= $null
+                }
+
+            #>
+
+            $currentState.Ensure                    = [Ensure]::Present
+            $currentState.PropertyMandatory         = $item.PropertyMandatory
+            $currentState.PropertyBoolReadWrite     = $item.PropertyBoolReadWrite
+            $currentState.PropertyBoolReadOnly      = $item.PropertyBoolReadOnly
+            $currentState.PropertyStringReadOnly    = $item.PropertyStringReadOnly
+
+
+            <#
+                Here, we compare the differences between current and desired state with Compare-DscParameterState.
+                This command is in DscResource.Common module. It returns a collection of hashtable with compliant and
+                non-compliant properties of the resource.
+                With the result, you can add reasons of non-desired state in Reasons property.
+            #>
+
+            $valuesToCheck = @(
+                'PropertyMandatory'
+                'PropertyBoolReadWrite'
+                'Ensure'
+            )
+
+            <#
+                PropertyBoolReadOnly and PropertyStringReadOnly properties are not include in comparaison as they are not
+                configurable in configuration. There state are only getable in Get() method.
+            #>
+
+            $CompareState = Compare-DscParameterState `
+                -CurrentValues ($currentState | ConvertTo-HashtableFromObject) `
+                -DesiredValues ($this | ConvertTo-HashtableFromObject) `
+                -ValuesToCheck $valuesToCheck | Where-Object {$_.Compliance -eq $false }
+
+            $currentState.reasons = switch ($CompareState)
+            {
+                {$_.Property -eq 'Ensure'}{
+                    [Reason]@{
+                        Code = '{0}:{0}:Ensure' -f $this.GetType()
+                        Phrase = $script:localizedData<%=$PLASTER_PARAM_ResourceName %>.ItemFoundShouldBeNot -f $this.Name
+                    }
+                    continue
+                }
+                {$_.Property -eq 'PropertyMandatory'}{
+                    [Reason]@{
+                        Code = '{0}:{0}:PropertyMandatory' -f $this.GetType()
+                        Phrase = $script:localizedData<%=$PLASTER_PARAM_ResourceName %>.DontBePropertyMandatory -f $this.PropertyMandatory,$currentState.PropertyMandatory
+                    }
+                    continue
+                }
+                {$_.Property -eq 'PropertyBoolReadWrite'}{
+                    [Reason]@{
+                        Code = '{0}:{0}:PropertyBoolReadWrite' -f $this.GetType()
+                        Phrase = $script:localizedData<%=$PLASTER_PARAM_ResourceName %>.DontBePropertyBoolReadWrite -f $this.PropertyBoolReadWrite,$currentState.PropertyBoolReadWrite
+                    }
+                    continue
+                }
+            }
+        }
+        else
+        {
+            $currentState.Ensure = [Ensure]::Absent
+            Write-Verbose -Message $script:localizedData<%=$PLASTER_PARAM_ResourceName %>.ItemNotFound
+            if ($this.Ensure -eq [Ensure]::Present)
+            {
+                $currentState.reasons = [Reason]@{
+                    Code = '{0}:{0}:Ensure' -f $this.GetType()
+                    Phrase = $script:localizedData<%=$PLASTER_PARAM_ResourceName %>.ItemNotFound
+                }
+            }
+        }
+
+        return $currentState
+    }
+
+    [void] Set()
+    {
+        $getMethodResourceResult = $this.Get()
+
+        if ($this.Ensure -eq [Ensure]::Present)
+        {
+            if ($getMethodResourceResult.Ensure -eq [Ensure]::Absent)
+            {
+                Write-Verbose -Message (
+                    $script:localizedData<%=$PLASTER_PARAM_ResourceName %>.CreateItem `
+                        -f $this.Name
+                )
+
+                $item = New-Object -TypeName pscustomobject -Property @{
+                    Name                       = $this.Name
+                    PropertyMandatory          = $this.PropertyMandatory
+                    PropertyBoolReadWrite      = $this.PropertyBoolReadWrite
+                }
+            }
+            else
+            {
+                <#
+                    Replace this part by the command use for get the current value of composant.
+                    Example : Get-Item for get the current state of a folder or a file.
+
+                    $item = Get-Item -Path $Path
+
+                    Note : $Path is a property of this class like than $Name.
+                #>
+
+                #This is juste an example to validate pester tests.
+                $item = Get-DummyObject -Name $this.Name
+            }
+
+            Write-Verbose -Message (
+                $script:localizedData<%=$PLASTER_PARAM_ResourceName %>.SettingProperties `
+                    -f $this.Name
+            )
+
+            Set-HelpFunctionProperty -Object $item -Property 'PropertyMandatory' -Value $this.PropertyMandatory
+            Set-HelpFunctionProperty -Object $item -Property 'PropertyBoolReadWrite' -Value $this.PropertyBoolReadWrite
+        }
+        else
+        {
+            if ($getMethodResourceResult.Ensure -eq [Ensure]::Present)
+            {
+                Write-Verbose -Message (
+                    $script:localizedData<%=$PLASTER_PARAM_ResourceName %>.RemoveFolder `
+                        -f $this.Name
+                )
+                <#
+                    This section is use to remove/disable the composant that the resource managed,
+                    if it should be absent.
+
+                    Example with folder who should be absent, so removed :
+                    Remove-Item -Path $this.Path -Force -ErrorAction Stop
+                #>
+            }
+        }
+    }
+
+    [bool] Test()
+    {
+        $testTargetResourceResult = $false
+        $getTargetResourceResult = $this.Get()
+
+        if ($this.Ensure -eq [Ensure]::Present)
+        {
+            Write-Verbose -Message ($script:localizedData<%=$PLASTER_PARAM_ResourceName %>.EvaluateProperties -f $this.Name)
+
+            $testTargetResourceResult = $getTargetResourceResult.Reasons.count -eq 0
+        }
+        else
+        {
+            if ($this.Ensure -eq $getTargetResourceResult.Ensure)
+            {
+                $testTargetResourceResult = $true
+            }
+        }
+
+        return $testTargetResourceResult
+    }
+}
