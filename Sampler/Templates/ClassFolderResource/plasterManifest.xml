@@ -1,0 +1,96 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<plasterManifest
+  schemaVersion="1.0" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+  <metadata>
+    <name>ClassFolderResource</name>
+    <id>a5cbc533-2add-4652-ad43-62d44c3eae5f</id>
+    <version>0.0.1</version>
+    <title>DSC_ClassFolder Resource Template</title>
+    <description>A template to add DSC_ClassFolder resource to a Sampler Project</description>
+    <author>Gael Colas</author>
+    <tags>Sampler,Template, Build, Module</tags>
+  </metadata>
+  <parameters>
+    <parameter store="text" name="SourceDirectory" type="text" prompt="What is your source folder?" default="source" />
+  </parameters>
+    <!--
+      condition=''
+      ${PLASTER_PARAM_ModuleType}         SimpleModule CustomModule CompleteSample SimpleModule_NoBuild  SharedDscConfig
+      -in @("SimpleModule","CustomModule","CompleteSample","SimpleModule_NoBuild","SharedDscConfig")
+      ${PLASTER_PARAM_ModuleAuthor}
+      ${PLASTER_PARAM_ModuleName}
+      ${PLASTER_PARAM_ModuleDescription}
+      ${PLASTER_PARAM_ModuleVersion}
+      ${PLASTER_PARAM_License}            true false
+      ${PLASTER_PARAM_LicenseType}        Apache MIT None
+      ${PLASTER_PARAM_Features}           All UnitTests ModuleQuality AppVeyor TestKitchen Gherkin DSCResources Enum Classes SampleScripts git
+
+     -->
+  <content>
+    <!-- MODULES FOLDER SCAFFOLDING -->
+
+      <!--   SOURCE/Enum Folder -->
+      <file source=''
+            destination='${PLASTER_PARAM_SourceDirectory}/Enum'
+      />
+
+      <file source='1.Ensure.ps1.template'
+            destination='${PLASTER_PARAM_SourceDirectory}/Enum/1.Ensure.ps1'
+      />
+
+      <!--   SOURCE/Classes Folder -->
+      <file source=''
+            destination='${PLASTER_PARAM_SourceDirectory}/Classes'
+      />
+
+      <file source='Reason.ps1.template'
+            destination='${PLASTER_PARAM_SourceDirectory}/Classes/Reason.ps1'
+      />
+
+      <!--   SOURCE/Classes/DSC_Resource.ps1 file -->
+      <file source='DSC_ClassFolder.ps1'
+            destination='${PLASTER_PARAM_SourceDirectory}/Classes/DSC_ClassFolder.ps1'
+      />
+
+      <!--   SOURCE/en-US/DSC_Resource.strings.pd1 file -->
+      <file source='en-US/DSC_ClassFolder.strings.psd1'
+            destination='${PLASTER_PARAM_SourceDirectory}/en-US/DSC_ClassFolder.strings.psd1'
+      />
+
+      <!--   SOURCE/Private Folder -->
+      <file source='' destination='${PLASTER_PARAM_SourceDirectory}/Private' />
+
+      <!--   SOURCE/Private/ConvertTo-HashtableFromObject -->
+      <file source='Private/ConvertTo-HashtableFromObject.ps1' destination='${PLASTER_PARAM_SourceDirectory}/Private/ConvertTo-HashtableFromObject.ps1' />
+
+      <!--   SOURCE/Private/Set-FileAttribute.ps1 -->
+      <file source='Private/Set-FileAttribute.ps1' destination='${PLASTER_PARAM_SourceDirectory}/Private/Set-FileAttribute.ps1' />
+
+      <!--   SOURCE/Private/Test-FileAttribute.ps1 -->
+      <file source='Private/Test-FileAttribute.ps1' destination='${PLASTER_PARAM_SourceDirectory}/Private/Test-FileAttribute.ps1' />
+
+      <!--   tests/Unit/Classes Folder -->
+      <file source='' destination='tests/Unit/Classes' />
+
+      <!--   tests/Classes/tests/Unit/ClassResource/DSC_ClassFolder.tests.ps1.template -->
+      <file source='tests/Unit/ClassResource/DSC_ClassFolder.tests.ps1'
+            destination='tests/Unit/Classes/DSC_ClassFolder.tests.ps1'
+      />
+
+      <!--   tests/Unit/Private Folder -->
+      <file source='' destination='tests/Unit/Private' />
+
+      <!--   tests/Unit/Private/ConvertTo-HashtableFromObject.tests.ps1 -->
+      <file source='tests/Unit/Private/ConvertTo-HashtableFromObject.tests.ps1' destination='tests/Unit/Private/ConvertTo-HashtableFromObject.tests.ps1' />
+
+      <!--   tests/Unit/Private/Set-FileAttribute.tests.ps1 -->
+      <file source='tests/Unit/Private/Set-FileAttribute.tests.ps1' destination='tests/Unit/Private/Set-FileAttribute.tests.ps1' />
+
+      <!--   tests/Unit/Private/ConvertTo-HashtableFromObject.tests.ps1 -->
+      <file source='tests/Unit/Private/Test-FileAttribute.tests.ps1' destination='tests/Unit/Private/Test-FileAttribute.tests.ps1' />
+
+      <!--   tests/Example/Resources/1-ClassResource_doSomethingConfig.ps1 file -->
+      <!--   modify module manifest add ClassResource to DscResourcesToExport ? -->
+
+  </content>
+</plasterManifest>
