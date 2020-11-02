@@ -1,0 +1,5 @@
+enum Ensure
+{
+    Absent
+    Present
+}

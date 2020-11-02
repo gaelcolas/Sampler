@@ -12,4 +12,7 @@ ConvertFrom-StringData @'
     EvaluateProperties = Evaluating properties of folder '{0}'.
     SettingProperties = Setting properties to correct values of folder '{0}'.
     RemoveFolder = Removing folder '{0}'.
+    FolderFoundShouldBeNot = Folder {0} was found, but should be absent.
+    DontBeReadOnly = Folder should be {0} for ReadOnly attribute, but he is {1}.
+    DontBeHidden = Folder should be {0} for Hidden attribute, but he is {1}.
 '@
