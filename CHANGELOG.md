@@ -13,10 +13,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update plasterManifest.xml call by New-SampleModule :
     - Add section modify to replace "FunctionsToExport = '*'" by "FunctionsToExport = ''" in new module manifest ([issue #67](https://github.com/gaelcolas/Sampler/issues/67)).
     - Add section modify to add "Prerelease = ''" in "PSData" block  in new module manifest ([issue #69](https://github.com/gaelcolas/Sampler/issues/69)). 
+- Changing ClassResource.
+    - Add generic content in the class.
+    - Add pester tests.
+    - Add localizeddata.
+    - Update plasterManifest.xml.
+    - Add private functions.
+    - Add pester tests.
+    - Update Sampler integration tests.
+- Changing the Reasons property in the classes based resource template. It's now NotConfigurable.
 
 ### Added
 
-- Add DSC_ClassFolder template
+- Added new template ClassFolderResource
 
 ## [0.108.0] - 2020-09-14
 

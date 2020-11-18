@@ -15,7 +15,7 @@ class DSC_ClassFolder
     [DscProperty()]
     [Ensure] $Ensure
 
-    [DscProperty()]
+    [DscProperty(NotConfigurable)]
     [Reason[]] $Reasons
 
     [DscProperty(NotConfigurable)]
@@ -78,7 +78,7 @@ class DSC_ClassFolder
             $CompareState = Compare-DscParameterState `
                 -CurrentValues ($currentState | ConvertTo-HashtableFromObject) `
                 -DesiredValues ($this | ConvertTo-HashtableFromObject) `
-                -ValuesToCheck $valuesToCheck | Where-Object {$_.Compliance -eq $false }
+                -ValuesToCheck $valuesToCheck | Where-Object {$_.InDesiredState -eq $false }
 
             $currentState.reasons = switch ($CompareState)
             {
