@@ -36,7 +36,7 @@ param
 Import-Module -Name "$PSScriptRoot/Common.Functions.psm1"
 
 # Synopsis: Build the Module based on its Build.psd1 definition
-Task Build_Module_ModuleBuilder {
+Task Build_ModuleOutPut_ModuleBuilder {
     if ([System.String]::IsNullOrEmpty($ProjectName))
     {
         $ProjectName = Get-ProjectName -BuildRoot $BuildRoot
@@ -344,3 +344,102 @@ Task Build_NestedModules_ModuleBuilder {
         Update-Metadata @updateMetadataParams
     }
 }
+
+Task Build_DscResourcesToExport_ModuleBuilder {
+    if ([System.String]::IsNullOrEmpty($ProjectName))
+    {
+        $ProjectName = Get-ProjectName -BuildRoot $BuildRoot
+    }
+
+    if ([System.String]::IsNullOrEmpty($SourcePath))
+    {
+        $SourcePath = Get-SourcePath -BuildRoot $BuildRoot
+    }
+
+    "`tProject Name             = $ProjectName"
+    "`tSource Path              = $SourcePath"
+    "`tOutput Directory         = $OutputDirectory"
+    "`tBuild Module Output      = $BuildModuleOutput"
+
+    $isImportPowerShellDataFileAvailable = Get-Command -Name Import-PowerShellDataFile -ErrorAction SilentlyContinue
+
+    if ($PSversionTable.PSversion.Major -le 5 -and -not $isImportPowerShellDataFileAvailable)
+    {
+        Import-Module -Name Microsoft.PowerShell.Utility -RequiredVersion 3.1.0.0
+    }
+
+    Import-Module -Name 'ModuleBuilder' -ErrorAction 'Stop'
+
+    $builtModuleManifest = "$BuildModuleOutput/$ProjectName/*/$ProjectName.psd1"
+    $builtModuleRootScriptPath = "$BuildModuleOutput/$ProjectName/*/$ProjectName.psm1"
+    $builtDscResourcesFolder = "$BuildModuleOutput/$ProjectName/*/DSCResources/*"
+
+    "`tBuilt Module Manifest    = $builtModuleManifest"
+
+    $getModuleVersionParameters = @{
+        OutputDirectory = $BuildModuleOutput
+        ProjectName     = $ProjectName
+    }
+
+    $ModuleVersion = Get-BuiltModuleVersion @getModuleVersionParameters
+    $ModuleVersionFolder, $preReleaseTag = $ModuleVersion -split '\-', 2
+
+    "`tModule Version           = $ModuleVersion"
+    "`tModule Version Folder    = $ModuleVersionFolder"
+    "`tPre-release Tag          = $preReleaseTag"
+
+    $DSCResourcesToAdd = @()
+
+    #Check if there are classes based resource in psm1
+    if ($builtModuleRootScriptFile = Get-Item -Path $builtModuleRootScriptPath -ErrorAction SilentlyContinue)
+    {
+        "`tBuilt Module Root Script = $($builtModuleRootScriptFile.FullName)"
+
+        Write-Build -Color 'Yellow' -Text "Looking in $builtModuleRootScriptPath"
+
+        $builtClassDscResourcesNames = Get-ClassBasedResourceName -FilePath $builtModuleRootScriptFile.FullName
+
+        if ($builtClassDscResourcesNames)
+        {
+            Write-Build -Color 'White' -Text "  Adding $($builtClassDscResourcesNames -join ',') to the list of DscResource will be write in module manifest."
+
+            $DSCResourcesToAdd = $DSCResourcesToAdd + $builtClassDscResourcesNames
+        }
+    }
+
+    #Check if DSCResource Folder has DSCResources
+    Write-Build -Color 'Yellow' -Text "Looking in $builtDscResourcesFolder"
+
+    if ($builtMofDscResourcesNames = (Get-ChildItem -Path $builtDscResourcesFolder -Directory).BaseName)
+    {
+        if ($builtMofDscResourcesNames)
+        {
+            Write-Build -Color 'White' -Text "  Adding $($builtMofDscResourcesNames -join ',') to the list of DscResource will be write in module manifest."
+
+            $DSCResourcesToAdd = $DSCResourcesToAdd + $builtMofDscResourcesNames
+        }
+    }
+
+    $ModuleInfo = Import-PowerShellDataFile -Path $BuiltModuleManifest -ErrorAction 'Stop'
+
+    # Add to DscResourcesToExport to ModuleManifest
+    if ($ModuleInfo.ContainsKey('DscResourcesToExport') -and $DSCResourcesToAdd)
+    {
+        Write-Build -Color 'Green' -Text "Updating the Module Manifest's DscResourcesToExport key..."
+
+        $DSCResourcesToAdd = $ModuleInfo.DscResourcesToExport + $DSCResourcesToAdd | Select-Object -Unique
+
+        $updateMetadataParams = @{
+            Path         = (Get-Item -Path $BuiltModuleManifest).FullName
+            PropertyName = 'DscResourcesToExport'
+            Value        = [array]$DSCResourcesToAdd
+            ErrorAction  = 'Stop'
+        }
+
+        Write-Build -Color 'Green' -Text "  Adding $($DSCResourcesToAdd -join ', ') to Module Manifest $($updateMetadataParams.Path)"
+
+        Update-Metadata @updateMetadataParams
+    }
+}
+
+Task Build_Module_ModuleBuilder Build_ModuleOutput_ModuleBuilder, Build_DscResourcesToExport_ModuleBuilder

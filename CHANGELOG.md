@@ -22,10 +22,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Add pester tests.
     - Update Sampler integration tests.
 - Changing the Reasons property in the classes based resource template. It's now NotConfigurable.
+- Renamed Build_Module_ModuleBuilder task to Build_ModuleOutPut_ModuleBuilder.
+  Build_Module_ModuleBuilder is now a metatask that calls
+  Build_ModuleOutPut_ModuleBuilder and Build_DscResourcesToExport_ModuleBuilder tasks.
 
 ### Added
 
 - Added new template ClassFolderResource
+- Added new function Get-ClassBasedResourceName on Common.Functions.psm1 module.
+  It's used to find the class-based resource defined in psm1 file.
+- Added new task Build_DscResourcesToExport_ModuleBuilder.
+  On build, it adds DscResources (class or Mof) in DscResourcesToExport manifest key.
 
 ## [0.108.0] - 2020-09-14
 

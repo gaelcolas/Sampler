@@ -714,6 +714,31 @@ function Get-ProjectModuleManifest
     return $moduleManifestItem
 }
 
+function Get-ClassBasedResourceName
+ {
+    [CmdletBinding()]
+    [OutputType([String[]])]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [System.String]
+        $FilePath
+    )
+
+    $ast = [System.Management.Automation.Language.Parser]::ParseFile($FilePath, [ref]$null, [ref]$null)
+
+    $classDefinition = $ast.FindAll(
+        {
+            ($args[0].GetType().Name -like "TypeDefinitionAst") -and `
+            ($args[0].Attributes.TypeName.Name -contains 'DscResource')
+        },
+        $true
+    )
+
+    return $classDefinition.Name
+
+}
+
 Export-ModuleMember -Function @(
     'Convert-HashtableToString'
     'Get-CodeCoverageThreshold'
@@ -728,4 +753,5 @@ Export-ModuleMember -Function @(
     'Get-ProjectModuleManifest'
     'Get-ProjectName'
     'Get-SourcePath'
+    'Get-ClassBasedResourceName'
 )
