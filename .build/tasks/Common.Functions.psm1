@@ -692,17 +692,7 @@ function Get-ProjectModuleManifest
         Get-ChildItem -Path "$BuildRoot\*\*.psd1" -Exclude $excludeFiles |
             Where-Object -FilterScript {
                 ($_.Directory.Name -match 'source|src' -or $_.Directory.Name -eq $_.BaseName) `
-                -and $(
-                    try
-                    {
-                        Test-ModuleManifest $_.FullName -ErrorAction Stop
-                    }
-                    catch
-                    {
-                        Write-Warning $_
-                        $false
-                    }
-                )
+                -and $(Test-ModuleManifest -Path $_.FullName -ErrorAction 'SilentlyContinue' ).Version
             }
     )
 

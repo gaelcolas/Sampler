@@ -34,6 +34,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added new task Build_DscResourcesToExport_ModuleBuilder.
   On build, it adds DscResources (class or Mof) in DscResourcesToExport manifest key.
 
+### Fixed
+
+- Fixed Test-ModuleManifest ([issue #208](https://github.com/gaelcolas/Sampler/issues/208)) 
+  in tasks.
+
 ## [0.108.0] - 2020-09-14
 
 ### Added

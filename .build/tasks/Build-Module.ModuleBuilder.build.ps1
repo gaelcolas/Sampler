@@ -292,16 +292,7 @@ Task Build_NestedModules_ModuleBuilder {
                     Where-Object -FilterScript {
                         (
                             $_.Directory.Name -eq $_.BaseName -or $_.Directory.Name -as [version]) `
-                            -and $(
-                                try
-                                {
-                                    Test-ModuleManifest -Path $_.FullName -ErrorAction 'Stop'
-                                }
-                                catch
-                                {
-                                    $false
-                                }
-                            )
+                            -and $(Test-ModuleManifest -Path $_.FullName -ErrorAction 'SilentlyContinue' ).Version
                     }
             ).FullName -replace [Regex]::Escape($builtModuleBase), ".$([System.IO.Path]::DirectorySeparatorChar)"
 
