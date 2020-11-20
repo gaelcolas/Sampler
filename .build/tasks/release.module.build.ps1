@@ -127,14 +127,7 @@ task Create_changelog_release_output {
         # find Module manifest
         $BuiltModuleManifest = (Get-ChildItem (Join-Path $OutputDirectory $ProjectName) -Depth 2 -Filter "$ProjectName.psd1").FullName |
             Where-Object {
-                try
-                {
-                    Test-ModuleManifest -ErrorAction Stop -Path $_
-                }
-                catch
-                {
-                    $false
-                }
+                $(Test-ModuleManifest -Path $_ -ErrorAction 'SilentlyContinue').Version
             }
         if (-not $BuiltModuleManifest)
         {
@@ -245,14 +238,7 @@ task package_module_nupkg {
     # find Module manifest
     $BuiltModuleManifest = (Get-ChildItem (Join-Path $OutputDirectory $ProjectName) -Depth 2 -Filter "$ProjectName.psd1").FullName |
         Where-Object {
-            try
-            {
-                Test-ModuleManifest -ErrorAction Stop -Path $_
-            }
-            catch
-            {
-                $false
-            }
+            $(Test-ModuleManifest -Path $_ -ErrorAction 'SilentlyContinue' ).Version
         }
 
     if (-not $BuiltModuleManifest)
@@ -337,14 +323,7 @@ task publish_module_to_gallery -if ($GalleryApiToken -and (-not $UseNugetPush -o
     # find Module manifest
     $BuiltModuleManifest = (Get-ChildItem (Join-Path $OutputDirectory $ProjectName) -Depth 2 -Filter "$ProjectName.psd1").FullName |
         Where-Object {
-            try
-            {
-                Test-ModuleManifest -ErrorAction Stop -Path $_
-            }
-            catch
-            {
-                $false
-            }
+            $(Test-ModuleManifest -Path $_ -ErrorAction 'SilentlyContinue' ).Version
         }
 
     # No need to test the manifest again here, because the pipeline tested all manifests via the where-clause already
