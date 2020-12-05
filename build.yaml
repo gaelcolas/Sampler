@@ -102,7 +102,7 @@ BuildWorkflow:
     - hqrmtest
 
   publish:
-    - #publish_nupkg_to_gallery  # Deploy using Nuget
+    #- publish_nupkg_to_gallery  # Deploy using Nuget
     - publish_module_to_gallery # Deploy using cmdlet Publish-Module
     - Publish_release_to_GitHub
 
