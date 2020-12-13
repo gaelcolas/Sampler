@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- The Deploy tasks `publish_nupkg_to_gallery` and `publish_module_to_gallery`
+  are now made mutually exclusive. For each deploy pipeline you must choose
+  to use either one. 
+  - `publish_nupkg_to_gallery` is using `nuget` to publish to the gallery.
+  - `publish_module_to_gallery` is using the cmdlet `Publish-Module` to
+    publish to the gallery.
+    
 ## [0.109.0] - 2020-11-24
 
 ### Changed
@@ -27,12 +36,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Renamed Build_Module_ModuleBuilder task to Build_ModuleOutPut_ModuleBuilder.
   Build_Module_ModuleBuilder is now a metatask that calls
   Build_ModuleOutPut_ModuleBuilder and Build_DscResourcesToExport_ModuleBuilder tasks.
-- The Deploy tasks `publish_nupkg_to_gallery` and `publish_module_to_gallery`
-  are now made mutually exclusive. For each deploy pipeline you must choose
-  to use either one. 
-  - `publish_nupkg_to_gallery` is using `nuget` to publish to the gallery.
-  - `publish_module_to_gallery` is using the cmdlet `Publish-Module` to
-    publish to the gallery.
 
 ### Added
 
