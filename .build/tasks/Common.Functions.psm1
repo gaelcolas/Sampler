@@ -729,6 +729,31 @@ function Get-ClassBasedResourceName
 
 }
 
+function Get-FriendlyNameInMofSchema
+{
+    [CmdletBinding()]
+    [OutputType([String])]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [System.String]
+        $FilePath
+    )
+
+    # Get the first line in mof file
+    $mofContent = Get-Content -Path $FilePath -TotalCount 1
+
+    if ($mofContent -match 'FriendlyName\("(?<FriendlyName>\w*)"\)\]$')
+    {
+        $return = $Matches.FriendlyName
+    }
+    else {
+        $return = $null
+    }
+
+    return $return
+}
+
 Export-ModuleMember -Function @(
     'Convert-HashtableToString'
     'Get-CodeCoverageThreshold'
@@ -744,4 +769,5 @@ Export-ModuleMember -Function @(
     'Get-ProjectName'
     'Get-SourcePath'
     'Get-ClassBasedResourceName'
+    'Get-FriendlyNameInMofSchema'
 )

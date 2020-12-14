@@ -401,8 +401,22 @@ Task Build_DscResourcesToExport_ModuleBuilder {
     #Check if DSCResource Folder has DSCResources
     Write-Build -Color 'Yellow' -Text "Looking in $builtDscResourcesFolder"
 
-    if ($builtMofDscResourcesNames = (Get-ChildItem -Path $builtDscResourcesFolder -Directory).BaseName)
+    if ($builtMofDscFolder = (Get-ChildItem -Path $builtDscResourcesFolder -Directory))
     {
+        $builtMofDscResourcesNames = foreach ($folder in $builtMofDscFolder)
+        {
+            # Check if the folder have a mof file with FriendlyName
+            $resourceName = $folder.BaseName
+            if ($mofFile = Get-ChildItem -Path "$($folder.FullName)\*.schema.mof")
+            {
+                if ($friendlyName = Get-FriendlyNameInMofSchema -FilePath $mofFile.FullName)
+                {
+                    $resourceName = $friendlyName
+                }
+            }
+
+            $resourceName
+        }
         if ($builtMofDscResourcesNames)
         {
             Write-Build -Color 'White' -Text "  Adding $($builtMofDscResourcesNames -join ',') to the list of DscResource will be write in module manifest."
