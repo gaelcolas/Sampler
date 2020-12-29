@@ -742,6 +742,7 @@ function Get-MofSchemaName
         [System.String]
         $FilePath
     )
+
     begin
     {
         $temporaryPath = $null
@@ -802,6 +803,11 @@ function Get-MofSchemaName
             throw "Failed to import classes from file $FilePath. Error $_"
         }
 
+        <#
+            For most efficiency, we re-use the same temp file.
+            We need to be sure that the file is empty before the next import.
+            If no, we risk to import the same class twice.
+        #>
         Set-Content -LiteralPath $tempFilePath -Value ''
 
         return @{

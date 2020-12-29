@@ -407,7 +407,7 @@ Task Build_DscResourcesToExport_ModuleBuilder {
         {
             try
             {
-                $builtMofDscResourcesNames = $mofPath | Get-MofSchemaName | ForEach-Object  -Process {
+                $builtMofDscResourcesNames = $mofPath | Get-MofSchemaName | ForEach-Object -Process {
                     if ([System.String]::IsNullOrEmpty($_['FriendlyName']))
                     {
                         $_.Name
@@ -425,7 +425,7 @@ Task Build_DscResourcesToExport_ModuleBuilder {
         }
         else
         {
-            Write-Warning -Message ('No mof file found in DscResource folder ')
+            Write-Warning -Message ('No mof file found in DscResource folder')
         }
 
         if ($builtMofDscResourcesNames)
