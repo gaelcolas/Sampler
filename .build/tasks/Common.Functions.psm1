@@ -766,7 +766,7 @@ function Get-MofSchemaName
                 $temporaryPath = '/tmp'
             }
 
-            Default
+            default
             {
                 throw 'Cannot set the temporary path. Unknown operating system.'
             }
