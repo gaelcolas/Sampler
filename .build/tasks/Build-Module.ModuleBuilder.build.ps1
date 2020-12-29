@@ -403,20 +403,31 @@ Task Build_DscResourcesToExport_ModuleBuilder {
 
     if ($builtMofDscFolder = (Get-ChildItem -Path $builtDscResourcesFolder -Directory))
     {
-        $builtMofDscResourcesNames = foreach ($folder in $builtMofDscFolder)
+        if ($mofPath = $builtMofDscFolder | Get-ChildItem -include '*.schema.mof' -File)
         {
-            # Check if the folder have a mof file with FriendlyName
-            $resourceName = $folder.BaseName
-            if ($mofFile = Get-ChildItem -Path "$($folder.FullName)\*.schema.mof")
+            try
             {
-                if ($friendlyName = Get-FriendlyNameInMofSchema -FilePath $mofFile.FullName)
-                {
-                    $resourceName = $friendlyName
+                $builtMofDscResourcesNames = $mofPath | Get-MofSchemaName | Foreach-Object {
+                    if ([system.string]::IsNullOrEmpty($_['FriendlyName']))
+                    {
+                        $_.Name
+                    }
+                    else
+                    {
+                        $_.friendlyName
+                    }
                 }
             }
-
-            $resourceName
+            catch
+            {
+                Write-Warning ('Impossible to extract the name of the Mof based DSCResource, see the error : {0}' -f $_)
+            }
         }
+        else
+        {
+            Write-Warning ('No mof file found in DscResource folder ')
+        }
+
         if ($builtMofDscResourcesNames)
         {
             Write-Build -Color 'White' -Text "  Adding $($builtMofDscResourcesNames -join ',') to the list of DscResource will be write in module manifest."

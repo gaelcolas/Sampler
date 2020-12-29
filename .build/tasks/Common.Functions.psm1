@@ -729,29 +729,89 @@ function Get-ClassBasedResourceName
 
 }
 
-function Get-FriendlyNameInMofSchema
+function Get-MofSchemaName
 {
     [CmdletBinding()]
-    [OutputType([String])]
+    [OutputType([System.Collections.Hashtable])]
     param
     (
-        [Parameter(Mandatory = $true)]
+        [Parameter(
+            Mandatory = $true,
+            ValueFromPipeline = $true
+        )]
         [System.String]
         $FilePath
     )
+    begin {
+        $temporaryPath = $null
 
-    # Get the first line in mof file
-    $mofContent = Get-Content -Path $FilePath -TotalCount 1
+        # Determine the correct $env:TEMP drive
+        switch ($true)
+        {
+            (-not (Test-Path -Path variable:IsWindows) -or $IsWindows)
+            {
+                # Windows PowerShell or PowerShell 6+
+                $temporaryPath = $env:TEMP
+            }
 
-    if ($mofContent -match 'FriendlyName\("(?<FriendlyName>\w*)"\)\]$')
-    {
-        $return = $Matches.FriendlyName
+            $IsMacOS
+            {
+                $temporaryPath = $env:TMPDIR
+
+                throw 'NotImplemented: Currently there is an issue using the type [Microsoft.PowerShell.DesiredStateConfiguration.Internal.DscClassCache] on macOS. See issue https://github.com/PowerShell/PowerShell/issues/5970 and issue https://github.com/PowerShell/MMI/issues/33.'
+            }
+
+            $IsLinux
+            {
+                $temporaryPath = '/tmp'
+            }
+
+            Default
+            {
+                throw 'Cannot set the temporary path. Unknown operating system.'
+            }
+        }
+
+
+        $tempFilePath = Join-Path -Path $temporaryPath -ChildPath "DscMofHelper_$((New-Guid).Guid).tmp"
     }
-    else {
-        $return = $null
+
+    process {
+        #region Workaround for OMI_BaseResource inheritance not resolving.
+        $rawContent = (Get-Content -Path $FilePath -Raw) -replace '\s*:\s*OMI_BaseResource'
+        Set-Content -LiteralPath $tempFilePath -Value $rawContent -ErrorAction 'Stop'
+
+        # .NET methods don't like PowerShell drives
+        $tempFilePath = Convert-Path -Path $tempFilePath
+
+        #endregion
+
+        try
+        {
+            $exceptionCollection = [System.Collections.ObjectModel.Collection[System.Exception]]::new()
+            $moduleInfo = [System.Tuple]::Create('Module', [System.Version] '1.0.0')
+
+            $class = [Microsoft.PowerShell.DesiredStateConfiguration.Internal.DscClassCache]::ImportClasses(
+                $tempFilePath, $moduleInfo, $exceptionCollection
+            )
+        }
+        catch
+        {
+            throw "Failed to import classes from file $FilePath. Error $_"
+            Remove-Item -LiteralPath $tempFilePath -Force
+        }
+
+        Set-Content -LiteralPath $tempFilePath -Value ''
+
+        return @{
+            Name = $class.CimClassName
+            FriendlyName = ($class.Cimclassqualifiers | Where-Object Name -eq FriendlyName).Value
+        }
     }
 
-    return $return
+    end {
+        Remove-Item -LiteralPath $tempFilePath -Force
+    }
 }
 
 Export-ModuleMember -Function @(
@@ -769,5 +829,5 @@ Export-ModuleMember -Function @(
     'Get-ProjectName'
     'Get-SourcePath'
     'Get-ClassBasedResourceName'
-    'Get-FriendlyNameInMofSchema'
+    'Get-MofSchemaName'
 )
