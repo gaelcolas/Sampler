@@ -403,12 +403,12 @@ Task Build_DscResourcesToExport_ModuleBuilder {
 
     if ($builtMofDscFolder = (Get-ChildItem -Path $builtDscResourcesFolder -Directory))
     {
-        if ($mofPath = $builtMofDscFolder | Get-ChildItem -include '*.schema.mof' -File)
+        if ($mofPath = $builtMofDscFolder | Get-ChildItem -Include '*.schema.mof' -File)
         {
             try
             {
-                $builtMofDscResourcesNames = $mofPath | Get-MofSchemaName | Foreach-Object {
-                    if ([system.string]::IsNullOrEmpty($_['FriendlyName']))
+                $builtMofDscResourcesNames = $mofPath | Get-MofSchemaName | ForEach-Object  -Process {
+                    if ([System.String]::IsNullOrEmpty($_['FriendlyName']))
                     {
                         $_.Name
                     }
@@ -420,12 +420,12 @@ Task Build_DscResourcesToExport_ModuleBuilder {
             }
             catch
             {
-                Write-Warning ('Impossible to extract the name of the Mof based DSCResource, see the error : {0}' -f $_)
+                Write-Warning -Message ('Impossible to extract the name of the Mof based DSCResource, see the error : {0}' -f $_)
             }
         }
         else
         {
-            Write-Warning ('No mof file found in DscResource folder ')
+            Write-Warning -Message ('No mof file found in DscResource folder ')
         }
 
         if ($builtMofDscResourcesNames)

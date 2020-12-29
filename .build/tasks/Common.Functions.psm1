@@ -742,7 +742,8 @@ function Get-MofSchemaName
         [System.String]
         $FilePath
     )
-    begin {
+    begin
+    {
         $temporaryPath = $null
 
         # Determine the correct $env:TEMP drive
@@ -772,11 +773,11 @@ function Get-MofSchemaName
             }
         }
 
-
         $tempFilePath = Join-Path -Path $temporaryPath -ChildPath "DscMofHelper_$((New-Guid).Guid).tmp"
     }
 
-    process {
+    process
+    {
         #region Workaround for OMI_BaseResource inheritance not resolving.
         $rawContent = (Get-Content -Path $FilePath -Raw) -replace '\s*:\s*OMI_BaseResource'
         Set-Content -LiteralPath $tempFilePath -Value $rawContent -ErrorAction 'Stop'
@@ -797,19 +798,20 @@ function Get-MofSchemaName
         }
         catch
         {
-            throw "Failed to import classes from file $FilePath. Error $_"
             Remove-Item -LiteralPath $tempFilePath -Force
+            throw "Failed to import classes from file $FilePath. Error $_"
         }
 
         Set-Content -LiteralPath $tempFilePath -Value ''
 
         return @{
             Name = $class.CimClassName
-            FriendlyName = ($class.Cimclassqualifiers | Where-Object Name -eq FriendlyName).Value
+            FriendlyName = ($class.Cimclassqualifiers | Where-Object -FilterScript { $_.Name -eq 'FriendlyName' }).Value
         }
     }
 
-    end {
+    end
+    {
         Remove-Item -LiteralPath $tempFilePath -Force
     }
 }
