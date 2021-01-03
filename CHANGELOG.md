@@ -6,10 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+### Fixed
+
 - Update the Readme.md to fix a few typos.
-
-### Fix
-
 - Fix wrong resource name is added in module manifest property DscResourcesToExport
 ([issue #220](https://github.com/gaelcolas/Sampler/issues/220))
 
