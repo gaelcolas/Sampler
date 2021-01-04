@@ -60,7 +60,7 @@ the `build.ps1` is how you interact with the built-in pipeline automation, and
 Quick Start:
 
 ```PowerShell
-PS C:\src\Sampler> build.ps1
+PS C:\src\Sampler> .\build.ps1
 ```
 
 The `build.ps1` is the _entry point_ to invoke any task or a list of build tasks (workflow),
@@ -86,7 +86,7 @@ the RequiredModules.psd1
 >By default, each repository should not rely on your environment,
 >so that it's easier to repeat on any machine or build agent.
 >Instead of installing required modules to your environment,
->it will Save them to the `output/RequiredModules` folder
+>it will save them to the `output/RequiredModules` folder
 >of your repository.
 >
 >By also prepending this path to your `$Env:PSModulePath`,
@@ -145,14 +145,14 @@ Build succeeded. 1 tasks, 0 errors, 0 warnings 00:00:04.4388686
 
 Because the build tasks are `InvokeBuild` tasks, we can discover them
 by using the `?` task (after we've resolved the dependencies):
-`build.ps1 -Tasks ?`
+`.\build.ps1 -Tasks ?`
 
 If you only want to mak sure the environment is configured, or you only want to
 resolve the dependency, you can call the built-in task `noop` which won't
 do anything. The `requiredModules` should already be available to the session though.
 
-- `build.ps1 -tasks noop` - This will just setup your missing environment variables
-- `build.ps1 -tasks noop -ResolveDependency` - That one will bootstrap your environment & download required modules
+- `.\build.ps1 -tasks noop` - This will just setup your missing environment variables
+- `.\build.ps1 -tasks noop -ResolveDependency` - That one will bootstrap your environment & download required modules
 
 ## Task Variables
 
@@ -209,7 +209,7 @@ THe path to the release notes markdown file. Defaults to the path for
 ### `SourcePath`
 
 The path to the source folder. Defaults to the same path where the module
-manifest is found in either the folder 'source', 'src, or a folder with
+manifest is found in either the folder 'source', 'src', or a folder with
 the same name as the module.
 
 ## Sampler Build workflow
@@ -240,7 +240,7 @@ the same way (whether behind a firewall, on a dev workstation or in a build agen
 
   > Example:
   >
-  > `C:\ > .build.ps1 -ResolveDependency -Tasks noop`
+  > `C:\ > .\build.ps1 -ResolveDependency -Tasks noop`
   >
   > This should setup your project folder by re-hydrating all required dependencies to build and test your module, and invoke the (empty) task `noop`, so that it does not invoke the default workflow '.'
   >
@@ -248,7 +248,7 @@ the same way (whether behind a firewall, on a dev workstation or in a build agen
   >
   > The Second run could be:
   >
-  > `C:\ > .build.ps1 -Tasks noop`
+  > `C:\ > .\build.ps1 -Tasks noop`
 
 
 ### Default Workflow Currently configured
@@ -258,7 +258,7 @@ As seen in the bootstrap process above, the different workflows can be configure
 In our case, [the Build.yaml](build.yaml) defines several workflows (`.`, `build`, `pack`, `hqrmtest`, `test`, and `publish`) that can be called by using:
 
 ```PowerShell
- .build.ps1 -Tasks Workflow_or_task_Name
+ .\build.ps1 -Tasks <Workflow_or_task_Name>
 ```
 
 The detail of the **default workflow** is as follow (InvokeBuild defaults to the workflow named '.' when no tasks is specified):

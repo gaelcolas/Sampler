@@ -7,8 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Fix
+### Fixed
 
+- Update the Readme.md to fix a few typos.
 - Fix wrong resource name is added in module manifest property DscResourcesToExport
 ([issue #220](https://github.com/gaelcolas/Sampler/issues/220))
 
