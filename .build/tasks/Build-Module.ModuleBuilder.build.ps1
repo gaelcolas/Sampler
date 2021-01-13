@@ -407,7 +407,7 @@ Task Build_DscResourcesToExport_ModuleBuilder {
         {
             try
             {
-                $builtMofDscResourcesNames = $mofPath | Get-MofSchemaName | ForEach-Object -Process {
+                $builtMofDscResourcesNames = $mofPath.FullName | Get-MofSchemaName | ForEach-Object -Process {
                     if ([System.String]::IsNullOrEmpty($_['FriendlyName']))
                     {
                         $_.Name
