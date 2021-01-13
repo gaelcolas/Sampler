@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.109.2] - 2021-01-13
+
 ### Changed
 
 - The Deploy tasks `publish_nupkg_to_gallery` and `publish_module_to_gallery`
