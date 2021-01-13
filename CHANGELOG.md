@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
 ### Changed
 
 - The Deploy tasks `publish_nupkg_to_gallery` and `publish_module_to_gallery`
@@ -16,6 +17,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `publish_module_to_gallery` is using the cmdlet `Publish-Module` to
     publish to the gallery.
     
+## [0.109.1] - 2021-01-06
+
+### Fixed
+
+- Update the Readme.md to fix a few typos.
+- Fix wrong resource name is added in module manifest property DscResourcesToExport
+([issue #220](https://github.com/gaelcolas/Sampler/issues/220))
+
 ## [0.109.0] - 2020-11-24
 
 ### Changed
