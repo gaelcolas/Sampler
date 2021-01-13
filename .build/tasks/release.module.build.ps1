@@ -31,10 +31,7 @@ param (
     $PSModuleFeed = (property PSModuleFeed 'PSGallery'),
 
     [Parameter()]
-    $SkipPublish = (property SkipPublish ''),
-
-    [Parameter()]
-    $UseNugetPush = (property UseNugetPush '')
+    $SkipPublish = (property SkipPublish '')
 )
 
 Import-Module -Name "$PSScriptRoot/Common.Functions.psm1"
@@ -156,7 +153,7 @@ task Create_changelog_release_output {
     }
 }
 
-task publish_nupkg_to_gallery -if ((Get-Command nuget -ErrorAction SilentlyContinue) -and $GalleryApiToken -and $UseNugetPush) {
+task publish_nupkg_to_gallery -if ($GalleryApiToken -and (Get-Command -Name 'nuget' -ErrorAction 'SilentlyContinue')) {
     if ([System.String]::IsNullOrEmpty($ProjectName))
     {
         $ProjectName = Get-ProjectName -BuildRoot $BuildRoot
@@ -292,7 +289,7 @@ task package_module_nupkg {
     $null = Unregister-PSRepository -Name output -ErrorAction SilentlyContinue
 }
 
-task publish_module_to_gallery -if ($GalleryApiToken -and (-not $UseNugetPush -or -not (Get-Command nuget -ErrorAction SilentlyContinue))) {
+task publish_module_to_gallery -if ($GalleryApiToken -and (Get-Command -Name 'Publish-Module' -ErrorAction 'SilentlyContinue')) {
     if ([System.String]::IsNullOrEmpty($ProjectName))
     {
         $ProjectName = Get-ProjectName -BuildRoot $BuildRoot

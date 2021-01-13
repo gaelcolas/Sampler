@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- The Deploy tasks `publish_nupkg_to_gallery` and `publish_module_to_gallery`
+  are now made mutually exclusive. For each deploy pipeline you must choose
+  to use either one. 
+  - `publish_nupkg_to_gallery` is using `nuget` to publish to the gallery.
+  - `publish_module_to_gallery` is using the cmdlet `Publish-Module` to
+    publish to the gallery.
+
 ## [0.109.1] - 2021-01-06
 
 ### Fixed
@@ -21,16 +30,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Updating all azure-pipeline.yaml to change Build Artifacts to Pipeline Artifacts ([issue #159](https://github.com/gaelcolas/Sampler/issues/159)).
 - Update plasterManifest.xml call by New-SampleModule :
-    - Add section modify to replace "FunctionsToExport = '*'" by "FunctionsToExport = ''" in new module manifest ([issue #67](https://github.com/gaelcolas/Sampler/issues/67)).
-    - Add section modify to add "Prerelease = ''" in "PSData" block  in new module manifest ([issue #69](https://github.com/gaelcolas/Sampler/issues/69)). 
+  - Add section modify to replace "FunctionsToExport = '*'" by "FunctionsToExport = ''" in new module manifest ([issue #67](https://github.com/gaelcolas/Sampler/issues/67)).
+  - Add section modify to add "Prerelease = ''" in "PSData" block  in new module manifest ([issue #69](https://github.com/gaelcolas/Sampler/issues/69)). 
 - Changing ClassResource.
-    - Add generic content in the class.
-    - Add pester tests.
-    - Add localizeddata.
-    - Update plasterManifest.xml.
-    - Add private functions.
-    - Add pester tests.
-    - Update Sampler integration tests.
+  - Add generic content in the class.
+  - Add pester tests.
+  - Add localizeddata.
+  - Update plasterManifest.xml.
+  - Add private functions.
+  - Add pester tests.
+  - Update Sampler integration tests.
 - Changing the Reasons property in the classes based resource template. It's now NotConfigurable.
 - Renamed Build_Module_ModuleBuilder task to Build_ModuleOutPut_ModuleBuilder.
   Build_Module_ModuleBuilder is now a metatask that calls
