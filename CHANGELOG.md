@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed bug when using `PesterScript` with the build task `Invoke_Pester_Tests`
+  when running Pester 5.
+
 ## [0.109.2] - 2021-01-13
 
 ### Changed

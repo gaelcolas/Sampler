@@ -27,7 +27,8 @@
         'output/RequiredModules'.
 
     .PARAMETER PesterScript
-        Not yet written.
+        One or more paths that will override the Pester configuration in build
+        configuration file when running the build task Invoke_Pester_Tests.
 
     .PARAMETER PesterTag
         Filter which tags to run when invoking Pester tests. This is used in the
@@ -85,7 +86,7 @@ param
     $RequiredModulesDirectory = $(Join-Path 'output' 'RequiredModules'),
 
     [Parameter()]
-    [System.Object[]]
+    [object[]]
     $PesterScript,
 
     [Parameter()]
