@@ -158,7 +158,7 @@ task Invoke_Pester_Tests {
     }
 
     <#
-        For Pester 5 switch over to Pester 4 variable name. This is done to reduce
+        For Pester 5, switch over to Pester 4 variable name. This is done to reduce
         the code changes needed to get both Pester 4 and Pester 5 compatibility.
 
         The variable PesterPath comes from the child key 'Path:' under the parent
