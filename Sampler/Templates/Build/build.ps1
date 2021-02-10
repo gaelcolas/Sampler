@@ -30,6 +30,8 @@
         One or more paths that will override the Pester configuration in build
         configuration file when running the build task Invoke_Pester_Tests.
 
+        If running Pester 5 test, use the alias PesterPath to be future-proof.
+
     .PARAMETER PesterTag
         Filter which tags to run when invoking Pester tests. This is used in the
         Invoke-Pester.pester.build.ps1 tasks.
@@ -86,6 +88,8 @@ param
     $RequiredModulesDirectory = $(Join-Path 'output' 'RequiredModules'),
 
     [Parameter()]
+    # This alias is to prepare for the rename of this parameter to PesterPath when Pester 4 support is removed
+    [Alias('PesterPath')]
     [object[]]
     $PesterScript,
 
