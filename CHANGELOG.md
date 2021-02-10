@@ -12,6 +12,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed bug when using `PesterScript` with the build task `Invoke_Pester_Tests`
   when running Pester 5.
 
+### Deprecated
+
+- Update `build.ps1` with an alias `PesterPath` for the parameter `PesterScript`
+  so that repositories that move over to Pester 5 can future-proof the file
+  `azure-pipelines.yml` (for example when splitting tests over several jobs).
+  The parameter `PesterScript` is deprecated and will be removed when
+  Pester 4 support is removed some time in the future. Change scripts to 
+  `PesterPath` when migrating to Pester 5 tests.
+
 ## [0.109.2] - 2021-01-13
 
 ### Changed
