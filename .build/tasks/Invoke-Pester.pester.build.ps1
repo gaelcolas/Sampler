@@ -158,10 +158,19 @@ task Invoke_Pester_Tests {
     }
 
     <#
-        If it is Pester 5 then switch over to Pester 4 variable name. This is
-        done to reduce the code changes needed to get Pester 5 compatibility.
+        For Pester 5, switch over to Pester 4 variable name. This is done to reduce
+        the code changes needed to get both Pester 4 and Pester 5 compatibility.
+
+        The variable PesterPath comes from the child key 'Path:' under the parent
+        key 'Pester:' in the build configuration file. For Pester 4 the key
+        is 'Script:' instead of 'Path:'.
+
+        For Pester 5, if the variable $PesterScript is set then the user passed in
+        a value in the parameter 'PesterScript' (most likely through the build.ps1).
+        If that is the case the value in $PesterScript take precedence. If there is
+        no value in $PesterScript then we set it to the value of $PesterPath.
     #>
-    if ($isPester5)
+    if ($isPester5 -and [System.String]::IsNullOrEmpty($PesterScript))
     {
         $PesterScript = $PesterPath
     }
