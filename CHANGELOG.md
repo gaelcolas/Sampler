@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added the build_guestconfiguration_packages task to create GuestConfig packages using the GuestConfiguration module.
+- Added GCPackage template so that you can use `Add-Sample -Sample GCPackage` to add a GC Package to your Sampler project.
+- Added the gcpack meta task to call clean, build, and build_guestconfiguration_packages for you.
+
 ## [0.109.2] - 2021-01-13
 
 ### Changed

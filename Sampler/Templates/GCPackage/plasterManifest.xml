@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<plasterManifest
+  schemaVersion="1.0" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+  <metadata>
+    <name>GCPackages</name>
+    <id>e2e70839-6b8c-477f-a069-8ddcf693c6dc</id>
+    <version>0.0.1</version>
+    <title>Azure Policy Guest Configuration Package template</title>
+    <description>An Azure Policy Guest Configuration Package template to build your packages from DSC configurations, to be used by policies</description>
+    <author>Gael Colas</author>
+    <tags>GuestConfiguration, Azure, Policy, Arc, Sampler, Template, Build, Module</tags>
+  </metadata>
+  <parameters>
+    <parameter store="text"  name="GCPackageName" type="text" prompt="Name of your GuestConfiguration Package" />
+    <parameter store="text"  name="SourceDirectory" type="text" prompt="What is your source folder?" default="source" />
+  </parameters>
+    <!--
+      ${PLASTER_PARAM_SourceDirectory}
+      ${PLASTER_PARAM_GCPackageName}
+     -->
+  <content>
+    <!-- FOLDER SCAFFOLDING -->
+
+      <!--   SOURCE/GCPackages Folder -->
+      <file source=''
+            destination='${PLASTER_PARAM_SourceDirectory}/GCPackages'
+      />
+
+      <!--   SOURCE/GCPackages/MyGuestConfigPackage Folder -->
+      <file source=''
+            destination='${PLASTER_PARAM_SourceDirectory}/GCPackages/${PLASTER_PARAM_GCPackageName}'
+      />
+
+      <!--   tests/GCPackages/ Folder -->
+      <file source=''
+            destination='tests/GCPackages/'
+      />
+
+      <!--   tests/GCPackages/MyGuestConfigPackage Folder -->
+      <file source=''
+            destination='tests/GCPackages/${PLASTER_PARAM_GCPackageName}'
+      />
+
+      <!--   SOURCE/GCPackages/** files -->
+      <templateFile source='GCPackages/MyGuestConfigPackage/MyGuestConfigPackage.config.ps1.template'
+            destination='${PLASTER_PARAM_SourceDirectory}/GCPackages/${PLASTER_PARAM_GCPackageName}/${PLASTER_PARAM_GCPackageName}.config.ps1'
+      />
+
+      <!-- Add GuestConfiguration module as build dependency -->
+      <modify path='RequiredModules.psd1' condition='(Test-Path -Path "RequiredModules.psd1")'>
+            <replace condition="((Get-Content -Path RequiredModules.psd1 -Raw) -notmatch '\s*GuestConfiguration\s*=')">
+                  <original>}(\r|\r\n)*$</original>
+                  <substitute expand='true'>    GuestConfiguration =          'latest'`r`n}`r`n</substitute>
+            </replace>
+      </modify>
+
+  </content>
+</plasterManifest>
