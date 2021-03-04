@@ -44,13 +44,11 @@ param
     $BuildInfo = (property BuildInfo @{ })
 )
 
-Import-Module -Name "$PSScriptRoot/Common.Functions.psm1"
-
 # Synopsis: Making sure the Module meets some quality standard (help, tests).
 task Invoke_Pester_Tests {
     if ([System.String]::IsNullOrEmpty($ProjectName))
     {
-        $ProjectName = Get-ProjectName -BuildRoot $BuildRoot
+        $ProjectName = Get-SamplerProjectName -BuildRoot $BuildRoot
     }
 
     if (-not (Split-Path -IsAbsolute $OutputDirectory))
@@ -80,7 +78,7 @@ task Invoke_Pester_Tests {
     }
 
     $GetCodeCoverageThresholdParameters = @{
-        CodeCoverageThreshold = $CodeCoverageThreshold
+        RuntimeCodeCoverageThreshold = $CodeCoverageThreshold
         BuildInfo             = $BuildInfo
     }
 
@@ -251,7 +249,7 @@ task Invoke_Pester_Tests {
         PesterOutputFolder = $PesterOutputFolder
     }
 
-    $CodeCoverageOutputFile = Get-CodeCoverageOutputFile @getCodeCoverageOutputFile
+    $CodeCoverageOutputFile = Get-SamplerCodeCoverageOutputFile @getCodeCoverageOutputFile
 
     if (-not $CodeCoverageOutputFile)
     {
@@ -270,7 +268,7 @@ task Invoke_Pester_Tests {
     "`tCodeCoverageOutputFile          = $($pesterParams['CodeCoverageOutputFile'])"
     "`tCodeCoverageOutputFileFormat    = $($pesterParams['CodeCoverageOutputFileFormat'])"
 
-    $codeCoverageOutputFileEncoding = Get-CodeCoverageOutputFileEncoding -BuildInfo $BuildInfo
+    $codeCoverageOutputFileEncoding = Get-SamplerCodeCoverageOutputFileEncoding -BuildInfo $BuildInfo
 
     if (-not $isPester5 -and $codeCoverageThreshold -gt 0 -and $codeCoverageOutputFileEncoding)
     {
@@ -353,7 +351,7 @@ task Invoke_Pester_Tests {
             {
                 foreach ($scriptItem in $PesterScript)
                 {
-                    Write-Build -Color 'DarkGray' -Text "      ... $(Convert-HashtableToString -Hashtable $scriptItem)"
+                    Write-Build -Color 'DarkGray' -Text "      ... $(Convert-SamplerHashtableToString -Hashtable $scriptItem)"
 
                     if ($isPester5)
                     {
@@ -407,7 +405,7 @@ task Fail_Build_If_Pester_Tests_Failed {
 
     if ([System.String]::IsNullOrEmpty($ProjectName))
     {
-        $ProjectName = Get-ProjectName -BuildRoot $BuildRoot
+        $ProjectName = Get-SamplerProjectName -BuildRoot $BuildRoot
     }
 
     if (-not (Split-Path -IsAbsolute $OutputDirectory))
@@ -471,7 +469,7 @@ task Fail_Build_If_Pester_Tests_Failed {
 task Pester_If_Code_Coverage_Under_Threshold {
     if ([System.String]::IsNullOrEmpty($ProjectName))
     {
-        $ProjectName = Get-ProjectName -BuildRoot $BuildRoot
+        $ProjectName = Get-SamplerProjectName -BuildRoot $BuildRoot
     }
 
     if (-not $CodeCoverageThreshold)
@@ -558,7 +556,7 @@ task Pester_If_Code_Coverage_Under_Threshold {
 task Upload_Test_Results_To_AppVeyor -If { (property BuildSystem 'unknown') -eq 'AppVeyor' } {
     if ([System.String]::IsNullOrEmpty($ProjectName))
     {
-        $ProjectName = Get-ProjectName -BuildRoot $BuildRoot
+        $ProjectName = Get-SamplerProjectName -BuildRoot $BuildRoot
     }
 
     if (-not (Split-Path -IsAbsolute $OutputDirectory))

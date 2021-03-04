@@ -14,8 +14,6 @@ param (
     $BuildInfo = (property BuildInfo @{ })
 )
 
-Import-Module -Name "$PSScriptRoot/Common.Functions.psm1"
-
 # Synopsis: Making sure the Module meets some quality standard (help, tests).
 task Merge_CodeCoverage_Files {
     if (!(Split-Path -isAbsolute $OutputDirectory))

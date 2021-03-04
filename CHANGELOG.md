@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Extracted the Common functions to be within the main Sampler module to enable re-usability.
+- Updated this project's `build.ps1` to load the Private/Public *.ps1 so it can build itselves without impacting Sampler templates.
+- Added empty functions' Unit test files (for subsequent PR when writing moving to Pester 5).
+- Added Comment-based help for the extracted functions.
+- Dropped the CodeCoverage Threshold of the project to reflect the newly discovered code (`Common.Functions.psm1` wasn't counted for code coverage).
+
+## [0.109.4] - 2021-03-06
 ### Added
 
 - Added the build_guestconfiguration_packages task to create GuestConfig packages using the GuestConfiguration module.

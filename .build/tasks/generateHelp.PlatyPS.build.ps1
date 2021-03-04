@@ -33,12 +33,12 @@ param
 Task UpdateHelp {
     if ([System.String]::IsNullOrEmpty($ProjectName))
     {
-        $ProjectName = Get-ProjectName -BuildRoot $BuildRoot
+        $ProjectName = Get-SamplerProjectName -BuildRoot $BuildRoot
     }
 
     if ([System.String]::IsNullOrEmpty($SourcePath))
     {
-        $SourcePath = Get-SourcePath -BuildRoot $BuildRoot
+        $SourcePath = Get-SamplerSourcePath -BuildRoot $BuildRoot
     }
 
     $LineSeparation
@@ -63,12 +63,12 @@ Task UpdateHelp {
 Task GenerateMamlFromMd {
     if ([System.String]::IsNullOrEmpty($ProjectName))
     {
-        $ProjectName = Get-ProjectName -BuildRoot $BuildRoot
+        $ProjectName = Get-SamplerProjectName -BuildRoot $BuildRoot
     }
 
     if ([System.String]::IsNullOrEmpty($SourcePath))
     {
-        $SourcePath = Get-SourcePath -BuildRoot $BuildRoot
+        $SourcePath = Get-SamplerSourcePath -BuildRoot $BuildRoot
     }
 
     $LineSeparation
