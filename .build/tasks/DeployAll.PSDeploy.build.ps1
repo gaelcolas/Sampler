@@ -40,7 +40,7 @@ param (
 task Deploy_with_PSDeploy {
     if ([System.String]::IsNullOrEmpty($ProjectName))
     {
-        $ProjectName = Get-ProjectName -BuildRoot $BuildRoot
+        $ProjectName = Get-SamplerProjectName -BuildRoot $BuildRoot
     }
 
     if (![io.path]::IsPathRooted($BuildOutput))

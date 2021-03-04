@@ -142,6 +142,15 @@ process
     # Execute the Build process from the .build.ps1 path.
     Push-Location -Path $PSScriptRoot -StackName 'BeforeBuild'
 
+    if (Test-Path -Path 'Sampler')
+    {
+        # We are in the Sampler project, load functions instead of Sampler module.
+        Get-ChildItem -Path "Sampler/P*/*.ps1" |
+            ForEach-Object -Process {
+                . $_.FullName
+            }
+    }
+
     try
     {
         Write-Host -Object "[build] Parsing defined tasks" -ForeGroundColor Magenta
@@ -178,7 +187,7 @@ process
                             ConvertFrom-Yaml -Yaml (Get-Content -Raw $configFile)
                         }
 
-                        # Native Support for JSON and JSONC (by Removing comments)
+                        # Support for JSON and JSONC (by Removing comments) when module PowerShell-Yaml is available
                         '\.[json|jsonc]'
                         {
                             $jsonFile = Get-Content -Raw -Path $configFile

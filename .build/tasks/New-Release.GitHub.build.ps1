@@ -44,15 +44,13 @@ param (
     $MainGitBranch = (property MainGitBranch 'master')
 )
 
-Import-Module -Name "$PSScriptRoot/Common.Functions.psm1"
-
 # Until I can use a third party module
 . $PSScriptRoot/GitHubRelease.functions.ps1
 
 task Publish_release_to_GitHub -if ($GitHubToken) {
     if ([System.String]::IsNullOrEmpty($ProjectName))
     {
-        $ProjectName = Get-ProjectName -BuildRoot $BuildRoot
+        $ProjectName = Get-SamplerProjectName -BuildRoot $BuildRoot
     }
 
     if (!(Split-Path $OutputDirectory -IsAbsolute))

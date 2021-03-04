@@ -34,13 +34,11 @@ param (
     $SkipPublish = (property SkipPublish '')
 )
 
-Import-Module -Name "$PSScriptRoot/Common.Functions.psm1"
-
 # Synopsis: Create ReleaseNotes from changelog and update the Changelog for release
 task Create_changelog_release_output {
     if ([System.String]::IsNullOrEmpty($ProjectName))
     {
-        $ProjectName = Get-ProjectName -BuildRoot $BuildRoot
+        $ProjectName = Get-SamplerProjectName -BuildRoot $BuildRoot
     }
 
     "  OutputDirectory  = $OutputDirectory"
@@ -156,7 +154,7 @@ task Create_changelog_release_output {
 task publish_nupkg_to_gallery -if ($GalleryApiToken -and (Get-Command -Name 'nuget' -ErrorAction 'SilentlyContinue')) {
     if ([System.String]::IsNullOrEmpty($ProjectName))
     {
-        $ProjectName = Get-ProjectName -BuildRoot $BuildRoot
+        $ProjectName = Get-SamplerProjectName -BuildRoot $BuildRoot
     }
 
     if (!(Split-Path $OutputDirectory -IsAbsolute))
@@ -191,7 +189,7 @@ task package_module_nupkg {
 
     if ([System.String]::IsNullOrEmpty($ProjectName))
     {
-        $ProjectName = Get-ProjectName -BuildRoot $BuildRoot
+        $ProjectName = Get-SamplerProjectName -BuildRoot $BuildRoot
     }
 
     if (!(Split-Path -isAbsolute $ReleaseNotesPath))
@@ -292,7 +290,7 @@ task package_module_nupkg {
 task publish_module_to_gallery -if ($GalleryApiToken -and (Get-Command -Name 'Publish-Module' -ErrorAction 'SilentlyContinue')) {
     if ([System.String]::IsNullOrEmpty($ProjectName))
     {
-        $ProjectName = Get-ProjectName -BuildRoot $BuildRoot
+        $ProjectName = Get-SamplerProjectName -BuildRoot $BuildRoot
     }
 
     if (!(Split-Path $OutputDirectory -IsAbsolute))

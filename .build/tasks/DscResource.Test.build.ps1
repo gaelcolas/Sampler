@@ -40,13 +40,11 @@ param
     $BuildInfo = (property BuildInfo @{ })
 )
 
-Import-Module -Name "$PSScriptRoot/Common.Functions.psm1"
-
 # Synopsis: Making sure the Module meets some quality standard (help, tests)
 task Invoke_DscResource_Tests {
     if ([System.String]::IsNullOrEmpty($ProjectName))
     {
-        $ProjectName = Get-ProjectName -BuildRoot $BuildRoot
+        $ProjectName = Get-SamplerProjectName -BuildRoot $BuildRoot
     }
 
     if (-not (Split-Path -IsAbsolute $OutputDirectory))
@@ -268,7 +266,7 @@ task Fail_Build_If_DscResource_Tests_Failed {
 
     if ([System.String]::IsNullOrEmpty($ProjectName))
     {
-        $ProjectName = Get-ProjectName -BuildRoot $BuildRoot
+        $ProjectName = Get-SamplerProjectName -BuildRoot $BuildRoot
     }
 
     if (-not (Split-Path -IsAbsolute $OutputDirectory))
@@ -325,7 +323,7 @@ task Fail_Build_If_DscResource_Tests_Failed {
 task Upload_DscResourceTest_Results_To_AppVeyor -If { (property BuildSystem 'unknown') -eq 'AppVeyor' } {
     if ([System.String]::IsNullOrEmpty($ProjectName))
     {
-        $ProjectName = Get-ProjectName -BuildRoot $BuildRoot
+        $ProjectName = Get-SamplerProjectName -BuildRoot $BuildRoot
     }
 
     if (-not (Split-Path -IsAbsolute $OutputDirectory))

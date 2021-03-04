@@ -33,18 +33,16 @@ param
     $BuildInfo = (property BuildInfo @{ })
 )
 
-Import-Module -Name "$PSScriptRoot/Common.Functions.psm1"
-
 # Synopsis: Build the Module based on its Build.psd1 definition
 Task Build_ModuleOutPut_ModuleBuilder {
     if ([System.String]::IsNullOrEmpty($ProjectName))
     {
-        $ProjectName = Get-ProjectName -BuildRoot $BuildRoot
+        $ProjectName = Get-SamplerProjectName -BuildRoot $BuildRoot
     }
 
     if ([System.String]::IsNullOrEmpty($SourcePath))
     {
-        $SourcePath = Get-SourcePath -BuildRoot $BuildRoot
+        $SourcePath = Get-SamplerSourcePath -BuildRoot $BuildRoot
     }
 
     $moduleManifestPath = "$SourcePath/$ProjectName.psd1"
@@ -156,12 +154,12 @@ Task Build_ModuleOutPut_ModuleBuilder {
 Task Build_NestedModules_ModuleBuilder {
     if ([System.String]::IsNullOrEmpty($ProjectName))
     {
-        $ProjectName = Get-ProjectName -BuildRoot $BuildRoot
+        $ProjectName = Get-SamplerProjectName -BuildRoot $BuildRoot
     }
 
     if ([System.String]::IsNullOrEmpty($SourcePath))
     {
-        $SourcePath = Get-SourcePath -BuildRoot $BuildRoot
+        $SourcePath = Get-SamplerSourcePath -BuildRoot $BuildRoot
     }
 
     "`tProject Name          = $ProjectName"
@@ -339,12 +337,12 @@ Task Build_NestedModules_ModuleBuilder {
 Task Build_DscResourcesToExport_ModuleBuilder {
     if ([System.String]::IsNullOrEmpty($ProjectName))
     {
-        $ProjectName = Get-ProjectName -BuildRoot $BuildRoot
+        $ProjectName = Get-SamplerProjectName -BuildRoot $BuildRoot
     }
 
     if ([System.String]::IsNullOrEmpty($SourcePath))
     {
-        $SourcePath = Get-SourcePath -BuildRoot $BuildRoot
+        $SourcePath = Get-SamplerSourcePath -BuildRoot $BuildRoot
     }
 
     "`tProject Name             = $ProjectName"
@@ -388,7 +386,7 @@ Task Build_DscResourcesToExport_ModuleBuilder {
 
         Write-Build -Color 'Yellow' -Text "Looking in $builtModuleRootScriptPath"
 
-        $builtClassDscResourcesNames = Get-ClassBasedResourceName -FilePath $builtModuleRootScriptFile.FullName
+        $builtClassDscResourcesNames = Get-ClassBasedResourceName -Path $builtModuleRootScriptFile.FullName
 
         if ($builtClassDscResourcesNames)
         {
