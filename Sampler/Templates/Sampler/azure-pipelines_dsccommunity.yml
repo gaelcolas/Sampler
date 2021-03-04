@@ -168,7 +168,7 @@ stages:
             inputs:
               buildType: 'current'
               artifactName: $(testArtifactName)
-              targetPath: '$(Build.SourcesDirectory)/$(testResultFolderName)/$(testArtifactName)'
+              targetPath: '$(Build.SourcesDirectory)/$(buildFolderName)/$(testResultFolderName)'
           - task: PublishCodeCoverageResults@1
             displayName: 'Publish Azure Code Coverage'
             condition: succeededOrFailed()

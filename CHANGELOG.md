@@ -13,6 +13,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added GCPackage template so that you can use `Add-Sample -Sample GCPackage` to add a GC Package to your Sampler project.
 - Added the gcpack meta task to call clean, build, and build_guestconfiguration_packages for you.
 
+## [0.109.3] - 2021-02-16
+
+### Fixed
+
+- Fixed bug when using `PesterScript` with the build task `Invoke_Pester_Tests`
+  when running Pester 5.
+
+### Deprecated
+
+- Update `build.ps1` with an alias `PesterPath` for the parameter `PesterScript`
+  so that repositories that move over to Pester 5 can future-proof the file
+  `azure-pipelines.yml` (for example when splitting tests over several jobs).
+  The parameter `PesterScript` is deprecated and will be removed when
+  Pester 4 support is removed some time in the future. Change scripts to 
+  `PesterPath` when migrating to Pester 5 tests.
+
 ## [0.109.2] - 2021-01-13
 
 ### Changed
@@ -27,6 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fix issue in DscResourcesToExport task to properly process DscResource schema ([issue #230](https://github.com/gaelcolas/Sampler/issues/230)).
+- Fix uploading of code coverage when using the DSC Community template.
 
 ## [0.109.1] - 2021-01-06
 
