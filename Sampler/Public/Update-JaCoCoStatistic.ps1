@@ -4,7 +4,7 @@ Update the Statistics of a freshly merged JaCoCoReports.
 
 .DESCRIPTION
 When you merge two or several JaCoCoReports together
-using the Merge-JaCoCoReports, the calculated statistics
+using the Merge-JaCoCoReport, the calculated statistics
 of the Original document are not updated.
 
 This Command will re-calculate the JaCoCo statistics and
@@ -24,13 +24,13 @@ For the Package, Class, Method of all source files and the total it will update:
 JaCoCo report XML document that needs its statistics recalculated.
 
 .EXAMPLE
-Update-JaCoCoStatistics -Document (Merge-JaCoCoReports $file1 $file2)
+Update-JaCoCoStatistic -Document (Merge-JaCoCoReport $file1 $file2)
 
 .NOTES
-See also Merge-JaCoCoReports
+See also Merge-JaCoCoReport
 Thanks to Yorick (@ykuijs) for this great feature!
 #>
-function Update-JaCoCoStatistics
+function Update-JaCoCoStatistic
 {
     [CmdletBinding()]
     [OutputType([System.Xml.XmlDocument])]
