@@ -67,16 +67,16 @@ Describe 'DSC MOF based resource Plaster Template' {
             # Change to slash when testing on Windows.
             $relativeModulePaths = ($relativeModulePaths -replace '\\', '/').TrimStart('/')
 
-            # check files & folders discrepencies
-            $missingFilesOrFolders    = $listOfExpectedFilesAndFolders.Where{$_ -notin $relativeModulePaths}
+            # Check files & folders discrepencies
+            $missingFilesOrFolders      = $listOfExpectedFilesAndFolders.Where{$_ -notin $relativeModulePaths}
             $unexpectedFilesAndFolders  = $relativeModulePaths.Where{$_ -notin $listOfExpectedFilesAndFolders}
-            $TreeStructureIsOk = ($missingFilesOrFolders.count -eq 0 -and $unexpectedFilesAndFolders.count -eq 0)
+            $TreeStructureIsOk          = ($missingFilesOrFolders.count -eq 0 -and $unexpectedFilesAndFolders.count -eq 0)
 
-            # format the report to be used in because
+            # Format the report to be used in because
             $report = ":`r`n  Missing:`r`n`t$($missingFilesOrFolders -join "`r`n`t")`r`n  Unexpected:`r`n`t$($unexpectedFilesAndFolders -join "`r`n`t")`r`n."
 
             # Check if tree structure failed. If so output the module directory tree.
-            if ( -not $TreeStructureIsOk)
+            if (-not $TreeStructureIsOk)
             {
                 $treeOutput = Get-DirectoryTree -Path $mockModuleRootPath
                 Write-Verbose -Message ($treeOutput | Out-String) -Verbose

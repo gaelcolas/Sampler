@@ -174,10 +174,10 @@ task build_guestconfiguration_packages {
 
         "`t`tZipped Guest Config Package: $($ZippedGCPackage.Path)"
 
-        #if we're running on Windows as admin, we can test the package
-        if (!$IsLinux -and [Security.Principal.WindowsPrincipal]::new([Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator))
+        # If we're running on Windows as admin, we can test the package
+        if (-not $IsLinux -and [Security.Principal.WindowsPrincipal]::new([Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator))
         {
-            # we ought to test the the package on a purposed-built vm (i.e. with TK)
+            # We ought to test the the package on a purposed-built vm (i.e. with TK)
             Test-GuestConfigurationPackage -Path $ZippedGCPackage.Path -Verbose
         }
         else
