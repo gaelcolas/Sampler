@@ -1,0 +1,9 @@
+configuration <%= $PLASTER_PARAM_GCPackageName %> {
+    Import-DscResource -ModuleName MyModule
+
+    MyResource MyModule {
+        Ensure = 'Present'
+        KeyProperty = 'key'
+        Property = 'Value'
+    }
+}
