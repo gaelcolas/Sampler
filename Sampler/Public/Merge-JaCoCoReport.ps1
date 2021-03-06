@@ -18,13 +18,13 @@ One of the JaCoCoReports you would like to merge.
 Second JaCoCoReports you would like to merge with the other one.
 
 .EXAMPLE
-Merge-JaCoCoReports -OriginalDocument 'C:\src\MyModule\Output\JaCoCoRun_linux.xml' -MergeDocument 'C:\src\MyModule\Output\JaCoCoRun_windows.xml'
+Merge-JaCoCoReport -OriginalDocument 'C:\src\MyModule\Output\JaCoCoRun_linux.xml' -MergeDocument 'C:\src\MyModule\Output\JaCoCoRun_windows.xml'
 
 .NOTES
-See also Update-JaCoCoStatistics
+See also Update-JaCoCoStatistic
 Thanks to Yorick (@ykuijs) for this great feature!
 #>
-function Merge-JaCoCoReports
+function Merge-JaCoCoReport
 {
     param
     (
