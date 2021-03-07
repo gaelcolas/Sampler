@@ -44,10 +44,8 @@ param (
     $MainGitBranch = (property MainGitBranch 'master')
 )
 
-# Until I can use a third party module
-. $PSScriptRoot/GitHubRelease.functions.ps1
+task Publish_release_to_GitHub -if ($GitHubToken -and (Get-Module -Name PowerShellForGitHub)) {
 
-task Publish_release_to_GitHub -if ($GitHubToken) {
     if ([System.String]::IsNullOrEmpty($ProjectName))
     {
         $ProjectName = Get-SamplerProjectName -BuildRoot $BuildRoot
@@ -84,9 +82,6 @@ task Publish_release_to_GitHub -if ($GitHubToken) {
         return
     }
 
-    # find owner repository / remote
-    $Repo = GetHumanishRepositoryDetails -RemoteUrl $remoteURL
-
     # Retrieving ReleaseNotes or defaulting to Updated ChangeLog
     if (Import-Module ChangelogManagement -ErrorAction SilentlyContinue -PassThru)
     {
@@ -104,27 +99,34 @@ task Publish_release_to_GitHub -if ($GitHubToken) {
     $ReleaseBranch = $ExecutionContext.InvokeCommand.ExpandString($ReleaseBranch)
 
     $releaseParams = @{
-        Owner       = $Repo.Owner
-        Repository  = $Repo.Repository
+        URI         = $remoteURL
         Tag         = $ReleaseTag
-        ReleaseName = $ReleaseTag
+        Name        = $ReleaseTag
         Branch      = $ReleaseBranch
-        AssetPath   = $PackageToRelease
         Prerelease  = [bool]($PreReleaseTag)
-        Description = $ReleaseNotes
-        GitHubToken = $GitHubToken
+        Body        = $ReleaseNotes
+        AccessToken = $GitHubToken
     }
+
     if (!$SkipPublish)
     {
         Write-Build DarkGray "Publishing GitHub release:"
         Write-Build DarkGray ($releaseParams | Out-String)
 
-        $APIResponse = Publish-GitHubRelease @releaseParams
+        if (-not (Get-GithubRelease -Tag $ReleaseTag -AccessToken $GitHubToken))
+        {
+            $APIResponse = New-GitHubRelease @releaseParams
+            Write-Build Green "Release Created. Follow the link -> $($APIResponse.html_url)"
+            $APIResponse | New-GitHubReleaseAsset -Path $PackageToRelease -AccessToken $GitHubToken
+        }
+        else
+        {
+            Write-Build Green "Release for $ReleaseTag Already exits."
+        }
     }
-    Write-Build Green "Release Created. Follow the link -> $($APIResponse.html_url)"
 }
 
-task Create_ChangeLog_GitHub_PR -if ($GitHubToken) {
+task Create_ChangeLog_GitHub_PR -if ($GitHubToken -and (Get-Module -Name PowerShellForGitHub)) {
     # # This is how AzDO setup the environment:
     # git init
     # git remote add origin https://github.com/gaelcolas/Sampler
@@ -184,18 +186,16 @@ task Create_ChangeLog_GitHub_PR -if ($GitHubToken) {
         # track this branch on the remote 'origin
         git push -u origin $BranchName
 
-        # Grab the Repo info for creating new PR
-        $RepoInfo = GetHumanishRepositoryDetails -RemoteUrl (git remote get-url origin)
-
         $NewPullRequestParams = @{
-            GitHubToken  = $GitHubToken
-            Repository   = $RepoInfo.Repository
-            Owner        = $RepoInfo.Owner
-            Title        = "Updating ChangeLog since release of $TagVersion"
-            Branch       = $BranchName
-            TargetBranch = $MainGitBranch
-            ErrorAction  = 'Stop'
+            AccessToken         = $GitHubToken
+            Uri                 = $URI
+            Title               = "Updating ChangeLog since release of $TagVersion"
+            Head                = $BranchName
+            Base                = $MainGitBranch
+            ErrorAction         = 'Stop'
+            MaintainerCanModify = $true
         }
+
         $Response = New-GitHubPullRequest @NewPullRequestParams
         Write-Build Green "`n --> PR #$($Response.number) opened: $($Response.url)"
     }
