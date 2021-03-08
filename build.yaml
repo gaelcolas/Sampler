@@ -24,13 +24,13 @@ VersionedOutputDirectory: true
 
 NestedModule:
 
-  DscResource.Common:
-    CopyOnly: true
-    Path: ./output/RequiredModules/DscResource.Common # relative to $buildroot, default to '$sourcePath/Modules/$NestedModuleName'
-    # Destination: './output/$ProjectName/$ModuleVersionFolder/Modules/$NestedModuleName' # or override with path relative to $buildroot
-    AddToManifest: false
-    # include: '*.*'
-    Exclude: PSGetModuleInfo.xml
+  # DscResource.Common:
+  #   CopyOnly: true
+  #   Path: ./output/RequiredModules/DscResource.Common # relative to $buildroot, default to '$sourcePath/Modules/$NestedModuleName'
+  #   # Destination: './output/$ProjectName/$ModuleVersionFolder/Modules/$NestedModuleName' # or override with path relative to $buildroot
+  #   AddToManifest: false
+  #   # include: '*.*'
+  #   Exclude: PSGetModuleInfo.xml
     #Filter:
 
 ####################################################
