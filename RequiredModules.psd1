@@ -12,7 +12,7 @@
     ModuleBuilder               = 'latest'
     MarkdownLinkCheck           = 'latest'
     ChangelogManagement         = 'latest'
-    PowerShellForGitHub         = 'latest'
+    'Sampler.GitHubTasks'       = 'latest'
     'DscResource.Test'          = 'latest'
     'DscResource.AnalyzerRules' = 'latest'
     xDscResourceDesigner        = 'latest'
