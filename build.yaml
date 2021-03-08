@@ -24,13 +24,13 @@ VersionedOutputDirectory: true
 
 NestedModule:
 
-  DscResource.Common:
-    CopyOnly: true
-    Path: ./output/RequiredModules/DscResource.Common # relative to $buildroot, default to '$sourcePath/Modules/$NestedModuleName'
-    # Destination: './output/$ProjectName/$ModuleVersionFolder/Modules/$NestedModuleName' # or override with path relative to $buildroot
-    AddToManifest: false
-    # include: '*.*'
-    Exclude: PSGetModuleInfo.xml
+  # DscResource.Common:
+  #   CopyOnly: true
+  #   Path: ./output/RequiredModules/DscResource.Common # relative to $buildroot, default to '$sourcePath/Modules/$NestedModuleName'
+  #   # Destination: './output/$ProjectName/$ModuleVersionFolder/Modules/$NestedModuleName' # or override with path relative to $buildroot
+  #   AddToManifest: false
+  #   # include: '*.*'
+  #   Exclude: PSGetModuleInfo.xml
     #Filter:
 
 ####################################################
@@ -106,9 +106,13 @@ BuildWorkflow:
     - publish_module_to_gallery # Deploy using cmdlet Publish-Module
     - Publish_release_to_GitHub
 
+# Import ModuleBuilder tasks from a specific PowerShell module using the build
+# task's alias. Wildcard * can be used to specify all tasks that has a similar
+# prefix and or suffix. The module contain the task must be added as a required
+# module in the file RequiredModules.psd1.
 ModuleBuildTasks:
-#   # - ModuleName: 'alias to search'
-#  - Sampler: '*.ib.tasks' # this means: import (dot source) all aliases ending with .ib.tasks exported by sampler module
+  Sampler.GitHubTasks:
+    - '*.ib.tasks'
 
 # Invoke-Build Header to be used to 'decorate' the terminal output of the tasks.
 TaskHeader: |

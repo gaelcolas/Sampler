@@ -15,6 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added Comment-based help for the extracted functions.
 - Dropped the CodeCoverage Threshold of the project to reflect the newly discovered code (`Common.Functions.psm1` wasn't counted for code coverage).
 
+### Removed
+
+- Removed the GitHub functions to publish them in the `Sampler.GitHubTasks` module.
+
 ## [0.109.4] - 2021-03-06
 ### Added
 
