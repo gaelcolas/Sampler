@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- New DSC Community template (`New-SampleModule -ModuleType newDscCommunity`).
+
+### Fixed
+
+- Fixes #222: Adding *.dll binary to gitattributes.
+- Fixes eol for file types .sh .svg .sh .mof
+- Fixes #225 by asking the question or assuming the default is `main` in most cases.
+
 ### Changed
 
 - Extracted the Common functions to be within the main Sampler module to enable re-usability.

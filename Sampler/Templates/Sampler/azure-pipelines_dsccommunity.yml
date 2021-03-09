@@ -1,7 +1,7 @@
 trigger:
   branches:
     include:
-    - master
+    - <%= if ($PLASTER_PARAM_GitMainBranch -eq 'master') { 'master' } else { 'main' } %>
   paths:
     include:
     - source/*

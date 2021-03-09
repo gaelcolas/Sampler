@@ -135,7 +135,14 @@ BuildWorkflow:
 
   publish:
     - publish_module_to_gallery
-
+<%
+    if($PLASTER_PARAM_ModuleType -in @('dsccommunity') -or $PLASTER_PARAM_Features -Contains ("All") -or $PLASTER_PARAM_Features -Contains ("GitHub")) {
+@"
+    - Publish_Release_To_GitHub
+    - Publish_GitHub_Wiki_Content
+"@
+    }
+%>
 
 ####################################################
 #       PESTER  Configuration                      #
@@ -245,6 +252,14 @@ ModuleBuildTasks:
   Sampler:
     - '*.build.Sampler.ib.tasks'
 <%
+    if($PLASTER_PARAM_ModuleType -in @('dsccommunity') -or $PLASTER_PARAM_Features -Contains ("All") -or $PLASTER_PARAM_Features -Contains ("GitHub")) {
+@"
+  Sampler.GitHubTasks:
+    - '*.ib.tasks'
+"@
+    }
+%>
+<%
     if($PLASTER_PARAM_ModuleType -in @('dsccommunity')) {
 @"
   DscResource.DocGenerator:
@@ -276,6 +291,19 @@ GitHubConfig:
   UpdateChangelogOnPrerelease: false
 "@
     }
+    elseif ($PLASTER_PARAM_Features -Contains ("All") -or $PLASTER_PARAM_Features -Contains ("GitHub")) {
+@"
+
+# Below is the GitHub configuration to automatically create a PR to update the Changelog
+# after the release of a version. (see Create_ChangeLog_GitHub_PR task of Sampler.GitHubTasks)
+# GitHubConfig:
+#   GitHubFilesToAdd:
+#     - 'CHANGELOG.md'
+#   GitHubConfigUserName: YourAccountUserName
+#   GitHubConfigUserEmail: youremail@yourprovider.com
+#   UpdateChangelogOnPrerelease: false
+"@
+    }
 %>
 
 <%
@@ -287,7 +315,7 @@ GitHubConfig:
 DscResource.DocGenerator:
   Generate_Conceptual_Help:
     MarkdownCodeRegularExpression:
-      - '\`(.+?)\`' # Match inline code-block
+      - '\``(.+?)\``' # Match inline code-block
       - '\\(\\)' # Match escaped backslash
       - '\[[^\[]+\]\((.+?)\)' # Match markdown URL
       - '_(.+?)_' # Match Italic (underscore)

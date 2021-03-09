@@ -67,7 +67,7 @@ function New-SampleModule
 
         [Parameter(ParameterSetName = 'ByModuleType')]
         [string]
-        [ValidateSet('SimpleModule', 'CompleteSample', 'SimpleModule_NoBuild',  'dsccommunity')]
+        [ValidateSet('SimpleModule', 'CompleteSample', 'SimpleModule_NoBuild', 'newDscCommunity', 'dsccommunity')]
         $ModuleType = 'SimpleModule',
 
         [Parameter()]
