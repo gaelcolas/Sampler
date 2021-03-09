@@ -16,11 +16,6 @@ param (
 
     [Parameter()]
     [string]
-    # retrieves from Environment variable
-    $GitHubToken = (property GitHubToken ''),
-
-    [Parameter()]
-    [string]
     $GalleryApiToken = (property GalleryApiToken ''),
 
     [Parameter()]

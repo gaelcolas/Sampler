@@ -8,6 +8,7 @@ assembly-informational-format: '{NuGetVersionV2}+Sha.{Sha}.Date.{CommitDate}'
 branches:
   master:
     tag: preview
+<%= if ($PLASTER_PARAM_ModuleType -in @('dsccommunity','newDscCommunity') -or $PLASTER_PARAM_MainGitBranch -eq 'main') { '    regex: ^main$'} %>
   pull-request:
     tag: PR
   feature:

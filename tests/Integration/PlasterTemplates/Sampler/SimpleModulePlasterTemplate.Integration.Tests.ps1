@@ -46,6 +46,7 @@ Describe 'Simple Module Plaster Template' {
 
             '.gitattributes'
             '.gitignore'
+            'azure-pipelines.yml'
             'build.ps1'
             'build.yaml'
             'CHANGELOG.md'

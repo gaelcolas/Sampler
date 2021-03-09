@@ -23,52 +23,36 @@ Import-Module -Name "$PSScriptRoot\..\..\IntegrationTestHelpers.psm1"
 
 Install-TreeCommand
 
-Describe 'Complete Module Plaster Template' {
+Describe 'DSC Community Plaster Template' {
     Context 'When creating a new module project' {
         BeforeAll {
             $mockModuleName = 'ModuleDsc'
             $mockModuleRootPath = Join-Path -Path $TestDrive -ChildPath $mockModuleName
 
             $listOfExpectedFilesAndFolders = @(
-
                 # Folders (relative to module root)
 
                 '.github'
-                '.github/ISSUE_TEMPLATE'
                 '.vscode'
-                'output'
-                'output/RequiredModules'
                 'source'
-                'source/Classes'
-                'source/DSCResources'
-                'source/DSCResources/DSC_Folder'
-                'source/DSCResources/DSC_Folder/en-US'
-                'source/Enum'
                 'source/en-US'
-                'source/Examples'
-                'source/Examples/Resources'
-                'source/Examples/Resources/Folder'
-                'source/Modules'
-                'source/Modules/Folder.Common'
-                'source/Private'
-                'source/Public'
-                'source/WikiSource'
                 'tests'
-                'tests/QA'
                 'tests/Unit'
-                'tests/Unit/Classes'
-                'tests/Unit/DSCResources'
-                'tests/Unit/Modules'
                 'tests/Unit/Private'
                 'tests/Unit/Public'
+                'source/Classes'
+                'source/Enum'
+                'source/WikiSource'
+                'output'
+                'output/RequiredModules'
 
                 # Files (relative to module root)
-
+                '.gitattributes'
+                '.github/ISSUE_TEMPLATE'
+                '.github/PULL_REQUEST_TEMPLATE.md'
                 '.github/ISSUE_TEMPLATE/General.md'
                 '.github/ISSUE_TEMPLATE/Problem_with_resource.md'
                 '.github/ISSUE_TEMPLATE/Resource_proposal.md'
-                '.github/PULL_REQUEST_TEMPLATE.md'
-                '.gitattributes'
                 '.gitignore'
                 '.markdownlint.json'
                 'azure-pipelines.yml'
@@ -76,63 +60,35 @@ Describe 'Complete Module Plaster Template' {
                 'build.yaml'
                 'CHANGELOG.md'
                 'CODE_OF_CONDUCT.md'
+                'codecov.yml'
                 'CONTRIBUTING.md'
-                'SECURITY.md'
                 'GitVersion.yml'
-                'README.md'
+                'LICENSE'
                 'RequiredModules.psd1'
                 'Resolve-Dependency.ps1'
                 'Resolve-Dependency.psd1'
+                'SECURITY.md'
                 '.vscode/analyzersettings.psd1'
                 '.vscode/settings.json'
                 '.vscode/tasks.json'
-                'source/ModuleDsc.psd1'
-                'source/ModuleDsc.psm1'
-                'source/Modules/Folder.Common/Folder.Common.psm1'
-                'source/Classes/1.class1.ps1'
-                'source/Classes/2.class2.ps1'
-                'source/Classes/3.class11.ps1'
-                'source/Classes/4.class12.ps1'
-                'source/DSCResources/DSC_Folder/DSC_Folder.psm1'
-                'source/DSCResources/DSC_Folder/DSC_Folder.schema.mof'
-                'source/DSCResources/DSC_Folder/en-US/DSC_Folder.strings.psd1'
                 'source/en-US/about_ModuleDsc.help.txt'
-                'source/Examples/README.md'
-                'source/Examples/Resources/Folder/1-DscResourceTemplate_CreateFolderAsSystemConfig.ps1'
-                'source/Examples/Resources/Folder/2-DscResourceTemplate_CreateFolderAsUserConfig.ps1'
-                'source/Examples/Resources/Folder/3-DscResourceTemplate_RemoveFolderConfig.ps1'
-                'source/Private/Get-PrivateFunction.ps1'
-                'source/Public/Get-Something.ps1'
-                'tests/QA/module.tests.ps1'
-                'tests/Unit/Classes/class1.tests.ps1'
-                'tests/Unit/Classes/class11.tests.ps1'
-                'tests/Unit/Classes/class12.tests.ps1'
-                'tests/Unit/Classes/class2.tests.ps1'
-                'tests/Unit/DSCResources/DSC_Folder.tests.ps1'
-                'tests/Unit/Modules/Folder.Common.tests.ps1'
-                'tests/Unit/Private/Get-PrivateFunction.tests.ps1'
-                'tests/Unit/Public/Get-Something.tests.ps1'
+                'source/ModuleDsc.psd1'
             )
         }
 
         It 'Should create a new module without throwing' {
             $invokePlasterParameters = @{
-                TemplatePath      = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
-                DestinationPath   = $TestDrive
-                SourceDirectory   = 'source'
-                NoLogo            = $true
-                Force             = $true
+                TemplatePath    = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
+                DestinationPath = $TestDrive
+                SourceDirectory = 'source'
+                NoLogo          = $true
+                Force           = $true
 
                 # Template
-                ModuleType        = 'CompleteSample'
+                ModuleType      = 'newdsccommunity'
 
                 # Template properties
-                ModuleName        = $mockModuleName
-                MainGitBranch     = 'main'
-                ModuleAuthor      = 'SamplerTestUser'
-                ModuleDescription = 'Module description'
-                ModuleVersion     = '1.0.0'
-                CustomRepo        = 'PSGallery'
+                ModuleName      = $mockModuleName
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw
