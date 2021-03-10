@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixes eol for file types .sh .svg .sh .mof
 - Fixes #225 by asking the question or assuming the default is `main` in most cases.
 - Readded the `Create_ChangeLog_GitHub_PR` task to the publish workflow and template.
+- Fixes newDscCommunity template missing the psm1 and the Required modules.
 
 ### Changed
 
