@@ -73,6 +73,7 @@ Describe 'DSC Community Plaster Template' {
                 '.vscode/tasks.json'
                 'source/en-US/about_ModuleDsc.help.txt'
                 'source/ModuleDsc.psd1'
+                'source/ModuleDsc.psm1'
             )
         }
 
