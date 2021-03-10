@@ -136,7 +136,7 @@ BuildWorkflow:
   publish:
     - publish_module_to_gallery
 <%
-    if($PLASTER_PARAM_ModuleType -in @('dsccommunity') -or $PLASTER_PARAM_Features -Contains ("All") -or $PLASTER_PARAM_Features -Contains ("GitHub")) {
+    if($PLASTER_PARAM_ModuleType -in @('dsccommunity','newDscCommunity', 'CompleteModule', 'SimpleModule') -or $PLASTER_PARAM_Features -Contains ("All") -or $PLASTER_PARAM_Features -Contains ("GitHub")) {
 @"
     - Publish_Release_To_GitHub
     - Publish_GitHub_Wiki_Content
@@ -252,7 +252,7 @@ ModuleBuildTasks:
   Sampler:
     - '*.build.Sampler.ib.tasks'
 <%
-    if($PLASTER_PARAM_ModuleType -in @('dsccommunity') -or $PLASTER_PARAM_Features -Contains ("All") -or $PLASTER_PARAM_Features -Contains ("GitHub")) {
+    if($PLASTER_PARAM_ModuleType -in @('dsccommunity','newDscCommunity', 'CompleteModule', 'SimpleModule') -or $PLASTER_PARAM_Features -Contains ("All") -or $PLASTER_PARAM_Features -Contains ("GitHub")) {
 @"
   Sampler.GitHubTasks:
     - '*.ib.tasks'
@@ -307,7 +307,7 @@ GitHubConfig:
 %>
 
 <%
-    if ($PLASTER_PARAM_ModuleType -eq 'dsccommunity') {
+    if ($PLASTER_PARAM_ModuleType -eq 'dsccommunity' -or $PLASTER_PARAM_Features -Contains ("All")) {
 @"
 ####################################################
 #      DscResource.DocGenerator Configuration      #
@@ -315,7 +315,7 @@ GitHubConfig:
 DscResource.DocGenerator:
   Generate_Conceptual_Help:
     MarkdownCodeRegularExpression:
-      - '\``(.+?)\``' # Match inline code-block
+      - '\```(.+?)\```' # Match inline code-block
       - '\\(\\)' # Match escaped backslash
       - '\[[^\[]+\]\((.+?)\)' # Match markdown URL
       - '_(.+?)_' # Match Italic (underscore)
