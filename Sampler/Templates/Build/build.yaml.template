@@ -140,6 +140,7 @@ BuildWorkflow:
 @"
     - Publish_Release_To_GitHub
     - Publish_GitHub_Wiki_Content
+    - Create_ChangeLog_GitHub_PR
 "@
     }
 %>
