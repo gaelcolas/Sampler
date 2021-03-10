@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.109.5] - 2021-03-10
+
 ### Added
 
 - New DSC Community template (`New-SampleModule -ModuleType newDscCommunity`).
