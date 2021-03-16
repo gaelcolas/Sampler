@@ -53,35 +53,44 @@ function Get-SamplerAbsolutePath
         $RelativeTo
     )
 
-    if ([System.String]::IsNullOrEmpty($Path))
+    if (-not [System.Io.Path]::IsPathRooted($RelativeTo))
     {
-        if ($PSBoundParameters.ContainsKey('RelativeTo') -and -not [System.String]::IsNullOrEmpty($RelativeTo))
-        {
-            [System.Io.Path]::GetFullPath($RelativeTo)
-        }
-        else
-        {
-            [System.Io.Path]::GetFullPath('.')
-        }
+        # If the path is not rooted it's a relative path
+        $RelativeTo = Join-Path -Path ([System.Io.Path]::GetFullPath('.')) -ChildPath $RelativeTo
     }
-    elseif (
-        -not (Split-Path -IsAbsolute -Path $Path) -and
-        $Path -notmatch '^\\|^\/' -and
-        $PSBoundParameters.ContainsKey('RelativeTo')
-    )
+    elseif (-not (Split-Path -IsAbsolute -Path $RelativeTo) -and [System.Io.Path]::IsPathRooted($RelativeTo))
     {
-        if (Split-Path -IsAbsolute -Path $RelativeTo)
-        {
-            [System.IO.Path]::GetFullPath((Join-Path -Path $RelativeTo -ChildPath $Path))
-        }
-        else
-        {
-            $AbsoluteRelativeTo = [System.IO.Path]::GetFullPath($RelativeTo)
-            [System.IO.Path]::GetFullPath((Join-Path -Path $AbsoluteRelativeTo -ChildPath $Path))
-        }
+        # If the path is not Absolute but is rooted, it's starts with / or \ on Windows.
+        # Add the Current PSDrive root
+        $CurrentDriveRoot = $pwd.drive.root
+        $RelativeTo = Join-Path -Path $CurrentDriveRoot -ChildPath $RelativeTo
     }
-    else
+
+    if ($PSVersionTable.PSVersion.Major -ge 7)
     {
-        [System.IO.Path]::GetFullPath($Path)
+        # This behave differently in 5.1 where * are forbidden. :(
+        $RelativeTo = [System.io.Path]::GetFullPath($RelativeTo)
     }
+
+    if (-not [System.Io.Path]::IsPathRooted($Path))
+    {
+        # If the path is not rooted it's a relative path (relative to $RelativeTo)
+        $Path = Join-Path -Path $RelativeTo -ChildPath $Path
+    }
+    elseif (-not (Split-Path -IsAbsolute -Path $Path) -and [System.Io.Path]::IsPathRooted($Path))
+    {
+        # If the path is not Absolute but is rooted, it's starts with / or \ on Windows.
+        # Add the Current PSDrive root
+        $CurrentDriveRoot = $pwd.drive.root
+        $Path = Join-Path -Path $CurrentDriveRoot -ChildPath $Path
+    }
+    # Else The Path is Absolute
+
+    if ($PSVersionTable.PSVersion.Major -ge 7)
+    {
+        # This behave differently in 5.1 where * are forbidden. :(
+        $Path = [System.io.Path]::GetFullPath($Path)
+    }
+
+    return $Path
 }
