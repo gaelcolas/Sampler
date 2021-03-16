@@ -34,7 +34,7 @@ function Get-SamplerModuleRootPath
 
     if ($moduleInfo.Keys -contains 'RootModule')
     {
-        Get-SamplerAbsolutePath -Path $moduleInfo.RootModule -RelativeTo (Split-Path -Parent -Path $BuiltModuleManifest)
+        Get-SamplerAbsolutePath -Path $moduleInfo.RootModule -RelativeTo (Split-Path -Parent -Path $ModuleManifestPath)
     }
     else
     {
