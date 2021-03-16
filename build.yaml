@@ -56,7 +56,7 @@ Pester:
     # - tests/Integration
   ExcludeTag:
   Tag:
-  CodeCoverageThreshold: 12.5 # Set to 0 to bypass
+  CodeCoverageThreshold: 12 # Set to 0 to bypass
 
 DscTest:
   ExcludeTag:

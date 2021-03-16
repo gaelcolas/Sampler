@@ -5,6 +5,14 @@ param (
     $OutputDirectory = (property OutputDirectory (Join-Path $BuildRoot 'output')),
 
     [Parameter()]
+    [System.String]
+    $BuiltModuleSubdirectory = (property BuiltModuleSubdirectory ''),
+
+    [Parameter()]
+    [System.Management.Automation.SwitchParameter]
+    $VersionedOutputDirectory = (property VersionedOutputDirectory $true),
+
+    [Parameter()]
     $ChangelogPath = (property ChangelogPath 'CHANGELOG.md'),
 
     [Parameter()]
@@ -36,28 +44,34 @@ task Create_changelog_release_output {
         $ProjectName = Get-SamplerProjectName -BuildRoot $BuildRoot
     }
 
-    "  OutputDirectory  = $OutputDirectory"
-    "  ReleaseNotesPath = $ReleaseNotesPath"
+    $OutputDirectory = Get-SamplerAbsolutePath -Path $OutputDirectory -RelativeTo $BuildRoot
+    $ReleaseNotesPath = Get-SamplerAbsolutePath -Path $ReleaseNotesPath -RelativeTo $OutputDirectory
+    $ChangeLogOutputPath = Get-SamplerAbsolutePath -Path 'CHANGELOG.md' -RelativeTo $OutputDirectory
 
-    if (!(Split-Path -isAbsolute $OutputDirectory))
-    {
-        $OutputDirectory = Join-Path $BuildRoot $OutputDirectory
+    "`tOutputDirectory       = '$OutputDirectory'"
+    "`tReleaseNotesPath      = '$ReleaseNotesPath'"
+    "`tChangeLogOutputPath   = '$ChangeLogOutputPath'"
+
+    $GetBuiltModuleManifestParams = @{
+        OutputDirectory          = $OutputDirectory
+        BuiltModuleSubdirectory  = $BuiltModuleSubDirectory
+        ModuleName               = $ProjectName
+        VersionedOutputDirectory = $VersionedOutputDirectory
+        ErrorAction              = 'Stop'
     }
 
-    if (!(Split-Path -isAbsolute $ReleaseNotesPath))
-    {
-        $ReleaseNotesPath = Join-Path $OutputDirectory $ReleaseNotesPath
-    }
+    $builtModuleManifest = Get-SamplerBuiltModuleManifest @GetBuiltModuleManifestParams
 
-    $ChangeLogOutputPath = Join-Path $OutputDirectory 'CHANGELOG.md'
-    "  ChangeLogOutputPath = $ChangeLogOutputPath"
+    "`tBuilt Module Manifest = '$builtModuleManifest'"
 
-    $getModuleVersionParameters = @{
-        OutputDirectory = $OutputDirectory
-        ProjectName     = $ProjectName
-    }
+    $moduleVersion = Get-BuiltModuleVersion @GetBuiltModuleManifestParams
+    $moduleVersionObject = Split-ModuleVersion -ModuleVersion $moduleVersion
+    $moduleVersionFolder = $moduleVersionObject.Version
+    $preReleaseTag       = $moduleVersionObject.PreReleaseString
 
-    $ModuleVersion = Get-BuiltModuleVersion @getModuleVersionParameters
+    "`tModule Version        = '$ModuleVersion'"
+    "`tModule Version Folder = '$moduleVersionFolder'"
+    "`tPre-release Tag       = '$preReleaseTag'"
 
     # Parse the Changelog and extract unreleased
     try
@@ -102,7 +116,7 @@ task Create_changelog_release_output {
         $ReleaseNotes = Get-Content -raw $ChangeLogOutputPath -ErrorAction SilentlyContinue
     }
 
-    if ((Test-Path "$OutputDirectory/$ProjectName/*/$ProjectName.psd1" -ErrorAction SilentlyContinue) -and $ReleaseNotes)
+    if ((Test-Path -Path $builtModuleManifest -ErrorAction SilentlyContinue) -and $ReleaseNotes)
     {
         try
         {
@@ -114,20 +128,11 @@ task Create_changelog_release_output {
             return
         }
 
-        # find Module manifest
-        $BuiltModuleManifest = (Get-ChildItem (Join-Path $OutputDirectory $ProjectName) -Depth 2 -Filter "$ProjectName.psd1").FullName |
-            Where-Object {
-                $(Test-ModuleManifest -Path $_ -ErrorAction 'SilentlyContinue').Version
-            }
-        if (-not $BuiltModuleManifest)
-        {
-            throw "No valid manifest found for project $ProjectName."
-        }
-        Write-Build DarkGray "Built Manifest $BuiltModuleManifest"
+        Write-Build DarkGray "Built Manifest $builtModuleManifest"
         # No need to test the manifest again here, because the pipeline tested all manifests via the where-clause already
 
         # Uncomment release notes (the default in Plaster/New-ModuleManifest)
-        $ManifestString = Get-Content -raw $BuiltModuleManifest
+        $ManifestString = Get-Content -raw $builtModuleManifest
         if ( $ManifestString -match '#\sReleaseNotes\s?=')
         {
             $ManifestString = $ManifestString -replace '#\sReleaseNotes\s?=', '  ReleaseNotes ='
@@ -136,13 +141,25 @@ task Create_changelog_release_output {
         }
 
         $UpdateReleaseNotesParams = @{
-            Path         = "$OutputDirectory/$ProjectName/*/$ProjectName.psd1"
+            Path         = $builtModuleManifest
             PropertyName = 'PrivateData.PSData.ReleaseNotes'
             Value        = $moduleManifestReleaseNotes
             ErrorAction  = 'SilentlyContinue'
         }
 
         Update-Manifest @UpdateReleaseNotesParams
+    }
+    else
+    {
+        if ([string]::IsNullOrEmpty($ReleaseNotes))
+        {
+            Write-Build -Color Red "No Release notes found to insert."
+        }
+
+        if (-not (Test-Path -Path $builtModuleManifest))
+        {
+            Write-Build -Color Red "No valid manifest found for project $ProjectName. Cannot update the Release Notes."
+        }
     }
 }
 
@@ -152,26 +169,61 @@ task publish_nupkg_to_gallery -if ($GalleryApiToken -and (Get-Command -Name 'nug
         $ProjectName = Get-SamplerProjectName -BuildRoot $BuildRoot
     }
 
-    if (!(Split-Path $OutputDirectory -IsAbsolute))
+    if ([System.String]::IsNullOrEmpty($SourcePath))
     {
-        $OutputDirectory = Join-Path -Path $BuildRoot -ChildPath $OutputDirectory
+        $SourcePath = Get-SamplerSourcePath -BuildRoot $BuildRoot
     }
 
-    $getModuleVersionParameters = @{
-        OutputDirectory = $OutputDirectory
-        ProjectName     = $ProjectName
+    $OutputDirectory = Get-SamplerAbsolutePath -Path $OutputDirectory -RelativeTo $BuildRoot
+
+    "`tProject Name          = '$ProjectName'"
+    "`tSource Path           = '$SourcePath'"
+    "`tOutput Directory      = '$OutputDirectory'"
+
+    Import-Module -Name 'ModuleBuilder' -ErrorAction 'Stop'
+
+    if ($VersionedOutputDirectory)
+    {
+        # VersionedOutputDirectory is not [bool]'' nor $false nor [bool]$null
+        # Assume true, wherever it was set
+        $VersionedOutputDirectory = $true
+    }
+    else
+    {
+        # VersionedOutputDirectory may be [bool]'' but we can't tell where it's
+        # coming from, so assume the build info (Build.yaml) is right
+        $VersionedOutputDirectory = $BuildInfo['VersionedOutputDirectory']
     }
 
-    $ModuleVersion = Get-BuiltModuleVersion @getModuleVersionParameters
+    $GetBuiltModuleManifestParams = @{
+        OutputDirectory          = $OutputDirectory
+        BuiltModuleSubdirectory  = $BuiltModuleSubDirectory
+        ModuleName               = $ProjectName
+        VersionedOutputDirectory = $VersionedOutputDirectory
+        ErrorAction              = 'Stop'
+    }
+
+    $builtModuleManifest = Get-SamplerBuiltModuleManifest @GetBuiltModuleManifestParams
+
+    "`tBuilt Module Manifest = '$builtModuleManifest'"
+
+    $ModuleVersion = Get-BuiltModuleVersion @GetBuiltModuleManifestParams
+    $ModuleVersionObject = Split-ModuleVersion -ModuleVersion $ModuleVersion
+    $ModuleVersionFolder = $ModuleVersionObject.Version
+    $preReleaseTag       = $ModuleVersionObject.PreReleaseString
+
+    "`tModule Version        = '$ModuleVersion'"
+    "`tModule Version Folder = '$ModuleVersionFolder'"
+    "`tPre-release Tag       = '$preReleaseTag'"
 
     $ChangeLogOutputPath = Join-Path $OutputDirectory 'CHANGELOG.md'
     "  ChangeLogOutputPath = $ChangeLogOutputPath"
 
     # find Module's nupkg
-    $PackageToRelease = Get-ChildItem (Join-Path $OutputDirectory "$ProjectName.$ModuleVersion.nupkg")
+    $PackageToRelease = Get-ChildItem (Join-Path -Path $OutputDirectory -ChildPath "$ProjectName.$ModuleVersion.nupkg")
 
     Write-Build DarkGray "About to release $PackageToRelease"
-    if (!$SkipPublish)
+    if (-not $SkipPublish)
     {
         $response = &nuget push $PackageToRelease -source $nugetPublishSource -ApiKey $GalleryApiToken
     }
@@ -248,7 +300,7 @@ task package_module_nupkg {
     }
 
     # load module manifest
-    $ModuleInfo = Import-PowerShellDataFile -Path $BuiltModuleManifest
+    $ModuleInfo = Get-SamplerModuleInfo -ModuleManifestPath $builtModuleManifest
 
     # Publish dependencies (from environment) so we can publish the built module
     foreach ($module in $ModuleInfo.RequiredModules)
@@ -288,19 +340,54 @@ task publish_module_to_gallery -if ($GalleryApiToken -and (Get-Command -Name 'Pu
         $ProjectName = Get-SamplerProjectName -BuildRoot $BuildRoot
     }
 
-    if (!(Split-Path $OutputDirectory -IsAbsolute))
+    if ([System.String]::IsNullOrEmpty($SourcePath))
     {
-        $OutputDirectory = Join-Path $BuildRoot $OutputDirectory
+        $SourcePath = Get-SamplerSourcePath -BuildRoot $BuildRoot
     }
 
-    $getModuleVersionParameters = @{
-        OutputDirectory = $OutputDirectory
-        ProjectName     = $ProjectName
+    $OutputDirectory = Get-SamplerAbsolutePath -Path $OutputDirectory -RelativeTo $BuildRoot
+
+    "`tProject Name          = '$ProjectName'"
+    "`tSource Path           = '$SourcePath'"
+    "`tOutput Directory      = '$OutputDirectory'"
+
+    Import-Module -Name 'ModuleBuilder' -ErrorAction 'Stop'
+
+    if ($VersionedOutputDirectory)
+    {
+        # VersionedOutputDirectory is not [bool]'' nor $false nor [bool]$null
+        # Assume true, wherever it was set
+        $VersionedOutputDirectory = $true
+    }
+    else
+    {
+        # VersionedOutputDirectory may be [bool]'' but we can't tell where it's
+        # coming from, so assume the build info (Build.yaml) is right
+        $VersionedOutputDirectory = $BuildInfo['VersionedOutputDirectory']
     }
 
-    $ModuleVersion = Get-BuiltModuleVersion @getModuleVersionParameters
+    $GetBuiltModuleManifestParams = @{
+        OutputDirectory          = $OutputDirectory
+        BuiltModuleSubdirectory  = $BuiltModuleSubDirectory
+        ModuleName               = $ProjectName
+        VersionedOutputDirectory = $VersionedOutputDirectory
+        ErrorAction              = 'Stop'
+    }
 
-    $ChangeLogOutputPath = Join-Path $OutputDirectory 'CHANGELOG.md'
+    $builtModuleManifest = Get-SamplerBuiltModuleManifest @GetBuiltModuleManifestParams
+
+    "`tBuilt Module Manifest = '$builtModuleManifest'"
+
+    $ModuleVersion = Get-BuiltModuleVersion @GetBuiltModuleManifestParams
+    $ModuleVersionObject = Split-ModuleVersion -ModuleVersion $ModuleVersion
+    $ModuleVersionFolder = $ModuleVersionObject.Version
+    $preReleaseTag       = $ModuleVersionObject.PreReleaseString
+
+    "`tModule Version        = '$ModuleVersion'"
+    "`tModule Version Folder = '$ModuleVersionFolder'"
+    "`tPre-release Tag       = '$preReleaseTag'"
+
+    $ChangeLogOutputPath = Join-Path -Path $OutputDirectory -ChildPath 'CHANGELOG.md'
     "  ChangeLogOutputPath = $ChangeLogOutputPath"
 
     $changeLogData = Get-ChangelogData -Path $ChangeLogOutputPath

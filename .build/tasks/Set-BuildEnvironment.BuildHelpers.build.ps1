@@ -24,7 +24,8 @@ task Set_Build_Environment_Variables {
     }
 
     Set-BuildEnvironment @BH_Params
-    foreach ($e in $err) {
+    foreach ($e in $err)
+    {
         Write-Build Magenta $e
     }
 }
