@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixed #247 where Building submodule would fail on linux (but not WSL).
 - Fixed #239 to re-add support for BuiltModuleSubdirectory more consistently.
+- Fixed bug when using CopyOnly nested resources.
 
 ### Changed
 
