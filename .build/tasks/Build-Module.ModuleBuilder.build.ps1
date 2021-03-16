@@ -177,9 +177,11 @@ Task Build_NestedModules_ModuleBuilder {
     }
 
     $builtModuleManifest = Get-SamplerBuiltModuleManifest @GetBuiltModuleManifestParams
+    $builtModuleManifest = (Get-Item -Path $builtModuleManifest).FullName
     "`tBuilt Module Manifest = '$builtModuleManifest'"
 
     $builtModuleBase = Get-SamplerBuiltModuleBase @GetBuiltModuleManifestParams
+    $builtModuleBase = (Get-Item -Path $builtModuleBase).FullName
     "`tBuilt Module Base     = '$builtModuleBase'"
 
     $moduleVersion = Get-BuiltModuleVersion @GetBuiltModuleManifestParams
@@ -269,7 +271,7 @@ Task Build_NestedModules_ModuleBuilder {
                 To support building the nestedModule without a build manifest the SourcePath must be
                 set to the path to the source nested module manifest.
                 #>
-                $nestedModuleSourceManifest = $ExecutionContext.InvokeCommand.ExpandString($nestedModule[$paramName])
+                $nestedModuleSourceManifest = $ExecutionContext.InvokeCommand.ExpandString($cmdParam[$paramName])
                 $nestedModuleSourceManifest = Get-SamplerAbsolutePath -Path $nestedModuleSourceManifest -RelativeTo $buildRoot
 
                 # If the BuildInfo has been defined with the SourcePath folder, Append the Module Manifest
@@ -278,7 +280,7 @@ Task Build_NestedModules_ModuleBuilder {
                     $nestedModuleSourceManifest = Join-Path -Path $nestedModuleSourceManifest -ChildPath ('{0}.psd1' -f $nestedModuleName)
                 }
 
-                $cmdParam['SourcePath'] = $nestedModuleSourceManifest
+                $cmdParam[$paramName] = $nestedModuleSourceManifest
                 Write-Build -Color 'White' -Text "    The SourcePath is: $($cmdParam[$paramName])"
             }
             elseif ($paramName -notin @($cmd.Parameters.keys + $cmd.Parameters.values.aliases))
@@ -298,6 +300,10 @@ Task Build_NestedModules_ModuleBuilder {
                 if ($paramName -ne 'SemVer')
                 {
                     $cmdParam[$paramName] = Get-SamplerAbsolutePath -Path $cmdParam[$paramName] -RelativeTo $BuildRoot
+                    if (-not (Test-Path -Path $cmdParam[$paramName]))
+                    {
+                        $null = New-Item -Path $cmdParam[$paramName] -ItemType Directory -Force -ErrorAction Stop
+                    }
                 }
 
                 Write-Build -Color 'White' -Text "    The $paramName is: $($cmdParam[$paramName])"
@@ -424,12 +430,15 @@ Task Build_DscResourcesToExport_ModuleBuilder {
     }
 
     $builtModuleBase = Get-SamplerBuiltModuleBase @GetBuiltModuleManifestParams
+    $builtModuleBase = (Get-Item -Path $builtModuleBase).FullName
     "`tBuilt Module Base        = '$builtModuleBase'"
 
     $builtModuleManifest = Get-SamplerBuiltModuleManifest @GetBuiltModuleManifestParams
+    $builtModuleManifest = (Get-Item -Path $builtModuleManifest).FullName
     "`tBuilt Module Manifest    = '$builtModuleManifest'"
 
     $builtModuleRootScriptPath = Get-SamplerModuleRootPath -ModuleManifestPath $builtModuleManifest
+    $builtModuleRootScriptPath = (Get-Item -Path $builtModuleRootScriptPath).FullName
     "`tBuilt ModuleRoot script  = '$builtModuleRootScriptPath'"
 
     $builtDscResourcesFolder = Get-SamplerAbsolutePath -Path 'DSCResources' -RelativeTo $builtModuleBase
@@ -466,7 +475,7 @@ Task Build_DscResourcesToExport_ModuleBuilder {
     #Check if DSCResource Folder has DSCResources
     Write-Build -Color 'Yellow' -Text "Looking in $builtDscResourcesFolder"
 
-    if ($builtMofDscFolder = (Get-ChildItem -Path $builtDscResourcesFolder -Directory))
+    if ($builtMofDscFolder = (Get-ChildItem -Path $builtDscResourcesFolder -Directory -ErrorAction SilentlyContinue))
     {
         if ($mofPath = $builtMofDscFolder | Get-ChildItem -Include '*.schema.mof' -File)
         {
