@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed #247 where Building submodule would fail on linux (but not WSL).
+- Fixed #239 to re-add support for BuiltModuleSubdirectory more consistently.
+
+### Changed
+
+- Refactored a lot of Path resolution into Sampler public function for consitency and re-usability.
+- Updated the Tasks to use those Sampler functions.
+- Updated Get-BuiltModuleVersion to support $BuiltModuleSubdirectory as per #239.
+### Added
+
+- Added Get-SamplerAbsolutePath, Get-SamplerBuiltModuleBase, Get-SamplerModuleInfo,
+  Get-SamplerBuiltModuleManifest, Get-SamplerModuleRootPath.
+
 ## [0.109.5] - 2021-03-10
 
 ### Added

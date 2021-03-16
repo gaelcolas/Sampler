@@ -17,6 +17,10 @@ param
     $BuiltModuleSubdirectory = (property BuiltModuleSubdirectory ''),
 
     [Parameter()]
+    [System.Management.Automation.SwitchParameter]
+    $VersionedOutputDirectory = (property VersionedOutputDirectory $true),
+
+    [Parameter()]
     [System.String]
     $BuildModuleOutput = (property BuildModuleOutput (Join-Path $OutputDirectory $BuiltModuleSubdirectory)),
 
@@ -34,7 +38,7 @@ param
 )
 
 # Synopsis: Build the Module based on its Build.psd1 definition
-Task Build_ModuleOutPut_ModuleBuilder {
+Task Build_ModuleOutput_ModuleBuilder {
     if ([System.String]::IsNullOrEmpty($ProjectName))
     {
         $ProjectName = Get-SamplerProjectName -BuildRoot $BuildRoot
@@ -45,7 +49,9 @@ Task Build_ModuleOutPut_ModuleBuilder {
         $SourcePath = Get-SamplerSourcePath -BuildRoot $BuildRoot
     }
 
-    $moduleManifestPath = "$SourcePath/$ProjectName.psd1"
+    $OutputDirectory = Get-SamplerAbsolutePath -Path $OutputDirectory -RelativeTo $BuildRoot
+    $BuiltModuleSubdirectory = Get-SamplerAbsolutePath -Path $BuiltModuleSubdirectory -RelativeTo $OutputDirectory
+    $moduleManifestPath = Get-SamplerAbsolutePath -Path "$ProjectName.psd1" -RelativeTo $SourcePath
 
     $getBuildVersionParameters = @{
         ModuleManifestPath = $moduleManifestPath
@@ -59,18 +65,15 @@ Task Build_ModuleOutPut_ModuleBuilder {
         installed the version is fetched from the module manifest in SourcePath.
     #>
     $ModuleVersion = Get-BuildVersion @getBuildVersionParameters
+    $ReleaseNotesPath = Get-SamplerAbsolutePath -Path $ReleaseNotesPath -RelativeTo $OutputDirectory
 
-    "`tProject Name         = $ProjectName"
-    "`tModule Version       = $ModuleVersion"
-    "`tSource Path          = $SourcePath"
-    "`tOutput Directory     = $OutputDirectory"
-    "`tBuild Module Output  = $BuildModuleOutput"
-    "`tModule Manifest Path = $moduleManifestPath"
-
-    if (-not (Split-Path -IsAbsolute $ReleaseNotesPath))
-    {
-        $ReleaseNotesPath = Join-Path -Path $OutputDirectory -ChildPath $ReleaseNotesPath
-    }
+    "`tProject Name               = '$ProjectName'"
+    "`tModule Version             = '$ModuleVersion'"
+    "`tSource Path                = '$SourcePath'"
+    "`tOutput Directory           = '$OutputDirectory'"
+    "`tBuilt Module Subdirectory  = '$BuiltModuleSubdirectory'"
+    "`tModule Manifest Path (src) = '$moduleManifestPath'"
+    "`tRelease Notes path         = '$ReleaseNotesPath'"
 
     Import-Module -Name ModuleBuilder -ErrorAction 'Stop'
 
@@ -162,35 +165,48 @@ Task Build_NestedModules_ModuleBuilder {
         $SourcePath = Get-SamplerSourcePath -BuildRoot $BuildRoot
     }
 
-    "`tProject Name          = $ProjectName"
-    "`tSource Path           = $SourcePath"
-    "`tOutput Directory      = $OutputDirectory"
-    "`tBuild Module Output   = $BuildModuleOutput"
+    $OutputDirectory = Get-SamplerAbsolutePath -Path $OutputDirectory -RelativeTo $BuildRoot
+    "`tOutputDirectory       = '$OutputDirectory'"
 
-    $isImportPowerShellDataFileAvailable = Get-Command -Name Import-PowerShellDataFile -ErrorAction SilentlyContinue
-
-    if ($PSversionTable.PSversion.Major -le 5 -and -not $isImportPowerShellDataFileAvailable)
-    {
-        Import-Module -Name Microsoft.PowerShell.Utility -RequiredVersion 3.1.0.0
+    $GetBuiltModuleManifestParams = @{
+        OutputDirectory          = $OutputDirectory
+        BuiltModuleSubdirectory  = $BuiltModuleSubDirectory
+        ModuleName               = $ProjectName
+        VersionedOutputDirectory = $VersionedOutputDirectory
+        ErrorAction              = 'Stop'
     }
+
+    $builtModuleManifest = Get-SamplerBuiltModuleManifest @GetBuiltModuleManifestParams
+    $builtModuleManifest = (Get-Item -Path $builtModuleManifest).FullName
+    "`tBuilt Module Manifest = '$builtModuleManifest'"
+
+    $builtModuleBase = Get-SamplerBuiltModuleBase @GetBuiltModuleManifestParams
+    $builtModuleBase = (Get-Item -Path $builtModuleBase).FullName
+    "`tBuilt Module Base     = '$builtModuleBase'"
+
+    $moduleVersion = Get-BuiltModuleVersion @GetBuiltModuleManifestParams
+    $moduleVersionObject = Split-ModuleVersion -ModuleVersion $moduleVersion
+    $moduleVersionFolder = $moduleVersionObject.Version
+    $preReleaseTag       = $moduleVersionObject.PreReleaseString
+
+    "`tModule Version        = '$ModuleVersion'"
+    "`tModule Version Folder = '$moduleVersionFolder'"
+    "`tPre-release Tag       = '$preReleaseTag'"
 
     Import-Module -Name 'ModuleBuilder' -ErrorAction 'Stop'
 
-    $builtModuleManifest = "$BuildModuleOutput/$ProjectName/*/$ProjectName.psd1"
-
-    "`tBuilt Module Manifest = $builtModuleManifest"
-
-    $getModuleVersionParameters = @{
-        OutputDirectory = $BuildModuleOutput
-        ProjectName     = $ProjectName
+    if ($VersionedOutputDirectory)
+    {
+        # VersionedOutputDirectory is not [bool]'' nor $false nor [bool]$null
+        # Assume true, wherever it was set
+        $VersionedOutputDirectory = $true
     }
-
-    $ModuleVersion = Get-BuiltModuleVersion @getModuleVersionParameters
-    $ModuleVersionFolder, $preReleaseTag = $ModuleVersion -split '\-', 2
-
-    "`tModule Version        = $ModuleVersion"
-    "`tModule Version Folder = $ModuleVersionFolder"
-    "`tPre-release Tag       = $preReleaseTag"
+    else
+    {
+        # VersionedOutputDirectory may be [bool]'' but we can't tell where it's
+        # coming from, so assume the build info (Build.yaml) is right
+        $VersionedOutputDirectory = $BuildInfo['VersionedOutputDirectory']
+    }
 
     $nestedModule = $BuildInfo.NestedModule
     $nestedModulesToAdd = @()
@@ -213,6 +229,7 @@ Task Build_NestedModules_ModuleBuilder {
                 $cmdParam['Path'] = '$SourcePath/Modules/$nestedModuleName'
             }
 
+            # Default to -Recurse unless the BuildInfo is alredy configured
             if (-not $cmdParam.ContainsKey('Recurse'))
             {
                 $cmdParam['Recurse'] = $true
@@ -221,14 +238,25 @@ Task Build_NestedModules_ModuleBuilder {
             # Set default Destination (substitute later)
             if (-not $cmdParam.ContainsKey('Destination'))
             {
-                $cmdParam['Destination'] = '$BuildModuleOutput/$ProjectName/$ModuleVersionFolder/Modules/$nestedModuleName'
+                $cmdParam['Destination'] = '$builtModuleBase/Modules/$nestedModuleName'
             }
 
             Write-Build -Color 'Yellow' -Text "Copying Nested Module files for $nestedModuleName"
         }
         else
         {
+            # When we want to build the nested modules:
             $cmd = Get-Command -Name 'Build-Module'
+
+            if (-not $cmdParam.ContainsKey('Path') -and -not $cmdParam.ContainsKey('SourcePath'))
+            {
+                $cmdParam['SourcePath'] = '$SourcePath/Modules/$nestedModuleName/$nestedModuleName.psd1'
+            }
+
+            if (-not $cmdParam.ContainsKey('OutputDirectory') -and -not $cmdParam.ContainsKey('Destination'))
+            {
+                $cmdParam['OutputDirectory'] = '$builtModuleBase/Modules/$nestedModuleName'
+            }
 
             Write-Build -Color 'Yellow' -Text "Building Nested Module $nestedModuleName"
         }
@@ -237,30 +265,50 @@ Task Build_NestedModules_ModuleBuilder {
 
         foreach ($paramName in $cmdParamKeys)
         {
-            # remove param not available in command
-            if ($paramName -notin @($cmd.Parameters.keys + $cmd.Parameters.values.aliases))
+            if ($paramName -eq 'SourcePath' -or $paramName -eq 'Path')
             {
+                <#
+                To support building the nestedModule without a build manifest the SourcePath must be
+                set to the path to the source nested module manifest.
+                #>
+                $nestedModuleSourceManifest = $ExecutionContext.InvokeCommand.ExpandString($cmdParam[$paramName])
+                $nestedModuleSourceManifest = Get-SamplerAbsolutePath -Path $nestedModuleSourceManifest -RelativeTo $buildRoot
+
+                # If the BuildInfo has been defined with the SourcePath folder, Append the Module Manifest
+                if (([System.io.FileInfo]$nestedModuleSourceManifest).Extension -ne '.psd1')
+                {
+                    $nestedModuleSourceManifest = Join-Path -Path $nestedModuleSourceManifest -ChildPath ('{0}.psd1' -f $nestedModuleName)
+                }
+
+                $cmdParam[$paramName] = $nestedModuleSourceManifest
+                Write-Build -Color 'White' -Text "    The SourcePath is: $($cmdParam[$paramName])"
+            }
+            elseif ($paramName -notin @($cmd.Parameters.keys + $cmd.Parameters.values.aliases))
+            {
+                # remove param not available in command
                 Write-Build -Color 'White' -Text "Removing Parameter $paramName for $($cmd.Name)"
 
                 $cmdParam.Remove($paramName)
             }
-            elseif ($paramName -in @('Path', 'Destination', 'OutputDirectory', 'SemVer'))
+            elseif ($paramName -in @('Destination', 'OutputDirectory', 'SemVer'))
             {
                 # Substitute & Resolve Resolve Path to absolutes (relative assumed is $BuildRoot)
                 Write-Build -Color 'White' -Text "Resolving Absolute path for $paramName $($cmdParam[$paramName])"
 
                 $cmdParam[$paramName] = $ExecutionContext.InvokeCommand.ExpandString($cmdParam[$paramName])
 
-                if (-not (Split-Path -Path $cmdParam[$paramName] -IsAbsolute) -and $paramName -ne 'SemVer')
+                if ($paramName -ne 'SemVer')
                 {
-                    $cmdParam[$paramName] = Join-Path -Path $BuildRoot -ChildPath $cmdParam[$paramName]
+                    $cmdParam[$paramName] = Get-SamplerAbsolutePath -Path $cmdParam[$paramName] -RelativeTo $BuildRoot
+                    if (-not (Test-Path -Path $cmdParam[$paramName]))
+                    {
+                        $null = New-Item -Path $cmdParam[$paramName] -ItemType Directory -Force -ErrorAction Stop
+                    }
                 }
 
                 Write-Build -Color 'White' -Text "    The $paramName is: $($cmdParam[$paramName])"
             }
         }
-
-        $builtModuleBase = Split-Path -Parent -Path $BuiltModuleManifest
 
         Write-Build -Color 'Green' -Text "$($cmd.Verb) $nestedModuleName..."
 
@@ -281,10 +329,17 @@ Task Build_NestedModules_ModuleBuilder {
             }
             else
             {
-                $nestedModulePath = $cmdParam['OutputDirectory']
+                if ($cmdParam.ContainsKey('OutputDirectory'))
+                {
+                    $nestedModulePath = $cmdParam['OutputDirectory']
+                }
+                else
+                {
+                    $nestedModulePath = $cmdParam['Destination']
+                }
             }
 
-            Write-Build -Color 'DarkMagenta' -Text "  Looking in $nestedModulePath"
+            Write-Build -Color 'DarkMagenta' -Text "  Looking in '$nestedModulePath'"
 
             $nestedModuleFile = (Get-ChildItem -Path $nestedModulePath -Recurse -Include '*.psd1' |
                     Where-Object -FilterScript {
@@ -311,7 +366,7 @@ Task Build_NestedModules_ModuleBuilder {
         Write-Build -Color 'Green' -Text "Done `r`n"
     }
 
-    $ModuleInfo = Import-PowerShellDataFile -Path $BuiltModuleManifest -ErrorAction 'Stop'
+    $ModuleInfo = Get-SamplerModuleInfo -ModuleManifestPath $builtModuleManifest
 
     # Add to NestedModules to ModuleManifest
     if ($ModuleInfo.ContainsKey('NestedModules') -and $nestedModulesToAdd)
@@ -345,44 +400,65 @@ Task Build_DscResourcesToExport_ModuleBuilder {
         $SourcePath = Get-SamplerSourcePath -BuildRoot $BuildRoot
     }
 
-    "`tProject Name             = $ProjectName"
-    "`tSource Path              = $SourcePath"
-    "`tOutput Directory         = $OutputDirectory"
-    "`tBuild Module Output      = $BuildModuleOutput"
+    $OutputDirectory = Get-SamplerAbsolutePath -Path $OutputDirectory -RelativeTo $BuildRoot
 
-    $isImportPowerShellDataFileAvailable = Get-Command -Name Import-PowerShellDataFile -ErrorAction SilentlyContinue
-
-    if ($PSversionTable.PSversion.Major -le 5 -and -not $isImportPowerShellDataFileAvailable)
-    {
-        Import-Module -Name Microsoft.PowerShell.Utility -RequiredVersion 3.1.0.0
-    }
+    "`tProject Name             = '$ProjectName'"
+    "`tSource Path              = '$SourcePath'"
+    "`tOutput Directory         = '$OutputDirectory'"
 
     Import-Module -Name 'ModuleBuilder' -ErrorAction 'Stop'
 
-    $builtModuleManifest = "$BuildModuleOutput/$ProjectName/*/$ProjectName.psd1"
-    $builtModuleRootScriptPath = "$BuildModuleOutput/$ProjectName/*/$ProjectName.psm1"
-    $builtDscResourcesFolder = "$BuildModuleOutput/$ProjectName/*/DSCResources/*"
-
-    "`tBuilt Module Manifest    = $builtModuleManifest"
-
-    $getModuleVersionParameters = @{
-        OutputDirectory = $BuildModuleOutput
-        ProjectName     = $ProjectName
+    if ($VersionedOutputDirectory)
+    {
+        # VersionedOutputDirectory is not [bool]'' nor $false nor [bool]$null
+        # Assume true, wherever it was set
+        $VersionedOutputDirectory = $true
+    }
+    else
+    {
+        # VersionedOutputDirectory may be [bool]'' but we can't tell where it's
+        # coming from, so assume the build info (Build.yaml) is right
+        $VersionedOutputDirectory = $BuildInfo['VersionedOutputDirectory']
     }
 
-    $ModuleVersion = Get-BuiltModuleVersion @getModuleVersionParameters
-    $ModuleVersionFolder, $preReleaseTag = $ModuleVersion -split '\-', 2
+    $GetBuiltModuleManifestParams = @{
+        OutputDirectory          = $OutputDirectory
+        BuiltModuleSubDirectory  = $BuiltModuleSubDirectory
+        ModuleName               = $ProjectName
+        VersionedOutputDirectory = $VersionedOutputDirectory
+        ErrorAction              = 'Stop'
+    }
 
-    "`tModule Version           = $ModuleVersion"
-    "`tModule Version Folder    = $ModuleVersionFolder"
-    "`tPre-release Tag          = $preReleaseTag"
+    $builtModuleBase = Get-SamplerBuiltModuleBase @GetBuiltModuleManifestParams
+    $builtModuleBase = (Get-Item -Path $builtModuleBase).FullName
+    "`tBuilt Module Base        = '$builtModuleBase'"
+
+    $builtModuleManifest = Get-SamplerBuiltModuleManifest @GetBuiltModuleManifestParams
+    $builtModuleManifest = (Get-Item -Path $builtModuleManifest).FullName
+    "`tBuilt Module Manifest    = '$builtModuleManifest'"
+
+    $builtModuleRootScriptPath = Get-SamplerModuleRootPath -ModuleManifestPath $builtModuleManifest
+    $builtModuleRootScriptPath = (Get-Item -Path $builtModuleRootScriptPath).FullName
+    "`tBuilt ModuleRoot script  = '$builtModuleRootScriptPath'"
+
+    $builtDscResourcesFolder = Get-SamplerAbsolutePath -Path 'DSCResources' -RelativeTo $builtModuleBase
+    "`tBuilt DSC Resource Path  = '$builtDscResourcesFolder'"
+
+    $ModuleVersion = Get-BuiltModuleVersion @GetBuiltModuleManifestParams
+    $ModuleVersionObject = Split-ModuleVersion -ModuleVersion $ModuleVersion
+    $ModuleVersionFolder = $ModuleVersionObject.Version
+    $preReleaseTag       = $ModuleVersionObject.PreReleaseString
+
+    "`tModule Version           = '$ModuleVersion'"
+    "`tModule Version Folder    = '$ModuleVersionFolder'"
+    "`tPre-release Tag          = '$preReleaseTag'"
 
     $DSCResourcesToAdd = @()
 
     #Check if there are classes based resource in psm1
     if ($builtModuleRootScriptFile = Get-Item -Path $builtModuleRootScriptPath -ErrorAction SilentlyContinue)
     {
-        "`tBuilt Module Root Script = $($builtModuleRootScriptFile.FullName)"
+        "`tBuilt Module Root Script  = '$($builtModuleRootScriptFile.FullName)'"
 
         Write-Build -Color 'Yellow' -Text "Looking in $builtModuleRootScriptPath"
 
@@ -399,7 +475,7 @@ Task Build_DscResourcesToExport_ModuleBuilder {
     #Check if DSCResource Folder has DSCResources
     Write-Build -Color 'Yellow' -Text "Looking in $builtDscResourcesFolder"
 
-    if ($builtMofDscFolder = (Get-ChildItem -Path $builtDscResourcesFolder -Directory))
+    if ($builtMofDscFolder = (Get-ChildItem -Path $builtDscResourcesFolder -Directory -ErrorAction SilentlyContinue))
     {
         if ($mofPath = $builtMofDscFolder | Get-ChildItem -Include '*.schema.mof' -File)
         {
@@ -434,7 +510,7 @@ Task Build_DscResourcesToExport_ModuleBuilder {
         }
     }
 
-    $ModuleInfo = Import-PowerShellDataFile -Path $BuiltModuleManifest -ErrorAction 'Stop'
+    $ModuleInfo = Get-SamplerModuleInfo -ModuleManifestPath $builtModuleManifest
 
     # Add to DscResourcesToExport to ModuleManifest
     if ($ModuleInfo.ContainsKey('DscResourcesToExport') -and $DSCResourcesToAdd)

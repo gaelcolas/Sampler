@@ -12,6 +12,10 @@ param
 
     [Parameter()]
     [System.String]
+    $BuiltModuleSubdirectory = (property BuiltModuleSubdirectory ''),
+
+    [Parameter()]
+    [System.String]
     $ProjectName = (property ProjectName ''),
 
     [Parameter()]
@@ -47,24 +51,50 @@ task Invoke_DscResource_Tests {
         $ProjectName = Get-SamplerProjectName -BuildRoot $BuildRoot
     }
 
-    if (-not (Split-Path -IsAbsolute $OutputDirectory))
+    $OutputDirectory = Get-SamplerAbsolutePath -Path $OutputDirectory -RelativeTo $BuildRoot
+    $DscTestOutputFolder = Get-SamplerAbsolutePath -Path $DscTestOutputFolder -RelativeTo $OutputDirectory
+
+    if ($VersionedOutputDirectory)
     {
-        $OutputDirectory = Join-Path -Path $ProjectPath -ChildPath $OutputDirectory
-
-        Write-Build Yellow "Absolute path to Output Directory is $OutputDirectory"
+        # VersionedOutputDirectory is not [bool]'' nor $false nor [bool]$null
+        # Assume true, wherever it was set
+        $VersionedOutputDirectory = $true
     }
-
-    if (-not (Split-Path -IsAbsolute $DscTestOutputFolder))
+    else
     {
-        $DscTestOutputFolder = Join-Path -Path $OutputDirectory -ChildPath $DscTestOutputFolder
+        # VersionedOutputDirectory may be [bool]'' but we can't tell where it's
+        # coming from, so assume the build info (Build.yaml) is right
+        $VersionedOutputDirectory = $BuildInfo['VersionedOutputDirectory']
     }
 
-    $getModuleVersionParameters = @{
-        OutputDirectory = $OutputDirectory
-        ProjectName     = $ProjectName
+    $GetBuiltModuleManifestParams = @{
+        OutputDirectory          = $OutputDirectory
+        BuiltModuleSubDirectory  = $BuiltModuleSubDirectory
+        ModuleName               = $ProjectName
+        VersionedOutputDirectory = $VersionedOutputDirectory
+        ErrorAction              = 'Stop'
     }
 
-    $ModuleVersion = Get-BuiltModuleVersion @getModuleVersionParameters
+    $builtModuleBase = Get-SamplerBuiltModuleBase @GetBuiltModuleManifestParams
+    "`tBuilt Module Base        = '$builtModuleBase'"
+
+    $builtModuleManifest = Get-SamplerBuiltModuleManifest @GetBuiltModuleManifestParams
+    "`tBuilt Module Manifest    = '$builtModuleManifest'"
+
+    $builtModuleRootScriptPath = Get-SamplerModuleRootPath -ModuleManifestPath $builtModuleManifest
+    "`tBuilt ModuleRoot script  = '$builtModuleRootScriptPath'"
+
+    $builtDscResourcesFolder = Get-SamplerAbsolutePath -Path 'DSCResources' -RelativeTo $builtModuleBase
+    "`tBuilt DSC Resource Path  = '$builtDscResourcesFolder'"
+
+    $ModuleVersion = Get-BuiltModuleVersion @GetBuiltModuleManifestParams
+    $ModuleVersionObject = Split-ModuleVersion -ModuleVersion $ModuleVersion
+    $ModuleVersionFolder = $ModuleVersionObject.Version
+    $preReleaseTag       = $ModuleVersionObject.PreReleaseString
+
+    "`tModule Version           = '$ModuleVersion'"
+    "`tModule Version Folder    = '$ModuleVersionFolder'"
+    "`tPre-release Tag          = '$preReleaseTag'"
 
     if (-not (Test-Path -Path $DscTestOutputFolder))
     {
@@ -144,26 +174,15 @@ task Invoke_DscResource_Tests {
         }
     }
 
-    "`tProject Path      = $ProjectPath"
-    "`tProject Name      = $ProjectName"
-    "`tTest Scripts      = $($DscTestScript -join ', ')"
-    "`tTags              = $($DscTestTag -join ', ')"
-    "`tExclude Tags      = $($DscTestExcludeTag -join ', ')"
-    "`tModuleVersion     = $ModuleVersion"
-    "`tBuildModuleOutput = $BuildModuleOutput"
+    "`tProject Path             = $ProjectPath"
+    "`tProject Name             = $ProjectName"
+    "`tTest Scripts             = $($DscTestScript -join ', ')"
+    "`tTags                     = $($DscTestTag -join ', ')"
+    "`tExclude Tags             = $($DscTestExcludeTag -join ', ')"
+    "`tModuleVersion            = $ModuleVersion"
+    "`tBuildModuleOutput        = $BuildModuleOutput"
 
-    $os = if ($isWindows -or $PSVersionTable.PSVersion.Major -le 5)
-    {
-        'Windows'
-    }
-    elseif ($isMacOS)
-    {
-        'MacOS'
-    }
-    else
-    {
-        'Linux'
-    }
+    $os = Get-OperatingSystemShortName
 
     $psVersion = 'PSv.{0}' -f $PSVersionTable.PSVersion
     $DscTestOutputFileFileName = "DscTest_{0}_v{1}.{2}.{3}.xml" -f $ProjectName, $ModuleVersion, $os, $psVersion
@@ -269,43 +288,58 @@ task Fail_Build_If_DscResource_Tests_Failed {
         $ProjectName = Get-SamplerProjectName -BuildRoot $BuildRoot
     }
 
-    if (-not (Split-Path -IsAbsolute $OutputDirectory))
-    {
-        $OutputDirectory = Join-Path -Path $ProjectPath -ChildPath $OutputDirectory
+    $OutputDirectory = Get-SamplerAbsolutePath -Path $OutputDirectory -RelativeTo $BuildRoot
+    $DscTestOutputFolder = Get-SamplerAbsolutePath -Path $DscTestOutputFolder -RelativeTo $OutputDirectory
 
-        Write-Build -Color 'Yellow' -Text "Absolute path to Output Directory is $OutputDirectory"
-    }
+    $os = Get-OperatingSystemShortName
 
-    if (-not (Split-Path -IsAbsolute $DscTestOutputFolder))
+    if ($VersionedOutputDirectory)
     {
-        $DscTestOutputFolder = Join-Path -Path $OutputDirectory -ChildPath $DscTestOutputFolder
-    }
-
-    $os = if ($isWindows -or $PSVersionTable.PSVersion.Major -le 5)
-    {
-        'Windows'
-    }
-    elseif ($isMacOS)
-    {
-        'MacOS'
+        # VersionedOutputDirectory is not [bool]'' nor $false nor [bool]$null
+        # Assume true, wherever it was set
+        $VersionedOutputDirectory = $true
     }
     else
     {
-        'Linux'
+        # VersionedOutputDirectory may be [bool]'' but we can't tell where it's
+        # coming from, so assume the build info (Build.yaml) is right
+        $VersionedOutputDirectory = $BuildInfo['VersionedOutputDirectory']
     }
 
-    $getModuleVersionParameters = @{
-        OutputDirectory = $OutputDirectory
-        ProjectName     = $ProjectName
+    $GetBuiltModuleManifestParams = @{
+        OutputDirectory          = $OutputDirectory
+        BuiltModuleSubDirectory  = $BuiltModuleSubDirectory
+        ModuleName               = $ProjectName
+        VersionedOutputDirectory = $VersionedOutputDirectory
+        ErrorAction              = 'Stop'
     }
 
-    $ModuleVersion = Get-BuiltModuleVersion @getModuleVersionParameters
+    $builtModuleBase = Get-SamplerBuiltModuleBase @GetBuiltModuleManifestParams
+    "`tBuilt Module Base        = '$builtModuleBase'"
+
+    $builtModuleManifest = Get-SamplerBuiltModuleManifest @GetBuiltModuleManifestParams
+    "`tBuilt Module Manifest    = '$builtModuleManifest'"
+
+    $builtModuleRootScriptPath = Get-SamplerModuleRootPath -ModuleManifestPath $builtModuleManifest
+    "`tBuilt ModuleRoot script  = '$builtModuleRootScriptPath'"
+
+    $builtDscResourcesFolder = Get-SamplerAbsolutePath -Path 'DSCResources' -RelativeTo $builtModuleBase
+    "`tBuilt DSC Resource Path  = '$builtDscResourcesFolder'"
+
+    $ModuleVersion = Get-BuiltModuleVersion @GetBuiltModuleManifestParams
+    $ModuleVersionObject = Split-ModuleVersion -ModuleVersion $ModuleVersion
+    $ModuleVersionFolder = $ModuleVersionObject.Version
+    $preReleaseTag       = $ModuleVersionObject.PreReleaseString
+
+    "`tModule Version           = '$ModuleVersion'"
+    "`tModule Version Folder    = '$ModuleVersionFolder'"
+    "`tPre-release Tag          = '$preReleaseTag'"
 
     $psVersion = 'PSv.{0}' -f $PSVersionTable.PSVersion
     $DscTestOutputFileFileName = "DscTest_{0}_v{1}.{2}.{3}.xml" -f $ProjectName, $ModuleVersion, $os, $psVersion
     $DscTestResultObjectClixml = Join-Path -Path $DscTestOutputFolder -ChildPath "DscTestObject_$DscTestOutputFileFileName"
 
-    Write-Build -Color 'White' -Text "`tDscTest Output Object = $DscTestResultObjectClixml"
+    "`tDscTest Output Object    = $DscTestResultObjectClixml"
 
     if (-not (Test-Path -Path $DscTestResultObjectClixml))
     {
@@ -326,17 +360,8 @@ task Upload_DscResourceTest_Results_To_AppVeyor -If { (property BuildSystem 'unk
         $ProjectName = Get-SamplerProjectName -BuildRoot $BuildRoot
     }
 
-    if (-not (Split-Path -IsAbsolute $OutputDirectory))
-    {
-        $OutputDirectory = Join-Path -Path $ProjectPath -ChildPath $OutputDirectory
-
-        Write-Build -Color 'Yellow' -Text "Absolute path to Output Directory is $OutputDirectory"
-    }
-
-    if (-not (Split-Path -IsAbsolute $DscTestOutputFolder))
-    {
-        $DscTestOutputFolder = Join-Path -Path $OutputDirectory -ChildPath $DscTestOutputFolder
-    }
+    $OutputDirectory = Get-SamplerAbsolutePath -Path $OutputDirectory -RelativeTo $BuildRoot
+    $DscTestOutputFolder = Get-SamplerAbsolutePath -Path $DscTestOutputFolder -RelativeTo $OutputDirectory
 
     if (-not (Test-Path -Path $DscTestOutputFolder))
     {
@@ -345,25 +370,49 @@ task Upload_DscResourceTest_Results_To_AppVeyor -If { (property BuildSystem 'unk
         $null = New-Item -Path $DscTestOutputFolder -ItemType Directory -Force -ErrorAction 'Stop'
     }
 
-    $os = if ($isWindows -or $PSVersionTable.PSVersion.Major -le 5)
+    $os = Get-OperatingSystemShortName
+
+    if ($VersionedOutputDirectory)
     {
-        'Windows'
-    }
-    elseif ($isMacOS)
-    {
-        'MacOS'
+        # VersionedOutputDirectory is not [bool]'' nor $false nor [bool]$null
+        # Assume true, wherever it was set
+        $VersionedOutputDirectory = $true
     }
     else
     {
-        'Linux'
+        # VersionedOutputDirectory may be [bool]'' but we can't tell where it's
+        # coming from, so assume the build info (Build.yaml) is right
+        $VersionedOutputDirectory = $BuildInfo['VersionedOutputDirectory']
     }
 
-    $getModuleVersionParameters = @{
-        OutputDirectory = $OutputDirectory
-        ProjectName     = $ProjectName
+    $GetBuiltModuleManifestParams = @{
+        OutputDirectory          = $OutputDirectory
+        BuiltModuleSubDirectory  = $BuiltModuleSubDirectory
+        ModuleName               = $ProjectName
+        VersionedOutputDirectory = $VersionedOutputDirectory
+        ErrorAction              = 'Stop'
     }
 
-    $ModuleVersion = Get-BuiltModuleVersion @getModuleVersionParameters
+    $builtModuleBase = Get-SamplerBuiltModuleBase @GetBuiltModuleManifestParams
+    "`tBuilt Module Base        = '$builtModuleBase'"
+
+    $builtModuleManifest = Get-SamplerBuiltModuleManifest @GetBuiltModuleManifestParams
+    "`tBuilt Module Manifest    = '$builtModuleManifest'"
+
+    $builtModuleRootScriptPath = Get-SamplerModuleRootPath -ModuleManifestPath $builtModuleManifest
+    "`tBuilt ModuleRoot script  = '$builtModuleRootScriptPath'"
+
+    $builtDscResourcesFolder = Get-SamplerAbsolutePath -Path 'DSCResources' -RelativeTo $builtModuleBase
+    "`tBuilt DSC Resource Path  = '$builtDscResourcesFolder'"
+
+    $ModuleVersion = Get-BuiltModuleVersion @GetBuiltModuleManifestParams
+    $ModuleVersionObject = Split-ModuleVersion -ModuleVersion $ModuleVersion
+    $ModuleVersionFolder = $ModuleVersionObject.Version
+    $preReleaseTag       = $ModuleVersionObject.PreReleaseString
+
+    "`tModule Version           = '$ModuleVersion'"
+    "`tModule Version Folder    = '$ModuleVersionFolder'"
+    "`tPre-release Tag          = '$preReleaseTag'"
 
     $psVersion = 'PSv.{0}' -f $PSVersionTable.PSVersion
     $DscTestOutputFileFileName = "DscResource.Test_{0}_v{1}.{2}.{3}.xml" -f $ProjectName, $ModuleVersion, $os, $psVersion

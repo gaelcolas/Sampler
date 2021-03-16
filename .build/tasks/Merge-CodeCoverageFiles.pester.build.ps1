@@ -9,6 +9,14 @@ param (
     [string]
     $OutputDirectory = (property OutputDirectory (Join-Path $BuildRoot 'output')),
 
+    [Parameter()]
+    [System.String]
+    $BuiltModuleSubdirectory = (property BuiltModuleSubdirectory ''),
+
+    [Parameter()]
+    [System.Management.Automation.SwitchParameter]
+    $VersionedOutputDirectory = (property VersionedOutputDirectory $true),
+
     # Build Configuration object
     [Parameter()]
     $BuildInfo = (property BuildInfo @{ })
@@ -16,11 +24,56 @@ param (
 
 # Synopsis: Making sure the Module meets some quality standard (help, tests).
 task Merge_CodeCoverage_Files {
-    if (!(Split-Path -isAbsolute $OutputDirectory))
+    if ([System.String]::IsNullOrEmpty($ProjectName))
     {
-        $OutputDirectory = Join-Path -Path $ProjectPath -ChildPath $OutputDirectory
-        Write-Build Yellow "Absolute path to Output Directory is $OutputDirectory"
+        $ProjectName = Get-SamplerProjectName -BuildRoot $BuildRoot
     }
+
+    if ([System.String]::IsNullOrEmpty($SourcePath))
+    {
+        $SourcePath = Get-SamplerSourcePath -BuildRoot $BuildRoot
+    }
+
+    $OutputDirectory = Get-SamplerAbsolutePath -Path $OutputDirectory -RelativeTo $BuildRoot
+
+    "`tProject Name          = '$ProjectName'"
+    "`tSource Path           = '$SourcePath'"
+    "`tOutput Directory      = '$OutputDirectory'"
+
+    if ($VersionedOutputDirectory)
+    {
+        # VersionedOutputDirectory is not [bool]'' nor $false nor [bool]$null
+        # Assume true, wherever it was set
+        $VersionedOutputDirectory = $true
+    }
+    else
+    {
+        # VersionedOutputDirectory may be [bool]'' but we can't tell where it's
+        # coming from, so assume the build info (Build.yaml) is right
+        $VersionedOutputDirectory = $BuildInfo['VersionedOutputDirectory']
+    }
+
+    $GetBuiltModuleManifestParams = @{
+        OutputDirectory          = $OutputDirectory
+        BuiltModuleSubdirectory  = $BuiltModuleSubDirectory
+        ModuleName               = $ProjectName
+        VersionedOutputDirectory = $VersionedOutputDirectory
+        ErrorAction              = 'Stop'
+    }
+
+    $builtModuleManifest = Get-SamplerBuiltModuleManifest @GetBuiltModuleManifestParams
+
+    "`tBuilt Module Manifest = '$builtModuleManifest'"
+
+    $ModuleVersion = Get-BuiltModuleVersion @GetBuiltModuleManifestParams
+    $ModuleVersionObject = Split-ModuleVersion -ModuleVersion $ModuleVersion
+    $ModuleVersionFolder = $ModuleVersionObject.Version
+    $preReleaseTag       = $ModuleVersionObject.PreReleaseString
+
+    "`tModule Version        = '$ModuleVersion'"
+    "`tModule Version Folder = '$ModuleVersionFolder'"
+    "`tPre-release Tag       = '$preReleaseTag'"
+
 
     $CodeCovOutputFile = "CodeCov_Merged.xml"
     if ($BuildInfo.ContainsKey("Pester") -eq $true -and
@@ -29,7 +82,7 @@ task Merge_CodeCoverage_Files {
         $CodeCovOutputFile = $BuildInfo.Pester.CodeCoverageMergedOutputFile
     }
 
-    $targetFile = Join-Path -Path $OutputDirectory -ChildPath $CodeCovOutputFile
+    $targetFile = Get-SamplerAbsolutePath -Path $CodeCovOutputFile -RelativeTo $OutputDirectory
 
     if (Test-Path -Path $targetFile)
     {

@@ -1,7 +1,7 @@
 param (
     [Parameter()]
     [string]
-    $BuildOutput = (property BuildOutput 'BuildOutput'),
+    $BuildOutput = (property BuildOutput 'output'),
 
     [Parameter()]
     [string]
@@ -12,25 +12,7 @@ param (
     $PesterOutputFormat = (property PesterOutputFormat 'NUnitXml'),
 
     [Parameter()]
-    [string]
-    $APPVEYOR_JOB_ID = $(try
-        {
-            property APPVEYOR_JOB_ID
-        }
-        catch
-        {
-            ''
-        }),
-
-    [Parameter()]
-    $DeploymentTags = $(try
-        {
-            property DeploymentTags
-        }
-        catch
-        {
-            ''
-        }),
+    $DeploymentTags = (property DeploymentTags ''),
 
     [Parameter()]
     $DeployConfig = (property DeployConfig 'Deploy.PSDeploy.ps1')
@@ -43,13 +25,8 @@ task Deploy_with_PSDeploy {
         $ProjectName = Get-SamplerProjectName -BuildRoot $BuildRoot
     }
 
-    if (![io.path]::IsPathRooted($BuildOutput))
-    {
-        $BuildOutput = Join-Path -Path $BuildRoot -ChildPath $BuildOutput
-    }
-
-    $DeployFile = [io.path]::Combine($BuildRoot, $DeployConfig)
-
+    $BuildOutput = Get-SamplerAbsolutePath -Path $BuildOutput -RelativeTo $BuildRoot
+    $DeployFile = Get-SamplerAbsolutePath -Path $DeployConfig -RelativeTo $BuildRoot
     "Deploying Module based on $DeployConfig config"
 
     $InvokePSDeployArgs = @{
