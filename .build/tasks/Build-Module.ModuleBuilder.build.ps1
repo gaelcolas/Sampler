@@ -167,6 +167,18 @@ Task Build_NestedModules_ModuleBuilder {
 
     $OutputDirectory = Get-SamplerAbsolutePath -Path $OutputDirectory -RelativeTo $BuildRoot
     "`tOutputDirectory       = '$OutputDirectory'"
+    if ($VersionedOutputDirectory)
+    {
+        # VersionedOutputDirectory is not [bool]'' nor $false nor [bool]$null
+        # Assume true, wherever it was set
+        $VersionedOutputDirectory = $true
+    }
+    else
+    {
+        # VersionedOutputDirectory may be [bool]'' but we can't tell where it's
+        # coming from, so assume the build info (Build.yaml) is right
+        $VersionedOutputDirectory = $BuildInfo['VersionedOutputDirectory']
+    }
 
     $GetBuiltModuleManifestParams = @{
         OutputDirectory          = $OutputDirectory
@@ -195,19 +207,6 @@ Task Build_NestedModules_ModuleBuilder {
 
     Import-Module -Name 'ModuleBuilder' -ErrorAction 'Stop'
 
-    if ($VersionedOutputDirectory)
-    {
-        # VersionedOutputDirectory is not [bool]'' nor $false nor [bool]$null
-        # Assume true, wherever it was set
-        $VersionedOutputDirectory = $true
-    }
-    else
-    {
-        # VersionedOutputDirectory may be [bool]'' but we can't tell where it's
-        # coming from, so assume the build info (Build.yaml) is right
-        $VersionedOutputDirectory = $BuildInfo['VersionedOutputDirectory']
-    }
-
     $nestedModule = $BuildInfo.NestedModule
     $nestedModulesToAdd = @()
 
@@ -220,28 +219,29 @@ Task Build_NestedModules_ModuleBuilder {
         # Either copy only or Build
         if ([System.Boolean] $cmdParam['CopyOnly'])
         {
-            Write-Debug -Message "Using parameters to copy nested module from Source to Destination"
+            Write-Build -Color 'Yellow' -Text "Copying Nested Module files for $nestedModuleName"
 
             $cmd = Get-Command -Name 'Copy-Item'
 
-            if (-not $cmdParam.ContainsKey('Path'))
+            if (-not $cmdParam.ContainsKey('Path') -and -not $cmdParam.ContainsKey('SourcePath'))
             {
                 $cmdParam['Path'] = '$SourcePath/Modules/$nestedModuleName'
+                Write-Build -Color 'DarkGray' -Text "    Default param Path is '$($cmdParam['Path'])'"
             }
 
             # Default to -Recurse unless the BuildInfo is alredy configured
             if (-not $cmdParam.ContainsKey('Recurse'))
             {
                 $cmdParam['Recurse'] = $true
+                Write-Build -Color 'DarkGray' -Text "    Default param Recurse is '$($cmdParam['Recurse'])'"
             }
 
             # Set default Destination (substitute later)
             if (-not $cmdParam.ContainsKey('Destination'))
             {
                 $cmdParam['Destination'] = '$builtModuleBase/Modules/$nestedModuleName'
+                Write-Build -Color 'DarkGray' -Text "    Default param Destination is '$($cmdParam['Destination'])'"
             }
-
-            Write-Build -Color 'Yellow' -Text "Copying Nested Module files for $nestedModuleName"
         }
         else
         {
@@ -251,11 +251,13 @@ Task Build_NestedModules_ModuleBuilder {
             if (-not $cmdParam.ContainsKey('Path') -and -not $cmdParam.ContainsKey('SourcePath'))
             {
                 $cmdParam['SourcePath'] = '$SourcePath/Modules/$nestedModuleName/$nestedModuleName.psd1'
+                Write-Build -Color 'DarkGray' -Text "    Default param SourcePath is '$($cmdParam['SourcePath'])'"
             }
 
             if (-not $cmdParam.ContainsKey('OutputDirectory') -and -not $cmdParam.ContainsKey('Destination'))
             {
                 $cmdParam['OutputDirectory'] = '$builtModuleBase/Modules/$nestedModuleName'
+                Write-Build -Color 'DarkGray' -Text "    Default param OutputDirectory is '$($cmdParam['OutputDirectory'])'"
             }
 
             Write-Build -Color 'Yellow' -Text "Building Nested Module $nestedModuleName"
@@ -267,33 +269,41 @@ Task Build_NestedModules_ModuleBuilder {
         {
             if ($paramName -eq 'SourcePath' -or $paramName -eq 'Path')
             {
-                <#
-                To support building the nestedModule without a build manifest the SourcePath must be
-                set to the path to the source nested module manifest.
-                #>
-                $nestedModuleSourceManifest = $ExecutionContext.InvokeCommand.ExpandString($cmdParam[$paramName])
-                $nestedModuleSourceManifest = Get-SamplerAbsolutePath -Path $nestedModuleSourceManifest -RelativeTo $buildRoot
-
-                # If the BuildInfo has been defined with the SourcePath folder, Append the Module Manifest
-                if (([System.io.FileInfo]$nestedModuleSourceManifest).Extension -ne '.psd1')
+                if ($cmd.Verb -eq 'Copy')
                 {
-                    $nestedModuleSourceManifest = Join-Path -Path $nestedModuleSourceManifest -ChildPath ('{0}.psd1' -f $nestedModuleName)
+                    $cmdParam[$paramName] = Join-Path -Path $ExecutionContext.InvokeCommand.ExpandString($cmdParam[$paramName]) -ChildPath '*'
+                    Write-Build -Color 'White' -Text "    The $paramName is: '$($cmdParam[$paramName])'"
                 }
+                else
+                {
+                    <#
+                        To support building the nestedModule without a build manifest the SourcePath must be
+                        set to the path to the source nested module manifest.
+                    #>
+                    $nestedModuleSourceManifest = $ExecutionContext.InvokeCommand.ExpandString($cmdParam[$paramName])
+                    $nestedModuleSourceManifest = Get-SamplerAbsolutePath -Path $nestedModuleSourceManifest -RelativeTo $buildRoot
 
-                $cmdParam[$paramName] = $nestedModuleSourceManifest
-                Write-Build -Color 'White' -Text "    The SourcePath is: $($cmdParam[$paramName])"
+                    # If the BuildInfo has been defined with the SourcePath folder, Append the Module Manifest
+                    if (([System.io.FileInfo]$nestedModuleSourceManifest).Extension -ne '.psd1')
+                    {
+                        $nestedModuleSourceManifest = Join-Path -Path $nestedModuleSourceManifest -ChildPath ('{0}.psd1' -f $nestedModuleName)
+                    }
+
+                    $cmdParam[$paramName] = $nestedModuleSourceManifest
+                    Write-Build -Color 'White' -Text "    The SourcePath is: $($cmdParam[$paramName])"
+                }
             }
             elseif ($paramName -notin @($cmd.Parameters.keys + $cmd.Parameters.values.aliases))
             {
                 # remove param not available in command
-                Write-Build -Color 'White' -Text "Removing Parameter $paramName for $($cmd.Name)"
+                Write-Build -Color 'White' -Text "    Removing Parameter $paramName for $($cmd.Name)"
 
                 $cmdParam.Remove($paramName)
             }
             elseif ($paramName -in @('Destination', 'OutputDirectory', 'SemVer'))
             {
                 # Substitute & Resolve Resolve Path to absolutes (relative assumed is $BuildRoot)
-                Write-Build -Color 'White' -Text "Resolving Absolute path for $paramName $($cmdParam[$paramName])"
+                Write-Build -Color 'White' -Text "    Resolving Absolute path for $paramName $($cmdParam[$paramName])"
 
                 $cmdParam[$paramName] = $ExecutionContext.InvokeCommand.ExpandString($cmdParam[$paramName])
 
