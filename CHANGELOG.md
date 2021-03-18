@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.109.6] - 2021-03-18
+
 ### Fixed
 
 - Fixed #247 where Building submodule would fail on linux (but not WSL).
