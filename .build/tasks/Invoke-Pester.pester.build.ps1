@@ -93,7 +93,11 @@ task Invoke_Pester_Tests {
     $builtModuleManifest = Get-SamplerBuiltModuleManifest @GetBuiltModuleManifestParams
     "`tBuilt Module Manifest    = '$builtModuleManifest'"
 
-    $builtModuleRootScriptPath = Get-SamplerModuleRootPath -ModuleManifestPath $builtModuleManifest
+    if ($builtModuleRootScriptPath = Get-SamplerModuleRootPath -ModuleManifestPath $builtModuleManifest)
+    {
+        $builtModuleRootScriptPath = (Get-Item -Path $builtModuleRootScriptPath -ErrorAction SilentlyContinue).FullName
+    }
+
     "`tBuilt ModuleRoot script  = '$builtModuleRootScriptPath'"
 
     $builtDscResourcesFolder = Get-SamplerAbsolutePath -Path 'DSCResources' -RelativeTo $builtModuleBase
@@ -489,7 +493,11 @@ task Fail_Build_If_Pester_Tests_Failed {
     $builtModuleManifest = Get-SamplerBuiltModuleManifest @GetBuiltModuleManifestParams
     "`tBuilt Module Manifest    = '$builtModuleManifest'"
 
-    $builtModuleRootScriptPath = Get-SamplerModuleRootPath -ModuleManifestPath $builtModuleManifest
+    if ($builtModuleRootScriptPath = Get-SamplerModuleRootPath -ModuleManifestPath $builtModuleManifest)
+    {
+        $builtModuleRootScriptPath = (Get-Item -Path $builtModuleRootScriptPath -ErrorAction SilentlyContinue).FullName
+    }
+
     "`tBuilt ModuleRoot script  = '$builtModuleRootScriptPath'"
 
     $builtDscResourcesFolder = Get-SamplerAbsolutePath -Path 'DSCResources' -RelativeTo $builtModuleBase
@@ -585,7 +593,11 @@ task Pester_If_Code_Coverage_Under_Threshold {
     $builtModuleManifest = Get-SamplerBuiltModuleManifest @GetBuiltModuleManifestParams
     "`tBuilt Module Manifest    = '$builtModuleManifest'"
 
-    $builtModuleRootScriptPath = Get-SamplerModuleRootPath -ModuleManifestPath $builtModuleManifest
+    if ($builtModuleRootScriptPath = Get-SamplerModuleRootPath -ModuleManifestPath $builtModuleManifest)
+    {
+        $builtModuleRootScriptPath = (Get-Item -Path $builtModuleRootScriptPath -ErrorAction SilentlyContinue).FullName
+    }
+
     "`tBuilt ModuleRoot script  = '$builtModuleRootScriptPath'"
 
     $builtDscResourcesFolder = Get-SamplerAbsolutePath -Path 'DSCResources' -RelativeTo $builtModuleBase
@@ -720,7 +732,11 @@ task Upload_Test_Results_To_AppVeyor -If { (property BuildSystem 'unknown') -eq 
     $builtModuleManifest = Get-SamplerBuiltModuleManifest @GetBuiltModuleManifestParams
     "`tBuilt Module Manifest    = '$builtModuleManifest'"
 
-    $builtModuleRootScriptPath = Get-SamplerModuleRootPath -ModuleManifestPath $builtModuleManifest
+    if ($builtModuleRootScriptPath = Get-SamplerModuleRootPath -ModuleManifestPath $builtModuleManifest)
+    {
+        $builtModuleRootScriptPath = (Get-Item -Path $builtModuleRootScriptPath -ErrorAction SilentlyContinue).FullName
+    }
+
     "`tBuilt ModuleRoot script  = '$builtModuleRootScriptPath'"
 
     $builtDscResourcesFolder = Get-SamplerAbsolutePath -Path 'DSCResources' -RelativeTo $builtModuleBase

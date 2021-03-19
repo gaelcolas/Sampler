@@ -447,8 +447,11 @@ Task Build_DscResourcesToExport_ModuleBuilder {
     $builtModuleManifest = (Get-Item -Path $builtModuleManifest).FullName
     "`tBuilt Module Manifest    = '$builtModuleManifest'"
 
-    $builtModuleRootScriptPath = Get-SamplerModuleRootPath -ModuleManifestPath $builtModuleManifest
-    $builtModuleRootScriptPath = (Get-Item -Path $builtModuleRootScriptPath).FullName
+    if ($builtModuleRootScriptPath = Get-SamplerModuleRootPath -ModuleManifestPath $builtModuleManifest)
+    {
+        $builtModuleRootScriptPath = (Get-Item -Path $builtModuleRootScriptPath -ErrorAction SilentlyContinue).FullName
+    }
+
     "`tBuilt ModuleRoot script  = '$builtModuleRootScriptPath'"
 
     $builtDscResourcesFolder = Get-SamplerAbsolutePath -Path 'DSCResources' -RelativeTo $builtModuleBase
