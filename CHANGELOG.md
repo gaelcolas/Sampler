@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.109.8] - 2021-03-20
+
 ### Fixed
 
 - Fix issue when there is no root module.
