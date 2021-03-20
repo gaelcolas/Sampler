@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix issue when there is no root module.
+- Fix to use correct path when determine class-based resources.
+
 ## [0.109.7] - 2021-03-20
 
 ### Fixed
@@ -27,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Refactored a lot of Path resolution into Sampler public function for consitency and re-usability.
 - Updated the Tasks to use those Sampler functions.
 - Updated Get-BuiltModuleVersion to support $BuiltModuleSubdirectory as per #239.
+
 ### Added
 
 - Added Get-SamplerAbsolutePath, Get-SamplerBuiltModuleBase, Get-SamplerModuleInfo,

@@ -447,12 +447,14 @@ Task Build_DscResourcesToExport_ModuleBuilder {
     $builtModuleManifest = (Get-Item -Path $builtModuleManifest).FullName
     "`tBuilt Module Manifest    = '$builtModuleManifest'"
 
-    if ($builtModuleRootScriptPath = Get-SamplerModuleRootPath -ModuleManifestPath $builtModuleManifest)
+    $builtModuleRootScriptPath = Get-SamplerModuleRootPath -ModuleManifestPath $builtModuleManifest
+
+    if ($builtModuleRootScriptPath)
     {
-        $builtModuleRootScriptPath = (Get-Item -Path $builtModuleRootScriptPath -ErrorAction SilentlyContinue).FullName
+        $builtModuleRootScriptPath = (Get-Item -Path $builtModuleRootScriptPath -ErrorAction 'SilentlyContinue').FullName
     }
 
-    "`tBuilt ModuleRoot script  = '$builtModuleRootScriptPath'"
+    "`tBuilt Module Root Script  = '$builtModuleRootScriptPath'"
 
     $builtDscResourcesFolder = Get-SamplerAbsolutePath -Path 'DSCResources' -RelativeTo $builtModuleBase
     "`tBuilt DSC Resource Path  = '$builtDscResourcesFolder'"
@@ -469,13 +471,11 @@ Task Build_DscResourcesToExport_ModuleBuilder {
     $DSCResourcesToAdd = @()
 
     #Check if there are classes based resource in psm1
-    if ($builtModuleRootScriptFile = Get-Item -Path $builtModuleRootScriptPath -ErrorAction SilentlyContinue)
+    if ((Test-Path -Path $builtModuleRootScriptPath))
     {
-        "`tBuilt Module Root Script  = '$($builtModuleRootScriptFile.FullName)'"
-
         Write-Build -Color 'Yellow' -Text "Looking in $builtModuleRootScriptPath"
 
-        $builtClassDscResourcesNames = Get-ClassBasedResourceName -Path $builtModuleRootScriptFile.FullName
+        $builtClassDscResourcesNames = Get-ClassBasedResourceName -Path $builtModuleRootScriptPath
 
         if ($builtClassDscResourcesNames)
         {
