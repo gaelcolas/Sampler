@@ -199,7 +199,7 @@ Task Build_NestedModules_ModuleBuilder {
     $moduleVersion = Get-BuiltModuleVersion @GetBuiltModuleManifestParams
     $moduleVersionObject = Split-ModuleVersion -ModuleVersion $moduleVersion
     $moduleVersionFolder = $moduleVersionObject.Version
-    $preReleaseTag       = $moduleVersionObject.PreReleaseString
+    $preReleaseTag = $moduleVersionObject.PreReleaseString
 
     "`tModule Version        = '$ModuleVersion'"
     "`tModule Version Folder = '$moduleVersionFolder'"
@@ -462,7 +462,7 @@ Task Build_DscResourcesToExport_ModuleBuilder {
     $ModuleVersion = Get-BuiltModuleVersion @GetBuiltModuleManifestParams
     $ModuleVersionObject = Split-ModuleVersion -ModuleVersion $ModuleVersion
     $ModuleVersionFolder = $ModuleVersionObject.Version
-    $preReleaseTag       = $ModuleVersionObject.PreReleaseString
+    $preReleaseTag = $ModuleVersionObject.PreReleaseString
 
     "`tModule Version           = '$ModuleVersion'"
     "`tModule Version Folder    = '$ModuleVersionFolder'"
