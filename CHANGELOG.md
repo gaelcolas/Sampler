@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fix issue when there is no root module.
-- Fix to use correct path when determine class-based resources.
+- Fix to use the correct path when determine class-based resources.
 
 ## [0.109.7] - 2021-03-20
 
