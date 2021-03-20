@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.109.7] - 2021-03-20
+
 ### Fixed
 
 - Error when the Module has no RootModule script (manifest only with DSC resources).
