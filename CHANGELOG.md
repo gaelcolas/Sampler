@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix to use the correct path when determine class-based resources.
+
 ## [0.109.8] - 2021-03-20
 
 ### Fixed
