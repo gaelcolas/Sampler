@@ -471,7 +471,7 @@ Task Build_DscResourcesToExport_ModuleBuilder {
     $DSCResourcesToAdd = @()
 
     #Check if there are classes based resource in psm1
-    if ((Test-Path -Path $builtModuleRootScriptPath))
+    if ($null -ne $builtModuleRootScriptPath -and (Test-Path -Path $builtModuleRootScriptPath))
     {
         Write-Build -Color 'Yellow' -Text "Looking in $builtModuleRootScriptPath"
 
