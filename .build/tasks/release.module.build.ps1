@@ -61,7 +61,8 @@ task Create_changelog_release_output {
     }
 
     $builtModuleManifest = Get-SamplerBuiltModuleManifest @GetBuiltModuleManifestParams
-
+    $builtModuleManifest = (Get-Item -Path $builtModuleManifest).FullName
+    
     "`tBuilt Module Manifest = '$builtModuleManifest'"
 
     $moduleVersion = Get-BuiltModuleVersion @GetBuiltModuleManifestParams
