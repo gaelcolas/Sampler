@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed issue with uncommenting release notes in module manifest
+
 ## [0.109.9] - 2021-03-20
 
 ### Fixed
