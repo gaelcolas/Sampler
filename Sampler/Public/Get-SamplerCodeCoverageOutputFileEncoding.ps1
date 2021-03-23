@@ -1,16 +1,17 @@
+
 <#
-.SYNOPSIS
-Returns the Configured encoding for Pester code coverage file from BuildInfo.
+    .SYNOPSIS
+        Returns the Configured encoding for Pester code coverage file from BuildInfo.
 
-.DESCRIPTION
-This function returns the CodeCoverageOutputFileEncoding (Pester v5+) as
-configured in the BuildInfo (build.yml).
+    .DESCRIPTION
+        This function returns the CodeCoverageOutputFileEncoding (Pester v5+) as
+        configured in the BuildInfo (build.yml).
 
-.PARAMETER BuildInfo
-Build Configuration object as defined in the Build.yml.
+    .PARAMETER BuildInfo
+        Build Configuration object as defined in the Build.yml.
 
-.EXAMPLE
-Get-SamplerCodeCoverageOutputFileEncoding -BuildInfo $buildInfo
+    .EXAMPLE
+        Get-SamplerCodeCoverageOutputFileEncoding -BuildInfo $buildInfo
 
 #>
 function Get-SamplerCodeCoverageOutputFileEncoding

@@ -1,15 +1,16 @@
+
 <#
-.SYNOPSIS
-Returns the Platform name.
+    .SYNOPSIS
+        Returns the Platform name.
 
-.DESCRIPTION
-Gets whether the platform is Windows, Linux or MacOS.
+    .DESCRIPTION
+        Gets whether the platform is Windows, Linux or MacOS.
 
-.EXAMPLE
-Get-OperatingSystemShortName # no Parameter needed
+    .EXAMPLE
+        Get-OperatingSystemShortName # no Parameter needed
 
-.NOTES
-General notes
+    .NOTES
+        General notes
 #>
 function Get-OperatingSystemShortName
 {

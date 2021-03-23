@@ -1,28 +1,29 @@
+
 <#
-.SYNOPSIS
-Merge two JaCoCoReports into one.
+    .SYNOPSIS
+        Merge two JaCoCoReports into one.
 
-.DESCRIPTION
-When you run tests independently for the same module, you may want to
-get a unified report of all the code paths that were tested.
-For instance, you want to get a unified report when the runs
-where done on Linux and Windows.
+    .DESCRIPTION
+        When you run tests independently for the same module, you may want to
+        get a unified report of all the code paths that were tested.
+        For instance, you want to get a unified report when the runs
+        where done on Linux and Windows.
 
-This function helps merge the results of two runs into one file.
-If you have more than two reports, keep merging them.
+        This function helps merge the results of two runs into one file.
+        If you have more than two reports, keep merging them.
 
-.PARAMETER OriginalDocument
-One of the JaCoCoReports you would like to merge.
+    .PARAMETER OriginalDocument
+        One of the JaCoCoReports you would like to merge.
 
-.PARAMETER MergeDocument
-Second JaCoCoReports you would like to merge with the other one.
+    .PARAMETER MergeDocument
+        Second JaCoCoReports you would like to merge with the other one.
 
-.EXAMPLE
-Merge-JaCoCoReport -OriginalDocument 'C:\src\MyModule\Output\JaCoCoRun_linux.xml' -MergeDocument 'C:\src\MyModule\Output\JaCoCoRun_windows.xml'
+    .EXAMPLE
+        Merge-JaCoCoReport -OriginalDocument 'C:\src\MyModule\Output\JaCoCoRun_linux.xml' -MergeDocument 'C:\src\MyModule\Output\JaCoCoRun_windows.xml'
 
-.NOTES
-See also Update-JaCoCoStatistic
-Thanks to Yorick (@ykuijs) for this great feature!
+    .NOTES
+        See also Update-JaCoCoStatistic
+        Thanks to Yorick (@ykuijs) for this great feature!
 #>
 function Merge-JaCoCoReport
 {

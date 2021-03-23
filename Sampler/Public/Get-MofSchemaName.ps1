@@ -1,16 +1,17 @@
+
 <#
-.SYNOPSIS
-Gets the Name and Friendly Name of MOF-Based resources from their Schemas.
+    .SYNOPSIS
+        Gets the Name and Friendly Name of MOF-Based resources from their Schemas.
 
-.DESCRIPTION
-This function looks within a DSC resource's .MOF schema to find the name and
-friendly name of the class.
+    .DESCRIPTION
+        This function looks within a DSC resource's .MOF schema to find the name and
+        friendly name of the class.
 
-.PARAMETER Path
-Path to the DSC Resource Schema MOF.
+    .PARAMETER Path
+        Path to the DSC Resource Schema MOF.
 
-.EXAMPLE
-Get-MofSchemaName -Path Source/DSCResources/MyResource/MyResource.schema.mof
+    .EXAMPLE
+        Get-MofSchemaName -Path Source/DSCResources/MyResource/MyResource.schema.mof
 
 #>
 function Get-MofSchemaName

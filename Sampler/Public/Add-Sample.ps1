@@ -1,34 +1,35 @@
+
 <#
-.SYNOPSIS
-Adding code elements (function, enum, class, DSC Resource, tests...) to a module's source.
+    .SYNOPSIS
+        Adding code elements (function, enum, class, DSC Resource, tests...) to a module's source.
 
-.DESCRIPTION
-Add-Sample is an helper function to invoke a plaster template built-in the Sampler module.
-With this function you can bootstrap your module project by adding classes, functions and
-associated tests, examples and configuration elements.
+    .DESCRIPTION
+        Add-Sample is an helper function to invoke a plaster template built-in the Sampler module.
+        With this function you can bootstrap your module project by adding classes, functions and
+        associated tests, examples and configuration elements.
 
-.PARAMETER Sample
-Specifies a sample component based on the Plaster templates embedded with this module.
-The available types of module elements are:
-    - Classes: A sample of 4 classes with inheritence and how to manage the orders to avoid parsing errors.
-    - ClassResource: A Class-Based DSC Resources showing some best practices including tests, Reasons, localized strings.
-    - Composite: A DSC Composite Resource (a configuration block) packaged the right way to make sure it's visible by Get-DscResource.
-    - Enum: An example of a simple Enum.
-    - MofResource: A sample of a MOF-Based DSC Resource following the DSC Community practices.
-    - PrivateFunction: A sample of a Private function (not exported from the module) and its test.
-    - PublicCallPrivateFunctions: A sample of 2 functions where the exported one (public) calls the private one, with the tests.
-    - PublicFunction: A sample public function and its test.
+    .PARAMETER Sample
+        Specifies a sample component based on the Plaster templates embedded with this module.
+        The available types of module elements are:
+            - Classes: A sample of 4 classes with inheritence and how to manage the orders to avoid parsing errors.
+            - ClassResource: A Class-Based DSC Resources showing some best practices including tests, Reasons, localized strings.
+            - Composite: A DSC Composite Resource (a configuration block) packaged the right way to make sure it's visible by Get-DscResource.
+            - Enum: An example of a simple Enum.
+            - MofResource: A sample of a MOF-Based DSC Resource following the DSC Community practices.
+            - PrivateFunction: A sample of a Private function (not exported from the module) and its test.
+            - PublicCallPrivateFunctions: A sample of 2 functions where the exported one (public) calls the private one, with the tests.
+            - PublicFunction: A sample public function and its test.
 
-.PARAMETER DestinationPath
-Destination of your module source root folder, defaults to the current directory ".".
-We assume that your current location is the module folder, and within this folder we
-will find the source folder, the tests folder and other supporting files.
+    .PARAMETER DestinationPath
+        Destination of your module source root folder, defaults to the current directory ".".
+        We assume that your current location is the module folder, and within this folder we
+        will find the source folder, the tests folder and other supporting files.
 
-.EXAMPLE
-C:\src\MyModule> Add-Sample -Sample PublicFunction -PublicFunctionName Get-MyStuff
+    .EXAMPLE
+        C:\src\MyModule> Add-Sample -Sample PublicFunction -PublicFunctionName Get-MyStuff
 
-.NOTES
-This module requires and uses Plaster.
+    .NOTES
+        This module requires and uses Plaster.
 #>
 function Add-Sample
 {

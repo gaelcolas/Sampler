@@ -1,3 +1,4 @@
+
 <#
     .SYNOPSIS
         Gets the absolute value of a path, that can be relative to another folder
