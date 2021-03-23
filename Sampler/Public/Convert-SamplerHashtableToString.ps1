@@ -1,23 +1,24 @@
+
 <#
-.SYNOPSIS
-Converts an Hashtable to its string representation, recursively.
+    .SYNOPSIS
+        Converts an Hashtable to its string representation, recursively.
 
-.DESCRIPTION
-Convert an Hashtable to a string representation.
-For instance, this hashtable:
-  @{a=1;b=2; c=3; d=@{dd='abcd'}}
-Becomes:
-  a=1; b=2; c=3; d={dd=abcd}
+    .DESCRIPTION
+        Convert an Hashtable to a string representation.
+        For instance, this hashtable:
+        @{a=1;b=2; c=3; d=@{dd='abcd'}}
+        Becomes:
+        a=1; b=2; c=3; d={dd=abcd}
 
-.PARAMETER Hashtable
-Hashtable to convert to string.
+    .PARAMETER Hashtable
+        Hashtable to convert to string.
 
-.EXAMPLE
-Convert-SamplerhashtableToString -Hashtable @{a=1;b=2; c=3; d=@{dd='abcd'}}
+    .EXAMPLE
+        Convert-SamplerhashtableToString -Hashtable @{a=1;b=2; c=3; d=@{dd='abcd'}}
 
-.NOTES
-This command is not specific to Sampler projects, but is named that way
-to avoid conflict with other modules.
+    .NOTES
+        This command is not specific to Sampler projects, but is named that way
+        to avoid conflict with other modules.
 #>
 function Convert-SamplerHashtableToString
 {

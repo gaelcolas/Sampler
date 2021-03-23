@@ -1,34 +1,35 @@
+
 <#
-.SYNOPSIS
-Update the Statistics of a freshly merged JaCoCoReports.
+    .SYNOPSIS
+        Update the Statistics of a freshly merged JaCoCoReports.
 
-.DESCRIPTION
-When you merge two or several JaCoCoReports together
-using the Merge-JaCoCoReport, the calculated statistics
-of the Original document are not updated.
+    .DESCRIPTION
+        When you merge two or several JaCoCoReports together
+        using the Merge-JaCoCoReport, the calculated statistics
+        of the Original document are not updated.
 
-This Command will re-calculate the JaCoCo statistics and
-update the Document.
+        This Command will re-calculate the JaCoCo statistics and
+        update the Document.
 
-For the Package, Class, Method of all source files and the total it will update:
-- the Instruction Covered
-- the Instruction Missed
-- the Line Covered
-- the Line Missed
-- the Method Covered
-- the Method Missed
-- the Class Covered
-- the Class Missed
+        For the Package, Class, Method of all source files and the total it will update:
+        - the Instruction Covered
+        - the Instruction Missed
+        - the Line Covered
+        - the Line Missed
+        - the Method Covered
+        - the Method Missed
+        - the Class Covered
+        - the Class Missed
 
-.PARAMETER Document
-JaCoCo report XML document that needs its statistics recalculated.
+    .PARAMETER Document
+        JaCoCo report XML document that needs its statistics recalculated.
 
-.EXAMPLE
-Update-JaCoCoStatistic -Document (Merge-JaCoCoReport $file1 $file2)
+    .EXAMPLE
+        Update-JaCoCoStatistic -Document (Merge-JaCoCoReport $file1 $file2)
 
-.NOTES
-See also Merge-JaCoCoReport
-Thanks to Yorick (@ykuijs) for this great feature!
+    .NOTES
+        See also Merge-JaCoCoReport
+        Thanks to Yorick (@ykuijs) for this great feature!
 #>
 function Update-JaCoCoStatistic
 {
