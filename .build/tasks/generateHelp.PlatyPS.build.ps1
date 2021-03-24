@@ -47,7 +47,7 @@ param
 )
 
 # Synopsis: Generate MAML from the built module (and add to module Base).
-Task Generate_maml_from_built_module {
+Task Generate_MAML_from_built_module {
     if ([System.String]::IsNullOrEmpty($ProjectName))
     {
         $ProjectName = Get-SamplerProjectName -BuildRoot $BuildRoot
@@ -176,7 +176,7 @@ Task Generate_maml_from_built_module {
 }
 
 # Synopsis: Generate (if absent) or Update the Markdown help source files for each locale folder (i.e. docs/en-US).
-Task update_markdown_help_source {
+Task Update_markdown_help_source {
     if ([System.String]::IsNullOrEmpty($ProjectName))
     {
         $ProjectName = Get-SamplerProjectName -BuildRoot $BuildRoot
@@ -297,7 +297,7 @@ Task update_markdown_help_source {
 }
 
 # Synopsis: Generates the MAML for each Locale found under the Help source folder (i.e. docs/en-US).
-Task Generate_MAML_From_Markdown_help_source {
+Task Generate_MAML_from_markdown_help_source {
     if ([System.String]::IsNullOrEmpty($ProjectName))
     {
         $ProjectName = Get-SamplerProjectName -BuildRoot $BuildRoot
