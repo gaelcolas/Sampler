@@ -38,7 +38,7 @@ param
 
     [Parameter()]
     [System.Management.Automation.SwitchParameter]
-    $CopyHelpMamlToBuiltModuleBase = (property CopyHelpMamlToBuiltModuleBase $True),
+    $CopyHelpMamlToBuiltModuleBase = (property CopyHelpMamlToBuiltModuleBase $true),
 
     # Build Configuration object
     [Parameter()]
