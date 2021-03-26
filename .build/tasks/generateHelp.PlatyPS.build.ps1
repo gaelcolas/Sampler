@@ -18,7 +18,7 @@ param
 
     [Parameter()]
     [System.String]
-    $BuildOutput = (property BuildOutput 'output'),
+    $OutputDirectory = (property OutputDirectory 'output'),
 
     [Parameter()]
     [System.String]
@@ -46,32 +46,34 @@ param
     $BuildInfo = (property BuildInfo @{ })
 )
 
-# Synopsis: Generate MAML from the built module (and add to module Base).
-Task Generate_MAML_from_built_module {
-    if ([System.String]::IsNullOrEmpty($ProjectName))
+function Get-GenerateHelpPlatyPSVariables
+{
+    param ()
+
+    if ([string]::IsNullOrEmpty($ProjectName))
     {
-        $ProjectName = Get-SamplerProjectName -BuildRoot $BuildRoot
+        $script:ProjectName = Get-SamplerProjectName -BuildRoot $BuildRoot
     }
 
-    if ([System.String]::IsNullOrEmpty($SourcePath))
+    if ([string]::IsNullOrEmpty($SourcePath))
     {
-        $SourcePath = Get-SamplerSourcePath -BuildRoot $BuildRoot
+        $script:SourcePath = (Get-SamplerSourcePath -BuildRoot $BuildRoot)
     }
 
-    $ProjectPath = Get-SamplerAbsolutePath -Path $ProjectPath -RelativeTo $BuildRoot
-    $OutputDirectory = Get-SamplerAbsolutePath -Path $OutputDirectory -RelativeTo $BuildRoot
-    $PesterOutputFolder = Get-SamplerAbsolutePath -Path $PesterOutputFolder -RelativeTo $OutputDirectory
+    $script:ProjectPath = Get-SamplerAbsolutePath -Path $ProjectPath -RelativeTo $BuildRoot
+    $script:OutputDirectory = Get-SamplerAbsolutePath -Path $OutputDirectory -RelativeTo $BuildRoot
+    $script:PesterOutputFolder = Get-SamplerAbsolutePath -Path $PesterOutputFolder -RelativeTo $OutputDirectory
 
-    "`tProject Name             = '$ProjectName'"
-    "`tProject Path             = '$ProjectPath'"
-    "`tOutput Directory         = '$OutputDirectory'"
-    "`tPester Output Folder     = '$PesterOutputFolder"
+    "`tProject Name               = '$ProjectName'"
+    "`tProject Path               = '$ProjectPath'"
+    "`tOutput Directory           = '$OutputDirectory'"
+    "`tPester Output Folder       = '$PesterOutputFolder"
 
     if ($VersionedOutputDirectory)
     {
         # VersionedOutputDirectory is not [bool]'' nor $false nor [bool]$null
         # Assume true, wherever it was set
-        $VersionedOutputDirectory = $true
+        $null = [bool]::TryParse($VersionedOutputDirectory, [ref]$script:VersionedOutputDirectory)
     }
     else
     {
@@ -88,55 +90,69 @@ Task Generate_MAML_from_built_module {
         ErrorAction              = 'Stop'
     }
 
-    $builtModuleBase = Get-SamplerBuiltModuleBase @GetBuiltModuleManifestParams
+    $script:builtModuleBase = Get-SamplerBuiltModuleBase @GetBuiltModuleManifestParams
     if ($builtModuleBase)
     {
-        $builtModuleBase = Get-Item -Path $builtModuleBase -ErrorAction 'SilentlyContinue'
+        $script:builtModuleBase = Get-Item -Path $builtModuleBase -ErrorAction 'SilentlyContinue'
     }
 
-    "`tBuilt Module Base        = '$builtModuleBase'"
+    "`tBuilt Module Base          = '$builtModuleBase'"
 
-    $builtModuleManifest = Get-SamplerBuiltModuleManifest @GetBuiltModuleManifestParams
+    $script:builtModuleManifest = Get-SamplerBuiltModuleManifest @GetBuiltModuleManifestParams
     if ($builtModuleManifest)
     {
-        $builtModuleManifest = Get-Item -Path $builtModuleManifest -ErrorAction 'SilentlyContinue'
+        $script:builtModuleManifest = Get-Item -Path $builtModuleManifest -ErrorAction 'SilentlyContinue'
     }
 
-    "`tBuilt Module Manifest    = '$builtModuleManifest'"
+    "`tBuilt Module Manifest      = '$builtModuleManifest'"
 
-    if ($builtModuleRootScriptPath = Get-SamplerModuleRootPath -ModuleManifestPath $builtModuleManifest)
+    if ($builtModuleManifest -and ($script:builtModuleRootScriptPath = Get-SamplerModuleRootPath -ModuleManifestPath $builtModuleManifest))
     {
-        $builtModuleRootScriptPath = (Get-Item -Path $builtModuleRootScriptPath -ErrorAction SilentlyContinue).FullName
+        $script:builtModuleRootScriptPath = (Get-Item -Path $builtModuleRootScriptPath -ErrorAction SilentlyContinue).FullName
     }
 
-    "`tBuilt ModuleRoot script  = '$builtModuleRootScriptPath'"
+    "`tBuilt ModuleRoot script    = '$builtModuleRootScriptPath'"
 
-    $ModuleVersion = Get-BuiltModuleVersion @GetBuiltModuleManifestParams
-    $ModuleVersionObject = Split-ModuleVersion -ModuleVersion $ModuleVersion
-    $ModuleVersionFolder = $ModuleVersionObject.Version
-    $preReleaseTag       = $ModuleVersionObject.PreReleaseString
+    if ($builtModuleManifest)
+    {
+        $script:ModuleVersion = Get-BuiltModuleVersion @GetBuiltModuleManifestParams
+        $script:ModuleVersionObject = Split-ModuleVersion -ModuleVersion $ModuleVersion
+        $script:ModuleVersionFolder = $ModuleVersionObject.Version
+        $script:preReleaseTag       = $ModuleVersionObject.PreReleaseString
+    }
 
-    "`tModule Version           = '$ModuleVersion'"
-    "`tModule Version Folder    = '$ModuleVersionFolder'"
-    "`tPre-release Tag          = '$preReleaseTag'"
+    "`tModule Version             = '$ModuleVersion'"
+    "`tModule Version Folder      = '$ModuleVersionFolder'"
+    "`tPre-release Tag            = '$preReleaseTag'"
 
-    $HelpSourceFolder = Get-SamplerAbsolutePath -Path $HelpSourceFolder -RelativeTo $ProjectPath
-    "`tHelp Folder Path         = '$HelpSourceFolder'"
+    $script:HelpSourceFolder = Get-SamplerAbsolutePath -Path $HelpSourceFolder -RelativeTo $ProjectPath
+    "`tHelp Source Folder         = '$HelpSourceFolder'"
 
-    $HelpOutputFolder =  Get-SamplerAbsolutePath -Path $HelpOutputFolder -RelativeTo $OutputDirectory
-    "`tHelp output Folder        = '$HelpOutputFolder'"
+    $script:HelpOutputFolder =  Get-SamplerAbsolutePath -Path $HelpOutputFolder -RelativeTo $OutputDirectory
+    "`tHelp output Folder         = '$HelpOutputFolder'"
 
-    $HelpOutputVersionFolder = Get-SamplerAbsolutePath -Path $ModuleVersion -RelativeTo $HelpOutputFolder
-    "`tHelp output Version Folder= '$HelpOutputVersionFolder'"
+    if ($ModuleVersion)
+    {
+        $script:HelpOutputVersionFolder = Get-SamplerAbsolutePath -Path $ModuleVersion -RelativeTo $HelpOutputFolder
+    }
 
-    $HelpOutputCultureFolder = Get-SamplerAbsolutePath -Path $HelpCultureInfo -RelativeTo $HelpOutputVersionFolder
-    "`tHelp output Culture path  = '$HelpOutputCultureFolder'"
+    "`tHelp output Version Folder = '$HelpOutputVersionFolder'"
 
-    $DocOutputFolder = Get-SamplerAbsolutePath -Path 'docs' -RelativeTo $OutputDirectory
-    "`tDocs output folder path   = '$DocOutputFolder'"
+    $script:HelpOutputCultureFolder = Get-SamplerAbsolutePath -Path $HelpCultureInfo -RelativeTo $HelpOutputVersionFolder
+    "`tHelp output Culture path   = '$HelpOutputCultureFolder'"
 
-    $null = [bool]::TryParse($CopyHelpMamlToBuiltModuleBase, [ref]$CopyHelpMamlToBuiltModuleBase)
-    "`Copy MAML to Built Module  = '$CopyHelpMamlToBuiltModuleBase'"
+    $script:DocOutputFolder = Get-SamplerAbsolutePath -Path 'docs' -RelativeTo $OutputDirectory
+    "`tDocs output folder path    = '$DocOutputFolder'"
+
+    $null = [bool]::TryParse($CopyHelpMamlToBuiltModuleBase, [ref]$script:CopyHelpMamlToBuiltModuleBase)
+    "`tCopy MAML to Built Module  = '$CopyHelpMamlToBuiltModuleBase'"
+}
+
+
+# Synopsis: Generate MAML from the built module (and add to module Base).
+Task Generate_MAML_from_built_module {
+
+    Get-GenerateHelpPlatyPSVariables
 
     $AlphabeticParamOrder = $true
     $WithModulePage = $true
@@ -177,71 +193,8 @@ Task Generate_MAML_from_built_module {
 
 # Synopsis: Generate (if absent) or Update the Markdown help source files for each locale folder (i.e. docs/en-US).
 Task Update_markdown_help_source {
-    if ([System.String]::IsNullOrEmpty($ProjectName))
-    {
-        $ProjectName = Get-SamplerProjectName -BuildRoot $BuildRoot
-    }
 
-    if ([System.String]::IsNullOrEmpty($SourcePath))
-    {
-        $SourcePath = Get-SamplerSourcePath -BuildRoot $BuildRoot
-    }
-
-    $ProjectPath = Get-SamplerAbsolutePath -Path $ProjectPath -RelativeTo $BuildRoot
-    $OutputDirectory = Get-SamplerAbsolutePath -Path $OutputDirectory -RelativeTo $BuildRoot
-    $PesterOutputFolder = Get-SamplerAbsolutePath -Path $PesterOutputFolder -RelativeTo $OutputDirectory
-
-    "`tProject Name             = '$ProjectName'"
-    "`tProject Path             = '$ProjectPath'"
-    "`tOutput Directory         = '$OutputDirectory'"
-    "`tPester Output Folder     = '$PesterOutputFolder"
-
-    if ($VersionedOutputDirectory)
-    {
-        # VersionedOutputDirectory is not [bool]'' nor $false nor [bool]$null
-        # Assume true, wherever it was set
-        $VersionedOutputDirectory = $true
-    }
-    else
-    {
-        # VersionedOutputDirectory may be [bool]'' but we can't tell where it's
-        # coming from, so assume the build info (Build.yaml) is right
-        $VersionedOutputDirectory = $BuildInfo['VersionedOutputDirectory']
-    }
-
-    $GetBuiltModuleManifestParams = @{
-        OutputDirectory          = $OutputDirectory
-        BuiltModuleSubDirectory  = $BuiltModuleSubDirectory
-        ModuleName               = $ProjectName
-        VersionedOutputDirectory = $VersionedOutputDirectory
-        ErrorAction              = 'Stop'
-    }
-
-    $builtModuleBase = Get-SamplerBuiltModuleBase @GetBuiltModuleManifestParams
-    "`tBuilt Module Base        = '$builtModuleBase'"
-
-    $builtModuleManifest = Get-SamplerBuiltModuleManifest @GetBuiltModuleManifestParams
-    "`tBuilt Module Manifest    = '$builtModuleManifest'"
-
-    if ($builtModuleRootScriptPath = Get-SamplerModuleRootPath -ModuleManifestPath $builtModuleManifest)
-    {
-        $builtModuleRootScriptPath = (Get-Item -Path $builtModuleRootScriptPath -ErrorAction SilentlyContinue).FullName
-    }
-
-    "`tBuilt ModuleRoot script  = '$builtModuleRootScriptPath'"
-
-    $ModuleVersion = Get-BuiltModuleVersion @GetBuiltModuleManifestParams
-    $ModuleVersionObject = Split-ModuleVersion -ModuleVersion $ModuleVersion
-    $ModuleVersionFolder = $ModuleVersionObject.Version
-    $preReleaseTag       = $ModuleVersionObject.PreReleaseString
-
-    "`tModule Version           = '$ModuleVersion'"
-    "`tModule Version Folder    = '$ModuleVersionFolder'"
-    "`tPre-release Tag          = '$preReleaseTag'"
-
-    $HelpSourceFolder = Get-SamplerAbsolutePath -Path $HelpSourceFolder -RelativeTo $ProjectPath
-    "`tHelp Folder Path         = '$HelpSourceFolder'"
-
+    Get-GenerateHelpPlatyPSVariables
     $existingLocaleFolders = (Get-ChildItem -Path $HelpSourceFolder -Directory -ErrorAction 'SilentlyContinue').Name
 
     if ($existingLocaleFolders.count -le 0)
@@ -298,89 +251,8 @@ Task Update_markdown_help_source {
 
 # Synopsis: Generates the MAML for each Locale found under the Help source folder (i.e. docs/en-US).
 Task Generate_MAML_from_markdown_help_source {
-    if ([System.String]::IsNullOrEmpty($ProjectName))
-    {
-        $ProjectName = Get-SamplerProjectName -BuildRoot $BuildRoot
-    }
 
-    if ([System.String]::IsNullOrEmpty($SourcePath))
-    {
-        $SourcePath = Get-SamplerSourcePath -BuildRoot $BuildRoot
-    }
-
-    $ProjectPath = Get-SamplerAbsolutePath -Path $ProjectPath -RelativeTo $BuildRoot
-    $OutputDirectory = Get-SamplerAbsolutePath -Path $OutputDirectory -RelativeTo $BuildRoot
-    $PesterOutputFolder = Get-SamplerAbsolutePath -Path $PesterOutputFolder -RelativeTo $OutputDirectory
-
-    "`tProject Name             = '$ProjectName'"
-    "`tProject Path             = '$ProjectPath'"
-    "`tOutput Directory         = '$OutputDirectory'"
-    "`tPester Output Folder     = '$PesterOutputFolder"
-
-    if ($VersionedOutputDirectory)
-    {
-        # VersionedOutputDirectory is not [bool]'' nor $false nor [bool]$null
-        # Assume true, wherever it was set
-        $VersionedOutputDirectory = $true
-    }
-    else
-    {
-        # VersionedOutputDirectory may be [bool]'' but we can't tell where it's
-        # coming from, so assume the build info (Build.yaml) is right
-        $VersionedOutputDirectory = $BuildInfo['VersionedOutputDirectory']
-    }
-
-    $GetBuiltModuleManifestParams = @{
-        OutputDirectory          = $OutputDirectory
-        BuiltModuleSubDirectory  = $BuiltModuleSubDirectory
-        ModuleName               = $ProjectName
-        VersionedOutputDirectory = $VersionedOutputDirectory
-        ErrorAction              = 'Stop'
-    }
-
-    $builtModuleBase = Get-SamplerBuiltModuleBase @GetBuiltModuleManifestParams
-    if ($builtModuleBase)
-    {
-        $builtModuleBase = Get-Item -Path $builtModuleBase -ErrorAction 'SilentlyContinue'
-    }
-
-    "`tBuilt Module Base        = '$builtModuleBase'"
-
-    $builtModuleManifest = Get-SamplerBuiltModuleManifest @GetBuiltModuleManifestParams
-    if ($builtModuleManifest)
-    {
-        $builtModuleManifest = Get-Item -Path $builtModuleManifest -ErrorAction 'SilentlyContinue'
-    }
-
-    "`tBuilt Module Manifest    = '$builtModuleManifest'"
-
-    if ($builtModuleRootScriptPath = Get-SamplerModuleRootPath -ModuleManifestPath $builtModuleManifest)
-    {
-        $builtModuleRootScriptPath = (Get-Item -Path $builtModuleRootScriptPath -ErrorAction SilentlyContinue).FullName
-    }
-
-    "`tBuilt ModuleRoot script  = '$builtModuleRootScriptPath'"
-
-    $ModuleVersion = Get-BuiltModuleVersion @GetBuiltModuleManifestParams
-    $ModuleVersionObject = Split-ModuleVersion -ModuleVersion $ModuleVersion
-    $ModuleVersionFolder = $ModuleVersionObject.Version
-    $preReleaseTag       = $ModuleVersionObject.PreReleaseString
-
-    "`tModule Version           = '$ModuleVersion'"
-    "`tModule Version Folder    = '$ModuleVersionFolder'"
-    "`tPre-release Tag          = '$preReleaseTag'"
-
-    $HelpSourceFolder = Get-SamplerAbsolutePath -Path $HelpSourceFolder -RelativeTo $ProjectPath
-    "`tHelp Folder Path         = '$HelpSourceFolder'"
-
-    $HelpOutputFolder =  Get-SamplerAbsolutePath -Path $HelpOutputFolder -RelativeTo $OutputDirectory
-    "`tHelp output Folder        = '$HelpOutputFolder'"
-
-    $HelpOutputVersionFolder = Get-SamplerAbsolutePath -Path $ModuleVersion -RelativeTo $HelpOutputFolder
-    "`tHelp output Version Folder= '$HelpOutputVersionFolder'"
-
-    $null = [bool]::TryParse($CopyHelpMamlToBuiltModuleBase, [ref]$CopyHelpMamlToBuiltModuleBase)
-    "`Copy MAML to Built Module  = '$CopyHelpMamlToBuiltModuleBase'"
+    Get-GenerateHelpPlatyPSVariables
 
     $existingLocaleFolders = (Get-ChildItem -Path $HelpSourceFolder -Directory -ErrorAction 'SilentlyContinue').Name
 
