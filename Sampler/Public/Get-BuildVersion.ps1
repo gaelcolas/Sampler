@@ -1,21 +1,22 @@
+
 <#
-.SYNOPSIS
-Calculates or retrieves the version of the Repository.
+    .SYNOPSIS
+        Calculates or retrieves the version of the Repository.
 
-.DESCRIPTION
-Attempts to retrieve the version associated with the repository or the module within
-the repository.
-If the Version is not provided, the preferred way is to use GitVersion if available,
-but alternatively it will locate a module manifest in the source folder and read its version.
+    .DESCRIPTION
+        Attempts to retrieve the version associated with the repository or the module within
+        the repository.
+        If the Version is not provided, the preferred way is to use GitVersion if available,
+        but alternatively it will locate a module manifest in the source folder and read its version.
 
-.PARAMETER ModuleManifestPath
-Path to the Module Manifest that should determine the version if GitVersion is not available.
+    .PARAMETER ModuleManifestPath
+        Path to the Module Manifest that should determine the version if GitVersion is not available.
 
-.PARAMETER ModuleVersion
-Provide the Version to be splitted and do not rely on GitVersion or the Module's manifest.
+    .PARAMETER ModuleVersion
+        Provide the Version to be splitted and do not rely on GitVersion or the Module's manifest.
 
-.EXAMPLE
-Get-BuildVersion -ModuleManifestPath source\MyModule.psd1
+    .EXAMPLE
+        Get-BuildVersion -ModuleManifestPath source\MyModule.psd1
 
 #>
 function Get-BuildVersion

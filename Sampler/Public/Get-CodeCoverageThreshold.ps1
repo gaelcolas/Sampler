@@ -1,19 +1,20 @@
+
 <#
-.SYNOPSIS
-Gets the CodeCoverageThreshod from Runtime parameter or from BuildInfo.
+    .SYNOPSIS
+        Gets the CodeCoverageThreshod from Runtime parameter or from BuildInfo.
 
-.DESCRIPTION
-This function will override the CodeCoverageThreshold by the value
- provided at runtime if any.
+    .DESCRIPTION
+        This function will override the CodeCoverageThreshold by the value
+        provided at runtime if any.
 
-.PARAMETER RuntimeCodeCoverageThreshold
-Runtime value for the Pester CodeCoverageThreshold (can be $null).
+    .PARAMETER RuntimeCodeCoverageThreshold
+        Runtime value for the Pester CodeCoverageThreshold (can be $null).
 
-.PARAMETER BuildInfo
-BuildInfo object as defined by the Build.yml.
+    .PARAMETER BuildInfo
+        BuildInfo object as defined by the Build.yml.
 
-.EXAMPLE
-Get-CodeCoverageThreshold -RuntimeCodeCoverageThreshold 0
+    .EXAMPLE
+        Get-CodeCoverageThreshold -RuntimeCodeCoverageThreshold 0
 
 #>
 function Get-CodeCoverageThreshold

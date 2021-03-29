@@ -1,20 +1,21 @@
+
 <#
-.SYNOPSIS
-Gets the path to the Module manifest in the source folder.
+    .SYNOPSIS
+        Gets the path to the Module manifest in the source folder.
 
-.DESCRIPTION
-This command finds the Module Manifest of the current Sampler project,
-regardless of the name of the source folder (src, source, or MyProjectName).
-It looks for psd1 that are not build.psd1 or analyzersettings, 1 folder under
-the $BuildRoot, and where a property ModuleVersion is set.
+    .DESCRIPTION
+        This command finds the Module Manifest of the current Sampler project,
+        regardless of the name of the source folder (src, source, or MyProjectName).
+        It looks for psd1 that are not build.psd1 or analyzersettings, 1 folder under
+        the $BuildRoot, and where a property ModuleVersion is set.
 
-This allows to deduct the Module name's from that module Manifest.
+        This allows to deduct the Module name's from that module Manifest.
 
-.PARAMETER BuildRoot
-Root folder where the build is called, usually the root of the repository.
+    .PARAMETER BuildRoot
+        Root folder where the build is called, usually the root of the repository.
 
-.EXAMPLE
-Get-SamplerProjectModuleManifest -BuildRoot .
+    .EXAMPLE
+        Get-SamplerProjectModuleManifest -BuildRoot .
 
 #>
 function Get-SamplerProjectModuleManifest
