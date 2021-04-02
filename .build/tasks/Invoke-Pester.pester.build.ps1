@@ -106,7 +106,7 @@ task Invoke_Pester_Tests {
     $ModuleVersion = Get-BuiltModuleVersion @GetBuiltModuleManifestParams
     $ModuleVersionObject = Split-ModuleVersion -ModuleVersion $ModuleVersion
     $ModuleVersionFolder = $ModuleVersionObject.Version
-    $preReleaseTag       = $ModuleVersionObject.PreReleaseString
+    $preReleaseTag = $ModuleVersionObject.PreReleaseString
 
     "`tModule Version           = '$ModuleVersion'"
     "`tModule Version Folder    = '$ModuleVersionFolder'"
@@ -243,9 +243,9 @@ task Invoke_Pester_Tests {
     $powerShellVersion = 'PSv.{0}' -f $PSVersionTable.PSVersion
 
     $getPesterOutputFileFileNameParameters = @{
-        ProjectName = $ProjectName
-        ModuleVersion = $ModuleVersion
-        OsShortName = $osShortName
+        ProjectName       = $ProjectName
+        ModuleVersion     = $ModuleVersion
+        OsShortName       = $osShortName
         PowerShellVersion = $powerShellVersion
     }
 
@@ -287,7 +287,7 @@ task Invoke_Pester_Tests {
     }
 
     $getCodeCoverageOutputFile = @{
-        BuildInfo = $BuildInfo
+        BuildInfo          = $BuildInfo
         PesterOutputFolder = $PesterOutputFolder
     }
 
@@ -506,7 +506,7 @@ task Fail_Build_If_Pester_Tests_Failed {
     $ModuleVersion = Get-BuiltModuleVersion @GetBuiltModuleManifestParams
     $ModuleVersionObject = Split-ModuleVersion -ModuleVersion $ModuleVersion
     $ModuleVersionFolder = $ModuleVersionObject.Version
-    $preReleaseTag       = $ModuleVersionObject.PreReleaseString
+    $preReleaseTag = $ModuleVersionObject.PreReleaseString
 
     "`tModule Version           = '$ModuleVersion'"
     "`tModule Version Folder    = '$ModuleVersionFolder'"
@@ -606,7 +606,7 @@ task Pester_If_Code_Coverage_Under_Threshold {
     $ModuleVersion = Get-BuiltModuleVersion @GetBuiltModuleManifestParams
     $ModuleVersionObject = Split-ModuleVersion -ModuleVersion $ModuleVersion
     $ModuleVersionFolder = $ModuleVersionObject.Version
-    $preReleaseTag       = $ModuleVersionObject.PreReleaseString
+    $preReleaseTag = $ModuleVersionObject.PreReleaseString
 
     "`tModule Version           = '$ModuleVersion'"
     "`tModule Version Folder    = '$ModuleVersionFolder'"
@@ -639,9 +639,9 @@ task Pester_If_Code_Coverage_Under_Threshold {
     $powerShellVersion = 'PSv.{0}' -f $PSVersionTable.PSVersion
 
     $getPesterOutputFileFileNameParameters = @{
-        ProjectName = $ProjectName
-        ModuleVersion = $ModuleVersion
-        OsShortName = $osShortName
+        ProjectName       = $ProjectName
+        ModuleVersion     = $ModuleVersion
+        OsShortName       = $osShortName
         PowerShellVersion = $powerShellVersion
     }
 
@@ -681,6 +681,386 @@ task Pester_If_Code_Coverage_Under_Threshold {
             Write-Build -Color Green -Text "Code Coverage SUCCESS with value of $($coverage*100) % (Threshold $CodeCoverageThreshold %)"
         }
     }
+}
+
+# Synopsis: Convert JaCoCo coverage so it supports a built module by way of ModuleBuilder.
+task Convert_Pester_Coverage {
+    if ([System.String]::IsNullOrEmpty($ProjectName))
+    {
+        $ProjectName = Get-SamplerProjectName -BuildRoot $BuildRoot
+    }
+
+    if ([System.String]::IsNullOrEmpty($SourcePath))
+    {
+        $SourcePath = Get-SamplerSourcePath -BuildRoot $BuildRoot
+    }
+
+    $OutputDirectory = Get-SamplerAbsolutePath -Path $OutputDirectory -RelativeTo $BuildRoot
+
+    "`tProject Name             = '$ProjectName'"
+    "`tSource Path              = '$SourcePath'"
+    "`tOutput Directory         = '$OutputDirectory'"
+
+    if ($VersionedOutputDirectory)
+    {
+        # VersionedOutputDirectory is not [bool]'' nor $false nor [bool]$null
+        # Assume true, wherever it was set
+        $VersionedOutputDirectory = $true
+    }
+    else
+    {
+        # VersionedOutputDirectory may be [bool]'' but we can't tell where it's
+        # coming from, so assume the build info (Build.yaml) is right
+        $VersionedOutputDirectory = $BuildInfo['VersionedOutputDirectory']
+    }
+
+    $GetBuiltModuleManifestParams = @{
+        OutputDirectory          = $OutputDirectory
+        BuiltModuleSubDirectory  = $BuiltModuleSubDirectory
+        ModuleName               = $ProjectName
+        VersionedOutputDirectory = $VersionedOutputDirectory
+        ErrorAction              = 'Stop'
+    }
+
+    $builtModuleBase = Get-SamplerBuiltModuleBase @GetBuiltModuleManifestParams
+    "`tBuilt Module Base        = '$builtModuleBase'"
+
+    $builtModuleManifest = Get-SamplerBuiltModuleManifest @GetBuiltModuleManifestParams
+    "`tBuilt Module Manifest    = '$builtModuleManifest'"
+
+    if ($builtModuleRootScriptPath = Get-SamplerModuleRootPath -ModuleManifestPath $builtModuleManifest)
+    {
+        $builtModuleRootScriptPath = (Get-Item -Path $builtModuleRootScriptPath -ErrorAction SilentlyContinue).FullName
+    }
+
+    "`tBuilt ModuleRoot script  = '$builtModuleRootScriptPath'"
+
+    $builtDscResourcesFolder = Get-SamplerAbsolutePath -Path 'DSCResources' -RelativeTo $builtModuleBase
+    "`tBuilt DSC Resource Path  = '$builtDscResourcesFolder'"
+
+    $ModuleVersion = Get-BuiltModuleVersion @GetBuiltModuleManifestParams
+    $ModuleVersionObject = Split-ModuleVersion -ModuleVersion $ModuleVersion
+    $ModuleVersionFolder = $ModuleVersionObject.Version
+    $preReleaseTag = $ModuleVersionObject.PreReleaseString
+
+    "`tModule Version           = '$ModuleVersion'"
+    "`tModule Version Folder    = '$ModuleVersionFolder'"
+    "`tPre-release Tag          = '$preReleaseTag'"
+
+    $GetCodeCoverageThresholdParameters = @{
+        RuntimeCodeCoverageThreshold = $CodeCoverageThreshold
+        BuildInfo                    = $BuildInfo
+    }
+
+    $CodeCoverageThreshold = Get-CodeCoverageThreshold @GetCodeCoverageThresholdParameters
+    "`tCode Coverage Threshold  = '$CodeCoverageThreshold'"
+
+    if (-not $CodeCoverageThreshold)
+    {
+        $CodeCoverageThreshold = 0
+    }
+
+    $PesterOutputFolder = Get-SamplerAbsolutePath -Path $PesterOutputFolder -RelativeTo $OutputDirectory
+    "`tPester Output Folder     = '$PesterOutputFolder'"
+
+    if (-not (Split-Path -IsAbsolute $PesterOutputFolder))
+    {
+        $PesterOutputFolder = Join-Path -Path $OutputDirectory -ChildPath $PesterOutputFolder
+    }
+
+    $osShortName = Get-OperatingSystemShortName
+
+    $powerShellVersion = 'PSv.{0}' -f $PSVersionTable.PSVersion
+
+    $getPesterOutputFileFileNameParameters = @{
+        ProjectName       = $ProjectName
+        ModuleVersion     = $ModuleVersion
+        OsShortName       = $osShortName
+        PowerShellVersion = $powerShellVersion
+    }
+
+    $moduleFileName = '{0}.psm1' -f $ProjectName
+
+    "`tModule File Name         = '$moduleFileName'"
+    ""
+
+    #### TODO: Split Script Task Variables here
+
+    $PesterOutputFileFileName = Get-PesterOutputFileFileName @getPesterOutputFileFileNameParameters
+
+    $PesterResultObjectClixml = Join-Path $PesterOutputFolder "PesterObject_$PesterOutputFileFileName"
+
+    Write-Build -Color 'White' -Text "`tPester Output Object = $PesterResultObjectClixml"
+
+    if (-not (Test-Path -Path $PesterResultObjectClixml))
+    {
+        if ($CodeCoverageThreshold -eq 0)
+        {
+            Write-Build -Color 'Green' -Text 'Coverage bypassed. Nothing to convert.'
+
+            return
+        }
+        else
+        {
+            throw "No command were tested, nothing to convert."
+        }
+    }
+    else
+    {
+        $pesterObject = Import-Clixml -Path $PesterResultObjectClixml
+    }
+
+    $isCodeCoverageDebug = $BuildInfo.CodeCoverage.Debug
+
+    # Get all missed commands that are in the main module file.
+    $missedCommands = $pesterObject.CodeCoverage.MissedCommands |
+        Where-Object -FilterScript { $_.File -match [RegEx]::Escape($moduleFileName) }
+
+    # Get all hit commands that are in the main module file.
+    $hitCommands = $pesterObject.CodeCoverage.HitCommands |
+        Where-Object -FilterScript { $_.File -match [RegEx]::Escape($moduleFileName) }
+
+    <#
+        This command uses 'PassThru' very strange. It is needed to update the
+        content of $missedCommands correctly (for it to add the SourceFile and
+        SourceLineNumber properties).
+
+        THe command Convert-LineNumber is part of ModuleBuilder.
+    #>
+    $missedCommands | Convert-LineNumber -ErrorAction 'Stop' -PassThru | Out-Null
+    $hitCommands | Convert-LineNumber -ErrorAction 'Stop' -PassThru | Out-Null
+
+    # Blank line in output.
+    ""
+
+    Write-Build -Color 'White' -Text "Missed commands in source files:"
+
+    # Output missed commands to visualize it in the pipeline output.
+    $allMissedCommandsInSourceFiles = $missedCommands + (
+        $pesterObject.CodeCoverage.MissedCommands |
+            Where-Object -FilterScript { $_.File -notmatch [RegEx]::Escape($moduleFileName) }
+     )
+
+     $allMissedCommandsInSourceFiles |
+        Select-Object @{
+            Name = 'File'
+            Expr = {
+                if ($_.SourceFile)
+                {
+                    $_.SourceFile
+                }
+                else
+                {
+                    $_.File
+                }
+            }
+        },
+        @{
+            Name = 'Line'
+            Expr = {
+                if ($_.SourceLineNumber)
+                {
+                    $_.SourceLineNumber
+                }
+                else
+                {
+                    $_.Line
+                }
+            }
+        }, Function, Command
+
+    # Blank line in output.
+    ""
+
+    Write-Build -Color 'White' -Text "Converting coverage file."
+
+    # # Add property 'Hit' set to $true for all hit commands.
+    # $hitCommands | ForEach-Object -Process {
+    #     $_ | Add-Member -MemberType 'NoteProperty' -Name 'Hit' -Value $true -Force
+    # }
+
+    # # Add property 'Hit' set to $false for all missed commands.
+    # $missedCommands | ForEach-Object -Process {
+    #     $_ | Add-Member -MemberType 'NoteProperty' -Name 'Hit' -Value $true -Force
+    # }
+
+    [System.Xml.XmlDocument] $coverageXml = ''
+
+    # XML header.
+    $xmlDeclaration = $coverageXml.CreateXmlDeclaration('1.0', 'UTF-8', 'no')
+
+    # DTD: https://www.jacoco.org/jacoco/trunk/coverage/report.dtd
+    $xmlDocumentType = $coverageXml.CreateDocumentType('report', '-//JACOCO//DTD Report 1.1//EN', 'report.dtd', $null)
+
+    $coverageXml.AppendChild($xmlDeclaration) | Out-Null
+    $coverageXml.AppendChild($xmlDocumentType) | Out-Null
+
+    # Root element 'report'.
+    $xmlRootNode = $coverageXml.CreateNode('element', 'report', $null)
+    $xmlRootNode.SetAttribute('name', 'Sampler ({0})' -f (Get-Date).ToString('yyyy-mm-dd HH:mm:ss'))
+
+    <#
+        Child element 'sessioninfo'.
+
+        The attributes 'start' and 'dump' is the time it took to run the tests in
+        milliseconds, but it is not used in the end, we just add a plausible number
+        here so it passes the referenced DTD, or any other parsing that might be done
+        in the future.
+    #>
+    $testRunLengthInMilliseconds = 1785237 # ~30 minutes
+
+    [System.Int64] $sessionInfoEndTime = [System.Math]::Floor((New-TimeSpan -Start (Get-Date -Date '01/01/1970') -End (Get-Date)).TotalMilliseconds)
+    [System.Int64] $sessionInfoStartTime = [System.Math]::Floor($sessionInfoEndTime - $testRunLengthInMilliseconds)
+
+    $xmlElementSessionInfo = $coverageXml.CreateNode('element', 'sessioninfo', $null)
+    $xmlElementSessionInfo.SetAttribute('id', 'this')
+    $xmlElementSessionInfo.SetAttribute('start', $sessionInfoStartTime)
+    $xmlElementSessionInfo.SetAttribute('dump', $sessionInfoEndTime)
+    $xmlRootNode.AppendChild($xmlElementSessionInfo) | Out-Null
+
+    <#
+        This is how each object in $allCommands looks like:
+
+        # A method in a PowerShell class located in the Classes folder.
+        File             : C:\source\DnsServerDsc\output\MyModule\1.0.0\MyModule.psm1
+        Line             : 168
+        StartLine        : 168
+        EndLine          : 168
+        StartColumn      : 25
+        EndColumn        : 36
+        Class            : ResourceBase
+        Function         : Compare
+        Command          : $currentState = $this.Get() | ConvertTo-HashTableFromObject
+        HitCount         : 86
+        SourceFile       : .\Classes\001.ResourceBase.ps1
+        SourceLineNumber : 153
+        Hit              : True
+
+        # A function located in private or public folder.
+        File             : C:\source\DnsServerDsc\output\MyModule\1.0.0\MyModule.psm1
+        Line             : 2658
+        StartLine        : 2658
+        EndLine          : 2658
+        StartColumn      : 26
+        EndColumn        : 29
+        Class            :
+        Function         : Get-LocalizedDataRecursive
+        Command          : $localizedData = @{}
+        HitCount         : 225
+        SourceFile       : .\Private\Get-LocalizedDataRecursive.ps1
+        SourceLineNumber : 35
+        Hit              : True
+    #>
+    $allCommands = $hitCommands + $missedCommands
+
+    $sourcePathFolderName = Split-Path -Path $SourcePath -Leaf
+
+    $commandsGroupedOnParentFolder = $allCommands | Group-Object -Property {
+        Split-Path -Path $_.SourceFile -Parent
+    }
+
+    foreach ($jaCoCoPackage in $commandsGroupedOnParentFolder)
+    {
+        # This is what the user expects to see.
+        $packageDisplayName = $jaCoCoPackage.Name -replace '^\.', $sourcePathFolderName
+
+        <#
+            This is what is expected to be in the XML. E.g. Codecov.io config,
+            in 'codecov.yml', converts this back to for example 'source'.
+        #>
+        $xmlPackageName = $jaCoCoPackage.Name -replace '^\.', $ModuleVersionFolder
+
+        if ($isCodeCoverageDebug)
+        {
+            Write-Build -Color 'DarkGray' -Text ('Creating XML output for JaCoCo package ''{0}''.' -f $packageDisplayName)
+        }
+
+        # Child element 'package'.
+        $xmlElementPackage = $coverageXml.CreateElement('package')
+        $xmlElementPackage.SetAttribute('name', $xmlPackageName)
+
+        $commandsGroupedOnSourceFile = $jaCoCoPackage.Group | Group-Object -Property 'SourceFile'
+
+        foreach ($jaCocoClass in $commandsGroupedOnSourceFile)
+        {
+            $classDisplayName = $jaCocoClass.Name -replace '^\.', $sourcePathFolderName
+            $xmlClassName = $jaCocoClass.Name -replace '^\.', $ModuleVersionFolder
+
+            if ($isCodeCoverageDebug)
+            {
+                Write-Build -Color 'DarkGray' -Text ("`tCreating XML output for JaCoCo class '{0}'." -f $classDisplayName)
+            }
+
+            # Child element 'class'.
+            $xmlElementClass = $coverageXml.CreateElement('class')
+            $xmlElementClass.SetAttribute('name', $xmlClassName -replace '\.ps1')
+            $xmlElementClass.SetAttribute('sourcefilename', (Split-Path -Path $xmlClassName -Leaf))
+
+            <#
+                This assumes that a value in property Function is never $null. Test
+                showed that commands at script level is assigned empty string in the
+                Function property, so it should work for missed and hit commands at
+                script level too.
+            #>
+            $commandsGroupedOnFunction = $jaCocoClass.Group | Group-Object -Property 'Function'
+
+            foreach ($jaCoCoMethod in $commandsGroupedOnFunction)
+            {
+                $functionName = if ([System.String]::IsNullOrEmpty($jaCoCoMethod.Name))
+                {
+                    '<script>'
+                }
+                else
+                {
+                    $jaCoCoMethod.Name
+                }
+
+                if ($isCodeCoverageDebug)
+                {
+                    Write-Build -Color 'DarkGray' -Text ("`t`tCreating XML output for JaCoCo method '{0}'." -f $functionName)
+                }
+
+                # Child element 'method'.
+                $xmlElementMethod = $coverageXml.CreateElement('method')
+                $xmlElementMethod.SetAttribute('name', $functionName)
+                $xmlElementMethod.SetAttribute('desc', '()')
+                # TODO: This should be line number for the first statement inside the method.
+                $xmlElementMethod.SetAttribute('line', '1')
+                $xmlElementClass.AppendChild($xmlElementMethod) | Out-Null
+
+                $jaCoCoMethod.Group | ForEach-Object {
+                    "{0}`t`t{1}" -f $_.Line, $_.SourceLineNumber
+                }
+            }
+
+            $xmlElementPackage.AppendChild($xmlElementClass) | Out-Null
+        }
+
+        $xmlRootNode.AppendChild($xmlElementPackage) | Out-Null
+    }
+
+    $coverageXml.AppendChild($xmlRootNode)
+
+    if ($isCodeCoverageDebug)
+    {
+        $StringWriter = New-Object -TypeName 'System.IO.StringWriter'
+        $XmlWriter = New-Object -TypeName 'System.XMl.XmlTextWriter' -ArgumentList $StringWriter
+
+        $xmlWriter.Formatting = 'indented'
+        $xmlWriter.Indentation = 2
+
+        $coverageXml.WriteContentTo($XmlWriter)
+
+        $XmlWriter.Flush()
+
+        $StringWriter.Flush()
+
+        $StringWriter.ToString() | Out-String
+    }
+
+    Write-Debug -Message ($coverageXml.OuterXml | Out-String)
+
+    Write-Build -Color Green -Text 'Code Coverage successfully converted.'
 }
 
 # Synopsis: Uploading Unit Test results to AppVeyor.
@@ -745,7 +1125,7 @@ task Upload_Test_Results_To_AppVeyor -If { (property BuildSystem 'unknown') -eq 
     $ModuleVersion = Get-BuiltModuleVersion @GetBuiltModuleManifestParams
     $ModuleVersionObject = Split-ModuleVersion -ModuleVersion $ModuleVersion
     $ModuleVersionFolder = $ModuleVersionObject.Version
-    $preReleaseTag       = $ModuleVersionObject.PreReleaseString
+    $preReleaseTag = $ModuleVersionObject.PreReleaseString
 
     "`tModule Version           = '$ModuleVersion'"
     "`tModule Version Folder    = '$ModuleVersionFolder'"
@@ -754,9 +1134,9 @@ task Upload_Test_Results_To_AppVeyor -If { (property BuildSystem 'unknown') -eq 
     $powerShellVersion = 'PSv.{0}' -f $PSVersionTable.PSVersion
 
     $getPesterOutputFileFileNameParameters = @{
-        ProjectName = $ProjectName
-        ModuleVersion = $ModuleVersion
-        OsShortName = $osShortName
+        ProjectName       = $ProjectName
+        ModuleVersion     = $ModuleVersion
+        OsShortName       = $osShortName
         PowerShellVersion = $powerShellVersion
     }
 
