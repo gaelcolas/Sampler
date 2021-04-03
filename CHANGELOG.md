@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for Generating MAML help files (all Locale/Culture) from PlatyPS Markdown Source.
 - Support for Updating the PlatyPS Markdown source in your repo (this is a dev task to do before a commit).
 - Support for Generating MAML file from Comment-based help (not recommended).
+- Support for code coverage when using ModuleBuilder pattern for building module.
 
 ## [0.109.10] - 2021-03-24
 

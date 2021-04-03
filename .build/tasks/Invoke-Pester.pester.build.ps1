@@ -782,6 +782,30 @@ task Convert_Pester_Coverage {
     $moduleFileName = '{0}.psm1' -f $ProjectName
 
     "`tModule File Name         = '$moduleFileName'"
+
+    $getCodeCoverageOutputFile = @{
+        BuildInfo          = $BuildInfo
+        PesterOutputFolder = $PesterOutputFolder
+    }
+
+    $CodeCoverageOutputFile = Get-SamplerCodeCoverageOutputFile @getCodeCoverageOutputFile
+
+    if (-not $CodeCoverageOutputFile)
+    {
+        $CodeCoverageOutputFile = (Join-Path -Path $PesterOutputFolder -ChildPath "CodeCov_$pesterOutputFileFileName")
+    }
+
+    "`t"
+    "`tCodeCoverageOutputFile         = $CodeCoverageOutputFile"
+
+    $CodeCoverageOutputFileEncoding = $BuildInfo.Pester.CodeCoverageOutputFileEncoding
+
+    if (-not $CodeCoverageOutputFileEncoding)
+    {
+        $CodeCoverageOutputFileEncoding = 'ascii'
+    }
+
+    "`tCodeCoverageOutputFileEncoding = $CodeCoverageOutputFileEncoding"
     ""
 
     #### TODO: Split Script Task Variables here
@@ -810,8 +834,6 @@ task Convert_Pester_Coverage {
         $pesterObject = Import-Clixml -Path $PesterResultObjectClixml
     }
 
-    $isCodeCoverageDebug = $BuildInfo.CodeCoverage.Debug
-
     # Get all missed commands that are in the main module file.
     $missedCommands = $pesterObject.CodeCoverage.MissedCommands |
         Where-Object -FilterScript { $_.File -match [RegEx]::Escape($moduleFileName) }
@@ -839,9 +861,9 @@ task Convert_Pester_Coverage {
     $allMissedCommandsInSourceFiles = $missedCommands + (
         $pesterObject.CodeCoverage.MissedCommands |
             Where-Object -FilterScript { $_.File -notmatch [RegEx]::Escape($moduleFileName) }
-     )
+    )
 
-     $allMissedCommandsInSourceFiles |
+    $allMissedCommandsInSourceFiles |
         Select-Object @{
             Name = 'File'
             Expr = {
@@ -867,22 +889,21 @@ task Convert_Pester_Coverage {
                     $_.Line
                 }
             }
-        }, Function, Command
+        }, Function, Command |
+            Out-String
 
     # Blank line in output.
     ""
 
     Write-Build -Color 'White' -Text "Converting coverage file."
 
-    # # Add property 'Hit' set to $true for all hit commands.
-    # $hitCommands | ForEach-Object -Process {
-    #     $_ | Add-Member -MemberType 'NoteProperty' -Name 'Hit' -Value $true -Force
-    # }
+    <#
+        Cannot find a good example how package and class relate to PowerShell.
+        This implementation tries to mimic what Pester outputs in its coverage
+        file.
+    #>
 
-    # # Add property 'Hit' set to $false for all missed commands.
-    # $missedCommands | ForEach-Object -Process {
-    #     $_ | Add-Member -MemberType 'NoteProperty' -Name 'Hit' -Value $true -Force
-    # }
+    Write-Build -Color 'DarkGray' -Text "`tBuilding new code coverage file against source."
 
     [System.Xml.XmlDocument] $coverageXml = ''
 
@@ -934,7 +955,6 @@ task Convert_Pester_Coverage {
         HitCount         : 86
         SourceFile       : .\Classes\001.ResourceBase.ps1
         SourceLineNumber : 153
-        Hit              : True
 
         # A function located in private or public folder.
         File             : C:\source\DnsServerDsc\output\MyModule\1.0.0\MyModule.psm1
@@ -949,7 +969,6 @@ task Convert_Pester_Coverage {
         HitCount         : 225
         SourceFile       : .\Private\Get-LocalizedDataRecursive.ps1
         SourceLineNumber : 35
-        Hit              : True
     #>
     $allCommands = $hitCommands + $missedCommands
 
@@ -959,23 +978,50 @@ task Convert_Pester_Coverage {
         Split-Path -Path $_.SourceFile -Parent
     }
 
-    foreach ($jaCoCoPackage in $commandsGroupedOnParentFolder)
+    foreach ($jaCocoPackage in $commandsGroupedOnParentFolder)
     {
+        $packageCounterInstruction = @{
+            Missed  = 0
+            Covered = 0
+        }
+
+        $packageCounterLine = @{
+            Missed  = 0
+            Covered = 0
+        }
+
+        $packageCounterMethod = @{
+            Missed  = 0
+            Covered = 0
+        }
+
+        $packageCounterClass = @{
+            Missed  = 0
+            Covered = 0
+        }
+
+        $allSourceFileElements = @()
+
         # This is what the user expects to see.
         $packageDisplayName = $jaCoCoPackage.Name -replace '^\.', $sourcePathFolderName
 
         <#
-            This is what is expected to be in the XML. E.g. Codecov.io config,
-            in 'codecov.yml', converts this back to for example 'source'.
+            The module version is what is expected to be in the XML.
+
+            E.g. Codecov.io config converts this back to 'source' (or whatever
+            is configured in 'codecov.yml').
         #>
         $xmlPackageName = $jaCoCoPackage.Name -replace '^\.', $ModuleVersionFolder
 
-        if ($isCodeCoverageDebug)
-        {
-            Write-Build -Color 'DarkGray' -Text ('Creating XML output for JaCoCo package ''{0}''.' -f $packageDisplayName)
-        }
+        Write-Debug -Message ('Creating XML output for JaCoCo package ''{0}''.' -f $packageDisplayName)
 
-        # Child element 'package'.
+        <#
+            Child element 'package'.
+
+            This implementation assumes the attribute 'name' of the element 'package'
+            should be the path to the folder that contains the PowerShell script files
+            (relative from GitHub repository root).
+        #>
         $xmlElementPackage = $coverageXml.CreateElement('package')
         $xmlElementPackage.SetAttribute('name', $xmlPackageName)
 
@@ -983,18 +1029,39 @@ task Convert_Pester_Coverage {
 
         foreach ($jaCocoClass in $commandsGroupedOnSourceFile)
         {
-            $classDisplayName = $jaCocoClass.Name -replace '^\.', $sourcePathFolderName
-            $xmlClassName = $jaCocoClass.Name -replace '^\.', $ModuleVersionFolder
-
-            if ($isCodeCoverageDebug)
-            {
-                Write-Build -Color 'DarkGray' -Text ("`tCreating XML output for JaCoCo class '{0}'." -f $classDisplayName)
+            $classCounterInstruction = @{
+                Missed  = 0
+                Covered = 0
             }
+
+            $classCounterLine = @{
+                Missed  = 0
+                Covered = 0
+            }
+
+            $classCounterMethod = @{
+                Missed  = 0
+                Covered = 0
+            }
+
+            $classDisplayName = $jaCocoClass.Name -replace '^\.', $sourcePathFolderName
+
+            <#
+                The module version is what is expected to be in the XML.
+
+                E.g. Codecov.io config converts this back to 'source' (or whatever
+                is configured in 'codecov.yml').
+            #>
+            $sourceFilePath = $jaCocoClass.Name -replace '^\.', $ModuleVersionFolder
+            $xmlClassName = $sourceFilePath -replace '\.ps1'
+            $sourceFileName = Split-Path -Path $sourceFilePath -Leaf
+
+            Write-Debug -Message ("`tCreating XML output for JaCoCo class '{0}'." -f $classDisplayName)
 
             # Child element 'class'.
             $xmlElementClass = $coverageXml.CreateElement('class')
-            $xmlElementClass.SetAttribute('name', $xmlClassName -replace '\.ps1')
-            $xmlElementClass.SetAttribute('sourcefilename', (Split-Path -Path $xmlClassName -Leaf))
+            $xmlElementClass.SetAttribute('name', $xmlClassName)
+            $xmlElementClass.SetAttribute('sourcefilename', $sourceFileName)
 
             <#
                 This assumes that a value in property Function is never $null. Test
@@ -1015,33 +1082,315 @@ task Convert_Pester_Coverage {
                     $jaCoCoMethod.Name
                 }
 
-                if ($isCodeCoverageDebug)
-                {
-                    Write-Build -Color 'DarkGray' -Text ("`t`tCreating XML output for JaCoCo method '{0}'." -f $functionName)
-                }
+                Write-Debug -Message ("`t`tCreating XML output for JaCoCo method '{0}'." -f $functionName)
+
+                <#
+                    Sorting all commands in ascending order and using the first
+                    'SourceLineNumber' as the first line of the method. Assuming
+                    every code line for the method was in either $missedCommands
+                    or $hitCommands which the sorting is based on.
+                #>
+                $methodFirstLine = $jaCoCoMethod.Group |
+                    Sort-Object -Property 'SourceLineNumber' |
+                        Select-Object -First 1 -ExpandProperty 'SourceLineNumber'
 
                 # Child element 'method'.
                 $xmlElementMethod = $coverageXml.CreateElement('method')
                 $xmlElementMethod.SetAttribute('name', $functionName)
                 $xmlElementMethod.SetAttribute('desc', '()')
-                # TODO: This should be line number for the first statement inside the method.
-                $xmlElementMethod.SetAttribute('line', '1')
-                $xmlElementClass.AppendChild($xmlElementMethod) | Out-Null
+                $xmlElementMethod.SetAttribute('line', $methodFirstLine)
 
-                $jaCoCoMethod.Group | ForEach-Object {
-                    "{0}`t`t{1}" -f $_.Line, $_.SourceLineNumber
+                <#
+                    Documentation for counters:
+                    https://www.jacoco.org/jacoco/trunk/doc/counters.html
+                #>
+
+                <#
+                    Child element 'counter' and type INSTRUCTION.
+
+                    Each command can be hit multiple times, the INSTRUCTION counts
+                    how many times the command was hit or missed.
+                #>
+                $numberOfInstructionsCovered = (
+                    $jaCoCoMethod.Group |
+                        Where-Object -FilterScript {
+                            $_.HitCount -ge 1
+                        }
+                ).Count
+
+                $numberOfInstructionsMissed = (
+                    $jaCoCoMethod.Group |
+                        Where-Object -FilterScript {
+                            $_.HitCount -eq 0
+                        }
+                ).Count
+
+                $xmlElementCounterMethodInstruction = $coverageXml.CreateElement('counter')
+                $xmlElementCounterMethodInstruction.SetAttribute('type', 'INSTRUCTION')
+                $xmlElementCounterMethodInstruction.SetAttribute('missed', $numberOfInstructionsMissed)
+                $xmlElementCounterMethodInstruction.SetAttribute('covered', $numberOfInstructionsCovered)
+                $xmlElementMethod.AppendChild($xmlElementCounterMethodInstruction) | Out-Null
+
+                $classCounterInstruction.Covered += $numberOfInstructionsCovered
+                $classCounterInstruction.Missed += $numberOfInstructionsMissed
+
+                $packageCounterInstruction.Covered += $numberOfInstructionsCovered
+                $packageCounterInstruction.Missed += $numberOfInstructionsMissed
+
+                <#
+                    Child element 'counter' and type LINE.
+
+                    The LINE counts how many unique lines that was hit or missed.
+                #>
+                $numberOfLinesCovered = (
+                    $jaCoCoMethod.Group |
+                        Where-Object -FilterScript {
+                            $_.HitCount -ge 1
+                        } |
+                            Sort-Object -Property 'SourceLineNumber' -Unique
+                ).Count
+
+                $numberOfLinesMissed = (
+                    $jaCoCoMethod.Group |
+                        Where-Object -FilterScript {
+                            $_.HitCount -eq 0
+                        } |
+                            Sort-Object -Property 'SourceLineNumber' -Unique
+                ).Count
+
+                $xmlElementCounterMethodLine = $coverageXml.CreateElement('counter')
+                $xmlElementCounterMethodLine.SetAttribute('type', 'LINE')
+                $xmlElementCounterMethodLine.SetAttribute('missed', $numberOfLinesMissed)
+                $xmlElementCounterMethodLine.SetAttribute('covered', $numberOfLinesCovered)
+                $xmlElementMethod.AppendChild($xmlElementCounterMethodLine) | Out-Null
+
+                $classCounterLine.Covered += $numberOfLinesCovered
+                $classCounterLine.Missed += $numberOfLinesMissed
+
+                $packageCounterLine.Covered += $numberOfLinesCovered
+                $packageCounterLine.Missed += $numberOfLinesMissed
+
+                <#
+                    Child element 'counter' and type METHOD.
+
+                    The METHOD counts as covered if at least one line was hit in
+                    the method. This value seem not to be higher than 1, assuming
+                    that is true.
+                #>
+                $isLineInMethodCovered = (
+                    $jaCoCoMethod.Group |
+                        Where-Object -FilterScript {
+                            $_.HitCount -ge 1
+                        }
+                ).Count
+
+                <#
+                    If at least one instructions was covered in the method, then
+                    method was covered.
+                #>
+                if ($isLineInMethodCovered)
+                {
+                    $methodCovered = 1
+                    $methodMissed = 0
+
+                    $classCounterMethod.Covered += 1
+
+                    $packageCounterMethod.Covered += 1
                 }
+                else
+                {
+                    $methodCovered = 0
+                    $methodMissed = 1
+
+                    $classCounterMethod.Missed += 1
+
+                    $packageCounterMethod.Missed += 1
+                }
+
+                $xmlElementCounterMethod = $coverageXml.CreateElement('counter')
+                $xmlElementCounterMethod.SetAttribute('type', 'METHOD')
+                $xmlElementCounterMethod.SetAttribute('missed', $methodMissed)
+                $xmlElementCounterMethod.SetAttribute('covered', $methodCovered)
+                $xmlElementMethod.AppendChild($xmlElementCounterMethod) | Out-Null
+
+                $xmlElementClass.AppendChild($xmlElementMethod) | Out-Null
             }
 
+            $xmlElementCounter_ClassInstruction = $coverageXml.CreateElement('counter')
+            $xmlElementCounter_ClassInstruction.SetAttribute('type', 'INSTRUCTION')
+            $xmlElementCounter_ClassInstruction.SetAttribute('missed', $classCounterInstruction.Missed)
+            $xmlElementCounter_ClassInstruction.SetAttribute('covered', $classCounterInstruction.Covered)
+            $xmlElementClass.AppendChild($xmlElementCounter_ClassInstruction) | Out-Null
+
+            $xmlElementCounter_ClassLine = $coverageXml.CreateElement('counter')
+            $xmlElementCounter_ClassLine.SetAttribute('type', 'LINE')
+            $xmlElementCounter_ClassLine.SetAttribute('missed', $classCounterLine.Missed)
+            $xmlElementCounter_ClassLine.SetAttribute('covered', $classCounterLine.Covered)
+            $xmlElementClass.AppendChild($xmlElementCounter_ClassLine) | Out-Null
+
+            if ($classCounterLine.Covered -gt 1)
+            {
+                $classCovered = 1
+                $classMissed = 0
+
+                $packageCounterClass.Covered += 1
+            }
+            else
+            {
+                $classCovered = 0
+                $classMissed = 1
+
+                $packageCounterClass.Missed += 1
+            }
+
+            $xmlElementCounter_ClassMethod = $coverageXml.CreateElement('counter')
+            $xmlElementCounter_ClassMethod.SetAttribute('type', 'METHOD')
+            $xmlElementCounter_ClassMethod.SetAttribute('missed', $classCounterMethod.Missed)
+            $xmlElementCounter_ClassMethod.SetAttribute('covered', $classCounterMethod.Covered)
+            $xmlElementClass.AppendChild($xmlElementCounter_ClassMethod) | Out-Null
+
+            $xmlElementCounter_Class = $coverageXml.CreateElement('counter')
+            $xmlElementCounter_Class.SetAttribute('type', 'CLASS')
+            $xmlElementCounter_Class.SetAttribute('missed', $classMissed)
+            $xmlElementCounter_Class.SetAttribute('covered', $classCovered)
+            $xmlElementClass.AppendChild($xmlElementCounter_Class) | Out-Null
+
             $xmlElementPackage.AppendChild($xmlElementClass) | Out-Null
-        }
+
+            <#
+                Child element 'sourcefile'.
+
+                Add sourcefile element to an array for each class. The array
+                will be added to the XML document at the end of the package
+                loop.
+            #>
+            $xmlElementSourceFile = $coverageXml.CreateElement('sourcefile')
+            $xmlElementSourceFile.SetAttribute('name', $sourceFileName)
+
+            $linesToReport = @()
+
+            # Get all instructions that was covered by grouping on 'SourceLineNumber'.
+            $linesCovered = $jaCocoClass.Group |
+                Sort-Object -Property 'SourceLineNumber' |
+                    Where-Object {
+                        $_.HitCount -ge 1
+                    } |
+                        Group-Object -Property 'SourceLineNumber' -NoElement
+
+            # Add each covered line with its count of instructions covered.
+            $linesCovered |
+                ForEach-Object {
+                    $linesToReport += @{
+                        Line    = [System.UInt32] $_.Name
+                        Covered = $_.Count
+                        Missed  = 0
+                    }
+                }
+
+            # Get all instructions that was missed by grouping on 'SourceLineNumber'.
+            $linesMissed = $jaCocoClass.Group |
+                Sort-Object -Property 'SourceLineNumber' |
+                    Where-Object {
+                        $_.HitCount -eq 0
+                    } |
+                        Group-Object -Property 'SourceLineNumber' -NoElement
+
+            # Add each missed line with its count of instructions missed.
+            $linesMissed |
+                ForEach-Object {
+                    # Test if there are an existing line that is covered.
+                    if ($linesToReport.Line -contains $_.Name)
+                    {
+                        $lineNumberToLookup = $_.Name
+
+                        $coveredLineItem = $linesToReport |
+                            Where-Object -FilterScript {
+                                $_.Line -eq $lineNumberToLookup
+                            }
+
+                        $coveredLineItem.Missed += $_.Count
+                    }
+                    else
+                    {
+                        $linesToReport += @{
+                            Line    = [System.UInt32] $_.Name
+                            Covered = 0
+                            Missed  = $_.Count
+                        }
+                    }
+                }
+
+            $linesToReport |
+                Sort-Object -Property 'Line' |
+                    ForEach-Object -Process {
+                        $xmlElementLine = $coverageXml.CreateElement('line')
+                        $xmlElementLine.SetAttribute('nr', $_.Line)
+
+                        <#
+                            Child element 'line'.
+
+                            These attributes are best explained here:
+                            https://stackoverflow.com/questions/33868761/how-to-interpret-the-jacoco-xml-file
+                        #>
+
+                        $xmlElementLine.SetAttribute('mi', $_.Missed)
+                        $xmlElementLine.SetAttribute('ci', $_.Covered)
+                        $xmlElementLine.SetAttribute('mb', 0)
+                        $xmlElementLine.SetAttribute('cb', 0)
+
+                        $xmlElementSourceFile.AppendChild($xmlElementLine) |
+                            Out-Null
+                        }
+
+            <#
+                Add counters to sourcefile element. Reuses those element that was
+                created for the class element, as they will be the same.
+            #>
+            $xmlElementSourceFile.AppendChild($xmlElementCounter_ClassInstruction.CloneNode($false)) | Out-Null
+            $xmlElementSourceFile.AppendChild($xmlElementCounter_ClassLine.CloneNode($false)) | Out-Null
+            $xmlElementSourceFile.AppendChild($xmlElementCounter_ClassMethod.CloneNode($false)) | Out-Null
+            $xmlElementSourceFile.AppendChild($xmlElementCounter_Class.CloneNode($false)) | Out-Null
+
+            $allSourceFileElements += $xmlElementSourceFile
+        } # end class loop
+
+        # Add all sourcefile elements that was generated in the class-element-loop.
+        $allSourceFileElements |
+            ForEach-Object -Process {
+                $xmlElementPackage.AppendChild($_) | Out-Null
+            }
+
+        # Add counters at the package level.
+        $xmlElementCounter_PackageInstruction = $coverageXml.CreateElement('counter')
+        $xmlElementCounter_PackageInstruction.SetAttribute('type', 'INSTRUCTION')
+        $xmlElementCounter_PackageInstruction.SetAttribute('missed', $packageCounterInstruction.Missed)
+        $xmlElementCounter_PackageInstruction.SetAttribute('covered', $packageCounterInstruction.Covered)
+        $xmlElementPackage.AppendChild($xmlElementCounter_PackageInstruction) | Out-Null
+
+        $xmlElementCounter_PackageLine = $coverageXml.CreateElement('counter')
+        $xmlElementCounter_PackageLine.SetAttribute('type', 'LINE')
+        $xmlElementCounter_PackageLine.SetAttribute('missed', $packageCounterLine.Missed)
+        $xmlElementCounter_PackageLine.SetAttribute('covered', $packageCounterLine.Covered)
+        $xmlElementPackage.AppendChild($xmlElementCounter_PackageLine) | Out-Null
+
+        $xmlElementCounter_PackageMethod = $coverageXml.CreateElement('counter')
+        $xmlElementCounter_PackageMethod.SetAttribute('type', 'METHOD')
+        $xmlElementCounter_PackageMethod.SetAttribute('missed', $packageCounterMethod.Missed)
+        $xmlElementCounter_PackageMethod.SetAttribute('covered', $packageCounterMethod.Covered)
+        $xmlElementPackage.AppendChild($xmlElementCounter_PackageMethod) | Out-Null
+
+        $xmlElementCounter_PackageClass = $coverageXml.CreateElement('counter')
+        $xmlElementCounter_PackageClass.SetAttribute('type', 'CLASS')
+        $xmlElementCounter_PackageClass.SetAttribute('missed', $packageCounterClass.Missed)
+        $xmlElementCounter_PackageClass.SetAttribute('covered', $packageCounterClass.Covered)
+        $xmlElementPackage.AppendChild($xmlElementCounter_PackageClass) | Out-Null
 
         $xmlRootNode.AppendChild($xmlElementPackage) | Out-Null
-    }
+    } # end package loop
 
-    $coverageXml.AppendChild($xmlRootNode)
+    $coverageXml.AppendChild($xmlRootNode) | Out-Null
 
-    if ($isCodeCoverageDebug)
+    if ($DebugPreference -ne 'SilentlyContinue')
     {
         $StringWriter = New-Object -TypeName 'System.IO.StringWriter'
         $XmlWriter = New-Object -TypeName 'System.XMl.XmlTextWriter' -ArgumentList $StringWriter
@@ -1055,10 +1404,78 @@ task Convert_Pester_Coverage {
 
         $StringWriter.Flush()
 
-        $StringWriter.ToString() | Out-String
+        # Blank row in output
+        ""
+
+        Write-Debug -Message ($StringWriter.ToString() | Out-String)
     }
 
-    Write-Debug -Message ($coverageXml.OuterXml | Out-String)
+    $newCoverageFilePath = Join-Path -Path $PesterOutputFolder -ChildPath 'JaCoCo_source_coverage.xml'
+
+    Write-Build -Color 'DarkGray' -Text "`tWriting converted code coverage file to '$newCoverageFilePath'."
+
+    $xmlSettings = New-Object -TypeName 'System.Xml.XmlWriterSettings'
+    $xmlSettings.Indent = $true
+    $xmlSettings.Encoding = [System.Text.Encoding]::$CodeCoverageOutputFileEncoding
+
+    $xmlWriter = [System.Xml.XmlWriter]::Create($newCoverageFilePath, $xmlSettings)
+
+    $coverageXml.Save($xmlWriter)
+
+    $xmlWriter.Close()
+
+    Write-Build -Color 'DarkGray' -Text "`tImporting original code coverage file '$CodeCoverageOutputFile'."
+
+    $originalXml = New-Object -TypeName 'System.Xml.XmlDocument'
+    $originalXml.Load($CodeCoverageOutputFile)
+
+    $codeCoverageOutputBackupFile = $CodeCoverageOutputFile -replace '\.xml', '.bak.xml'
+    $newCoverageFilePath = Join-Path -Path $PesterOutputFolder -ChildPath $codeCoverageOutputBackupFile
+
+    Write-Build -Color 'DarkGray' -Text "`tWriting a backup of original code coverage file to '$codeCoverageOutputBackupFile'."
+
+    $xmlSettings = New-Object -TypeName 'System.Xml.XmlWriterSettings'
+    $xmlSettings.Indent = $true
+    $xmlSettings.Encoding = [System.Text.Encoding]::$CodeCoverageOutputFileEncoding
+
+    $xmlWriter = [System.Xml.XmlWriter]::Create($codeCoverageOutputBackupFile, $xmlSettings)
+
+    $originalXml.Save($xmlWriter)
+
+    $xmlWriter.Close()
+
+    Write-Build -Color 'DarkGray' -Text "`tRemoving XML node from original code coverage."
+
+    $xPath = '//package[@name="{0}"]' -f $ModuleVersionFolder
+
+    Write-Build -Color 'DarkGray' -Text "`t`tUsing XPath: '$xPath'."
+
+    $elementToRemove = Select-XML -Xml $originalXml -XPath $xPath
+
+    if ($elementToRemove)
+    {
+        $elementToRemove.Node.ParentNode.RemoveChild($elementToRemove.Node) | Out-Null
+    }
+
+    Write-Build -Color 'DarkGray' -Text "`tMerging temporary code coverage file with the original code coverage file."
+
+    $targetXmlDocument = Merge-JaCoCoReport -OriginalDocument $originalXml -MergeDocument $coverageXml
+
+    Write-Build -Color 'DarkGray' -Text "`tUpdating statistics in the new code coverage file."
+
+    #$targetXmlDocument = Update-JaCoCoStatistic -Document $targetXmlDocument
+
+    Write-Build -Color 'DarkGray' -Text "`tWriting back updated code coverage file to '$CodeCoverageOutputFile'."
+
+    $xmlSettings = New-Object -TypeName 'System.Xml.XmlWriterSettings'
+    $xmlSettings.Indent = $true
+    $xmlSettings.Encoding = [System.Text.Encoding]::$CodeCoverageOutputFileEncoding
+
+    $xmlWriter = [System.Xml.XmlWriter]::Create($CodeCoverageOutputFile, $xmlSettings)
+
+    $originalXml.Save($xmlWriter)
+
+    $xmlWriter.Close()
 
     Write-Build -Color Green -Text 'Code Coverage successfully converted.'
 }
