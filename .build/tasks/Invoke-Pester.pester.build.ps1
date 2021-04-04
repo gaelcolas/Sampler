@@ -972,7 +972,7 @@ task Convert_Pester_Coverage {
     #>
     $allCommands = $hitCommands + $missedCommands
 
-    $sourcePathFolderName = Split-Path -Path $SourcePath -Leaf
+    $sourcePathFolderName = (Split-Path -Path $SourcePath -Leaf) -replace '\\','/'
 
     $commandsGroupedOnParentFolder = $allCommands | Group-Object -Property {
         Split-Path -Path $_.SourceFile -Parent
@@ -1023,7 +1023,7 @@ task Convert_Pester_Coverage {
         $allSourceFileElements = @()
 
         # This is what the user expects to see.
-        $packageDisplayName = $jaCoCoPackage.Name -replace '^\.', $sourcePathFolderName
+        $packageDisplayName = ($jaCoCoPackage.Name -replace '^\.', $sourcePathFolderName) -replace '\\','/'
 
         <#
             The module version is what is expected to be in the XML.
@@ -1031,7 +1031,7 @@ task Convert_Pester_Coverage {
             E.g. Codecov.io config converts this back to 'source' (or whatever
             is configured in 'codecov.yml').
         #>
-        $xmlPackageName = $jaCoCoPackage.Name -replace '^\.', $ModuleVersionFolder
+        $xmlPackageName = ($jaCoCoPackage.Name -replace '^\.', $ModuleVersionFolder) -replace '\\','/'
 
         Write-Debug -Message ('Creating XML output for JaCoCo package ''{0}''.' -f $packageDisplayName)
 
@@ -1064,7 +1064,7 @@ task Convert_Pester_Coverage {
                 Covered = 0
             }
 
-            $classDisplayName = $jaCocoClass.Name -replace '^\.', $sourcePathFolderName
+            $classDisplayName = ($jaCocoClass.Name -replace '^\.', $sourcePathFolderName) -replace '\\','/'
 
             <#
                 The module version is what is expected to be in the XML.
@@ -1072,7 +1072,7 @@ task Convert_Pester_Coverage {
                 E.g. Codecov.io config converts this back to 'source' (or whatever
                 is configured in 'codecov.yml').
             #>
-            $sourceFilePath = $jaCocoClass.Name -replace '^\.', $ModuleVersionFolder
+            $sourceFilePath = ($jaCocoClass.Name -replace '^\.', $ModuleVersionFolder) -replace '\\','/'
             $xmlClassName = $sourceFilePath -replace '\.ps1'
             $sourceFileName = Split-Path -Path $sourceFilePath -Leaf
 
@@ -1539,7 +1539,7 @@ task Convert_Pester_Coverage {
     $xmlSettings.Indent = $true
     $xmlSettings.Encoding = [System.Text.Encoding]::$CodeCoverageOutputFileEncoding
 
-    $xmlWriter = [System.Xml.XmlWriter]::Create($CodeCoverageOutputFile, $xmlSettings)
+    $xmlWriter = [System.Xml.XmlWriter]::Create("$CodeCoverageOutputFile.bak", $xmlSettings)
 
     $originalXml.Save($xmlWriter)
 
