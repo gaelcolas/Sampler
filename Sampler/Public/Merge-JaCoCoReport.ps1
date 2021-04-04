@@ -27,6 +27,8 @@
 #>
 function Merge-JaCoCoReport
 {
+    [CmdletBinding()]
+    [OutputType([System.Xml.XmlDocument])]
     param
     (
         [Parameter(Mandatory = $true)]
@@ -41,13 +43,26 @@ function Merge-JaCoCoReport
     foreach ($mPackage in $MergeDocument.report.package)
     {
         Write-Verbose "  Processing package: $($mPackage.Name)"
+
         $oPackage = $OriginalDocument.report.package | Where-Object { $_.Name -eq $mPackage.Name }
 
-        foreach ($mSourcefile in $mPackage.sourcefile)
+        <#
+            TODO: This only supports merging whole packages. It should also support
+            merging individual 'class' elements and its accompanied 'sourcefile'
+            element into an already existing package. I think it even possible
+            that it must support merging individual 'method' elements inside a
+            'class' element too.
+        #>
+        if ($null -ne $oPackage)
         {
-            Write-Verbose "    Processing sourcefile: $($mSourcefile.Name)"
-            if ($null -ne $oPackage)
+            <#
+                'package' element already exist, add or update 'line' element for
+                the correct 'sourcefile' element inside the 'package' element.
+            #>
+            foreach ($mSourcefile in $mPackage.sourcefile)
             {
+                Write-Verbose "    Processing sourcefile: $($mSourcefile.Name)"
+
                 foreach ($mPackageLine in $mSourcefile.line)
                 {
                     $oSourcefile = $oPackage.sourcefile | Where-Object { $_.name -eq $mSourcefile.name }
@@ -81,19 +96,36 @@ function Merge-JaCoCoReport
                     }
                 }
             }
-            else
-            {
-                # New package, does not exist in origin. Add package.
-                Write-Verbose "    Package '$($mPackage.Name)' does not exist in original file. Adding..."
-                foreach ($xmlElement in $OriginalDocument.report)
-                {
-                    if ($xmlElement -is [System.Xml.XmlElement])
-                    {
-                        $null = $xmlElement.AppendChild($OriginalDocument.report.OwnerDocument.ImportNode($mPackage, $true))
-                        break
-                    }
-                }
-            }
+        }
+        else
+        {
+            # New package, does not exist in origin. Add package.
+            Write-Verbose "    Package '$($mPackage.Name)' does not exist in original file. Adding..."
+
+            <#
+                Must import the node with child elements first since it belongs
+                to another XML document.
+            #>
+            $packageElementToMerge = $OriginalDocument.ImportNode($mPackage, $true)
+
+            <#
+                Append the 'package' element to the 'report' element.
+                The second array item in 'report' property is the XmlElement object.
+            #>
+            $OriginalDocument.report[1].AppendChild($packageElementToMerge) | Out-Null
+        }
+    }
+
+    <#
+        The counters at the 'report' element level need to be moved at the end
+        of the document to comply with the DTD. Select out the report element here
+    #>
+    $elementToMove = Select-XML -Xml $OriginalDocument -XPath '/report/counter'
+
+    if ($elementToMove)
+    {
+        $elementToMove | ForEach-Object -Process {
+            $elementToMove.Node.ParentNode.AppendChild($_.Node) | Out-Null
         }
     }
 

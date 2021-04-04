@@ -79,7 +79,6 @@ function Update-JaCoCoStatistic
             Write-Verbose "  Processing sourcefile $($oPackageClass.sourcefilename)"
             $oPackageSourcefile = $oPackage.sourcefile | Where-Object -FilterScript { $_.Name -eq $oPackageClass.sourcefilename }
 
-            $oneMethodProcessed = $false
             for ($i = 0; $i -lt ([array]($oPackageClass.method)).Count; $i++)
             {
                 $methodInstructionCovered = 0
@@ -146,11 +145,6 @@ function Update-JaCoCoStatistic
                     $classMethodMissed++
                 }
 
-                if ($currentMethod[$i].Name -ne '<script>' -and $methodMissed -eq 0)
-                {
-                    $oneMethodProcessed = $true
-                }
-
                 # Update Method stats
                 $counterInstruction = $currentMethod[$i].counter | Where-Object { $_.type -eq 'INSTRUCTION' }
                 $counterInstruction.covered = [string]$methodInstructionCovered
@@ -179,7 +173,13 @@ function Update-JaCoCoStatistic
             $packageLineMissed += $classLineMissed
             $packageMethodCovered += $classMethodCovered
             $packageMethodMissed += $classMethodMissed
-            if ($oneMethodProcessed -eq $true)
+
+            <#
+                JaCoCo considers constructors as well as static initializers as methods,
+                so any code run at script level should be considered as the class
+                was run.
+            #>
+            if ($classInstructionCovered -ne 0)
             {
                 $packageClassCovered++
                 $classClassCovered = 1

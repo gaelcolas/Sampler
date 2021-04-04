@@ -13,6 +13,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for Updating the PlatyPS Markdown source in your repo (this is a dev task to do before a commit).
 - Support for Generating MAML file from Comment-based help (not recommended).
 - Support for code coverage when using ModuleBuilder pattern for building module.
+- `Update-JaCoCoStatistic`
+  - Added unit test.
+
+### Fixed
+
+- `Merge-JaCoCoReport`
+  - Now correctly adds new packages to the original document.
+  - Moves the `report` element's `counter` elements to the bottom of
+    the `report` element to comply with the DTD.
+- `Update-JaCoCoStatistic`
+  - Fixed so that statistics are updated correctly for the 'CLASS' counter.
 
 ## [0.109.10] - 2021-03-24
 

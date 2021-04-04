@@ -1088,8 +1088,17 @@ task Convert_Pester_Coverage {
                 showed that commands at script level is assigned empty string in the
                 Function property, so it should work for missed and hit commands at
                 script level too.
+
+                Sorting the objects after StartLine so they come in the order
+                they appear in the code file. Also, it is necessary for the
+                command Update-JoCaCoStatistic to work.
             #>
-            $commandsGroupedOnFunction = $jaCocoClass.Group | Group-Object -Property 'Function'
+            $commandsGroupedOnFunction = $jaCocoClass.Group |
+                    Group-Object -Property 'Function' |
+                    Sort-Object -Property {
+                        # Find the first line for each method.
+                        ($_.Group.SourceLineNumber | Measure-Object -Minimum).Minimum
+                    }
 
             foreach ($jaCoCoMethod in $commandsGroupedOnFunction)
             {
@@ -1522,7 +1531,7 @@ task Convert_Pester_Coverage {
 
     Write-Build -Color 'DarkGray' -Text "`tUpdating statistics in the new code coverage file."
 
-    #$targetXmlDocument = Update-JaCoCoStatistic -Document $targetXmlDocument
+    $targetXmlDocument = Update-JaCoCoStatistic -Document $targetXmlDocument
 
     Write-Build -Color 'DarkGray' -Text "`tWriting back updated code coverage file to '$CodeCoverageOutputFile'."
 
