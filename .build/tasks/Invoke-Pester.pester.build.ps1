@@ -917,8 +917,8 @@ task Convert_Pester_Coverage {
     $coverageXml.AppendChild($xmlDocumentType) | Out-Null
 
     # Root element 'report'.
-    $xmlRootNode = $coverageXml.CreateNode('element', 'report', $null)
-    $xmlRootNode.SetAttribute('name', 'Sampler ({0})' -f (Get-Date).ToString('yyyy-mm-dd HH:mm:ss'))
+    $xmlElementReport = $coverageXml.CreateNode('element', 'report', $null)
+    $xmlElementReport.SetAttribute('name', 'Sampler ({0})' -f (Get-Date).ToString('yyyy-mm-dd HH:mm:ss'))
 
     <#
         Child element 'sessioninfo'.
@@ -937,7 +937,7 @@ task Convert_Pester_Coverage {
     $xmlElementSessionInfo.SetAttribute('id', 'this')
     $xmlElementSessionInfo.SetAttribute('start', $sessionInfoStartTime)
     $xmlElementSessionInfo.SetAttribute('dump', $sessionInfoEndTime)
-    $xmlRootNode.AppendChild($xmlElementSessionInfo) | Out-Null
+    $xmlElementReport.AppendChild($xmlElementSessionInfo) | Out-Null
 
     <#
         This is how each object in $allCommands looks like:
@@ -976,6 +976,26 @@ task Convert_Pester_Coverage {
 
     $commandsGroupedOnParentFolder = $allCommands | Group-Object -Property {
         Split-Path -Path $_.SourceFile -Parent
+    }
+
+    $reportCounterInstruction = @{
+        Missed  = 0
+        Covered = 0
+    }
+
+    $reportCounterLine = @{
+        Missed  = 0
+        Covered = 0
+    }
+
+    $reportCounterMethod = @{
+        Missed  = 0
+        Covered = 0
+    }
+
+    $reportCounterClass = @{
+        Missed  = 0
+        Covered = 0
     }
 
     foreach ($jaCocoPackage in $commandsGroupedOnParentFolder)
@@ -1137,6 +1157,9 @@ task Convert_Pester_Coverage {
                 $packageCounterInstruction.Covered += $numberOfInstructionsCovered
                 $packageCounterInstruction.Missed += $numberOfInstructionsMissed
 
+                $reportCounterInstruction.Covered += $numberOfInstructionsCovered
+                $reportCounterInstruction.Missed += $numberOfInstructionsMissed
+
                 <#
                     Child element 'counter' and type LINE.
 
@@ -1170,6 +1193,9 @@ task Convert_Pester_Coverage {
                 $packageCounterLine.Covered += $numberOfLinesCovered
                 $packageCounterLine.Missed += $numberOfLinesMissed
 
+                $reportCounterLine.Covered += $numberOfLinesCovered
+                $reportCounterLine.Missed += $numberOfLinesMissed
+
                 <#
                     Child element 'counter' and type METHOD.
 
@@ -1196,6 +1222,8 @@ task Convert_Pester_Coverage {
                     $classCounterMethod.Covered += 1
 
                     $packageCounterMethod.Covered += 1
+
+                    $reportCounterMethod.Covered += 1
                 }
                 else
                 {
@@ -1205,6 +1233,8 @@ task Convert_Pester_Coverage {
                     $classCounterMethod.Missed += 1
 
                     $packageCounterMethod.Missed += 1
+
+                    $reportCounterMethod.Missed += 1
                 }
 
                 $xmlElementCounterMethod = $coverageXml.CreateElement('counter')
@@ -1234,6 +1264,8 @@ task Convert_Pester_Coverage {
                 $classMissed = 0
 
                 $packageCounterClass.Covered += 1
+
+                $reportCounterClass.Covered += 1
             }
             else
             {
@@ -1241,6 +1273,8 @@ task Convert_Pester_Coverage {
                 $classMissed = 1
 
                 $packageCounterClass.Missed += 1
+
+                $reportCounterClass.Missed += 1
             }
 
             $xmlElementCounter_ClassMethod = $coverageXml.CreateElement('counter')
@@ -1385,10 +1419,35 @@ task Convert_Pester_Coverage {
         $xmlElementCounter_PackageClass.SetAttribute('covered', $packageCounterClass.Covered)
         $xmlElementPackage.AppendChild($xmlElementCounter_PackageClass) | Out-Null
 
-        $xmlRootNode.AppendChild($xmlElementPackage) | Out-Null
+        $xmlElementReport.AppendChild($xmlElementPackage) | Out-Null
     } # end package loop
 
-    $coverageXml.AppendChild($xmlRootNode) | Out-Null
+    # Add counters at the report level.
+    $xmlElementCounter_ReportInstruction = $coverageXml.CreateElement('counter')
+    $xmlElementCounter_ReportInstruction.SetAttribute('type', 'INSTRUCTION')
+    $xmlElementCounter_ReportInstruction.SetAttribute('missed', $reportCounterInstruction.Missed)
+    $xmlElementCounter_ReportInstruction.SetAttribute('covered', $reportCounterInstruction.Covered)
+    $xmlElementReport.AppendChild($xmlElementCounter_ReportInstruction) | Out-Null
+
+    $xmlElementCounter_ReportLine = $coverageXml.CreateElement('counter')
+    $xmlElementCounter_ReportLine.SetAttribute('type', 'LINE')
+    $xmlElementCounter_ReportLine.SetAttribute('missed', $reportCounterLine.Missed)
+    $xmlElementCounter_ReportLine.SetAttribute('covered', $reportCounterLine.Covered)
+    $xmlElementReport.AppendChild($xmlElementCounter_ReportLine) | Out-Null
+
+    $xmlElementCounter_ReportMethod = $coverageXml.CreateElement('counter')
+    $xmlElementCounter_ReportMethod.SetAttribute('type', 'METHOD')
+    $xmlElementCounter_ReportMethod.SetAttribute('missed', $reportCounterMethod.Missed)
+    $xmlElementCounter_ReportMethod.SetAttribute('covered', $reportCounterMethod.Covered)
+    $xmlElementReport.AppendChild($xmlElementCounter_ReportMethod) | Out-Null
+
+    $xmlElementCounter_ReportClass = $coverageXml.CreateElement('counter')
+    $xmlElementCounter_ReportClass.SetAttribute('type', 'CLASS')
+    $xmlElementCounter_ReportClass.SetAttribute('missed', $reportCounterClass.Missed)
+    $xmlElementCounter_ReportClass.SetAttribute('covered', $reportCounterClass.Covered)
+    $xmlElementReport.AppendChild($xmlElementCounter_ReportClass) | Out-Null
+
+    $coverageXml.AppendChild($xmlElementReport) | Out-Null
 
     if ($DebugPreference -ne 'SilentlyContinue')
     {
