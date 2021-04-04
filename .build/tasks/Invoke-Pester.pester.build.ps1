@@ -911,7 +911,7 @@ task Convert_Pester_Coverage {
     $xmlDeclaration = $coverageXml.CreateXmlDeclaration('1.0', 'UTF-8', 'no')
 
     # DTD: https://www.jacoco.org/jacoco/trunk/coverage/report.dtd
-    $xmlDocumentType = $coverageXml.CreateDocumentType('report', '-//JACOCO//DTD Report 1.1//EN', 'report.dtd', $null)
+    $xmlDocumentType = $coverageXml.CreateDocumentType('report', '-//JACOCO//DTD Report 1.1//EN', 'https://www.jacoco.org/jacoco/trunk/coverage/report.dtd', $null)
 
     $coverageXml.AppendChild($xmlDeclaration) | Out-Null
     $coverageXml.AppendChild($xmlDocumentType) | Out-Null
@@ -1539,7 +1539,7 @@ task Convert_Pester_Coverage {
     $xmlSettings.Indent = $true
     $xmlSettings.Encoding = [System.Text.Encoding]::$CodeCoverageOutputFileEncoding
 
-    $xmlWriter = [System.Xml.XmlWriter]::Create("$CodeCoverageOutputFile.bak", $xmlSettings)
+    $xmlWriter = [System.Xml.XmlWriter]::Create($CodeCoverageOutputFile, $xmlSettings)
 
     $originalXml.Save($xmlWriter)
 
