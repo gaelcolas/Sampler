@@ -175,9 +175,9 @@ function Update-JaCoCoStatistic
             $packageMethodMissed += $classMethodMissed
 
             <#
-                JaCoCo considers constructors as well as static initializers as methods,
-                so any code run at script level should be considered as the class
-                was run.
+                JaCoCo considers constructors as well as static initializers as
+                methods, so any code run at script level (method '<script>') should
+                be considered as the class was run.
             #>
             if ($classInstructionCovered -ne 0)
             {
