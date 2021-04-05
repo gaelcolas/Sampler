@@ -118,8 +118,8 @@ function Merge-JaCoCoReport
 
     <#
         The counters at the 'report' element level need to be moved at the end
-        of the document to comply with the DTD. Select out the report element here,
-        and move any that is found.
+        of the document to comply with the DTD. Select out the counter elements
+        under the report element, and move any that is found.
     #>
     $elementToMove = Select-XML -Xml $OriginalDocument -XPath '/report/counter'
 
