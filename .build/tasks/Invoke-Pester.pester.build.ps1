@@ -907,11 +907,21 @@ task Convert_Pester_Coverage {
 
     [System.Xml.XmlDocument] $coverageXml = ''
 
+    <#
+        This need to be set on Windows PowerShell even if it is already $null
+        otherwise 'CreateDocumentType()' below will try to load the DTD. This
+        does not happen on PowerShell and this line is not needed it Windows
+        PowerShell is not used at all. Seems that setting this property changes
+        something internal in [System.Xml.XmlDocument].
+        See https://stackoverflow.com/questions/11135343/xml-documenttype-method-createdocumenttype-crashes-if-dtd-is-absent-net-c-sharp.
+    #>
+    $coverageXml.XmlResolver = $null
+
     # XML header.
     $xmlDeclaration = $coverageXml.CreateXmlDeclaration('1.0', 'UTF-8', 'no')
 
     # DTD: https://www.jacoco.org/jacoco/trunk/coverage/report.dtd
-    $xmlDocumentType = $coverageXml.CreateDocumentType('report', '-//JACOCO//DTD Report 1.1//EN', 'https://www.jacoco.org/jacoco/trunk/coverage/report.dtd', $null)
+    $xmlDocumentType = $coverageXml.CreateDocumentType('report', '-//JACOCO//DTD Report 1.1//EN', 'report.dtd', $null)
 
     $coverageXml.AppendChild($xmlDeclaration) | Out-Null
     $coverageXml.AppendChild($xmlDocumentType) | Out-Null
@@ -1495,6 +1505,17 @@ task Convert_Pester_Coverage {
     Write-Build -Color 'DarkGray' -Text "`tImporting original code coverage file '$CodeCoverageOutputFile'."
 
     $originalXml = New-Object -TypeName 'System.Xml.XmlDocument'
+
+    <#
+        This need to be set on Windows PowerShell even if it is already $null
+        otherwise 'Load()' below will try to load the DTD. This
+        does not happen on PowerShell and this line is not needed it Windows
+        PowerShell is not used at all. Seems that setting this property changes
+        something internal in [System.Xml.XmlDocument].
+        See https://stackoverflow.com/questions/11135343/xml-documenttype-method-createdocumenttype-crashes-if-dtd-is-absent-net-c-sharp.
+    #>
+    $originalXml.XmlResolver = $null
+
     $originalXml.Load($CodeCoverageOutputFile)
 
     $codeCoverageOutputBackupFile = $CodeCoverageOutputFile -replace '\.xml', '.bak.xml'
