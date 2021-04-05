@@ -843,11 +843,12 @@ task Convert_Pester_Coverage {
         Where-Object -FilterScript { $_.File -match [RegEx]::Escape($moduleFileName) }
 
     <#
-        This command uses 'PassThru' very strange. It is needed to update the
-        content of $missedCommands correctly (for it to add the SourceFile and
-        SourceLineNumber properties).
+        The command Convert-LineNumber uses 'PassThru' very strange. It is needed
+        to update the content of passed in object correctly (from the pipeline in
+        this case). When using PassThru the command adds the properties SourceFile
+        and SourceLineNumber.
 
-        THe command Convert-LineNumber is part of ModuleBuilder.
+        The command Convert-LineNumber is part of ModuleBuilder.
     #>
     $missedCommands | Convert-LineNumber -ErrorAction 'Stop' -PassThru | Out-Null
     $hitCommands | Convert-LineNumber -ErrorAction 'Stop' -PassThru | Out-Null
