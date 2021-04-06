@@ -9,7 +9,7 @@
     .PARAMETER PSDependTarget
         Path for PSDepend to be bootstrapped and save other dependencies.
         Can also be CurrentUser or AllUsers if you wish to install the modules in
-        such scope. The default value is './output/RequiredModules' relative to
+        such scope. The default value is 'output/RequiredModules' relative to
         this script's path.
 
     .PARAMETER Proxy
@@ -59,7 +59,7 @@ param
 
     [Parameter()]
     [System.String]
-    $PSDependTarget = (Join-Path -Path $PSScriptRoot -ChildPath './output/RequiredModules'),
+    $PSDependTarget = (Join-Path -Path $PSScriptRoot -ChildPath 'output/RequiredModules'),
 
     [Parameter()]
     [System.Uri]
@@ -328,6 +328,7 @@ try
                 Name       = 'PSDepend'
                 Repository = $Gallery
                 Path       = $PSDependTarget
+                Force      = $true
             }
 
             if ($MinimumPSDependVersion)
