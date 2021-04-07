@@ -93,7 +93,7 @@ stages:
             inputs:
               codeCoverageTool: 'JaCoCo'
               summaryFileLocation: 'output/testResults/JaCoCo_coverage.xml'
-              pathToSources: '$(Build.SourcesDirectory)/output/$(dscBuildVariable.RepositoryName)'
+              pathToSources: '$(Build.SourcesDirectory)/$(dscBuildVariable.RepositoryName)/Sampler'
 
       - job: test_windows_core
         displayName: 'Windows (PowerShell Core)'
@@ -173,7 +173,7 @@ stages:
             inputs:
               codeCoverageTool: 'JaCoCo'
               summaryFileLocation: 'output/testResults/JaCoCo_coverage.xml'
-              pathToSources: '$(Build.SourcesDirectory)/output/$(dscBuildVariable.RepositoryName)'
+              pathToSources: '$(Build.SourcesDirectory)/$(dscBuildVariable.RepositoryName)/Sampler'
 
       - job: test_macos
         displayName: 'macOS'
@@ -217,7 +217,7 @@ stages:
             inputs:
               codeCoverageTool: 'JaCoCo'
               summaryFileLocation: 'output/testResults/JaCoCo_coverage.xml'
-              pathToSources: '$(Build.SourcesDirectory)/output/$(dscBuildVariable.RepositoryName)'
+              pathToSources: '$(Build.SourcesDirectory)/$(dscBuildVariable.RepositoryName)/Sampler'
 
       - job: Code_Coverage
         displayName: 'Publish Code Coverage'
@@ -250,7 +250,7 @@ stages:
             inputs:
               codeCoverageTool: 'JaCoCo'
               summaryFileLocation: '$(buildFolderName)/$(testResultFolderName)/JaCoCo_coverage.xml'
-              pathToSources: '$(Build.SourcesDirectory)/$(buildFolderName)/$(dscBuildVariable.RepositoryName)'
+              pathToSources: '$(Build.SourcesDirectory)/$(dscBuildVariable.RepositoryName)/Sampler'
           - script: |
               bash <(curl -s https://codecov.io/bash) -f "./$(buildFolderName)/$(testResultFolderName)/JaCoCo_coverage.xml"
             displayName: 'Upload to Codecov.io'
