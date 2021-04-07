@@ -262,7 +262,10 @@ stages:
             inputs:
               codeCoverageTool: 'JaCoCo'
               summaryFileLocation: '$(buildFolderName)/$(testResultFolderName)/JaCoCo_coverage.xml'
-              pathToSources: '$(Build.SourcesDirectory)/$(dscBuildVariable.RepositoryName)'
+              pathToSources:
+                - '$(Build.SourcesDirectory)/$(dscBuildVariable.RepositoryName)'
+                - '$(Build.SourcesDirectory)/$(dscBuildVariable.RepositoryName)\Public'
+                - '$(Build.SourcesDirectory)/$(dscBuildVariable.RepositoryName)\Private'
           - script: |
               bash <(curl -s https://codecov.io/bash) -f "./$(buildFolderName)/$(testResultFolderName)/JaCoCo_coverage.xml"
             displayName: 'Upload to Codecov.io'
