@@ -1093,7 +1093,6 @@ task Convert_Pester_Coverage {
             #>
             $xmlClassName = if ([System.String]::IsNullOrEmpty($jaCocoClass.Group[0].Class))
             {
-
                 if ([System.String]::IsNullOrEmpty($jaCocoClass.Group[0].Function))
                 {
                     '<script>'
@@ -1578,6 +1577,13 @@ task Convert_Pester_Coverage {
 
     $targetXmlDocument = Update-JaCoCoStatistic -Document $targetXmlDocument
 
+    Write-Build -Color 'DarkGray' -Text ("`tUpdating path to include source folder '{0}' in the package element in the coverage file." -f $sourcePathFolderName)
+
+    Select-Xml -Xml $xml -XPath '//package' |
+        ForEach-Object -Process {
+            $_.Node.name = $_.Node.name -replace '^\d+\.\d+\.\d+', $sourcePathFolderName
+        }
+
     Write-Build -Color 'DarkGray' -Text "`tWriting back updated code coverage file to '$CodeCoverageOutputFile'."
 
     $xmlSettings = New-Object -TypeName 'System.Xml.XmlWriterSettings'
@@ -1586,7 +1592,7 @@ task Convert_Pester_Coverage {
 
     $xmlWriter = [System.Xml.XmlWriter]::Create($CodeCoverageOutputFile, $xmlSettings)
 
-    $originalXml.Save($xmlWriter)
+    $targetXmlDocument.Save($xmlWriter)
 
     $xmlWriter.Close()
 
