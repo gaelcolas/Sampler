@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     the `report` element to comply with the DTD.
 - `Update-JaCoCoStatistic`
   - Fixed so that statistics are updated correctly for the 'CLASS' counter.
+- Fixed codecov.yml to parse version number in paths correctly.
 
 ## [0.109.10] - 2021-03-24
 
