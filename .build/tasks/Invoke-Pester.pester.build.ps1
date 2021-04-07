@@ -1030,12 +1030,7 @@ task Convert_Pester_Coverage {
     # This is what the user expects to see.
     $packageDisplayName = $sourcePathFolderName
 
-    <#
-        The module version is what is expected to be in the XML.
-
-        E.g. Codecov.io config converts this back to 'source' (or whatever
-        is configured in 'codecov.yml').
-    #>
+    # The module version is what is expected to be in the XML.
     $xmlPackageName = $ModuleVersionFolder
 
     Write-Debug -Message ('Creating XML output for JaCoCo package ''{0}''.' -f $packageDisplayName)
