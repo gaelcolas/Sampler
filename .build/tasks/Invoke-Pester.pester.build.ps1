@@ -1005,19 +1005,19 @@ task Convert_Pester_Coverage {
         Covered = 0
     }
 
-    $commandsGroupedOnParentFolder = $allCommands | Group-Object -Property {
-        $parentFolder = Split-Path -Path $_.SourceFile -Parent
+    # $commandsGroupedOnParentFolder = $allCommands | Group-Object -Property {
+    #     $parentFolder = Split-Path -Path $_.SourceFile -Parent
 
-        # TODO: We should just create one package element here instead of looping
-        if ($parentFolder -ne $ModuleVersionFolder)
-        {
-            # If we on a child folder, move up to next parent folder.
-            $parentFolder = Split-Path $parentFolder -Parent
-        }
-    }
+    #     # TODO: We should just create one package element here instead of looping
+    #     if ($parentFolder -ne $ModuleVersionFolder)
+    #     {
+    #         # If we on a child folder, move up to next parent folder.
+    #         $parentFolder = Split-Path $parentFolder -Parent
+    #     }
+    # }
 
-    foreach ($jaCocoPackage in $commandsGroupedOnParentFolder)
-    {
+    # foreach ($jaCocoPackage in $commandsGroupedOnParentFolder)
+    # {
         $packageCounterInstruction = @{
             Missed  = 0
             Covered = 0
@@ -1041,7 +1041,7 @@ task Convert_Pester_Coverage {
         $allSourceFileElements = @()
 
         # This is what the user expects to see.
-        $packageDisplayName = ($jaCoCoPackage.Name -replace '^\.', $sourcePathFolderName) -replace '\\','/'
+        $packageDisplayName = $sourcePathFolderName
 
         <#
             The module version is what is expected to be in the XML.
@@ -1049,7 +1049,7 @@ task Convert_Pester_Coverage {
             E.g. Codecov.io config converts this back to 'source' (or whatever
             is configured in 'codecov.yml').
         #>
-        $xmlPackageName = ($jaCoCoPackage.Name -replace '^\.', $ModuleVersionFolder) -replace '\\','/'
+        $xmlPackageName = $ModuleVersionFolder
 
         Write-Debug -Message ('Creating XML output for JaCoCo package ''{0}''.' -f $packageDisplayName)
 
@@ -1063,7 +1063,7 @@ task Convert_Pester_Coverage {
         $xmlElementPackage = $coverageXml.CreateElement('package')
         $xmlElementPackage.SetAttribute('name', $xmlPackageName)
 
-        $commandsGroupedOnSourceFile = $jaCoCoPackage.Group | Group-Object -Property 'SourceFile'
+        $commandsGroupedOnSourceFile = $allCommands | Group-Object -Property 'SourceFile'
 
         foreach ($jaCocoClass in $commandsGroupedOnSourceFile)
         {
@@ -1442,7 +1442,7 @@ task Convert_Pester_Coverage {
         $xmlElementPackage.AppendChild($xmlElementCounter_PackageClass) | Out-Null
 
         $xmlElementReport.AppendChild($xmlElementPackage) | Out-Null
-    } # end package loop
+    #} # end package loop
 
     # Add counters at the report level.
     $xmlElementCounter_ReportInstruction = $coverageXml.CreateElement('counter')
