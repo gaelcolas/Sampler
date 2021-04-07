@@ -246,7 +246,7 @@ stages:
               targetPath: '$(Build.SourcesDirectory)/$(buildFolderName)/$(testResultFolderName)'
           - pwsh: |
               # Add code to change version
-              $path = Resolve-Path -Path '.\testResults\JaCoCo_coverage.xml'
+              $path = Resolve-Path -Path '.\output\testResults\JaCoCo_coverage.xml'
               [xml] $xml = Get-Content -Path $path
               Select-Xml -Xml $xml -XPath '//package' | ForEach-Object -Process { $_.Node.name = $_.Node.name -replace '^\d+\.\d+\.\d+','Sampler' }
               Select-Xml -Xml $xml -XPath '//class' | ForEach-Object -Process { $_.Node.name = $_.Node.name -replace '^\d+\.\d+\.\d+','Sampler' }
