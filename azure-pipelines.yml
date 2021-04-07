@@ -175,33 +175,33 @@ stages:
           #     summaryFileLocation: 'output/testResults/JaCoCo_coverage.xml'
           #     pathToSources: '$(Build.SourcesDirectory)/$(dscBuildVariable.RepositoryName)'
 
-      # - job: test_macos
-      #   displayName: 'macOS'
-      #   timeoutInMinutes: 0
-      #   pool:
-      #     vmImage: 'macos-latest'
-      #   steps:
-      #     - task: DownloadPipelineArtifact@2
-      #       displayName: 'Download Pipeline Artifact'
-      #       inputs:
-      #         buildType: 'current'
-      #         artifactName: 'output'
-      #         targetPath: '$(Build.SourcesDirectory)/output'
+      - job: test_macos
+        displayName: 'macOS'
+        timeoutInMinutes: 0
+        pool:
+          vmImage: 'macos-latest'
+        steps:
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download Pipeline Artifact'
+            inputs:
+              buildType: 'current'
+              artifactName: 'output'
+              targetPath: '$(Build.SourcesDirectory)/output'
 
-      #     - powershell: |
-      #         $repositoryOwner,$repositoryName = $env:BUILD_REPOSITORY_NAME -split '/'
-      #         echo "##vso[task.setvariable variable=RepositoryOwner;isOutput=true]$repositoryOwner"
-      #         echo "##vso[task.setvariable variable=RepositoryName;isOutput=true]$repositoryName"
-      #       name: dscBuildVariable
-      #       displayName: 'Set Environment Variables'
+          - powershell: |
+              $repositoryOwner,$repositoryName = $env:BUILD_REPOSITORY_NAME -split '/'
+              echo "##vso[task.setvariable variable=RepositoryOwner;isOutput=true]$repositoryOwner"
+              echo "##vso[task.setvariable variable=RepositoryName;isOutput=true]$repositoryName"
+            name: dscBuildVariable
+            displayName: 'Set Environment Variables'
 
-      #     - task: PowerShell@2
-      #       name: test
-      #       displayName: 'Run Tests'
-      #       inputs:
-      #         filePath: './build.ps1'
-      #         arguments: '-tasks test'
-      #         pwsh: true
+          - task: PowerShell@2
+            name: test
+            displayName: 'Run Tests'
+            inputs:
+              filePath: './build.ps1'
+              arguments: '-tasks test'
+              pwsh: true
 
           - task: PublishTestResults@2
             displayName: 'Publish Test Results'
