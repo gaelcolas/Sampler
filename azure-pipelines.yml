@@ -92,7 +92,7 @@ stages:
             condition: succeededOrFailed()
             inputs:
               codeCoverageTool: 'JaCoCo'
-              summaryFileLocation: 'output/testResults/CodeCov*.xml'
+              summaryFileLocation: 'output/testResults/JaCoCo_coverage.xml'
               pathToSources: '$(Build.SourcesDirectory)/output/$(dscBuildVariable.RepositoryName)'
 
       - job: test_windows_core
@@ -172,7 +172,7 @@ stages:
             condition: succeededOrFailed()
             inputs:
               codeCoverageTool: 'JaCoCo'
-              summaryFileLocation: 'output/testResults/CodeCov*.xml'
+              summaryFileLocation: 'output/testResults/JaCoCo_coverage.xml'
               pathToSources: '$(Build.SourcesDirectory)/output/$(dscBuildVariable.RepositoryName)'
 
       - job: test_macos
@@ -216,7 +216,7 @@ stages:
             condition: succeededOrFailed()
             inputs:
               codeCoverageTool: 'JaCoCo'
-              summaryFileLocation: 'output/testResults/CodeCov*.xml'
+              summaryFileLocation: 'output/testResults/JaCoCo_coverage.xml'
               pathToSources: '$(Build.SourcesDirectory)/output/$(dscBuildVariable.RepositoryName)'
 
       - job: Code_Coverage
