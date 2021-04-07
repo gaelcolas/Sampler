@@ -1086,7 +1086,20 @@ task Convert_Pester_Coverage {
 
             # The module version is what is expected to be in the XML.
             $sourceFilePath = ($jaCocoClass.Name -replace '^\.', $ModuleVersionFolder) -replace '\\','/'
-            $xmlClassName = $sourceFilePath -replace '\.ps1'
+
+            <#
+                Get class name if it exist, otherwise use function name. The first
+                object should in the array should give us the right information.
+            #>
+            $xmlClassName = if ([System.String]::IsNullOrEmpty($jaCocoClass.Group[0].Class))
+            {
+                $jaCocoClass.Group[0].Function
+            }
+            else
+            {
+                $jaCocoClass.Group[0].Class
+            }
+
             $sourceFileName = $sourceFilePath -replace [regex]::Escape('{0}/' -f $ModuleVersionFolder)
 
             Write-Debug -Message ("`tCreating XML output for JaCoCo class '{0}'." -f $classDisplayName)
