@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Resolve-Dependency.ps1 PSDependTarget param no longer includes period.
+- Resolve-Dependency.ps1 Save-Module added -Force switch to create non-existent directory.
+
 ### Added
 
 - Support for Generating MAML help files (all Locale/Culture) from PlatyPS Markdown Source.
