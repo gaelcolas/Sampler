@@ -1579,7 +1579,7 @@ task Convert_Pester_Coverage {
 
     Write-Build -Color 'DarkGray' -Text ("`tUpdating path to include source folder '{0}' in the package element in the coverage file." -f $sourcePathFolderName)
 
-    Select-Xml -Xml $xml -XPath '//package' |
+    Select-Xml -Xml $targetXmlDocument -XPath '//package' |
         ForEach-Object -Process {
             $_.Node.name = $_.Node.name -replace '^\d+\.\d+\.\d+', $sourcePathFolderName
         }
