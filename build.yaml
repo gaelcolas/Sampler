@@ -57,6 +57,8 @@ Pester:
   ExcludeTag:
   Tag:
   CodeCoverageThreshold: 10 # Set to 0 to bypass
+  CodeCoverageOutputFile: JaCoCo_coverage.xml
+  CodeCoverageOutputFileEncoding: ascii
 
 DscTest:
   ExcludeTag:
@@ -98,6 +100,7 @@ BuildWorkflow:
   # defining test task to be run when invoking `./build.ps1 -Tasks test`
   test:
     - Pester_Tests_Stop_On_Fail
+    - Convert_Pester_Coverage
     - Pester_if_Code_Coverage_Under_Threshold
     - hqrmtest
 
