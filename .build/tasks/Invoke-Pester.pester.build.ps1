@@ -1093,7 +1093,15 @@ task Convert_Pester_Coverage {
             #>
             $xmlClassName = if ([System.String]::IsNullOrEmpty($jaCocoClass.Group[0].Class))
             {
-                $jaCocoClass.Group[0].Function
+
+                $functionName = if ([System.String]::IsNullOrEmpty($jaCocoClass.Group[0].Function))
+                {
+                    '<script>'
+                }
+                else
+                {
+                    $jaCocoClass.Group[0].Function
+                }
             }
             else
             {
