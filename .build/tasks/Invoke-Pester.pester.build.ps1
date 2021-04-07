@@ -985,10 +985,6 @@ task Convert_Pester_Coverage {
 
     $sourcePathFolderName = (Split-Path -Path $SourcePath -Leaf) -replace '\\','/'
 
-    $commandsGroupedOnParentFolder = $allCommands | Group-Object -Property {
-        Split-Path -Path $_.SourceFile -Parent
-    }
-
     $reportCounterInstruction = @{
         Missed  = 0
         Covered = 0
@@ -1007,6 +1003,17 @@ task Convert_Pester_Coverage {
     $reportCounterClass = @{
         Missed  = 0
         Covered = 0
+    }
+
+    $commandsGroupedOnParentFolder = $allCommands | Group-Object -Property {
+        $parentFolder = Split-Path -Path $_.SourceFile -Parent
+
+        # TODO: We should just create one package element here instead of looping
+        if ($parentFolder -ne $ModuleVersionFolder)
+        {
+            # If we on a child folder, move up to next parent folder.
+            $parentFolder = Split-Path $parentFolder -Parent
+        }
     }
 
     foreach ($jaCocoPackage in $commandsGroupedOnParentFolder)
@@ -1077,15 +1084,10 @@ task Convert_Pester_Coverage {
 
             $classDisplayName = ($jaCocoClass.Name -replace '^\.', $sourcePathFolderName) -replace '\\','/'
 
-            <#
-                The module version is what is expected to be in the XML.
-
-                E.g. Codecov.io config converts this back to 'source' (or whatever
-                is configured in 'codecov.yml').
-            #>
+            # The module version is what is expected to be in the XML.
             $sourceFilePath = ($jaCocoClass.Name -replace '^\.', $ModuleVersionFolder) -replace '\\','/'
             $xmlClassName = $sourceFilePath -replace '\.ps1'
-            $sourceFileName = Split-Path -Path $sourceFilePath -Leaf
+            $sourceFileName = $sourceFilePath -replace [regex]::Escape('{0}/' -f $ModuleVersionFolder)
 
             Write-Debug -Message ("`tCreating XML output for JaCoCo class '{0}'." -f $classDisplayName)
 
