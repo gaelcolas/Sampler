@@ -763,14 +763,15 @@ task Convert_Pester_Coverage {
     $PesterOutputFolder = Get-SamplerAbsolutePath -Path $PesterOutputFolder -RelativeTo $OutputDirectory
     "`tPester Output Folder     = '$PesterOutputFolder'"
 
-    if (-not (Split-Path -IsAbsolute $PesterOutputFolder))
-    {
-        $PesterOutputFolder = Join-Path -Path $OutputDirectory -ChildPath $PesterOutputFolder
-    }
-
     $osShortName = Get-OperatingSystemShortName
 
     $powerShellVersion = 'PSv.{0}' -f $PSVersionTable.PSVersion
+
+    $moduleFileName = '{0}.psm1' -f $ProjectName
+
+    "`tModule File Name         = '$moduleFileName'"
+
+    #### TODO: Split Script Task Variables here
 
     $getPesterOutputFileFileNameParameters = @{
         ProjectName       = $ProjectName
@@ -779,9 +780,7 @@ task Convert_Pester_Coverage {
         PowerShellVersion = $powerShellVersion
     }
 
-    $moduleFileName = '{0}.psm1' -f $ProjectName
-
-    "`tModule File Name         = '$moduleFileName'"
+    $pesterOutputFileFileName = Get-PesterOutputFileFileName @getPesterOutputFileFileNameParameters
 
     $getCodeCoverageOutputFile = @{
         BuildInfo          = $BuildInfo
@@ -808,11 +807,7 @@ task Convert_Pester_Coverage {
     "`tCodeCoverageOutputFileEncoding = $CodeCoverageOutputFileEncoding"
     ""
 
-    #### TODO: Split Script Task Variables here
-
-    $PesterOutputFileFileName = Get-PesterOutputFileFileName @getPesterOutputFileFileNameParameters
-
-    $PesterResultObjectClixml = Join-Path $PesterOutputFolder "PesterObject_$PesterOutputFileFileName"
+    $PesterResultObjectClixml = Join-Path $PesterOutputFolder "PesterObject_$pesterOutputFileFileName"
 
     Write-Build -Color 'White' -Text "`tPester Output Object = $PesterResultObjectClixml"
 
@@ -1492,7 +1487,7 @@ task Convert_Pester_Coverage {
         Write-Debug -Message ($StringWriter.ToString() | Out-String)
     }
 
-    $newCoverageFilePath = Join-Path -Path $PesterOutputFolder -ChildPath 'JaCoCo_source_coverage.xml'
+    $newCoverageFilePath = Join-Path -Path $PesterOutputFolder -ChildPath 'source_coverage.xml'
 
     Write-Build -Color 'DarkGray' -Text "`tWriting converted code coverage file to '$newCoverageFilePath'."
 
@@ -1522,7 +1517,7 @@ task Convert_Pester_Coverage {
 
     $originalXml.Load($CodeCoverageOutputFile)
 
-    $codeCoverageOutputBackupFile = $CodeCoverageOutputFile -replace '\.xml', '.bak.xml'
+    $codeCoverageOutputBackupFile = $CodeCoverageOutputFile -replace '\.xml', '.xml.bak'
     $newCoverageFilePath = Join-Path -Path $PesterOutputFolder -ChildPath $codeCoverageOutputBackupFile
 
     Write-Build -Color 'DarkGray' -Text "`tWriting a backup of original code coverage file to '$codeCoverageOutputBackupFile'."

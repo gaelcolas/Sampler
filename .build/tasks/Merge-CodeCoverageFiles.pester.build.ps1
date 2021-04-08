@@ -1,4 +1,5 @@
-param (
+param
+(
     # Project path
     [Parameter()]
     [string]
@@ -17,12 +18,20 @@ param (
     [System.Management.Automation.SwitchParameter]
     $VersionedOutputDirectory = (property VersionedOutputDirectory $true),
 
+    [Parameter()]
+    [System.String]
+    $PesterOutputFolder = (property PesterOutputFolder 'testResults'),
+
+    [Parameter()]
+    [System.String]
+    $CodeCoverageThreshold = (property CodeCoverageThreshold ''),
+
     # Build Configuration object
     [Parameter()]
     $BuildInfo = (property BuildInfo @{ })
 )
 
-# Synopsis: Making sure the Module meets some quality standard (help, tests).
+# Synopsis: Merging several code coverage files together.
 task Merge_CodeCoverage_Files {
     if ([System.String]::IsNullOrEmpty($ProjectName))
     {
@@ -36,9 +45,9 @@ task Merge_CodeCoverage_Files {
 
     $OutputDirectory = Get-SamplerAbsolutePath -Path $OutputDirectory -RelativeTo $BuildRoot
 
-    "`tProject Name          = '$ProjectName'"
-    "`tSource Path           = '$SourcePath'"
-    "`tOutput Directory      = '$OutputDirectory'"
+    "`tProject Name                    = '$ProjectName'"
+    "`tSource Path                     = '$SourcePath'"
+    "`tOutput Directory                = '$OutputDirectory'"
 
     if ($VersionedOutputDirectory)
     {
@@ -63,46 +72,119 @@ task Merge_CodeCoverage_Files {
 
     $builtModuleManifest = Get-SamplerBuiltModuleManifest @GetBuiltModuleManifestParams
 
-    "`tBuilt Module Manifest = '$builtModuleManifest'"
+    "`tBuilt Module Manifest           = '$builtModuleManifest'"
 
     $ModuleVersion = Get-BuiltModuleVersion @GetBuiltModuleManifestParams
     $ModuleVersionObject = Split-ModuleVersion -ModuleVersion $ModuleVersion
     $ModuleVersionFolder = $ModuleVersionObject.Version
-    $preReleaseTag       = $ModuleVersionObject.PreReleaseString
+    $preReleaseTag = $ModuleVersionObject.PreReleaseString
 
-    "`tModule Version        = '$ModuleVersion'"
-    "`tModule Version Folder = '$ModuleVersionFolder'"
-    "`tPre-release Tag       = '$preReleaseTag'"
+    "`tModule Version                  = '$ModuleVersion'"
+    "`tModule Version Folder           = '$ModuleVersionFolder'"
+    "`tPre-release Tag                 = '$preReleaseTag'"
 
+    $osShortName = Get-OperatingSystemShortName
 
-    $CodeCovOutputFile = "CodeCov_Merged.xml"
-    if ($BuildInfo.ContainsKey("Pester") -eq $true -and
-        $BuildInfo.Pester.ContainsKey("CodeCoverageMergedOutputFile") -eq $true)
-    {
-        $CodeCovOutputFile = $BuildInfo.Pester.CodeCoverageMergedOutputFile
+    $powerShellVersion = 'PSv.{0}' -f $PSVersionTable.PSVersion
+
+    $moduleFileName = '{0}.psm1' -f $ProjectName
+
+    $PesterOutputFolder = Get-SamplerAbsolutePath -Path $PesterOutputFolder -RelativeTo $OutputDirectory
+
+    "`tPester Output Folder            = '$PesterOutputFolder'"
+
+    $GetCodeCoverageThresholdParameters = @{
+        RuntimeCodeCoverageThreshold = $CodeCoverageThreshold
+        BuildInfo                    = $BuildInfo
     }
 
-    $targetFile = Get-SamplerAbsolutePath -Path $CodeCovOutputFile -RelativeTo $OutputDirectory
+    $CodeCoverageThreshold = Get-CodeCoverageThreshold @GetCodeCoverageThresholdParameters
 
-    if (Test-Path -Path $targetFile)
+    if (-not $CodeCoverageThreshold)
     {
-        Write-Build Yellow "File $targetFile found, deleting file"
-        Remove-Item -Path $targetFile -Force
+        $CodeCoverageThreshold = 0
     }
 
-    Write-Build White "Processing folder: $OutputDirectory"
+    "`tCode Coverage Threshold         = '$CodeCoverageThreshold'"
 
-    $codecovFiles = Get-ChildItem -Path $OutputDirectory -Include 'codecov*.xml' -Recurse
-
-    if ($codecovFiles.Count -gt 1)
+    if ($CodeCoverageThreshold -gt 0)
     {
-        Write-Build DarkGray "Started merging $($codecovFiles.Count) code coverage files!"
-        Start-CodeCoverageMerge -Files $codecovFiles -TargetFile $targetFile
-        Write-Build DarkGray "Merge completed. Saved merge result to: $targetFile"
+        $getPesterOutputFileFileNameParameters = @{
+            ProjectName       = $ProjectName
+            ModuleVersion     = $ModuleVersion
+            OsShortName       = $osShortName
+            PowerShellVersion = $powerShellVersion
+        }
+
+        $pesterOutputFileFileName = Get-PesterOutputFileFileName @getPesterOutputFileFileNameParameters
+
+        $getCodeCoverageOutputFile = @{
+            BuildInfo          = $BuildInfo
+            PesterOutputFolder = $PesterOutputFolder
+        }
+
+        $CodeCoverageOutputFile = Get-SamplerCodeCoverageOutputFile @getCodeCoverageOutputFile
+
+        if (-not $CodeCoverageOutputFile)
+        {
+            $CodeCoverageOutputFile = (Join-Path -Path $PesterOutputFolder -ChildPath "CodeCov_$pesterOutputFileFileName")
+        }
+
+        "`tCode Coverage Output File       = $CodeCoverageOutputFile"
+
+        $CodeCoverageMergedOutputFile = 'CodeCov_Merged.xml'
+
+        if ($BuildInfo.CodeCoverage.CodeCoverageMergedOutputFile)
+        {
+            $CodeCoverageMergedOutputFile = $BuildInfo.CodeCoverage.CodeCoverageMergedOutputFile
+        }
+
+        $CodeCoverageMergedOutputFile = Get-SamplerAbsolutePath -Path $CodeCoverageMergedOutputFile -RelativeTo $PesterOutputFolder
+
+        "`tCode Coverage Merge Output File = $CodeCoverageMergedOutputFile"
+
+        $CodeCoverageFilePattern = 'Codecov*.xml'
+
+        if ($BuildInfo.ContainsKey('CodeCoverage') -and $BuildInfo.CodeCoverage.ContainsKey('CodeCoverageFilePattern'))
+        {
+            $CodeCoverageFilePattern = $BuildInfo.CodeCoverage.CodeCoverageFilePattern
+        }
+
+        "`tCode Coverage File Pattern      = $CodeCoverageFilePattern"
+
+        if (-not [System.String]::IsNullOrEmpty($CodeCoverageFilePattern))
+        {
+            $codecovFiles = Get-ChildItem -Path $PesterOutputFolder -Include $CodeCoverageFilePattern -Recurse
+        }
+
+        "`tMerging Code Coverage Files     = {0}" -f ($codecovFiles.FullName -join ',')
+        ""
+
+        if (Test-Path -Path $CodeCoverageMergedOutputFile)
+        {
+            Write-Build Yellow "File $CodeCoverageMergedOutputFile found, deleting file."
+
+            Remove-Item -Path $CodeCoverageMergedOutputFile -Force
+        }
+
+        Write-Build White "Processing folder: $OutputDirectory"
+
+        if ($codecovFiles.Count -gt 1)
+        {
+            Write-Build DarkGray "Started merging $($codecovFiles.Count) code coverage files!"
+
+            Start-CodeCoverageMerge -Files $codecovFiles -TargetFile $CodeCoverageMergedOutputFile
+
+            Write-Build Green "Merge completed. Saved merge result to: $CodeCoverageMergedOutputFile"
+        }
+        else
+        {
+            throw "Found $($codecovFiles.Count) code coverage file. Need at least two files to merge."
+        }
     }
     else
     {
-        throw "Found $($codecovFiles.Count) code coverage file. Need at least two files to merge."
+        Write-Build White 'Code coverage is not enabled, skipping.'
     }
 }
 
@@ -161,12 +243,22 @@ function Start-CodeCoverageMerge
                 Write-Verbose "The following code coverage file is not using the JaCoCo format: $($file.Name)"
             }
         }
+
         Write-Verbose "Merge completed: Successfully merged $merged files into the baseline"
 
         $targetDocument = Update-JaCoCoStatistic -Document $targetDocument
 
-        $fullTargetFilePath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($TargetFile)
-        $targetDocument.Save($fullTargetFilePath)
+        $xmlSettings = New-Object -TypeName 'System.Xml.XmlWriterSettings'
+        $xmlSettings.Indent = $true
+        $xmlSettings.Encoding = [System.Text.Encoding]::ASCII
+
+        $TargetFile = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($TargetFile)
+
+        $xmlWriter = [System.Xml.XmlWriter]::Create($TargetFile, $xmlSettings)
+
+        $targetDocument.Save($xmlWriter)
+
+        $xmlWriter.Close()
     }
     else
     {
