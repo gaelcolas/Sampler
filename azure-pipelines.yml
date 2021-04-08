@@ -87,13 +87,12 @@ stages:
               testResultsFiles: 'output/testResults/NUnit*.xml'
               testRunTitle: 'Linux'
 
-          # - task: PublishCodeCoverageResults@1
-          #   displayName: 'Publish Code Coverage'
-          #   condition: succeededOrFailed()
-          #   inputs:
-          #     codeCoverageTool: 'JaCoCo'
-          #     summaryFileLocation: 'output/testResults/JaCoCo_coverage.xml'
-          #     pathToSources: '$(Build.SourcesDirectory)/$(dscBuildVariable.RepositoryName)'
+          - task: PublishPipelineArtifact@1
+            displayName: 'Publish Test Artifact'
+            inputs:
+              targetPath: '$(buildFolderName)/$(testResultFolderName)/'
+              artifactName: 'CodeCoverage_Linux'
+              parallel: true
 
       - job: test_windows_core
         displayName: 'Windows (PowerShell Core)'
@@ -128,7 +127,7 @@ stages:
             displayName: 'Publish Test Artifact'
             inputs:
               targetPath: '$(buildFolderName)/$(testResultFolderName)/'
-              artifactName: $(testArtifactName)
+              artifactName: 'CodeCoverage_WinPS7'
               parallel: true
 
       - job: test_windows_ps
@@ -167,13 +166,12 @@ stages:
               testResultsFiles: 'output/testResults/NUnit*.xml'
               testRunTitle: 'Windows Server Core (Windows PowerShell)'
 
-          # - task: PublishCodeCoverageResults@1
-          #   displayName: 'Publish Code Coverage'
-          #   condition: succeededOrFailed()
-          #   inputs:
-          #     codeCoverageTool: 'JaCoCo'
-          #     summaryFileLocation: 'output/testResults/JaCoCo_coverage.xml'
-          #     pathToSources: '$(Build.SourcesDirectory)/$(dscBuildVariable.RepositoryName)'
+          - task: PublishPipelineArtifact@1
+            displayName: 'Publish Test Artifact'
+            inputs:
+              targetPath: '$(buildFolderName)/$(testResultFolderName)/'
+              artifactName: 'CodeCoverage_WinPS51'
+              parallel: true
 
       - job: test_macos
         displayName: 'macOS'
@@ -211,13 +209,12 @@ stages:
               testResultsFiles: 'output/testResults/NUnit*.xml'
               testRunTitle: 'MacOS'
 
-          # - task: PublishCodeCoverageResults@1
-          #   displayName: 'Publish Code Coverage'
-          #   condition: succeededOrFailed()
-          #   inputs:
-          #     codeCoverageTool: 'JaCoCo'
-          #     summaryFileLocation: 'output/testResults/JaCoCo_coverage.xml'
-          #     pathToSources: '$(Build.SourcesDirectory)/$(dscBuildVariable.RepositoryName)'
+          - task: PublishPipelineArtifact@1
+            displayName: 'Publish Test Artifact'
+            inputs:
+              targetPath: '$(buildFolderName)/$(testResultFolderName)/'
+              artifactName: 'CodeCoverage_macOS'
+              parallel: true
 
       - job: Code_Coverage
         displayName: 'Publish Code Coverage'
@@ -239,11 +236,36 @@ stages:
               artifactName: $(buildArtifactName)
               targetPath: '$(Build.SourcesDirectory)/$(buildArtifactName)'
           - task: DownloadPipelineArtifact@2
-            displayName: 'Download Test Artifact'
+            displayName: 'Download Test Artifact macOS'
             inputs:
               buildType: 'current'
-              artifactName: $(testArtifactName)
-              targetPath: '$(Build.SourcesDirectory)/$(buildFolderName)/$(testResultFolderName)'
+              artifactName: CodeCoverage_macOS
+              targetPath: '$(Build.SourcesDirectory)/$(buildFolderName)/$(testResultFolderName)/CodeCoverage_macOS'
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download Test Artifact Linux'
+            inputs:
+              buildType: 'current'
+              artifactName: CodeCoverage_Linux
+              targetPath: '$(Build.SourcesDirectory)/$(buildFolderName)/$(testResultFolderName)/CodeCoverage_Linux'
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download Test Artifact Windows (PS 5.1)'
+            inputs:
+              buildType: 'current'
+              artifactName: CodeCoverage_WinPS51
+              targetPath: '$(Build.SourcesDirectory)/$(buildFolderName)/$(testResultFolderName)/CodeCoverage_WinPS51'
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download Test Artifact Windows (PS7)'
+            inputs:
+              buildType: 'current'
+              artifactName: CodeCoverage_WinPS
+              targetPath: '$(Build.SourcesDirectory)/$(buildFolderName)/$(testResultFolderName)/CodeCoverage_WinPS'
+          - task: PowerShell@2
+            name: merge
+            displayName: 'Merge Code Coverage files'
+            inputs:
+              filePath: './build.ps1'
+              arguments: '-tasks merge'
+              pwsh: true
           - task: PublishCodeCoverageResults@1
             displayName: 'Publish Azure Code Coverage'
             condition: succeededOrFailed()
