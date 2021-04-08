@@ -14,7 +14,6 @@ variables:
   buildFolderName: output
   buildArtifactName: output
   testResultFolderName: testResults
-  testArtifactName: testResults
 
 stages:
   - stage: Build
