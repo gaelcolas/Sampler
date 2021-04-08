@@ -218,10 +218,10 @@ stages:
       - job: Code_Coverage
         displayName: 'Publish Code Coverage'
         dependsOn:
-          - test_windows_core
-          - test_windows_ps
           - test_macos
           - test_linux
+          # - test_windows_core
+          # - test_windows_ps
         pool:
           vmImage: 'ubuntu 16.04'
         timeoutInMinutes: 0
@@ -239,7 +239,6 @@ stages:
               artifactName: $(buildArtifactName)
               targetPath: '$(Build.SourcesDirectory)/$(buildArtifactName)'
           - download: 'current'
-            patterns: 'CodeCoverage*'
             displayName: 'Download All Test Artifacts'
           - task: PowerShell@2
             name: merge
