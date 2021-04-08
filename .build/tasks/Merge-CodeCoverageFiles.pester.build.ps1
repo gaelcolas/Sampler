@@ -157,7 +157,7 @@ task Merge_CodeCoverage_Files {
             $codecovFiles = Get-ChildItem -Path $PesterOutputFolder -Include $CodeCoverageFilePattern -Recurse
         }
 
-        "`tMerging Code Coverage Files     = {0}" -f ($codecovFiles.FullName -join ',')
+        "`tMerging Code Coverage Files     = '{0}'" -f ($codecovFiles.FullName -join ', ')
         ""
 
         if (Test-Path -Path $CodeCoverageMergedOutputFile)
