@@ -218,9 +218,9 @@ stages:
       - job: Code_Coverage
         displayName: 'Publish Code Coverage'
         dependsOn:
-          - test_macos
+          #- test_macos
           - test_linux
-          # - test_windows_core
+          - test_windows_core
           # - test_windows_ps
         pool:
           vmImage: 'ubuntu 16.04'
@@ -239,17 +239,23 @@ stages:
               artifactName: $(buildArtifactName)
               targetPath: '$(Build.SourcesDirectory)/$(buildArtifactName)'
           - task: DownloadPipelineArtifact@2
-            displayName: 'Download Test Artifact macOS'
+            displayName: 'Download All Test Artifacts'
             inputs:
               buildType: 'current'
-              artifactName: 'CodeCoverageMacOS'
+              patterns: 'CodeCoverage*'
               targetPath: '$(Build.SourcesDirectory)/$(buildFolderName)/$(testResultFolderName)'
-          - task: DownloadPipelineArtifact@2
-            displayName: 'Download Test Artifact Linux'
-            inputs:
-              buildType: 'current'
-              artifactName: 'CodeCoverageLinux'
-              targetPath: '$(Build.SourcesDirectory)/$(buildFolderName)/$(testResultFolderName)'
+          # - task: DownloadPipelineArtifact@2
+          #   displayName: 'Download Test Artifact macOS'
+          #   inputs:
+          #     buildType: 'current'
+          #     artifactName: 'CodeCoverageMacOS'
+          #     targetPath: '$(Build.SourcesDirectory)/$(buildFolderName)/$(testResultFolderName)'
+          # - task: DownloadPipelineArtifact@2
+          #   displayName: 'Download Test Artifact Linux'
+          #   inputs:
+          #     buildType: 'current'
+          #     artifactName: 'CodeCoverageLinux'
+          #     targetPath: '$(Build.SourcesDirectory)/$(buildFolderName)/$(testResultFolderName)'
           # - task: DownloadPipelineArtifact@2
           #   displayName: 'Download Test Artifact Windows (PS 5.1)'
           #   inputs:
