@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix task _Convert_Pester_Coverage_ so it is skipped when `CodeCoverageThreshold`
+  is `0`.
+
 ## [0.110.0] - 2021-04-08
 
 ### Fixed

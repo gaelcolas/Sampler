@@ -807,22 +807,20 @@ task Convert_Pester_Coverage {
     "`tCodeCoverageOutputFileEncoding = $CodeCoverageOutputFileEncoding"
     ""
 
+    if ($CodeCoverageThreshold -eq 0)
+    {
+        Write-Build -Color 'Green' -Text 'Coverage bypassed. Nothing to convert.'
+
+        return
+    }
+
     $PesterResultObjectClixml = Join-Path $PesterOutputFolder "PesterObject_$pesterOutputFileFileName"
 
     Write-Build -Color 'White' -Text "`tPester Output Object = $PesterResultObjectClixml"
 
     if (-not (Test-Path -Path $PesterResultObjectClixml))
     {
-        if ($CodeCoverageThreshold -eq 0)
-        {
-            Write-Build -Color 'Green' -Text 'Coverage bypassed. Nothing to convert.'
-
-            return
-        }
-        else
-        {
-            throw "No command were tested, nothing to convert."
-        }
+        throw "No command were tested, nothing to convert."
     }
     else
     {
