@@ -217,7 +217,11 @@ stages:
 
       - job: Code_Coverage
         displayName: 'Publish Code Coverage'
-        dependsOn: test_windows_core
+        dependsOn:
+          - test_windows_core
+          - test_windows_ps
+          - test_macos
+          - test_linux
         pool:
           vmImage: 'ubuntu 16.04'
         timeoutInMinutes: 0
