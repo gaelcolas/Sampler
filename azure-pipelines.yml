@@ -238,25 +238,25 @@ stages:
             displayName: 'Download Test Artifact macOS'
             inputs:
               buildType: 'current'
-              artifactName: CodeCoverage_macOS
+              artifactName: 'CodeCoverage_macOS'
               targetPath: '$(Build.SourcesDirectory)/$(buildFolderName)/$(testResultFolderName)/CodeCoverage_macOS'
           - task: DownloadPipelineArtifact@2
             displayName: 'Download Test Artifact Linux'
             inputs:
               buildType: 'current'
-              artifactName: CodeCoverage_Linux
+              artifactName: 'CodeCoverage_Linux'
               targetPath: '$(Build.SourcesDirectory)/$(buildFolderName)/$(testResultFolderName)/CodeCoverage_Linux'
           - task: DownloadPipelineArtifact@2
             displayName: 'Download Test Artifact Windows (PS 5.1)'
             inputs:
               buildType: 'current'
-              artifactName: CodeCoverage_WinPS51
+              artifactName: 'CodeCoverage_WinPS51'
               targetPath: '$(Build.SourcesDirectory)/$(buildFolderName)/$(testResultFolderName)/CodeCoverage_WinPS51'
           - task: DownloadPipelineArtifact@2
             displayName: 'Download Test Artifact Windows (PS7)'
             inputs:
               buildType: 'current'
-              artifactName: CodeCoverage_WinPS
+              artifactName: 'CodeCoverage_WinPS'
               targetPath: '$(Build.SourcesDirectory)/$(buildFolderName)/$(testResultFolderName)/CodeCoverage_WinPS'
           - task: PowerShell@2
             name: merge
@@ -267,7 +267,6 @@ stages:
               pwsh: true
           - task: PublishCodeCoverageResults@1
             displayName: 'Publish Azure Code Coverage'
-            condition: succeededOrFailed()
             inputs:
               codeCoverageTool: 'JaCoCo'
               summaryFileLocation: '$(buildFolderName)/$(testResultFolderName)/JaCoCo_coverage.xml'
@@ -275,7 +274,6 @@ stages:
           - script: |
               bash <(curl -s https://codecov.io/bash) -f "./$(buildFolderName)/$(testResultFolderName)/JaCoCo_coverage.xml"
             displayName: 'Upload to Codecov.io'
-            condition: succeededOrFailed()
 
   - stage: Deploy
     dependsOn: Test
