@@ -126,7 +126,7 @@ stages:
             displayName: 'Publish Test Artifact'
             inputs:
               targetPath: '$(buildFolderName)/$(testResultFolderName)/'
-              artifactName: 'CodeCoverage_WinPS7'
+              artifactName: 'CodeCoverageWinPS7'
               parallel: true
 
       - job: test_windows_ps
@@ -169,7 +169,7 @@ stages:
             displayName: 'Publish Test Artifact'
             inputs:
               targetPath: '$(buildFolderName)/$(testResultFolderName)/'
-              artifactName: 'CodeCoverage_WinPS51'
+              artifactName: 'CodeCoverageWinPS51'
               parallel: true
 
       - job: test_macos
@@ -212,7 +212,7 @@ stages:
             displayName: 'Publish Test Artifact'
             inputs:
               targetPath: '$(buildFolderName)/$(testResultFolderName)/'
-              artifactName: 'CodeCoverage_macOS'
+              artifactName: 'CodeCoverageMacOS'
               parallel: true
 
       - job: Code_Coverage
@@ -238,25 +238,25 @@ stages:
             displayName: 'Download Test Artifact macOS'
             inputs:
               buildType: 'current'
-              artifactName: 'CodeCoverage_macOS'
+              artifactName: 'CodeCoverageMacOS'
               targetPath: '$(Build.SourcesDirectory)/$(buildFolderName)/$(testResultFolderName)/CodeCoverage_macOS'
           - task: DownloadPipelineArtifact@2
             displayName: 'Download Test Artifact Linux'
             inputs:
               buildType: 'current'
-              artifactName: 'CodeCoverage_Linux'
+              artifactName: 'CodeCoverageLinux'
               targetPath: '$(Build.SourcesDirectory)/$(buildFolderName)/$(testResultFolderName)/CodeCoverage_Linux'
           - task: DownloadPipelineArtifact@2
             displayName: 'Download Test Artifact Windows (PS 5.1)'
             inputs:
               buildType: 'current'
-              artifactName: 'CodeCoverage_WinPS51'
+              artifactName: 'CodeCoverageWinPS51'
               targetPath: '$(Build.SourcesDirectory)/$(buildFolderName)/$(testResultFolderName)/CodeCoverage_WinPS51'
           - task: DownloadPipelineArtifact@2
             displayName: 'Download Test Artifact Windows (PS7)'
             inputs:
               buildType: 'current'
-              artifactName: 'CodeCoverage_WinPS'
+              artifactName: 'CodeCoverageWinPS'
               targetPath: '$(Build.SourcesDirectory)/$(buildFolderName)/$(testResultFolderName)/CodeCoverage_WinPS'
           - task: PowerShell@2
             name: merge
