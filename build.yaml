@@ -57,8 +57,16 @@ Pester:
   ExcludeTag:
   Tag:
   CodeCoverageThreshold: 10 # Set to 0 to bypass
-  CodeCoverageOutputFile: JaCoCo_coverage.xml
+  # Set to specific filename to override the default filename.
+  # CodeCoverageOutputFile: JaCoCo_coverage.xml
   CodeCoverageOutputFileEncoding: ascii
+
+CodeCoverage:
+  # Filename of the file that will be outputted by the task Merge_CodeCoverage_Files.
+  CodeCoverageMergedOutputFile: JaCoCo_coverage.xml
+  # File pattern used to search for files under the ./output/testResults folder
+  # by task Merge_CodeCoverage_Files.
+  CodeCoverageFilePattern: Codecov*.xml
 
 DscTest:
   ExcludeTag:
@@ -103,6 +111,9 @@ BuildWorkflow:
     - Convert_Pester_Coverage
     - Pester_if_Code_Coverage_Under_Threshold
     - hqrmtest
+
+  merge:
+    - Merge_CodeCoverage_Files
 
   publish:
     #- publish_nupkg_to_gallery  # Deploy using Nuget

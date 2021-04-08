@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for code coverage when using ModuleBuilder pattern for building module.
 - `Update-JaCoCoStatistic`
   - Added unit test.
+- Pipeline updated to support merging code coverage between operating
+  system pipeline jobs.
 
 ### Fixed
 
@@ -30,6 +32,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Update-JaCoCoStatistic`
   - Fixed so that statistics are updated correctly for the 'CLASS' counter.
 - Fixed codecov.yml to parse version number in paths correctly.
+- Fix uploading to Azure Code Coverage.
+- _Merge_CodeCoverage_Files_
+  - Fixed so the file that is outputted is in UTF-8 (without BOM) to support 
+    Codecov.io.
+  - The task now only searches for the file pattern inside the `./output/testResults`
+    folder.
+  - The merge process is not attempted if `CodeCoverageThreshold` is set to 
+    `0`.
+  - Updated so that build.yaml now have a key `CodeCoverage` which have to
+    settings `CodeCoverageMergedOutputFile` and `CodeCoverageFilePattern`.
+- _Convert_Pester_Coverage_
+  - The backup file now have the extension `.bak` (instead of `.bak.xml`)
+    so that is not mistakenly used by a task _Merge_CodeCoverage_Files_.
+  - Some code cleanup.
 
 ## [0.109.10] - 2021-03-24
 
