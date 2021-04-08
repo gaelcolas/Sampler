@@ -239,7 +239,7 @@ stages:
             displayName: 'Download Test Artifact Windows (PS7)'
             inputs:
               buildType: 'current'
-              artifactName: 'CodeCoverageWinPS'
+              artifactName: 'CodeCoverageWinPS7'
               targetPath: '$(Build.SourcesDirectory)/$(buildFolderName)/$(testResultFolderName)'
           - task: PowerShell@2
             name: merge
