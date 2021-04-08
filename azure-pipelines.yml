@@ -64,13 +64,6 @@ stages:
               artifactName: 'output'
               targetPath: '$(Build.SourcesDirectory)/output'
 
-          - powershell: |
-              $repositoryOwner,$repositoryName = $env:BUILD_REPOSITORY_NAME -split '/'
-              echo "##vso[task.setvariable variable=RepositoryOwner;isOutput=true]$repositoryOwner"
-              echo "##vso[task.setvariable variable=RepositoryName;isOutput=true]$repositoryName"
-            name: dscBuildVariable
-            displayName: 'Set Environment Variables'
-
           - task: PowerShell@2
             name: test
             displayName: 'Run Tests'
@@ -142,13 +135,6 @@ stages:
               artifactName: 'output'
               targetPath: '$(Build.SourcesDirectory)/output'
 
-          - powershell: |
-              $repositoryOwner,$repositoryName = $env:BUILD_REPOSITORY_NAME -split '/'
-              echo "##vso[task.setvariable variable=RepositoryOwner;isOutput=true]$repositoryOwner"
-              echo "##vso[task.setvariable variable=RepositoryName;isOutput=true]$repositoryName"
-            name: dscBuildVariable
-            displayName: 'Set Environment Variables'
-
           - task: PowerShell@2
             name: test
             displayName: 'Run Tests'
@@ -185,13 +171,6 @@ stages:
               artifactName: 'output'
               targetPath: '$(Build.SourcesDirectory)/output'
 
-          - powershell: |
-              $repositoryOwner,$repositoryName = $env:BUILD_REPOSITORY_NAME -split '/'
-              echo "##vso[task.setvariable variable=RepositoryOwner;isOutput=true]$repositoryOwner"
-              echo "##vso[task.setvariable variable=RepositoryName;isOutput=true]$repositoryName"
-            name: dscBuildVariable
-            displayName: 'Set Environment Variables'
-
           - task: PowerShell@2
             name: test
             displayName: 'Run Tests'
@@ -218,10 +197,10 @@ stages:
       - job: Code_Coverage
         displayName: 'Publish Code Coverage'
         dependsOn:
-          #- test_macos
+          - test_macos
           - test_linux
           - test_windows_core
-          # - test_windows_ps
+           - test_windows_ps
         pool:
           vmImage: 'ubuntu 16.04'
         timeoutInMinutes: 0
@@ -239,35 +218,29 @@ stages:
               artifactName: $(buildArtifactName)
               targetPath: '$(Build.SourcesDirectory)/$(buildArtifactName)'
           - task: DownloadPipelineArtifact@2
-            displayName: 'Download All Test Artifacts'
+            displayName: 'Download Test Artifact macOS'
             inputs:
               buildType: 'current'
-              patterns: 'CodeCoverage*'
+              artifactName: 'CodeCoverageMacOS'
               targetPath: '$(Build.SourcesDirectory)/$(buildFolderName)/$(testResultFolderName)'
-          # - task: DownloadPipelineArtifact@2
-          #   displayName: 'Download Test Artifact macOS'
-          #   inputs:
-          #     buildType: 'current'
-          #     artifactName: 'CodeCoverageMacOS'
-          #     targetPath: '$(Build.SourcesDirectory)/$(buildFolderName)/$(testResultFolderName)'
-          # - task: DownloadPipelineArtifact@2
-          #   displayName: 'Download Test Artifact Linux'
-          #   inputs:
-          #     buildType: 'current'
-          #     artifactName: 'CodeCoverageLinux'
-          #     targetPath: '$(Build.SourcesDirectory)/$(buildFolderName)/$(testResultFolderName)'
-          # - task: DownloadPipelineArtifact@2
-          #   displayName: 'Download Test Artifact Windows (PS 5.1)'
-          #   inputs:
-          #     buildType: 'current'
-          #     artifactName: 'CodeCoverageWinPS51'
-          #     targetPath: '$(Build.SourcesDirectory)/$(buildFolderName)/$(testResultFolderName)'
-          # - task: DownloadPipelineArtifact@2
-          #   displayName: 'Download Test Artifact Windows (PS7)'
-          #   inputs:
-          #     buildType: 'current'
-          #     artifactName: 'CodeCoverageWinPS'
-          #     targetPath: '$(Build.SourcesDirectory)/$(buildFolderName)/$(testResultFolderName)'
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download Test Artifact Linux'
+            inputs:
+              buildType: 'current'
+              artifactName: 'CodeCoverageLinux'
+              targetPath: '$(Build.SourcesDirectory)/$(buildFolderName)/$(testResultFolderName)'
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download Test Artifact Windows (PS 5.1)'
+            inputs:
+              buildType: 'current'
+              artifactName: 'CodeCoverageWinPS51'
+              targetPath: '$(Build.SourcesDirectory)/$(buildFolderName)/$(testResultFolderName)'
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download Test Artifact Windows (PS7)'
+            inputs:
+              buildType: 'current'
+              artifactName: 'CodeCoverageWinPS'
+              targetPath: '$(Build.SourcesDirectory)/$(buildFolderName)/$(testResultFolderName)'
           - task: PowerShell@2
             name: merge
             displayName: 'Merge Code Coverage files'
