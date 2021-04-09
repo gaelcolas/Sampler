@@ -290,7 +290,7 @@ try
 
     if ($PSBoundParameters.ContainsKey('MinimumPSDependVersion'))
     {
-        $psDependModule = $psDependModule | Where-Object { $_.Version -ge $([System.Version]::($MinimumPSDependVersion)) }
+        $psDependModule = $psDependModule | Where-Object { $_.Version -ge $([System.Version]::new($MinimumPSDependVersion)) }
     }
 
     if (-not $psDependModule)
