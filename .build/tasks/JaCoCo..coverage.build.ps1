@@ -2,12 +2,12 @@ param
 (
     # Project path
     [Parameter()]
-    [string]
+    [System.String]
     $ProjectPath = (property ProjectPath $BuildRoot),
 
     [Parameter()]
     # Base directory of all output (default to 'output')
-    [string]
+    [System.String]
     $OutputDirectory = (property OutputDirectory (Join-Path $BuildRoot 'output')),
 
     [Parameter()]
@@ -20,7 +20,27 @@ param
 
     [Parameter()]
     [System.String]
+    $ProjectName = (property ProjectName ''),
+
+    [Parameter()]
+    [System.String]
     $PesterOutputFolder = (property PesterOutputFolder 'testResults'),
+
+    [Parameter()]
+    [System.String]
+    $PesterOutputFormat = (property PesterOutputFormat ''),
+
+    [Parameter()]
+    [System.Object[]]
+    $PesterScript = (property PesterScript ''),
+
+    [Parameter()]
+    [System.String[]]
+    $PesterTag = (property PesterTag @()),
+
+    [Parameter()]
+    [System.String[]]
+    $PesterExcludeTag = (property PesterExcludeTag @()),
 
     [Parameter()]
     [System.String]
@@ -28,8 +48,10 @@ param
 
     # Build Configuration object
     [Parameter()]
+    [System.Collections.Hashtable]
     $BuildInfo = (property BuildInfo @{ })
 )
+
 
 # Synopsis: Merging several code coverage files together.
 task Merge_CodeCoverage_Files {
