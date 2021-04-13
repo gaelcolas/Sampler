@@ -8,6 +8,11 @@ Import-Module $ProjectNameToTest
 
 Describe 'Set-TaskScriptVariables' {
     BeforeAll {
+        # $previousProjectName = InModuleScope $ProjectNameToTest {
+        #     # Remove parent scope's value.
+        #     $ProjectName
+        # }
+
         InModuleScope $ProjectNameToTest {
             # Mock InvokeBuild variable $BuildRoot.
             $script:BuildRoot = 'C:\source\MyProject'
@@ -39,13 +44,21 @@ Describe 'Set-TaskScriptVariables' {
         } -ModuleName $ProjectNameToTest
     }
 
+    # AfterAll {
+    #     InModuleScope $ProjectNameToTest {
+    #         # Remove parent scope's value.
+    #         $script:ProjectName = $previousProjectName
+    #     }
+    # }
+
     Context 'When calling the function with parameter IsBuild' {
         It 'Should return the expected output' {
             $result = Set-TaskScriptVariables -IsBuild
 
             Write-Verbose ($result | Out-String) -Verbose
 
-            $result | Should -Contain "`tProject Name               = 'MyProject'"
+            $result | Should -Contain "`tProject Name               = 'Sampler'"
+            #$result | Should -Contain "`tProject Name               = 'MyProject'"
             #$result | Should -Contain "`tSource Path                = 'C:\source\MyProject\source'"
         }
     }
