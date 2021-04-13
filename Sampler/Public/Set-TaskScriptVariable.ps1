@@ -18,7 +18,7 @@
         Only the scriptblock portion of this function is used by the task by
         calling:
 
-        . (Get-Command -Name 'Set-TaskScriptVariables').ScriptBlock
+        . (Get-Command -Name 'Set-TaskScriptVariable').ScriptBlock
 
         This dot-sources the entire scriptblock of this function. This is done
         so that the variables are set in the tasks scope, and so the variables can
@@ -44,19 +44,19 @@
         See https://github.com/gaelcolas/Sampler#task-variables.
 
     .EXAMPLE
-        . (Get-Command -Name 'Set-TaskScriptVariables').ScriptBlock -IsBuild
+        . (Get-Command -Name 'Set-TaskScriptVariable').ScriptBlock -IsBuild
 
         Call the scriptblock set script variables. The parameter IsBuild tells the
         script to skip variables that need the finished built module.
 
     .EXAMPLE
-        . (Get-Command -Name 'Set-TaskScriptVariables').ScriptBlock
+        . (Get-Command -Name 'Set-TaskScriptVariable').ScriptBlock
 
         Call the scriptblock and tells the script to evaluate the module version
         by not checking after the module manifest in the built module.
 
 #>
-function Set-TaskScriptVariables
+function Set-TaskScriptVariable
 {
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingFunctions', '')]
     [CmdletBinding()]
