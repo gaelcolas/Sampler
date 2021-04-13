@@ -53,13 +53,16 @@ Describe 'Set-TaskScriptVariables' {
 
     Context 'When calling the function with parameter IsBuild' {
         It 'Should return the expected output' {
-            $result = Set-TaskScriptVariables -IsBuild
+            <#
+                Since Sampler dot-sources the functions into the session we must point
+                out that the function to test is the one in the module.
+            #>
+            $result = Sampler\Set-TaskScriptVariables -IsBuild
 
             Write-Verbose ($result | Out-String) -Verbose
 
-            $result | Should -Contain "`tProject Name               = 'Sampler'"
-            #$result | Should -Contain "`tProject Name               = 'MyProject'"
-            #$result | Should -Contain "`tSource Path                = 'C:\source\MyProject\source'"
+            $result | Should -Contain "`tProject Name               = 'MyProject'"
+            $result | Should -Contain "`tSource Path                = 'C:\source\MyProject\source'"
         }
     }
 }
