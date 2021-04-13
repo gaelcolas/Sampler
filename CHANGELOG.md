@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
--  Resolve-Dependency.ps1: fix MinimumPSDependVersion comparison to use System.Version
+-  Resolve-Dependency.ps1: fix MinimumPSDependVersion comparison.
 
 ## [0.110.1] - 2021-04-08
 
