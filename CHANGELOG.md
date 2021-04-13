@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Renamed task file from `Merge-CodeCoverageFiles.pester.build.ps1` to `JaCoCo.coverage.build.ps1`.
+- Move task _Convert_Pester_Coverage_ to task file `JaCoCo.coverage.build.ps1`.
+
 ## [0.110.1] - 2021-04-08
 
 ### Fixed
