@@ -40,7 +40,7 @@ Describe 'Set-TaskScriptVariables' {
         It 'Should return the expected output' {
             $result = Set-TaskScriptVariables -IsBuild
 
-            Write-Verbose ($result | Out-String) -Verbose
+            #Write-Verbose ($result | Out-String) -Verbose
 
             $result | Should -Contain "`tProject Name               = 'MyProject'"
             $result | Should -Contain "`tSource Path                = 'C:\source\MyProject\source'"
