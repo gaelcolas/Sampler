@@ -53,6 +53,7 @@
 #>
 function Set-TaskScriptVariables
 {
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingFunctions', '')]
     [CmdletBinding()]
     [OutputType([System.String])]
     param
