@@ -4,6 +4,11 @@
         should normally never be called by it's own, the function should only be called
         (as a function) by tests.
 
+    .DESCRIPTION
+        Public function that set all script variables for a build task. This function
+        should normally never be called by it's own, the function should only be called
+        (as a function) by tests.
+
     .PARAMETER IsBuild
        Tells the script to skip variables that need the finished built module to
        be able to be returned. For example is evaluates the ModuleVersion from,
