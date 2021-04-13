@@ -290,7 +290,14 @@ try
 
     if ($PSBoundParameters.ContainsKey('MinimumPSDependVersion'))
     {
-        $psDependModule = $psDependModule | Where-Object { $_.Version -ge $([System.Version]::new($MinimumPSDependVersion)) }
+        try 
+        {
+            $psDependModule = $psDependModule | Where-Object -FilterScript { $_.Version -ge $MinimumPSDependVersion }
+        }
+        catch 
+        {
+            throw ('There was a problem finding the minimum version of PSDepend. Error: {0}' -f $_)
+        }
     }
 
     if (-not $psDependModule)
