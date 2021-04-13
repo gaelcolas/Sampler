@@ -11,29 +11,25 @@ Describe 'Set-TaskScriptVariables' {
         # Mock InvokeBuild variable $BuildRoot.
         InModuleScope $ProjectNameToTest {
             $script:BuildRoot = 'C:\source\MyProject'
-
-            $mockProjectName = 'MyProject'
-            $mockSourcePath = 'C:\source\MyProject\source'
         }
 
         Mock -CommandName Get-SamplerProjectName -MockWith {
-            return $mockProjectName
+            return 'MyProject'
         } -ModuleName $ProjectNameToTest
 
         Mock -CommandName Get-SamplerSourcePath -MockWith {
-            return $mockSourcePath
+            return 'C:\source\MyProject\source'
         } -ModuleName $ProjectNameToTest
 
-        # Mock -CommandName Get-SamplerAbsolutePath -MockWith {
-        #     return ''
-        # } -ModuleName $ProjectName
+        Mock -CommandName Get-SamplerAbsolutePath -MockWith {
+            return ''
+        } -ModuleName $ProjectNameToTest
 
         Mock -CommandName Get-SamplerAbsolutePath -MockWith {
             return 'C:\source\MyProject\source\MyProject.psd1'
         } -ParameterFilter {
-            $Path -eq "$mockProjectName.psd1"
+            $Path -eq 'MyProject.psd1'
         } -ModuleName $ProjectNameToTest
-
 
         Mock -CommandName Get-BuildVersion -MockWith {
             return ''
@@ -44,8 +40,10 @@ Describe 'Set-TaskScriptVariables' {
         It 'Should return the expected output' {
             $result = Set-TaskScriptVariables -IsBuild
 
-            $result | Should -Contain "`tProject Name               = '$mockProjectName'"
-            $result | Should -Contain "`tSource Path                = '$mockSourcePath'"
+            Write-Verbose ($result | Out-String) -Verbose
+
+            $result | Should -Contain "`tProject Name               = 'MyProject'"
+            $result | Should -Contain "`tSource Path                = 'C:\source\MyProject\source'"
         }
     }
 }
