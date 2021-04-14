@@ -39,8 +39,7 @@ param
 
 # Synopsis: Build the Module based on its Build.psd1 definition
 Task Build_ModuleOutput_ModuleBuilder {
-    # Get the public command Set-TaskScriptVariable and dot-source its scriptblock.
-    . (Get-Command -Name 'Set-TaskScriptVariable').ScriptBlock -IsBuild
+    . (Get-Command -Name 'Set-SamplerTaskVariable').ScriptBlock -AsNewBuild
 
     Import-Module -Name ModuleBuilder -ErrorAction 'Stop'
 
@@ -122,8 +121,8 @@ Task Build_ModuleOutput_ModuleBuilder {
 }
 
 Task Build_NestedModules_ModuleBuilder {
-    # Get the public command Set-TaskScriptVariable and dot-source its scriptblock.
-    . (Get-Command -Name 'Set-TaskScriptVariable').ScriptBlock
+    # Get the public command Set-SamplerTaskVariable and dot-source its scriptblock.
+    . (Get-Command -Name 'Set-SamplerTaskVariable').ScriptBlock
 
     Import-Module -Name 'ModuleBuilder' -ErrorAction 'Stop'
 
@@ -320,8 +319,8 @@ Task Build_NestedModules_ModuleBuilder {
 }
 
 Task Build_DscResourcesToExport_ModuleBuilder {
-    # Get the public command Set-TaskScriptVariable and dot-source its scriptblock.
-    . (Get-Command -Name 'Set-TaskScriptVariable').ScriptBlock
+    # Get the public command Set-SamplerTaskVariable and dot-source its scriptblock.
+    . (Get-Command -Name 'Set-SamplerTaskVariable').ScriptBlock
 
     Import-Module -Name 'ModuleBuilder' -ErrorAction 'Stop'
 

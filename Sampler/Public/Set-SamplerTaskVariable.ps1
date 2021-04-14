@@ -9,23 +9,23 @@
         should normally never be called by it's own, the function should only be called
         (as a function) by tests.
 
-    .PARAMETER IsBuild
+    .PARAMETER AsNewBuild
        Tells the script to skip variables that need the finished built module to
-       be able to be returned. For example is evaluates the ModuleVersion from,
-       for example, GitVersion.
+       be able to be returned. For example, if this parameter is used it evaluates
+       the ModuleVersion from GitVersion, instead from the built module's manifest.
 
     .NOTES
         Only the scriptblock portion of this function is used by the task by
         calling:
 
-        . (Get-Command -Name 'Set-TaskScriptVariable').ScriptBlock
+        . (Get-Command -Name 'Set-SamplerTaskVariable').ScriptBlock
 
-        This dot-sources the entire scriptblock of this function. This is done
-        so that the variables are set in the tasks scope, and so the variables can
-        be re-used throughout the tasks.
+        This dot-sources the entire scriptblock of this function. This is done so
+        that the variables are set in the task's scope, and so that the variables
+        can be re-used throughout the tasks.
 
-        To use the scriptblock the task can (must?) have the parameters (and its default
-        value):
+        To use the scriptblock the task can (must?) have the parameters (and its
+        respective default value):
 
         - $ProjectName = (property ProjectName '')
         - $SourcePath = (property SourcePath '')
@@ -44,19 +44,19 @@
         See https://github.com/gaelcolas/Sampler#task-variables.
 
     .EXAMPLE
-        . (Get-Command -Name 'Set-TaskScriptVariable').ScriptBlock -IsBuild
+        . (Get-Command -Name 'Set-SamplerTaskVariable').ScriptBlock -AsNewBuild
 
-        Call the scriptblock set script variables. The parameter IsBuild tells the
+        Call the scriptblock set script variables. The parameter AsNewBuild tells the
         script to skip variables that need the finished built module.
 
     .EXAMPLE
-        . (Get-Command -Name 'Set-TaskScriptVariable').ScriptBlock
+        . (Get-Command -Name 'Set-SamplerTaskVariable').ScriptBlock
 
         Call the scriptblock and tells the script to evaluate the module version
         by not checking after the module manifest in the built module.
 
 #>
-function Set-TaskScriptVariable
+function Set-SamplerTaskVariable
 {
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingFunctions', '')]
     [CmdletBinding()]
@@ -64,8 +64,8 @@ function Set-TaskScriptVariable
     param
     (
         [Parameter()]
-        [Switch]
-        $IsBuild
+        [System.Management.Automation.SwitchParameter]
+        $AsNewBuild
     )
 
     if ([System.String]::IsNullOrEmpty($ProjectName))
@@ -94,7 +94,7 @@ function Set-TaskScriptVariable
 
     "`tModule Manifest Path (src) = '$moduleManifestPath'"
 
-    if ($IsBuild.IsPresent)
+    if ($AsNewBuild.IsPresent)
     {
         $getBuildVersionParameters = @{
             ModuleManifestPath = $moduleManifestPath
