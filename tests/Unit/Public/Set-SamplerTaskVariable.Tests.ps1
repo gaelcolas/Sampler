@@ -6,7 +6,7 @@ $ProjectNameToTest = ((Get-ChildItem -Path $ProjectPathToTest\*\*.psd1).Where{
 
 Import-Module $ProjectNameToTest
 
-Describe 'Set-TaskScriptVariable' {
+Describe 'Set-SamplerTaskVariable' {
     BeforeAll {
         # $previousProjectName = InModuleScope $ProjectNameToTest {
         #     # Remove parent scope's value.
@@ -51,13 +51,13 @@ Describe 'Set-TaskScriptVariable' {
     #     }
     # }
 
-    Context 'When calling the function with parameter IsBuild' {
+    Context 'When calling the function with parameter AsNewBuild' {
         It 'Should return the expected output' {
             <#
                 Since Sampler dot-sources the functions into the session we must point
                 out that the function to test is the one in the module.
             #>
-            $result = Sampler\Set-TaskScriptVariable -IsBuild
+            $result = Sampler\Set-SamplerTaskVariable -AsNewBuild
 
             Write-Verbose ($result | Out-String) -Verbose
 
