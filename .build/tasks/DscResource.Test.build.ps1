@@ -46,65 +46,22 @@ param
 
 # Synopsis: Making sure the Module meets some quality standard (help, tests)
 task Invoke_DscResource_Tests {
-    if ([System.String]::IsNullOrEmpty($ProjectName))
-    {
-        $ProjectName = Get-SamplerProjectName -BuildRoot $BuildRoot
-    }
+    # Get the vales for task variables, see https://github.com/gaelcolas/Sampler#task-variables.
+    . (Get-Command -Name 'Set-SamplerTaskVariable').ScriptBlock
 
-    $OutputDirectory = Get-SamplerAbsolutePath -Path $OutputDirectory -RelativeTo $BuildRoot
     $DscTestOutputFolder = Get-SamplerAbsolutePath -Path $DscTestOutputFolder -RelativeTo $OutputDirectory
 
-    if ($VersionedOutputDirectory)
-    {
-        # VersionedOutputDirectory is not [bool]'' nor $false nor [bool]$null
-        # Assume true, wherever it was set
-        $VersionedOutputDirectory = $true
-    }
-    else
-    {
-        # VersionedOutputDirectory may be [bool]'' but we can't tell where it's
-        # coming from, so assume the build info (Build.yaml) is right
-        $VersionedOutputDirectory = $BuildInfo['VersionedOutputDirectory']
-    }
-
-    $GetBuiltModuleManifestParams = @{
-        OutputDirectory          = $OutputDirectory
-        BuiltModuleSubDirectory  = $BuiltModuleSubDirectory
-        ModuleName               = $ProjectName
-        VersionedOutputDirectory = $VersionedOutputDirectory
-        ErrorAction              = 'Stop'
-    }
-
-    $builtModuleBase = Get-SamplerBuiltModuleBase @GetBuiltModuleManifestParams
-    "`tBuilt Module Base        = '$builtModuleBase'"
-
-    $builtModuleManifest = Get-SamplerBuiltModuleManifest @GetBuiltModuleManifestParams
-    "`tBuilt Module Manifest    = '$builtModuleManifest'"
-
-    if ($builtModuleRootScriptPath = Get-SamplerModuleRootPath -ModuleManifestPath $builtModuleManifest)
-    {
-        $builtModuleRootScriptPath = (Get-Item -Path $builtModuleRootScriptPath -ErrorAction SilentlyContinue).FullName
-    }
-
-    "`tBuilt ModuleRoot script  = '$builtModuleRootScriptPath'"
+    "`tDSC Test Output Folder   = '$DscTestOutputFolder'"
 
     $builtDscResourcesFolder = Get-SamplerAbsolutePath -Path 'DSCResources' -RelativeTo $builtModuleBase
+
     "`tBuilt DSC Resource Path  = '$builtDscResourcesFolder'"
-
-    $ModuleVersion = Get-BuiltModuleVersion @GetBuiltModuleManifestParams
-    $ModuleVersionObject = Split-ModuleVersion -ModuleVersion $ModuleVersion
-    $ModuleVersionFolder = $ModuleVersionObject.Version
-    $preReleaseTag       = $ModuleVersionObject.PreReleaseString
-
-    "`tModule Version           = '$ModuleVersion'"
-    "`tModule Version Folder    = '$ModuleVersionFolder'"
-    "`tPre-release Tag          = '$preReleaseTag'"
 
     if (-not (Test-Path -Path $DscTestOutputFolder))
     {
         Write-Build -Color 'Yellow' -Text "Creating folder $DscTestOutputFolder"
 
-        $null = New-Item -Path $DscTestOutputFolder -ItemType Directory -Force -ErrorAction 'Stop'
+        $null = New-Item -Path $DscTestOutputFolder -ItemType 'Directory' -Force -ErrorAction 'Stop'
     }
 
     $DscTestScript = $DscTestScript.Where{ -not [System.String]::IsNullOrEmpty($_) }
@@ -178,13 +135,9 @@ task Invoke_DscResource_Tests {
         }
     }
 
-    "`tProject Path             = $ProjectPath"
-    "`tProject Name             = $ProjectName"
     "`tTest Scripts             = $($DscTestScript -join ', ')"
     "`tTags                     = $($DscTestTag -join ', ')"
     "`tExclude Tags             = $($DscTestExcludeTag -join ', ')"
-    "`tModuleVersion            = $ModuleVersion"
-    "`tBuildModuleOutput        = $BuildModuleOutput"
 
     $os = Get-OperatingSystemShortName
 
@@ -286,62 +239,18 @@ task Invoke_DscResource_Tests {
 # Synopsis: This task ensures the build job fails if the test aren't successful.
 task Fail_Build_If_DscResource_Tests_Failed {
     "Asserting that no test failed"
+    ""
 
-    if ([System.String]::IsNullOrEmpty($ProjectName))
-    {
-        $ProjectName = Get-SamplerProjectName -BuildRoot $BuildRoot
-    }
+    # Get the vales for task variables, see https://github.com/gaelcolas/Sampler#task-variables.
+    . (Get-Command -Name 'Set-SamplerTaskVariable').ScriptBlock
 
-    $OutputDirectory = Get-SamplerAbsolutePath -Path $OutputDirectory -RelativeTo $BuildRoot
     $DscTestOutputFolder = Get-SamplerAbsolutePath -Path $DscTestOutputFolder -RelativeTo $OutputDirectory
 
     $os = Get-OperatingSystemShortName
 
-    if ($VersionedOutputDirectory)
-    {
-        # VersionedOutputDirectory is not [bool]'' nor $false nor [bool]$null
-        # Assume true, wherever it was set
-        $VersionedOutputDirectory = $true
-    }
-    else
-    {
-        # VersionedOutputDirectory may be [bool]'' but we can't tell where it's
-        # coming from, so assume the build info (Build.yaml) is right
-        $VersionedOutputDirectory = $BuildInfo['VersionedOutputDirectory']
-    }
-
-    $GetBuiltModuleManifestParams = @{
-        OutputDirectory          = $OutputDirectory
-        BuiltModuleSubDirectory  = $BuiltModuleSubDirectory
-        ModuleName               = $ProjectName
-        VersionedOutputDirectory = $VersionedOutputDirectory
-        ErrorAction              = 'Stop'
-    }
-
-    $builtModuleBase = Get-SamplerBuiltModuleBase @GetBuiltModuleManifestParams
-    "`tBuilt Module Base        = '$builtModuleBase'"
-
-    $builtModuleManifest = Get-SamplerBuiltModuleManifest @GetBuiltModuleManifestParams
-    "`tBuilt Module Manifest    = '$builtModuleManifest'"
-
-    if ($builtModuleRootScriptPath = Get-SamplerModuleRootPath -ModuleManifestPath $builtModuleManifest)
-    {
-        $builtModuleRootScriptPath = (Get-Item -Path $builtModuleRootScriptPath -ErrorAction SilentlyContinue).FullName
-    }
-
-    "`tBuilt ModuleRoot script  = '$builtModuleRootScriptPath'"
-
     $builtDscResourcesFolder = Get-SamplerAbsolutePath -Path 'DSCResources' -RelativeTo $builtModuleBase
+
     "`tBuilt DSC Resource Path  = '$builtDscResourcesFolder'"
-
-    $ModuleVersion = Get-BuiltModuleVersion @GetBuiltModuleManifestParams
-    $ModuleVersionObject = Split-ModuleVersion -ModuleVersion $ModuleVersion
-    $ModuleVersionFolder = $ModuleVersionObject.Version
-    $preReleaseTag       = $ModuleVersionObject.PreReleaseString
-
-    "`tModule Version           = '$ModuleVersion'"
-    "`tModule Version Folder    = '$ModuleVersionFolder'"
-    "`tPre-release Tag          = '$preReleaseTag'"
 
     $psVersion = 'PSv.{0}' -f $PSVersionTable.PSVersion
     $DscTestOutputFileFileName = "DscTest_{0}_v{1}.{2}.{3}.xml" -f $ProjectName, $ModuleVersion, $os, $psVersion
@@ -363,12 +272,9 @@ task Fail_Build_If_DscResource_Tests_Failed {
 
 # Synopsis: Uploading Unit Test results to AppVeyor
 task Upload_DscResourceTest_Results_To_AppVeyor -If { (property BuildSystem 'unknown') -eq 'AppVeyor' } {
-    if ([System.String]::IsNullOrEmpty($ProjectName))
-    {
-        $ProjectName = Get-SamplerProjectName -BuildRoot $BuildRoot
-    }
+    # Get the vales for task variables, see https://github.com/gaelcolas/Sampler#task-variables.
+    . (Get-Command -Name 'Set-SamplerTaskVariable').ScriptBlock
 
-    $OutputDirectory = Get-SamplerAbsolutePath -Path $OutputDirectory -RelativeTo $BuildRoot
     $DscTestOutputFolder = Get-SamplerAbsolutePath -Path $DscTestOutputFolder -RelativeTo $OutputDirectory
 
     if (-not (Test-Path -Path $DscTestOutputFolder))
@@ -380,51 +286,9 @@ task Upload_DscResourceTest_Results_To_AppVeyor -If { (property BuildSystem 'unk
 
     $os = Get-OperatingSystemShortName
 
-    if ($VersionedOutputDirectory)
-    {
-        # VersionedOutputDirectory is not [bool]'' nor $false nor [bool]$null
-        # Assume true, wherever it was set
-        $VersionedOutputDirectory = $true
-    }
-    else
-    {
-        # VersionedOutputDirectory may be [bool]'' but we can't tell where it's
-        # coming from, so assume the build info (Build.yaml) is right
-        $VersionedOutputDirectory = $BuildInfo['VersionedOutputDirectory']
-    }
-
-    $GetBuiltModuleManifestParams = @{
-        OutputDirectory          = $OutputDirectory
-        BuiltModuleSubDirectory  = $BuiltModuleSubDirectory
-        ModuleName               = $ProjectName
-        VersionedOutputDirectory = $VersionedOutputDirectory
-        ErrorAction              = 'Stop'
-    }
-
-    $builtModuleBase = Get-SamplerBuiltModuleBase @GetBuiltModuleManifestParams
-    "`tBuilt Module Base        = '$builtModuleBase'"
-
-    $builtModuleManifest = Get-SamplerBuiltModuleManifest @GetBuiltModuleManifestParams
-    "`tBuilt Module Manifest    = '$builtModuleManifest'"
-
-    if ($builtModuleRootScriptPath = Get-SamplerModuleRootPath -ModuleManifestPath $builtModuleManifest)
-    {
-        $builtModuleRootScriptPath = (Get-Item -Path $builtModuleRootScriptPath -ErrorAction SilentlyContinue).FullName
-    }
-
-    "`tBuilt ModuleRoot script  = '$builtModuleRootScriptPath'"
-
     $builtDscResourcesFolder = Get-SamplerAbsolutePath -Path 'DSCResources' -RelativeTo $builtModuleBase
+
     "`tBuilt DSC Resource Path  = '$builtDscResourcesFolder'"
-
-    $ModuleVersion = Get-BuiltModuleVersion @GetBuiltModuleManifestParams
-    $ModuleVersionObject = Split-ModuleVersion -ModuleVersion $ModuleVersion
-    $ModuleVersionFolder = $ModuleVersionObject.Version
-    $preReleaseTag       = $ModuleVersionObject.PreReleaseString
-
-    "`tModule Version           = '$ModuleVersion'"
-    "`tModule Version Folder    = '$ModuleVersionFolder'"
-    "`tPre-release Tag          = '$preReleaseTag'"
 
     $psVersion = 'PSv.{0}' -f $PSVersionTable.PSVersion
     $DscTestOutputFileFileName = "DscResource.Test_{0}_v{1}.{2}.{3}.xml" -f $ProjectName, $ModuleVersion, $os, $psVersion

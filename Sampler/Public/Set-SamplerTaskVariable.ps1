@@ -115,9 +115,11 @@ function Set-SamplerTaskVariable
     {
         if ($VersionedOutputDirectory)
         {
-            # VersionedOutputDirectory is not [bool]'' nor $false nor [bool]$null
-            # Assume true, wherever it was set
-            $VersionedOutputDirectory = $true
+            <#
+                VersionedOutputDirectory is not [bool]'' nor $false nor [bool]$null
+                Assume true, wherever it was set.
+            #>
+            $null = [bool]::TryParse($VersionedOutputDirectory, [ref] $VersionedOutputDirectory)
         }
         else
         {
@@ -135,12 +137,18 @@ function Set-SamplerTaskVariable
         }
 
         $builtModuleManifest = Get-SamplerBuiltModuleManifest @GetBuiltModuleManifestParams
-        $builtModuleManifest = (Get-Item -Path $builtModuleManifest).FullName
+        if ($builtModuleManifest)
+        {
+            $builtModuleManifest = (Get-Item -Path $builtModuleManifest -ErrorAction 'SilentlyContinue').FullName
+        }
 
         "`tBuilt Module Manifest      = '$builtModuleManifest'"
 
         $builtModuleBase = Get-SamplerBuiltModuleBase @GetBuiltModuleManifestParams
-        $builtModuleBase = (Get-Item -Path $builtModuleBase).FullName
+        if ($builtModuleBase)
+        {
+            $builtModuleBase = (Get-Item -Path $builtModuleBase -ErrorAction 'SilentlyContinue').FullName
+        }
 
         "`tBuilt Module Base          = '$builtModuleBase'"
 
@@ -153,15 +161,18 @@ function Set-SamplerTaskVariable
 
         "`tModule Version Folder      = '$moduleVersionFolder'"
 
-        $preReleaseTag = $moduleVersionObject.PreReleaseString
+        $PreReleaseTag = $moduleVersionObject.PreReleaseString
 
-        "`tPre-release Tag            = '$preReleaseTag'"
+        "`tPre-release Tag            = '$PreReleaseTag'"
 
-        $BuiltModuleRootScriptPath = Get-SamplerModuleRootPath -ModuleManifestPath $builtModuleManifest
-
-        if ($BuiltModuleRootScriptPath)
+        if ($builtModuleManifest)
         {
-            $BuiltModuleRootScriptPath = (Get-Item -Path $BuiltModuleRootScriptPath -ErrorAction 'SilentlyContinue').FullName
+            $BuiltModuleRootScriptPath = Get-SamplerModuleRootPath -ModuleManifestPath $builtModuleManifest
+
+            if ($BuiltModuleRootScriptPath)
+            {
+                $BuiltModuleRootScriptPath = (Get-Item -Path $BuiltModuleRootScriptPath -ErrorAction 'SilentlyContinue').FullName
+            }
         }
 
         "`tBuilt Module Root Script   = '$BuiltModuleRootScriptPath'"

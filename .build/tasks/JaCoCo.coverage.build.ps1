@@ -55,55 +55,8 @@ param
 
 # Synopsis: Merging several code coverage files together.
 task Merge_CodeCoverage_Files {
-    if ([System.String]::IsNullOrEmpty($ProjectName))
-    {
-        $ProjectName = Get-SamplerProjectName -BuildRoot $BuildRoot
-    }
-
-    if ([System.String]::IsNullOrEmpty($SourcePath))
-    {
-        $SourcePath = Get-SamplerSourcePath -BuildRoot $BuildRoot
-    }
-
-    $OutputDirectory = Get-SamplerAbsolutePath -Path $OutputDirectory -RelativeTo $BuildRoot
-
-    "`tProject Name                    = '$ProjectName'"
-    "`tSource Path                     = '$SourcePath'"
-    "`tOutput Directory                = '$OutputDirectory'"
-
-    if ($VersionedOutputDirectory)
-    {
-        # VersionedOutputDirectory is not [bool]'' nor $false nor [bool]$null
-        # Assume true, wherever it was set
-        $VersionedOutputDirectory = $true
-    }
-    else
-    {
-        # VersionedOutputDirectory may be [bool]'' but we can't tell where it's
-        # coming from, so assume the build info (Build.yaml) is right
-        $VersionedOutputDirectory = $BuildInfo['VersionedOutputDirectory']
-    }
-
-    $GetBuiltModuleManifestParams = @{
-        OutputDirectory          = $OutputDirectory
-        BuiltModuleSubdirectory  = $BuiltModuleSubDirectory
-        ModuleName               = $ProjectName
-        VersionedOutputDirectory = $VersionedOutputDirectory
-        ErrorAction              = 'Stop'
-    }
-
-    $builtModuleManifest = Get-SamplerBuiltModuleManifest @GetBuiltModuleManifestParams
-
-    "`tBuilt Module Manifest           = '$builtModuleManifest'"
-
-    $ModuleVersion = Get-BuiltModuleVersion @GetBuiltModuleManifestParams
-    $ModuleVersionObject = Split-ModuleVersion -ModuleVersion $ModuleVersion
-    $ModuleVersionFolder = $ModuleVersionObject.Version
-    $preReleaseTag = $ModuleVersionObject.PreReleaseString
-
-    "`tModule Version                  = '$ModuleVersion'"
-    "`tModule Version Folder           = '$ModuleVersionFolder'"
-    "`tPre-release Tag                 = '$preReleaseTag'"
+    # Get the vales for task variables, see https://github.com/gaelcolas/Sampler#task-variables.
+    . (Get-Command -Name 'Set-SamplerTaskVariable').ScriptBlock
 
     $osShortName = Get-OperatingSystemShortName
 
@@ -290,67 +243,12 @@ function Start-CodeCoverageMerge
 
 # Synopsis: Convert JaCoCo coverage so it supports a built module by way of ModuleBuilder.
 task Convert_Pester_Coverage {
-    if ([System.String]::IsNullOrEmpty($ProjectName))
-    {
-        $ProjectName = Get-SamplerProjectName -BuildRoot $BuildRoot
-    }
-
-    if ([System.String]::IsNullOrEmpty($SourcePath))
-    {
-        $SourcePath = Get-SamplerSourcePath -BuildRoot $BuildRoot
-    }
-
-    $OutputDirectory = Get-SamplerAbsolutePath -Path $OutputDirectory -RelativeTo $BuildRoot
-
-    "`tProject Name             = '$ProjectName'"
-    "`tSource Path              = '$SourcePath'"
-    "`tOutput Directory         = '$OutputDirectory'"
-
-    if ($VersionedOutputDirectory)
-    {
-        # VersionedOutputDirectory is not [bool]'' nor $false nor [bool]$null
-        # Assume true, wherever it was set
-        $VersionedOutputDirectory = $true
-    }
-    else
-    {
-        # VersionedOutputDirectory may be [bool]'' but we can't tell where it's
-        # coming from, so assume the build info (Build.yaml) is right
-        $VersionedOutputDirectory = $BuildInfo['VersionedOutputDirectory']
-    }
-
-    $GetBuiltModuleManifestParams = @{
-        OutputDirectory          = $OutputDirectory
-        BuiltModuleSubDirectory  = $BuiltModuleSubDirectory
-        ModuleName               = $ProjectName
-        VersionedOutputDirectory = $VersionedOutputDirectory
-        ErrorAction              = 'Stop'
-    }
-
-    $builtModuleBase = Get-SamplerBuiltModuleBase @GetBuiltModuleManifestParams
-    "`tBuilt Module Base        = '$builtModuleBase'"
-
-    $builtModuleManifest = Get-SamplerBuiltModuleManifest @GetBuiltModuleManifestParams
-    "`tBuilt Module Manifest    = '$builtModuleManifest'"
-
-    if ($builtModuleRootScriptPath = Get-SamplerModuleRootPath -ModuleManifestPath $builtModuleManifest)
-    {
-        $builtModuleRootScriptPath = (Get-Item -Path $builtModuleRootScriptPath -ErrorAction SilentlyContinue).FullName
-    }
-
-    "`tBuilt ModuleRoot script  = '$builtModuleRootScriptPath'"
+    # Get the vales for task variables, see https://github.com/gaelcolas/Sampler#task-variables.
+    . (Get-Command -Name 'Set-SamplerTaskVariable').ScriptBlock
 
     $builtDscResourcesFolder = Get-SamplerAbsolutePath -Path 'DSCResources' -RelativeTo $builtModuleBase
+
     "`tBuilt DSC Resource Path  = '$builtDscResourcesFolder'"
-
-    $ModuleVersion = Get-BuiltModuleVersion @GetBuiltModuleManifestParams
-    $ModuleVersionObject = Split-ModuleVersion -ModuleVersion $ModuleVersion
-    $ModuleVersionFolder = $ModuleVersionObject.Version
-    $preReleaseTag = $ModuleVersionObject.PreReleaseString
-
-    "`tModule Version           = '$ModuleVersion'"
-    "`tModule Version Folder    = '$ModuleVersionFolder'"
-    "`tPre-release Tag          = '$preReleaseTag'"
 
     $GetCodeCoverageThresholdParameters = @{
         RuntimeCodeCoverageThreshold = $CodeCoverageThreshold
@@ -358,6 +256,7 @@ task Convert_Pester_Coverage {
     }
 
     $CodeCoverageThreshold = Get-CodeCoverageThreshold @GetCodeCoverageThresholdParameters
+
     "`tCode Coverage Threshold  = '$CodeCoverageThreshold'"
 
     if (-not $CodeCoverageThreshold)
