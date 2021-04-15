@@ -335,6 +335,7 @@ try
                 Name       = 'PSDepend'
                 Repository = $Gallery
                 Path       = $PSDependTarget
+                Force      = $true
             }
 
             if ($MinimumPSDependVersion)
@@ -378,6 +379,7 @@ try
                 Name       = 'PowerShell-Yaml'
                 Repository = $Gallery
                 Path       = $PSDependTarget
+                Force      = $true
             }
 
             Save-Module @SaveModuleParam

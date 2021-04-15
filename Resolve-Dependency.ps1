@@ -290,11 +290,11 @@ try
 
     if ($PSBoundParameters.ContainsKey('MinimumPSDependVersion'))
     {
-        try 
+        try
         {
             $psDependModule = $psDependModule | Where-Object -FilterScript { $_.Version -ge $MinimumPSDependVersion }
         }
-        catch 
+        catch
         {
             throw ('There was a problem finding the minimum version of PSDepend. Error: {0}' -f $_)
         }
@@ -379,6 +379,7 @@ try
                 Name       = 'PowerShell-Yaml'
                 Repository = $Gallery
                 Path       = $PSDependTarget
+                Force      = $true
             }
 
             Save-Module @SaveModuleParam
