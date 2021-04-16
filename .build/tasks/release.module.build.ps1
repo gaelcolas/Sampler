@@ -311,5 +311,5 @@ task publish_module_to_gallery -if ($GalleryApiToken -and (Get-Command -Name 'Pu
         Publish-Module @PublishModuleParams
     }
 
-    Write-Build Green "Package Published to PSGallery´."
+    Write-Build Green "Package Published to PSGallery."
 }
