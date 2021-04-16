@@ -8,48 +8,47 @@ Import-Module $ProjectNameToTest
 
 Describe 'Set-SamplerTaskVariable' {
     BeforeAll {
-        # $previousProjectName = InModuleScope $ProjectNameToTest {
-        #     # Remove parent scope's value.
-        #     $ProjectName
-        # }
+        # Remember the correct values for the pipeline.
+        $previousBuildRoot = $BuildRoot
+        $previousProjectName = $ProjectName
+        $previousSourcePath = $SourcePath
 
-        InModuleScope $ProjectNameToTest {
-            # Mock InvokeBuild variable $BuildRoot.
-            $script:BuildRoot = 'C:\source\MyProject'
+        # Mock InvokeBuild variable $BuildRoot.
+        $BuildRoot = Join-Path -Path $TestDrive -ChildPath 'MyProject'
 
-            # Remove parent scope's value.
-            $script:ProjectName = $null
-        }
+        # Remove parent scope's value.
+        $ProjectName = $null
+        $SourcePath = $null
 
         Mock -CommandName Get-SamplerProjectName -MockWith {
             return 'MyProject'
-        } -ModuleName $ProjectNameToTest
+        }
 
         Mock -CommandName Get-SamplerSourcePath -MockWith {
-            return 'C:\source\MyProject\source'
-        } -ModuleName $ProjectNameToTest
+            return (Join-Path -Path $TestDrive -ChildPath 'MyProject/source')
+        }
 
         Mock -CommandName Get-SamplerAbsolutePath -MockWith {
             return ''
-        } -ModuleName $ProjectNameToTest
+        }
 
         Mock -CommandName Get-SamplerAbsolutePath -MockWith {
-            return 'C:\source\MyProject\source\MyProject.psd1'
+            return (Join-Path -Path $TestDrive -ChildPath 'MyProject\source\MyProject.psd1')
         } -ParameterFilter {
             $Path -eq 'MyProject.psd1'
-        } -ModuleName $ProjectNameToTest
+        }
 
         Mock -CommandName Get-BuildVersion -MockWith {
             return ''
-        } -ModuleName $ProjectNameToTest
+        }
     }
 
-    # AfterAll {
-    #     InModuleScope $ProjectNameToTest {
-    #         # Remove parent scope's value.
-    #         $script:ProjectName = $previousProjectName
-    #     }
-    # }
+    AfterAll {
+        # Return the correct values that the pipeline expects.
+        $BuildRoot = $previousBuildRoot
+        $ProjectName = $previousProjectName
+        $SourcePath = $previousSourcePath
+    }
 
     Context 'When calling the function with parameter AsNewBuild' {
         It 'Should return the expected output' {
@@ -57,12 +56,12 @@ Describe 'Set-SamplerTaskVariable' {
                 Since Sampler dot-sources the functions into the session we must point
                 out that the function to test is the one in the module.
             #>
-            $result = Sampler\Set-SamplerTaskVariable -AsNewBuild
+            $result = . Set-SamplerTaskVariable -AsNewBuild
 
             Write-Verbose ($result | Out-String) -Verbose
 
             $result | Should -Contain "`tProject Name               = 'MyProject'"
-            $result | Should -Contain "`tSource Path                = 'C:\source\MyProject\source'"
+            $result | Should -Contain ("`tSource Path                = '{0}'" -f (Join-Path -Path $TestDrive -ChildPath 'MyProject/source'))
         }
     }
 }
