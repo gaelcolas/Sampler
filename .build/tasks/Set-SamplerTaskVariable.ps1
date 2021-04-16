@@ -85,14 +85,14 @@ $BuiltModuleSubdirectory = Get-SamplerAbsolutePath -Path $BuiltModuleSubdirector
 
 "`tBuilt Module Subdirectory  = '$BuiltModuleSubdirectory'"
 
-$moduleManifestPath = Get-SamplerAbsolutePath -Path "$ProjectName.psd1" -RelativeTo $SourcePath
+$ModuleManifestPath = Get-SamplerAbsolutePath -Path "$ProjectName.psd1" -RelativeTo $SourcePath
 
-"`tModule Manifest Path (src) = '$moduleManifestPath'"
+"`tModule Manifest Path (src) = '$ModuleManifestPath'"
 
 if ($AsNewBuild.IsPresent)
 {
     $getBuildVersionParameters = @{
-        ModuleManifestPath = $moduleManifestPath
+        ModuleManifestPath = $ModuleManifestPath
         ModuleVersion      = $ModuleVersion
     }
 
@@ -114,7 +114,7 @@ else
             VersionedOutputDirectory is not [bool]'' nor $false nor [bool]$null
             Assume true, wherever it was set.
         #>
-        $null = [bool]::TryParse($VersionedOutputDirectory, [ref] $VersionedOutputDirectory)
+        $null = [System.Boolean]::TryParse($VersionedOutputDirectory, [ref] $VersionedOutputDirectory)
     }
     else
     {
@@ -122,6 +122,8 @@ else
         # coming from, so assume the build info (Build.yaml) is right
         $VersionedOutputDirectory = $BuildInfo['VersionedOutputDirectory']
     }
+
+    "`tVersioned Output Directory = '$VersionedOutputDirectory'"
 
     $GetBuiltModuleManifestParams = @{
         OutputDirectory          = $OutputDirectory
@@ -131,38 +133,38 @@ else
         ErrorAction              = 'Stop'
     }
 
-    $builtModuleManifest = Get-SamplerBuiltModuleManifest @GetBuiltModuleManifestParams
-    if ($builtModuleManifest)
+    $BuiltModuleManifest = Get-SamplerBuiltModuleManifest @GetBuiltModuleManifestParams
+    if ($BuiltModuleManifest)
     {
-        $builtModuleManifest = (Get-Item -Path $builtModuleManifest -ErrorAction 'SilentlyContinue').FullName
+        $BuiltModuleManifest = (Get-Item -Path $BuiltModuleManifest -ErrorAction 'SilentlyContinue').FullName
     }
 
-    "`tBuilt Module Manifest      = '$builtModuleManifest'"
+    "`tBuilt Module Manifest      = '$BuiltModuleManifest'"
 
-    $builtModuleBase = Get-SamplerBuiltModuleBase @GetBuiltModuleManifestParams
-    if ($builtModuleBase)
+    $BuiltModuleBase = Get-SamplerBuiltModuleBase @GetBuiltModuleManifestParams
+    if ($BuiltModuleBase)
     {
-        $builtModuleBase = (Get-Item -Path $builtModuleBase -ErrorAction 'SilentlyContinue').FullName
+        $BuiltModuleBase = (Get-Item -Path $BuiltModuleBase -ErrorAction 'SilentlyContinue').FullName
     }
 
-    "`tBuilt Module Base          = '$builtModuleBase'"
+    "`tBuilt Module Base          = '$BuiltModuleBase'"
 
-    $moduleVersion = Get-BuiltModuleVersion @GetBuiltModuleManifestParams
+    $ModuleVersion = Get-BuiltModuleVersion @GetBuiltModuleManifestParams
 
     "`tModule Version             = '$ModuleVersion'"
 
-    $moduleVersionObject = Split-ModuleVersion -ModuleVersion $moduleVersion
-    $moduleVersionFolder = $moduleVersionObject.Version
+    $moduleVersionObject = Split-ModuleVersion -ModuleVersion $ModuleVersion
+    $ModuleVersionFolder = $moduleVersionObject.Version
 
-    "`tModule Version Folder      = '$moduleVersionFolder'"
+    "`tModule Version Folder      = '$ModuleVersionFolder'"
 
     $PreReleaseTag = $moduleVersionObject.PreReleaseString
 
     "`tPre-release Tag            = '$PreReleaseTag'"
 
-    if ($builtModuleManifest)
+    if ($BuiltModuleManifest)
     {
-        $BuiltModuleRootScriptPath = Get-SamplerModuleRootPath -ModuleManifestPath $builtModuleManifest
+        $BuiltModuleRootScriptPath = Get-SamplerModuleRootPath -ModuleManifestPath $BuiltModuleManifest
 
         if ($BuiltModuleRootScriptPath)
         {
