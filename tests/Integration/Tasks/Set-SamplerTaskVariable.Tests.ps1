@@ -6,6 +6,12 @@ $ProjectNameToTest = ((Get-ChildItem -Path $ProjectPathToTest\*\*.psd1).Where{
 
 Import-Module $ProjectNameToTest
 
+<#
+    This test need to change the variable names that are used in the pipeline to
+    properly mock the code being tested.
+    The current values are saved and set back at the end of the test.
+#>
+
 Describe 'Set-SamplerTaskVariable' {
     BeforeAll {
         # Remember the correct values for the pipeline.
@@ -53,10 +59,11 @@ Describe 'Set-SamplerTaskVariable' {
     Context 'When calling the function with parameter AsNewBuild' {
         It 'Should return the expected output' {
             <#
-                Since Sampler dot-sources the functions into the session we must point
-                out that the function to test is the one in the module.
+                Since Sampler adds its own alias in build.ps1 that does not point
+                to the built module's Set-SamplerTaskVariable we must point
+                out that the alias to test is the one in the module.
             #>
-            $result = . Set-SamplerTaskVariable -AsNewBuild
+            $result = . Sampler\Set-SamplerTaskVariable -AsNewBuild
 
             Write-Verbose ($result | Out-String) -Verbose
 
