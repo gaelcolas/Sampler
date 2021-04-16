@@ -47,7 +47,7 @@ param
 # Synopsis: Making sure the Module meets some quality standard (help, tests)
 task Invoke_DscResource_Tests {
     # Get the vales for task variables, see https://github.com/gaelcolas/Sampler#task-variables.
-    . (Get-Command -Name 'Set-SamplerTaskVariable').ScriptBlock
+    . Set-SamplerTaskVariable
 
     $DscTestOutputFolder = Get-SamplerAbsolutePath -Path $DscTestOutputFolder -RelativeTo $OutputDirectory
 
@@ -242,7 +242,7 @@ task Fail_Build_If_DscResource_Tests_Failed {
     ""
 
     # Get the vales for task variables, see https://github.com/gaelcolas/Sampler#task-variables.
-    . (Get-Command -Name 'Set-SamplerTaskVariable').ScriptBlock
+    . Set-SamplerTaskVariable
 
     $DscTestOutputFolder = Get-SamplerAbsolutePath -Path $DscTestOutputFolder -RelativeTo $OutputDirectory
 
@@ -273,7 +273,7 @@ task Fail_Build_If_DscResource_Tests_Failed {
 # Synopsis: Uploading Unit Test results to AppVeyor
 task Upload_DscResourceTest_Results_To_AppVeyor -If { (property BuildSystem 'unknown') -eq 'AppVeyor' } {
     # Get the vales for task variables, see https://github.com/gaelcolas/Sampler#task-variables.
-    . (Get-Command -Name 'Set-SamplerTaskVariable').ScriptBlock
+    . Set-SamplerTaskVariable
 
     $DscTestOutputFolder = Get-SamplerAbsolutePath -Path $DscTestOutputFolder -RelativeTo $OutputDirectory
 

@@ -55,7 +55,7 @@ param
 # Synopsis: Making sure the Module meets some quality standard (help, tests).
 task Invoke_Pester_Tests {
     # Get the vales for task variables, see https://github.com/gaelcolas/Sampler#task-variables.
-    . (Get-Command -Name 'Set-SamplerTaskVariable').ScriptBlock
+    . Set-SamplerTaskVariable
 
     $PesterOutputFolder = Get-SamplerAbsolutePath -Path $PesterOutputFolder -RelativeTo $OutputDirectory
 
@@ -400,7 +400,7 @@ task Fail_Build_If_Pester_Tests_Failed {
     ""
 
     # Get the vales for task variables, see https://github.com/gaelcolas/Sampler#task-variables.
-    . (Get-Command -Name 'Set-SamplerTaskVariable').ScriptBlock
+    . Set-SamplerTaskVariable
 
     $PesterOutputFolder = Get-SamplerAbsolutePath -Path $PesterOutputFolder -RelativeTo $OutputDirectory
 
@@ -460,7 +460,7 @@ task Fail_Build_If_Pester_Tests_Failed {
 # Synopsis: Fails the build if the code coverage is under predefined threshold.
 task Pester_If_Code_Coverage_Under_Threshold {
     # Get the vales for task variables, see https://github.com/gaelcolas/Sampler#task-variables.
-    . (Get-Command -Name 'Set-SamplerTaskVariable').ScriptBlock
+    . Set-SamplerTaskVariable
 
     $builtDscResourcesFolder = Get-SamplerAbsolutePath -Path 'DSCResources' -RelativeTo $builtModuleBase
 
@@ -541,7 +541,7 @@ task Pester_If_Code_Coverage_Under_Threshold {
 # Synopsis: Uploading Unit Test results to AppVeyor.
 task Upload_Test_Results_To_AppVeyor -If { (property BuildSystem 'unknown') -eq 'AppVeyor' } {
     # Get the vales for task variables, see https://github.com/gaelcolas/Sampler#task-variables.
-    . (Get-Command -Name 'Set-SamplerTaskVariable').ScriptBlock
+    . Set-SamplerTaskVariable
 
     $PesterOutputFolder = Get-SamplerAbsolutePath -Path $PesterOutputFolder -RelativeTo $OutputDirectory
 

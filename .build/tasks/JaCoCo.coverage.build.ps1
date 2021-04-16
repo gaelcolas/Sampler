@@ -56,7 +56,7 @@ param
 # Synopsis: Merging several code coverage files together.
 task Merge_CodeCoverage_Files {
     # Get the vales for task variables, see https://github.com/gaelcolas/Sampler#task-variables.
-    . (Get-Command -Name 'Set-SamplerTaskVariable').ScriptBlock
+    . Set-SamplerTaskVariable
 
     $osShortName = Get-OperatingSystemShortName
 
@@ -244,7 +244,7 @@ function Start-CodeCoverageMerge
 # Synopsis: Convert JaCoCo coverage so it supports a built module by way of ModuleBuilder.
 task Convert_Pester_Coverage {
     # Get the vales for task variables, see https://github.com/gaelcolas/Sampler#task-variables.
-    . (Get-Command -Name 'Set-SamplerTaskVariable').ScriptBlock
+    . Set-SamplerTaskVariable
 
     $builtDscResourcesFolder = Get-SamplerAbsolutePath -Path 'DSCResources' -RelativeTo $builtModuleBase
 

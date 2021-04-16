@@ -81,7 +81,7 @@ function Get-GenerateHelpPlatyPSVariables
 # Synopsis: Generate MAML from the built module (and add to module Base).
 Task Generate_MAML_from_built_module {
     # Get the vales for task variables, see https://github.com/gaelcolas/Sampler#task-variables.
-    . (Get-Command -Name 'Set-SamplerTaskVariable').ScriptBlock
+    . Set-SamplerTaskVariable
 
     Get-GenerateHelpPlatyPSVariables
 
@@ -125,7 +125,7 @@ Task Generate_MAML_from_built_module {
 # Synopsis: Generate (if absent) or Update the Markdown help source files for each locale folder (i.e. docs/en-US).
 Task Update_markdown_help_source {
     # Get the vales for task variables, see https://github.com/gaelcolas/Sampler#task-variables.
-    . (Get-Command -Name 'Set-SamplerTaskVariable').ScriptBlock
+    . Set-SamplerTaskVariable
 
     Get-GenerateHelpPlatyPSVariables
 
@@ -186,7 +186,7 @@ Task Update_markdown_help_source {
 # Synopsis: Generates the MAML for each Locale found under the Help source folder (i.e. docs/en-US).
 Task Generate_MAML_from_markdown_help_source {
     # Get the vales for task variables, see https://github.com/gaelcolas/Sampler#task-variables.
-    . (Get-Command -Name 'Set-SamplerTaskVariable').ScriptBlock
+    . Set-SamplerTaskVariable
 
     Get-GenerateHelpPlatyPSVariables
 

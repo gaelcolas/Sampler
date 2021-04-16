@@ -40,7 +40,7 @@ param
 # Synopsis: Build the Module based on its Build.psd1 definition
 Task Build_ModuleOutput_ModuleBuilder {
     # Get the vales for task variables, see https://github.com/gaelcolas/Sampler#task-variables.
-    . (Get-Command -Name 'Set-SamplerTaskVariable').ScriptBlock -AsNewBuild
+    . Set-SamplerTaskVariable -AsNewBuild
 
     Import-Module -Name ModuleBuilder -ErrorAction 'Stop'
 
@@ -123,7 +123,7 @@ Task Build_ModuleOutput_ModuleBuilder {
 
 Task Build_NestedModules_ModuleBuilder {
     # Get the vales for task variables, see https://github.com/gaelcolas/Sampler#task-variables.
-    . (Get-Command -Name 'Set-SamplerTaskVariable').ScriptBlock
+    . Set-SamplerTaskVariable
 
     Import-Module -Name 'ModuleBuilder' -ErrorAction 'Stop'
 
@@ -321,7 +321,7 @@ Task Build_NestedModules_ModuleBuilder {
 
 Task Build_DscResourcesToExport_ModuleBuilder {
     # Get the vales for task variables, see https://github.com/gaelcolas/Sampler#task-variables.
-    . (Get-Command -Name 'Set-SamplerTaskVariable').ScriptBlock
+    . Set-SamplerTaskVariable
 
     Import-Module -Name 'ModuleBuilder' -ErrorAction 'Stop'
 
