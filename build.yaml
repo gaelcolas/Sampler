@@ -109,7 +109,7 @@ BuildWorkflow:
     - Pester_Tests_Stop_On_Fail
     - Convert_Pester_Coverage
     - Pester_if_Code_Coverage_Under_Threshold
-    #- hqrmtest
+    - hqrmtest
 
   merge:
     - Merge_CodeCoverage_Files
