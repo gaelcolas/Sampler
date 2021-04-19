@@ -270,7 +270,7 @@ process
         }
 
         # Loading Build Tasks defined in the .build/ folder (will override the ones imported above if same task name).
-        Get-ChildItem -Path '.build/' -Recurse -Include '*.build.ps1' -ErrorAction Ignore |
+        Get-ChildItem -Path '.build/' -Recurse -Include '*.ps1' -ErrorAction Ignore |
             ForEach-Object {
                 "Importing file $($_.BaseName)" | Write-Verbose
 
@@ -504,5 +504,5 @@ begin
         return
     }
 
-    Set-Alias -Name 'Set-SamplerTaskVariable' -Value "$PSScriptRoot/.build/tasks/Set-SamplerTaskVariable.ps1"
+    Set-Alias -Name 'Set-SamplerTaskVariable' -Value "$PSScriptRoot/Sampler/scripts/Set-SamplerTaskVariable.ps1"
 }
