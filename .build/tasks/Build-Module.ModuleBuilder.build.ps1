@@ -10,7 +10,7 @@ param
 
     [Parameter()]
     [System.String]
-    $OutputDirectory = (property OutputDirectory (Join-Path $BuildRoot "output")),
+    $OutputDirectory = (property OutputDirectory (Join-Path $BuildRoot 'output')),
 
     [Parameter()]
     [System.String]
@@ -39,41 +39,8 @@ param
 
 # Synopsis: Build the Module based on its Build.psd1 definition
 Task Build_ModuleOutput_ModuleBuilder {
-    if ([System.String]::IsNullOrEmpty($ProjectName))
-    {
-        $ProjectName = Get-SamplerProjectName -BuildRoot $BuildRoot
-    }
-
-    if ([System.String]::IsNullOrEmpty($SourcePath))
-    {
-        $SourcePath = Get-SamplerSourcePath -BuildRoot $BuildRoot
-    }
-
-    $OutputDirectory = Get-SamplerAbsolutePath -Path $OutputDirectory -RelativeTo $BuildRoot
-    $BuiltModuleSubdirectory = Get-SamplerAbsolutePath -Path $BuiltModuleSubdirectory -RelativeTo $OutputDirectory
-    $moduleManifestPath = Get-SamplerAbsolutePath -Path "$ProjectName.psd1" -RelativeTo $SourcePath
-
-    $getBuildVersionParameters = @{
-        ModuleManifestPath = $moduleManifestPath
-        ModuleVersion      = $ModuleVersion
-    }
-
-    <#
-        This will get the version from $ModuleVersion if is was set as a parameter
-        or as a property. If $ModuleVersion is $null or an empty string the version
-        will fetched from GitVersion if it is installed. If GitVersion is _not_
-        installed the version is fetched from the module manifest in SourcePath.
-    #>
-    $ModuleVersion = Get-BuildVersion @getBuildVersionParameters
-    $ReleaseNotesPath = Get-SamplerAbsolutePath -Path $ReleaseNotesPath -RelativeTo $OutputDirectory
-
-    "`tProject Name               = '$ProjectName'"
-    "`tModule Version             = '$ModuleVersion'"
-    "`tSource Path                = '$SourcePath'"
-    "`tOutput Directory           = '$OutputDirectory'"
-    "`tBuilt Module Subdirectory  = '$BuiltModuleSubdirectory'"
-    "`tModule Manifest Path (src) = '$moduleManifestPath'"
-    "`tRelease Notes path         = '$ReleaseNotesPath'"
+    # Get the vales for task variables, see https://github.com/gaelcolas/Sampler#task-variables.
+    . Set-SamplerTaskVariable -AsNewBuild
 
     Import-Module -Name ModuleBuilder -ErrorAction 'Stop'
 
@@ -155,55 +122,8 @@ Task Build_ModuleOutput_ModuleBuilder {
 }
 
 Task Build_NestedModules_ModuleBuilder {
-    if ([System.String]::IsNullOrEmpty($ProjectName))
-    {
-        $ProjectName = Get-SamplerProjectName -BuildRoot $BuildRoot
-    }
-
-    if ([System.String]::IsNullOrEmpty($SourcePath))
-    {
-        $SourcePath = Get-SamplerSourcePath -BuildRoot $BuildRoot
-    }
-
-    $OutputDirectory = Get-SamplerAbsolutePath -Path $OutputDirectory -RelativeTo $BuildRoot
-    "`tOutputDirectory       = '$OutputDirectory'"
-    if ($VersionedOutputDirectory)
-    {
-        # VersionedOutputDirectory is not [bool]'' nor $false nor [bool]$null
-        # Assume true, wherever it was set
-        $VersionedOutputDirectory = $true
-    }
-    else
-    {
-        # VersionedOutputDirectory may be [bool]'' but we can't tell where it's
-        # coming from, so assume the build info (Build.yaml) is right
-        $VersionedOutputDirectory = $BuildInfo['VersionedOutputDirectory']
-    }
-
-    $GetBuiltModuleManifestParams = @{
-        OutputDirectory          = $OutputDirectory
-        BuiltModuleSubdirectory  = $BuiltModuleSubDirectory
-        ModuleName               = $ProjectName
-        VersionedOutputDirectory = $VersionedOutputDirectory
-        ErrorAction              = 'Stop'
-    }
-
-    $builtModuleManifest = Get-SamplerBuiltModuleManifest @GetBuiltModuleManifestParams
-    $builtModuleManifest = (Get-Item -Path $builtModuleManifest).FullName
-    "`tBuilt Module Manifest = '$builtModuleManifest'"
-
-    $builtModuleBase = Get-SamplerBuiltModuleBase @GetBuiltModuleManifestParams
-    $builtModuleBase = (Get-Item -Path $builtModuleBase).FullName
-    "`tBuilt Module Base     = '$builtModuleBase'"
-
-    $moduleVersion = Get-BuiltModuleVersion @GetBuiltModuleManifestParams
-    $moduleVersionObject = Split-ModuleVersion -ModuleVersion $moduleVersion
-    $moduleVersionFolder = $moduleVersionObject.Version
-    $preReleaseTag = $moduleVersionObject.PreReleaseString
-
-    "`tModule Version        = '$ModuleVersion'"
-    "`tModule Version Folder = '$moduleVersionFolder'"
-    "`tPre-release Tag       = '$preReleaseTag'"
+    # Get the vales for task variables, see https://github.com/gaelcolas/Sampler#task-variables.
+    . Set-SamplerTaskVariable
 
     Import-Module -Name 'ModuleBuilder' -ErrorAction 'Stop'
 
@@ -400,73 +320,14 @@ Task Build_NestedModules_ModuleBuilder {
 }
 
 Task Build_DscResourcesToExport_ModuleBuilder {
-    if ([System.String]::IsNullOrEmpty($ProjectName))
-    {
-        $ProjectName = Get-SamplerProjectName -BuildRoot $BuildRoot
-    }
-
-    if ([System.String]::IsNullOrEmpty($SourcePath))
-    {
-        $SourcePath = Get-SamplerSourcePath -BuildRoot $BuildRoot
-    }
-
-    $OutputDirectory = Get-SamplerAbsolutePath -Path $OutputDirectory -RelativeTo $BuildRoot
-
-    "`tProject Name             = '$ProjectName'"
-    "`tSource Path              = '$SourcePath'"
-    "`tOutput Directory         = '$OutputDirectory'"
+    # Get the vales for task variables, see https://github.com/gaelcolas/Sampler#task-variables.
+    . Set-SamplerTaskVariable
 
     Import-Module -Name 'ModuleBuilder' -ErrorAction 'Stop'
 
-    if ($VersionedOutputDirectory)
-    {
-        # VersionedOutputDirectory is not [bool]'' nor $false nor [bool]$null
-        # Assume true, wherever it was set
-        $VersionedOutputDirectory = $true
-    }
-    else
-    {
-        # VersionedOutputDirectory may be [bool]'' but we can't tell where it's
-        # coming from, so assume the build info (Build.yaml) is right
-        $VersionedOutputDirectory = $BuildInfo['VersionedOutputDirectory']
-    }
-
-    $GetBuiltModuleManifestParams = @{
-        OutputDirectory          = $OutputDirectory
-        BuiltModuleSubDirectory  = $BuiltModuleSubDirectory
-        ModuleName               = $ProjectName
-        VersionedOutputDirectory = $VersionedOutputDirectory
-        ErrorAction              = 'Stop'
-    }
-
-    $builtModuleBase = Get-SamplerBuiltModuleBase @GetBuiltModuleManifestParams
-    $builtModuleBase = (Get-Item -Path $builtModuleBase).FullName
-    "`tBuilt Module Base        = '$builtModuleBase'"
-
-    $builtModuleManifest = Get-SamplerBuiltModuleManifest @GetBuiltModuleManifestParams
-    $builtModuleManifest = (Get-Item -Path $builtModuleManifest).FullName
-    "`tBuilt Module Manifest    = '$builtModuleManifest'"
-
-    $builtModuleRootScriptPath = Get-SamplerModuleRootPath -ModuleManifestPath $builtModuleManifest
-
-    if ($builtModuleRootScriptPath)
-    {
-        $builtModuleRootScriptPath = (Get-Item -Path $builtModuleRootScriptPath -ErrorAction 'SilentlyContinue').FullName
-    }
-
-    "`tBuilt Module Root Script  = '$builtModuleRootScriptPath'"
-
     $builtDscResourcesFolder = Get-SamplerAbsolutePath -Path 'DSCResources' -RelativeTo $builtModuleBase
+
     "`tBuilt DSC Resource Path  = '$builtDscResourcesFolder'"
-
-    $ModuleVersion = Get-BuiltModuleVersion @GetBuiltModuleManifestParams
-    $ModuleVersionObject = Split-ModuleVersion -ModuleVersion $ModuleVersion
-    $ModuleVersionFolder = $ModuleVersionObject.Version
-    $preReleaseTag = $ModuleVersionObject.PreReleaseString
-
-    "`tModule Version           = '$ModuleVersion'"
-    "`tModule Version Folder    = '$ModuleVersionFolder'"
-    "`tPre-release Tag          = '$preReleaseTag'"
 
     $DSCResourcesToAdd = @()
 

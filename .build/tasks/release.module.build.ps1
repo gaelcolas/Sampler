@@ -39,40 +39,12 @@ param (
 
 # Synopsis: Create ReleaseNotes from changelog and update the Changelog for release
 task Create_changelog_release_output {
-    if ([System.String]::IsNullOrEmpty($ProjectName))
-    {
-        $ProjectName = Get-SamplerProjectName -BuildRoot $BuildRoot
-    }
+    # Get the vales for task variables, see https://github.com/gaelcolas/Sampler#task-variables.
+    . Set-SamplerTaskVariable
 
-    $OutputDirectory = Get-SamplerAbsolutePath -Path $OutputDirectory -RelativeTo $BuildRoot
-    $ReleaseNotesPath = Get-SamplerAbsolutePath -Path $ReleaseNotesPath -RelativeTo $OutputDirectory
     $ChangeLogOutputPath = Get-SamplerAbsolutePath -Path 'CHANGELOG.md' -RelativeTo $OutputDirectory
 
-    "`tOutputDirectory       = '$OutputDirectory'"
-    "`tReleaseNotesPath      = '$ReleaseNotesPath'"
     "`tChangeLogOutputPath   = '$ChangeLogOutputPath'"
-
-    $GetBuiltModuleManifestParams = @{
-        OutputDirectory          = $OutputDirectory
-        BuiltModuleSubdirectory  = $BuiltModuleSubDirectory
-        ModuleName               = $ProjectName
-        VersionedOutputDirectory = $VersionedOutputDirectory
-        ErrorAction              = 'Stop'
-    }
-
-    $builtModuleManifest = Get-SamplerBuiltModuleManifest @GetBuiltModuleManifestParams
-    $builtModuleManifest = (Get-Item -Path $builtModuleManifest).FullName
-    
-    "`tBuilt Module Manifest = '$builtModuleManifest'"
-
-    $moduleVersion = Get-BuiltModuleVersion @GetBuiltModuleManifestParams
-    $moduleVersionObject = Split-ModuleVersion -ModuleVersion $moduleVersion
-    $moduleVersionFolder = $moduleVersionObject.Version
-    $preReleaseTag       = $moduleVersionObject.PreReleaseString
-
-    "`tModule Version        = '$ModuleVersion'"
-    "`tModule Version Folder = '$moduleVersionFolder'"
-    "`tPre-release Tag       = '$preReleaseTag'"
 
     # Parse the Changelog and extract unreleased
     try
@@ -165,60 +137,14 @@ task Create_changelog_release_output {
 }
 
 task publish_nupkg_to_gallery -if ($GalleryApiToken -and (Get-Command -Name 'nuget' -ErrorAction 'SilentlyContinue')) {
-    if ([System.String]::IsNullOrEmpty($ProjectName))
-    {
-        $ProjectName = Get-SamplerProjectName -BuildRoot $BuildRoot
-    }
-
-    if ([System.String]::IsNullOrEmpty($SourcePath))
-    {
-        $SourcePath = Get-SamplerSourcePath -BuildRoot $BuildRoot
-    }
-
-    $OutputDirectory = Get-SamplerAbsolutePath -Path $OutputDirectory -RelativeTo $BuildRoot
-
-    "`tProject Name          = '$ProjectName'"
-    "`tSource Path           = '$SourcePath'"
-    "`tOutput Directory      = '$OutputDirectory'"
+    # Get the vales for task variables, see https://github.com/gaelcolas/Sampler#task-variables.
+    . Set-SamplerTaskVariable
 
     Import-Module -Name 'ModuleBuilder' -ErrorAction 'Stop'
 
-    if ($VersionedOutputDirectory)
-    {
-        # VersionedOutputDirectory is not [bool]'' nor $false nor [bool]$null
-        # Assume true, wherever it was set
-        $VersionedOutputDirectory = $true
-    }
-    else
-    {
-        # VersionedOutputDirectory may be [bool]'' but we can't tell where it's
-        # coming from, so assume the build info (Build.yaml) is right
-        $VersionedOutputDirectory = $BuildInfo['VersionedOutputDirectory']
-    }
-
-    $GetBuiltModuleManifestParams = @{
-        OutputDirectory          = $OutputDirectory
-        BuiltModuleSubdirectory  = $BuiltModuleSubDirectory
-        ModuleName               = $ProjectName
-        VersionedOutputDirectory = $VersionedOutputDirectory
-        ErrorAction              = 'Stop'
-    }
-
-    $builtModuleManifest = Get-SamplerBuiltModuleManifest @GetBuiltModuleManifestParams
-
-    "`tBuilt Module Manifest = '$builtModuleManifest'"
-
-    $ModuleVersion = Get-BuiltModuleVersion @GetBuiltModuleManifestParams
-    $ModuleVersionObject = Split-ModuleVersion -ModuleVersion $ModuleVersion
-    $ModuleVersionFolder = $ModuleVersionObject.Version
-    $preReleaseTag       = $ModuleVersionObject.PreReleaseString
-
-    "`tModule Version        = '$ModuleVersion'"
-    "`tModule Version Folder = '$ModuleVersionFolder'"
-    "`tPre-release Tag       = '$preReleaseTag'"
-
     $ChangeLogOutputPath = Join-Path $OutputDirectory 'CHANGELOG.md'
-    "  ChangeLogOutputPath = $ChangeLogOutputPath"
+
+    "`tChangeLogOutputPath = $ChangeLogOutputPath"
 
     # find Module's nupkg
     $PackageToRelease = Get-ChildItem (Join-Path -Path $OutputDirectory -ChildPath "$ProjectName.$ModuleVersion.nupkg")
@@ -234,20 +160,13 @@ task publish_nupkg_to_gallery -if ($GalleryApiToken -and (Get-Command -Name 'nug
 
 # Synopsis: Packaging the module by Publishing to output folder (incl dependencies)
 task package_module_nupkg {
-
-    if ([System.String]::IsNullOrEmpty($ProjectName))
-    {
-        $ProjectName = Get-SamplerProjectName -BuildRoot $BuildRoot
-    }
-
-    if (!(Split-Path -isAbsolute $ReleaseNotesPath))
-    {
-        $ReleaseNotesPath = Join-Path -Path $OutputDirectory -ChildPath $ReleaseNotesPath
-    }
+    # Get the vales for task variables, see https://github.com/gaelcolas/Sampler#task-variables.
+    . Set-SamplerTaskVariable
 
     #region Set output/ as PSRepository
     # Force registering the output repository mapping to the Project's output path
     $null = Unregister-PSRepository -Name output -ErrorAction SilentlyContinue
+
     $RepositoryParams = @{
         Name            = 'output'
         SourceLocation  = $OutputDirectory
@@ -266,7 +185,8 @@ task package_module_nupkg {
     #endregion
 
     $ChangeLogOutputPath = Join-Path -Path $OutputDirectory -ChildPath 'CHANGELOG.md'
-    "  ChangeLogOutputPath = $ChangeLogOutputPath"
+
+    "`tChangeLogOutputPath = $ChangeLogOutputPath"
 
     # Do not try to generate ReleaseNotesForLatestRelease when updating Changelog after Major Release.
     if (Test-Path $ChangeLogOutputPath )
@@ -336,59 +256,13 @@ task package_module_nupkg {
 }
 
 task publish_module_to_gallery -if ($GalleryApiToken -and (Get-Command -Name 'Publish-Module' -ErrorAction 'SilentlyContinue')) {
-    if ([System.String]::IsNullOrEmpty($ProjectName))
-    {
-        $ProjectName = Get-SamplerProjectName -BuildRoot $BuildRoot
-    }
-
-    if ([System.String]::IsNullOrEmpty($SourcePath))
-    {
-        $SourcePath = Get-SamplerSourcePath -BuildRoot $BuildRoot
-    }
-
-    $OutputDirectory = Get-SamplerAbsolutePath -Path $OutputDirectory -RelativeTo $BuildRoot
-
-    "`tProject Name          = '$ProjectName'"
-    "`tSource Path           = '$SourcePath'"
-    "`tOutput Directory      = '$OutputDirectory'"
+    # Get the vales for task variables, see https://github.com/gaelcolas/Sampler#task-variables.
+    . Set-SamplerTaskVariable
 
     Import-Module -Name 'ModuleBuilder' -ErrorAction 'Stop'
 
-    if ($VersionedOutputDirectory)
-    {
-        # VersionedOutputDirectory is not [bool]'' nor $false nor [bool]$null
-        # Assume true, wherever it was set
-        $VersionedOutputDirectory = $true
-    }
-    else
-    {
-        # VersionedOutputDirectory may be [bool]'' but we can't tell where it's
-        # coming from, so assume the build info (Build.yaml) is right
-        $VersionedOutputDirectory = $BuildInfo['VersionedOutputDirectory']
-    }
-
-    $GetBuiltModuleManifestParams = @{
-        OutputDirectory          = $OutputDirectory
-        BuiltModuleSubdirectory  = $BuiltModuleSubDirectory
-        ModuleName               = $ProjectName
-        VersionedOutputDirectory = $VersionedOutputDirectory
-        ErrorAction              = 'Stop'
-    }
-
-    $builtModuleManifest = Get-SamplerBuiltModuleManifest @GetBuiltModuleManifestParams
-
-    "`tBuilt Module Manifest = '$builtModuleManifest'"
-
-    $ModuleVersion = Get-BuiltModuleVersion @GetBuiltModuleManifestParams
-    $ModuleVersionObject = Split-ModuleVersion -ModuleVersion $ModuleVersion
-    $ModuleVersionFolder = $ModuleVersionObject.Version
-    $preReleaseTag       = $ModuleVersionObject.PreReleaseString
-
-    "`tModule Version        = '$ModuleVersion'"
-    "`tModule Version Folder = '$ModuleVersionFolder'"
-    "`tPre-release Tag       = '$preReleaseTag'"
-
     $ChangeLogOutputPath = Join-Path -Path $OutputDirectory -ChildPath 'CHANGELOG.md'
+
     "  ChangeLogOutputPath = $ChangeLogOutputPath"
 
     $changeLogData = Get-ChangelogData -Path $ChangeLogOutputPath
@@ -437,6 +311,5 @@ task publish_module_to_gallery -if ($GalleryApiToken -and (Get-Command -Name 'Pu
         Publish-Module @PublishModuleParams
     }
 
-    Write-Build Green "Package Published to PSGallery"
-
+    Write-Build Green "Package Published to PSGallery."
 }

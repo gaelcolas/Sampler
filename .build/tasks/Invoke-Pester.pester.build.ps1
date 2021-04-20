@@ -54,63 +54,16 @@ param
 
 # Synopsis: Making sure the Module meets some quality standard (help, tests).
 task Invoke_Pester_Tests {
-    if ([System.String]::IsNullOrEmpty($ProjectName))
-    {
-        $ProjectName = Get-SamplerProjectName -BuildRoot $BuildRoot
-    }
+    # Get the vales for task variables, see https://github.com/gaelcolas/Sampler#task-variables.
+    . Set-SamplerTaskVariable
 
-    $OutputDirectory = Get-SamplerAbsolutePath -Path $OutputDirectory -RelativeTo $BuildRoot
     $PesterOutputFolder = Get-SamplerAbsolutePath -Path $PesterOutputFolder -RelativeTo $OutputDirectory
 
-    "`tProject Name             = '$ProjectName'"
-    "`tOutput Directory         = '$OutputDirectory'"
     "`tPester Output Folder     = '$PesterOutputFolder"
 
-    if ($VersionedOutputDirectory)
-    {
-        # VersionedOutputDirectory is not [bool]'' nor $false nor [bool]$null
-        # Assume true, wherever it was set
-        $VersionedOutputDirectory = $true
-    }
-    else
-    {
-        # VersionedOutputDirectory may be [bool]'' but we can't tell where it's
-        # coming from, so assume the build info (Build.yaml) is right
-        $VersionedOutputDirectory = $BuildInfo['VersionedOutputDirectory']
-    }
-
-    $GetBuiltModuleManifestParams = @{
-        OutputDirectory          = $OutputDirectory
-        BuiltModuleSubDirectory  = $BuiltModuleSubDirectory
-        ModuleName               = $ProjectName
-        VersionedOutputDirectory = $VersionedOutputDirectory
-        ErrorAction              = 'Stop'
-    }
-
-    $builtModuleBase = Get-SamplerBuiltModuleBase @GetBuiltModuleManifestParams
-    "`tBuilt Module Base        = '$builtModuleBase'"
-
-    $builtModuleManifest = Get-SamplerBuiltModuleManifest @GetBuiltModuleManifestParams
-    "`tBuilt Module Manifest    = '$builtModuleManifest'"
-
-    if ($builtModuleRootScriptPath = Get-SamplerModuleRootPath -ModuleManifestPath $builtModuleManifest)
-    {
-        $builtModuleRootScriptPath = (Get-Item -Path $builtModuleRootScriptPath -ErrorAction SilentlyContinue).FullName
-    }
-
-    "`tBuilt ModuleRoot script  = '$builtModuleRootScriptPath'"
-
     $builtDscResourcesFolder = Get-SamplerAbsolutePath -Path 'DSCResources' -RelativeTo $builtModuleBase
+
     "`tBuilt DSC Resource Path  = '$builtDscResourcesFolder'"
-
-    $ModuleVersion = Get-BuiltModuleVersion @GetBuiltModuleManifestParams
-    $ModuleVersionObject = Split-ModuleVersion -ModuleVersion $ModuleVersion
-    $ModuleVersionFolder = $ModuleVersionObject.Version
-    $preReleaseTag = $ModuleVersionObject.PreReleaseString
-
-    "`tModule Version           = '$ModuleVersion'"
-    "`tModule Version Folder    = '$ModuleVersionFolder'"
-    "`tPre-release Tag          = '$preReleaseTag'"
 
     if (-not (Test-Path -Path $PesterOutputFolder))
     {
@@ -444,73 +397,29 @@ task Invoke_Pester_Tests {
 # Synopsis: This task ensures the build job fails if the test aren't successful.
 task Fail_Build_If_Pester_Tests_Failed {
     "Asserting that no test failed"
+    ""
 
-    if ([System.String]::IsNullOrEmpty($ProjectName))
-    {
-        $ProjectName = Get-SamplerProjectName -BuildRoot $BuildRoot
-    }
+    # Get the vales for task variables, see https://github.com/gaelcolas/Sampler#task-variables.
+    . Set-SamplerTaskVariable
 
-    $OutputDirectory = Get-SamplerAbsolutePath -Path $OutputDirectory -RelativeTo $BuildRoot
     $PesterOutputFolder = Get-SamplerAbsolutePath -Path $PesterOutputFolder -RelativeTo $OutputDirectory
 
-    "`tProject Name             = '$ProjectName'"
-    "`tOutput Directory         = '$OutputDirectory'"
     "`tPester Output Folder     = '$PesterOutputFolder'"
 
     $osShortName = Get-OperatingSystemShortName
+
     $GetCodeCoverageThresholdParameters = @{
         RuntimeCodeCoverageThreshold = $CodeCoverageThreshold
         BuildInfo                    = $BuildInfo
     }
 
     $CodeCoverageThreshold = Get-CodeCoverageThreshold @GetCodeCoverageThresholdParameters
+
     "`tCode Coverage Threshold  = '$CodeCoverageThreshold'"
 
-    if ($VersionedOutputDirectory)
-    {
-        # VersionedOutputDirectory is not [bool]'' nor $false nor [bool]$null
-        # Assume true, wherever it was set
-        $VersionedOutputDirectory = $true
-    }
-    else
-    {
-        # VersionedOutputDirectory may be [bool]'' but we can't tell where it's
-        # coming from, so assume the build info (Build.yaml) is right
-        $VersionedOutputDirectory = $BuildInfo['VersionedOutputDirectory']
-    }
-
-    $GetBuiltModuleManifestParams = @{
-        OutputDirectory          = $OutputDirectory
-        BuiltModuleSubDirectory  = $BuiltModuleSubDirectory
-        ModuleName               = $ProjectName
-        VersionedOutputDirectory = $VersionedOutputDirectory
-        ErrorAction              = 'Stop'
-    }
-
-    $builtModuleBase = Get-SamplerBuiltModuleBase @GetBuiltModuleManifestParams
-    "`tBuilt Module Base        = '$builtModuleBase'"
-
-    $builtModuleManifest = Get-SamplerBuiltModuleManifest @GetBuiltModuleManifestParams
-    "`tBuilt Module Manifest    = '$builtModuleManifest'"
-
-    if ($builtModuleRootScriptPath = Get-SamplerModuleRootPath -ModuleManifestPath $builtModuleManifest)
-    {
-        $builtModuleRootScriptPath = (Get-Item -Path $builtModuleRootScriptPath -ErrorAction SilentlyContinue).FullName
-    }
-
-    "`tBuilt ModuleRoot script  = '$builtModuleRootScriptPath'"
-
     $builtDscResourcesFolder = Get-SamplerAbsolutePath -Path 'DSCResources' -RelativeTo $builtModuleBase
+
     "`tBuilt DSC Resource Path  = '$builtDscResourcesFolder'"
-
-    $ModuleVersion = Get-BuiltModuleVersion @GetBuiltModuleManifestParams
-    $ModuleVersionObject = Split-ModuleVersion -ModuleVersion $ModuleVersion
-    $ModuleVersionFolder = $ModuleVersionObject.Version
-    $preReleaseTag = $ModuleVersionObject.PreReleaseString
-
-    "`tModule Version           = '$ModuleVersion'"
-    "`tModule Version Folder    = '$ModuleVersionFolder'"
-    "`tPre-release Tag          = '$preReleaseTag'"
 
     $powerShellVersion = 'PSv.{0}' -f $PSVersionTable.PSVersion
 
@@ -550,67 +459,12 @@ task Fail_Build_If_Pester_Tests_Failed {
 
 # Synopsis: Fails the build if the code coverage is under predefined threshold.
 task Pester_If_Code_Coverage_Under_Threshold {
-    if ([System.String]::IsNullOrEmpty($ProjectName))
-    {
-        $ProjectName = Get-SamplerProjectName -BuildRoot $BuildRoot
-    }
-
-    if ([System.String]::IsNullOrEmpty($SourcePath))
-    {
-        $SourcePath = Get-SamplerSourcePath -BuildRoot $BuildRoot
-    }
-
-    $OutputDirectory = Get-SamplerAbsolutePath -Path $OutputDirectory -RelativeTo $BuildRoot
-
-    "`tProject Name             = '$ProjectName'"
-    "`tSource Path              = '$SourcePath'"
-    "`tOutput Directory         = '$OutputDirectory'"
-
-    if ($VersionedOutputDirectory)
-    {
-        # VersionedOutputDirectory is not [bool]'' nor $false nor [bool]$null
-        # Assume true, wherever it was set
-        $VersionedOutputDirectory = $true
-    }
-    else
-    {
-        # VersionedOutputDirectory may be [bool]'' but we can't tell where it's
-        # coming from, so assume the build info (Build.yaml) is right
-        $VersionedOutputDirectory = $BuildInfo['VersionedOutputDirectory']
-    }
-
-    $GetBuiltModuleManifestParams = @{
-        OutputDirectory          = $OutputDirectory
-        BuiltModuleSubDirectory  = $BuiltModuleSubDirectory
-        ModuleName               = $ProjectName
-        VersionedOutputDirectory = $VersionedOutputDirectory
-        ErrorAction              = 'Stop'
-    }
-
-    $builtModuleBase = Get-SamplerBuiltModuleBase @GetBuiltModuleManifestParams
-    "`tBuilt Module Base        = '$builtModuleBase'"
-
-    $builtModuleManifest = Get-SamplerBuiltModuleManifest @GetBuiltModuleManifestParams
-    "`tBuilt Module Manifest    = '$builtModuleManifest'"
-
-    if ($builtModuleRootScriptPath = Get-SamplerModuleRootPath -ModuleManifestPath $builtModuleManifest)
-    {
-        $builtModuleRootScriptPath = (Get-Item -Path $builtModuleRootScriptPath -ErrorAction SilentlyContinue).FullName
-    }
-
-    "`tBuilt ModuleRoot script  = '$builtModuleRootScriptPath'"
+    # Get the vales for task variables, see https://github.com/gaelcolas/Sampler#task-variables.
+    . Set-SamplerTaskVariable
 
     $builtDscResourcesFolder = Get-SamplerAbsolutePath -Path 'DSCResources' -RelativeTo $builtModuleBase
+
     "`tBuilt DSC Resource Path  = '$builtDscResourcesFolder'"
-
-    $ModuleVersion = Get-BuiltModuleVersion @GetBuiltModuleManifestParams
-    $ModuleVersionObject = Split-ModuleVersion -ModuleVersion $ModuleVersion
-    $ModuleVersionFolder = $ModuleVersionObject.Version
-    $preReleaseTag = $ModuleVersionObject.PreReleaseString
-
-    "`tModule Version           = '$ModuleVersion'"
-    "`tModule Version Folder    = '$ModuleVersionFolder'"
-    "`tPre-release Tag          = '$preReleaseTag'"
 
     $GetCodeCoverageThresholdParameters = @{
         RuntimeCodeCoverageThreshold = $CodeCoverageThreshold
@@ -618,6 +472,7 @@ task Pester_If_Code_Coverage_Under_Threshold {
     }
 
     $CodeCoverageThreshold = Get-CodeCoverageThreshold @GetCodeCoverageThresholdParameters
+
     "`tCode Coverage Threshold  = '$CodeCoverageThreshold'"
 
     if (-not $CodeCoverageThreshold)
@@ -626,8 +481,8 @@ task Pester_If_Code_Coverage_Under_Threshold {
     }
 
     $PesterOutputFolder = Get-SamplerAbsolutePath -Path $PesterOutputFolder -RelativeTo $OutputDirectory
-    "`tPester Output Folder     = '$PesterOutputFolder'"
 
+    "`tPester Output Folder     = '$PesterOutputFolder'"
 
     if (-not (Split-Path -IsAbsolute $PesterOutputFolder))
     {
@@ -685,15 +540,11 @@ task Pester_If_Code_Coverage_Under_Threshold {
 
 # Synopsis: Uploading Unit Test results to AppVeyor.
 task Upload_Test_Results_To_AppVeyor -If { (property BuildSystem 'unknown') -eq 'AppVeyor' } {
-    if ([System.String]::IsNullOrEmpty($ProjectName))
-    {
-        $ProjectName = Get-SamplerProjectName -BuildRoot $BuildRoot
-    }
+    # Get the vales for task variables, see https://github.com/gaelcolas/Sampler#task-variables.
+    . Set-SamplerTaskVariable
 
-    $OutputDirectory = Get-SamplerAbsolutePath -Path $OutputDirectory -RelativeTo $BuildRoot
     $PesterOutputFolder = Get-SamplerAbsolutePath -Path $PesterOutputFolder -RelativeTo $OutputDirectory
-    "`tProject Name             = '$ProjectName'"
-    "`tOutput Directory         = '$OutputDirectory'"
+
     "`tPester Output Folder     = '$PesterOutputFolder'"
 
     if (-not (Test-Path -Path $PesterOutputFolder))
@@ -705,51 +556,9 @@ task Upload_Test_Results_To_AppVeyor -If { (property BuildSystem 'unknown') -eq 
 
     $osShortName = Get-OperatingSystemShortName
 
-    if ($VersionedOutputDirectory)
-    {
-        # VersionedOutputDirectory is not [bool]'' nor $false nor [bool]$null
-        # Assume true, wherever it was set
-        $VersionedOutputDirectory = $true
-    }
-    else
-    {
-        # VersionedOutputDirectory may be [bool]'' but we can't tell where it's
-        # coming from, so assume the build info (Build.yaml) is right
-        $VersionedOutputDirectory = $BuildInfo['VersionedOutputDirectory']
-    }
-
-    $GetBuiltModuleManifestParams = @{
-        OutputDirectory          = $OutputDirectory
-        BuiltModuleSubDirectory  = $BuiltModuleSubDirectory
-        ModuleName               = $ProjectName
-        VersionedOutputDirectory = $VersionedOutputDirectory
-        ErrorAction              = 'Stop'
-    }
-
-    $builtModuleBase = Get-SamplerBuiltModuleBase @GetBuiltModuleManifestParams
-    "`tBuilt Module Base        = '$builtModuleBase'"
-
-    $builtModuleManifest = Get-SamplerBuiltModuleManifest @GetBuiltModuleManifestParams
-    "`tBuilt Module Manifest    = '$builtModuleManifest'"
-
-    if ($builtModuleRootScriptPath = Get-SamplerModuleRootPath -ModuleManifestPath $builtModuleManifest)
-    {
-        $builtModuleRootScriptPath = (Get-Item -Path $builtModuleRootScriptPath -ErrorAction SilentlyContinue).FullName
-    }
-
-    "`tBuilt ModuleRoot script  = '$builtModuleRootScriptPath'"
-
     $builtDscResourcesFolder = Get-SamplerAbsolutePath -Path 'DSCResources' -RelativeTo $builtModuleBase
+
     "`tBuilt DSC Resource Path  = '$builtDscResourcesFolder'"
-
-    $ModuleVersion = Get-BuiltModuleVersion @GetBuiltModuleManifestParams
-    $ModuleVersionObject = Split-ModuleVersion -ModuleVersion $ModuleVersion
-    $ModuleVersionFolder = $ModuleVersionObject.Version
-    $preReleaseTag = $ModuleVersionObject.PreReleaseString
-
-    "`tModule Version           = '$ModuleVersion'"
-    "`tModule Version Folder    = '$ModuleVersionFolder'"
-    "`tPre-release Tag          = '$preReleaseTag'"
 
     $powerShellVersion = 'PSv.{0}' -f $PSVersionTable.PSVersion
 

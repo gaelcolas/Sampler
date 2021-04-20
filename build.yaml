@@ -10,6 +10,7 @@ CopyPaths:
   #- HelperSubmodule # This will be built as submodule instead
   # - DSCResources
   - ../.build/tasks
+  - scripts
   - en-US
   - Templates
 Encoding: UTF8
@@ -42,7 +43,6 @@ Pester:
   OutputFormat: NUnitXML
   # Will look at every *.ps1 & *.psm1 under ModulePath, excepts when $_.FullName -match (Join-Path $ProjectPath $ExcludeFromCodeCoverageItem)
   ExcludeFromCodeCoverage:
-    - tasks
     - Templates
     - Modules/DscResource.Common
     - Assets
@@ -56,7 +56,7 @@ Pester:
     # - tests/Integration
   ExcludeTag:
   Tag:
-  CodeCoverageThreshold: 10 # Set to 0 to bypass
+  CodeCoverageThreshold: 1 # Set to 0 to bypass
   # Set to specific filename to override the default filename.
   # CodeCoverageOutputFile: JaCoCo_coverage.xml
   CodeCoverageOutputFileEncoding: ascii

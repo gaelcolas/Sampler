@@ -30,10 +30,6 @@ param
 
     [Parameter()]
     [System.String]
-    $ReleaseNotesPath = (property ReleaseNotesPath (Join-Path $OutputDirectory 'ReleaseNotes.md')),
-
-    [Parameter()]
-    [System.String]
     $ModuleVersion = (property ModuleVersion ''),
 
     [Parameter()]
@@ -43,15 +39,8 @@ param
 
 # SYNOPSIS: Building the Azure Policy Guest Configuration Packages
 task build_guestconfiguration_packages {
-    if ([System.String]::IsNullOrEmpty($ProjectName))
-    {
-        $ProjectName = Get-ProjectName -BuildRoot $BuildRoot
-    }
-
-    if ([System.String]::IsNullOrEmpty($SourcePath))
-    {
-        $SourcePath = Get-SourcePath -BuildRoot $BuildRoot
-    }
+    # Get the vales for task variables, see https://github.com/gaelcolas/Sampler#task-variables.
+    . Set-SamplerTaskVariable -AsNewBuild
 
     if (-not (Split-Path -IsAbsolute $GCPackagesPath))
     {
@@ -63,28 +52,9 @@ task build_guestconfiguration_packages {
         $GCPoliciesPath = Join-Path -Path $SourcePath -ChildPath $GCPoliciesPath
     }
 
-    $moduleManifestPath = "$SourcePath/$ProjectName.psd1"
-
-    $getBuildVersionParameters = @{
-        ModuleManifestPath = $moduleManifestPath
-        ModuleVersion      = $ModuleVersion
-    }
-
-    <#
-        This will get the version from $ModuleVersion if is was set as a parameter
-        or as a property. If $ModuleVersion is $null or an empty string the version
-        will fetched from GitVersion if it is installed. If GitVersion is _not_
-        installed the version is fetched from the module manifest in SourcePath.
-    #>
-    $ModuleVersion = Get-BuildVersion @getBuildVersionParameters
-
-    "`tProject Name         = $ProjectName"
-    "`tModule Version       = $ModuleVersion"
-    "`tSource Path          = $SourcePath"
-    "`tOutput Directory     = $OutputDirectory"
     "`tBuild Module Output  = $BuildModuleOutput"
-    "`tModule Manifest Path = $moduleManifestPath"
     "`tGC Packages Path     = $GCPackagesPath"
+    "`tGC Policies Path     = $GCPoliciesPath"
     "`t------------------------------------------------`r`n"
 
     Get-ChildItem -Path $GCPackagesPath -Directory -ErrorAction SilentlyContinue | ForEach-Object -Process {

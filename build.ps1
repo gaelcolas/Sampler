@@ -313,7 +313,7 @@ process
     }
 }
 
-Begin
+begin
 {
     # Find build config if not specified.
     if (-not $BuildConfig)
@@ -503,4 +503,6 @@ Begin
 
         return
     }
+
+    Set-Alias -Name 'Set-SamplerTaskVariable' -Value "$PSScriptRoot/Sampler/scripts/Set-SamplerTaskVariable.ps1"
 }

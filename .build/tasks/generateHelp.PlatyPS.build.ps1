@@ -50,80 +50,9 @@ function Get-GenerateHelpPlatyPSVariables
 {
     param ()
 
-    if ([string]::IsNullOrEmpty($ProjectName))
-    {
-        $script:ProjectName = Get-SamplerProjectName -BuildRoot $BuildRoot
-    }
-
-    if ([string]::IsNullOrEmpty($SourcePath))
-    {
-        $script:SourcePath = (Get-SamplerSourcePath -BuildRoot $BuildRoot)
-    }
-
-    $script:ProjectPath = Get-SamplerAbsolutePath -Path $ProjectPath -RelativeTo $BuildRoot
-    $script:OutputDirectory = Get-SamplerAbsolutePath -Path $OutputDirectory -RelativeTo $BuildRoot
     $script:PesterOutputFolder = Get-SamplerAbsolutePath -Path $PesterOutputFolder -RelativeTo $OutputDirectory
 
-    "`tProject Name               = '$ProjectName'"
-    "`tProject Path               = '$ProjectPath'"
-    "`tOutput Directory           = '$OutputDirectory'"
     "`tPester Output Folder       = '$PesterOutputFolder"
-
-    if ($VersionedOutputDirectory)
-    {
-        # VersionedOutputDirectory is not [bool]'' nor $false nor [bool]$null
-        # Assume true, wherever it was set
-        $null = [bool]::TryParse($VersionedOutputDirectory, [ref]$script:VersionedOutputDirectory)
-    }
-    else
-    {
-        # VersionedOutputDirectory may be [bool]'' but we can't tell where it's
-        # coming from, so assume the build info (Build.yaml) is right
-        $VersionedOutputDirectory = $BuildInfo['VersionedOutputDirectory']
-    }
-
-    $GetBuiltModuleManifestParams = @{
-        OutputDirectory          = $OutputDirectory
-        BuiltModuleSubDirectory  = $BuiltModuleSubDirectory
-        ModuleName               = $ProjectName
-        VersionedOutputDirectory = $VersionedOutputDirectory
-        ErrorAction              = 'Stop'
-    }
-
-    $script:builtModuleBase = Get-SamplerBuiltModuleBase @GetBuiltModuleManifestParams
-    if ($builtModuleBase)
-    {
-        $script:builtModuleBase = Get-Item -Path $builtModuleBase -ErrorAction 'SilentlyContinue'
-    }
-
-    "`tBuilt Module Base          = '$builtModuleBase'"
-
-    $script:builtModuleManifest = Get-SamplerBuiltModuleManifest @GetBuiltModuleManifestParams
-    if ($builtModuleManifest)
-    {
-        $script:builtModuleManifest = Get-Item -Path $builtModuleManifest -ErrorAction 'SilentlyContinue'
-    }
-
-    "`tBuilt Module Manifest      = '$builtModuleManifest'"
-
-    if ($builtModuleManifest -and ($script:builtModuleRootScriptPath = Get-SamplerModuleRootPath -ModuleManifestPath $builtModuleManifest))
-    {
-        $script:builtModuleRootScriptPath = (Get-Item -Path $builtModuleRootScriptPath -ErrorAction SilentlyContinue).FullName
-    }
-
-    "`tBuilt ModuleRoot script    = '$builtModuleRootScriptPath'"
-
-    if ($builtModuleManifest)
-    {
-        $script:ModuleVersion = Get-BuiltModuleVersion @GetBuiltModuleManifestParams
-        $script:ModuleVersionObject = Split-ModuleVersion -ModuleVersion $ModuleVersion
-        $script:ModuleVersionFolder = $ModuleVersionObject.Version
-        $script:preReleaseTag       = $ModuleVersionObject.PreReleaseString
-    }
-
-    "`tModule Version             = '$ModuleVersion'"
-    "`tModule Version Folder      = '$ModuleVersionFolder'"
-    "`tPre-release Tag            = '$preReleaseTag'"
 
     $script:HelpSourceFolder = Get-SamplerAbsolutePath -Path $HelpSourceFolder -RelativeTo $ProjectPath
     "`tHelp Source Folder         = '$HelpSourceFolder'"
@@ -151,6 +80,8 @@ function Get-GenerateHelpPlatyPSVariables
 
 # Synopsis: Generate MAML from the built module (and add to module Base).
 Task Generate_MAML_from_built_module {
+    # Get the vales for task variables, see https://github.com/gaelcolas/Sampler#task-variables.
+    . Set-SamplerTaskVariable
 
     Get-GenerateHelpPlatyPSVariables
 
@@ -193,8 +124,11 @@ Task Generate_MAML_from_built_module {
 
 # Synopsis: Generate (if absent) or Update the Markdown help source files for each locale folder (i.e. docs/en-US).
 Task Update_markdown_help_source {
+    # Get the vales for task variables, see https://github.com/gaelcolas/Sampler#task-variables.
+    . Set-SamplerTaskVariable
 
     Get-GenerateHelpPlatyPSVariables
+
     $existingLocaleFolders = (Get-ChildItem -Path $HelpSourceFolder -Directory -ErrorAction 'SilentlyContinue').Name
 
     if ($existingLocaleFolders.count -le 0)
@@ -251,6 +185,8 @@ Task Update_markdown_help_source {
 
 # Synopsis: Generates the MAML for each Locale found under the Help source folder (i.e. docs/en-US).
 Task Generate_MAML_from_markdown_help_source {
+    # Get the vales for task variables, see https://github.com/gaelcolas/Sampler#task-variables.
+    . Set-SamplerTaskVariable
 
     Get-GenerateHelpPlatyPSVariables
 

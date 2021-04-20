@@ -1,4 +1,5 @@
-param (
+param
+(
     # Project path
     [Parameter()]
     [string]
