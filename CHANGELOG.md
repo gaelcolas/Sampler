@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a public alias `Set-SamplerTaskVariable` that points to the script
   `Set-SamplerTaskVariable.ps1` in the tasks folder. This alias is used to
   dot-source task variables for re-use over multiple build tasks.
+- Moved code from build task `Convert_Pester_Coverage` into a public function
+  `New-JaCoCoDocument`.
 
 ### Fixed
 
