@@ -56,6 +56,8 @@ function New-JaCoCoDocument
 {
     [CmdletBinding()]
     [OutputType([System.Xml.XmlDocument])]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseOutputTypeCorrectly', '')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingFunctions', '')]
     param
     (
         [Parameter(Mandatory = $true)]
@@ -681,5 +683,5 @@ function New-JaCoCoDocument
         Write-Debug -Message ($StringWriter.ToString() | Out-String)
     }
 
-    return [System.Xml.XmlDocument] $coverageXml
+    return $coverageXml
 }
