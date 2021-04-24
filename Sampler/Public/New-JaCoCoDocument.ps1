@@ -330,17 +330,23 @@ function New-JaCoCoDocument
                 how many times the command was hit or missed.
             #>
             $numberOfInstructionsCovered = (
-                $jaCoCoMethod.Group |
-                    Where-Object -FilterScript {
-                        $_.HitCount -ge 1
-                    }
+                # Make sure to always return an array, even for just one object.
+                , (
+                    $jaCoCoMethod.Group |
+                        Where-Object -FilterScript {
+                            $_.HitCount -ge 1
+                        }
+                )
             ).Count
 
             $numberOfInstructionsMissed = (
-                $jaCoCoMethod.Group |
-                    Where-Object -FilterScript {
-                        $_.HitCount -eq 0
-                    }
+                # Make sure to always return an array, even for just one object.
+                , (
+                    $jaCoCoMethod.Group |
+                        Where-Object -FilterScript {
+                            $_.HitCount -eq 0
+                        }
+                )
             ).Count
 
             $xmlElementCounterMethodInstruction = $coverageXml.CreateElement('counter')
@@ -364,19 +370,25 @@ function New-JaCoCoDocument
                 The LINE counts how many unique lines that was hit or missed.
             #>
             $numberOfLinesCovered = (
-                $jaCoCoMethod.Group |
-                    Where-Object -FilterScript {
-                        $_.HitCount -ge 1
-                    } |
-                        Sort-Object -Property 'SourceLineNumber' -Unique
+                # Make sure to always return an array, even for just one object.
+                , (
+                    $jaCoCoMethod.Group |
+                        Where-Object -FilterScript {
+                            $_.HitCount -ge 1
+                        } |
+                            Sort-Object -Property 'SourceLineNumber' -Unique
+                )
             ).Count
 
             $numberOfLinesMissed = (
-                $jaCoCoMethod.Group |
-                    Where-Object -FilterScript {
-                        $_.HitCount -eq 0
-                    } |
-                        Sort-Object -Property 'SourceLineNumber' -Unique
+                # Make sure to always return an array, even for just one object.
+                , (
+                    $jaCoCoMethod.Group |
+                        Where-Object -FilterScript {
+                            $_.HitCount -eq 0
+                        } |
+                            Sort-Object -Property 'SourceLineNumber' -Unique
+                )
             ).Count
 
             $xmlElementCounterMethodLine = $coverageXml.CreateElement('counter')
@@ -402,10 +414,13 @@ function New-JaCoCoDocument
                 that is true.
             #>
             $isLineInMethodCovered = (
-                $jaCoCoMethod.Group |
-                    Where-Object -FilterScript {
-                        $_.HitCount -ge 1
-                    }
+                # Make sure to always return an array, even for just one object.
+                , (
+                    $jaCoCoMethod.Group |
+                        Where-Object -FilterScript {
+                            $_.HitCount -ge 1
+                        }
+                )
             ).Count
 
             <#
@@ -456,7 +471,7 @@ function New-JaCoCoDocument
         $xmlElementCounter_ClassLine.SetAttribute('covered', $classCounterLine.Covered)
         $xmlElementClass.AppendChild($xmlElementCounter_ClassLine) | Out-Null
 
-        if ($classCounterLine.Covered -gt 1)
+        if ($classCounterLine.Covered -ge 1)
         {
             $classCovered = 1
             $classMissed = 0

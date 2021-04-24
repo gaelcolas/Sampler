@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added new command `New-JaCoCoDocument`.
+
 ### Changed
 
 - Added a public alias `Set-SamplerTaskVariable` that points to the script
@@ -21,7 +25,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Move task _Convert_Pester_Coverage_ to task file `JaCoCo.coverage.build.ps1`.
 - Resolve-Dependency.ps1: fix MinimumPSDependVersion comparison.
 - Resolve-Dependency.ps1: add -Force to all Save-Module.
-
+- `New-JaCoCoDocument`
+  - Fixed counters when a method only had either one hit line or one missed line.
+   
 ## [0.110.1] - 2021-04-08
 
 ### Fixed
