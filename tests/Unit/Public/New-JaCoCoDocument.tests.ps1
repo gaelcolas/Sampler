@@ -15,6 +15,7 @@ Import-Module $ProjectName
 
 Describe 'New-JaCoCoDocument' {
     BeforeAll {
+        # TODO: Move this function to TestHelpers and reuse it in other tests
         function Get-XmlAttribute
         {
             [CmdletBinding()]

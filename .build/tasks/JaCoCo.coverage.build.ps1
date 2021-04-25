@@ -246,10 +246,6 @@ task Convert_Pester_Coverage {
     # Get the vales for task variables, see https://github.com/gaelcolas/Sampler#task-variables.
     . Set-SamplerTaskVariable
 
-    $builtDscResourcesFolder = Get-SamplerAbsolutePath -Path 'DSCResources' -RelativeTo $builtModuleBase
-
-    "`tBuilt DSC Resource Path  = '$builtDscResourcesFolder'"
-
     $GetCodeCoverageThresholdParameters = @{
         RuntimeCodeCoverageThreshold = $CodeCoverageThreshold
         BuildInfo                    = $BuildInfo
@@ -409,6 +405,7 @@ task Convert_Pester_Coverage {
 
     Write-Build -Color 'DarkGray' -Text "`tWriting converted code coverage file to '$newCoverageFilePath'."
 
+    # TODO: Use Out-XML
     $xmlSettings = New-Object -TypeName 'System.Xml.XmlWriterSettings'
     $xmlSettings.Indent = $true
     $xmlSettings.Encoding = [System.Text.Encoding]::$CodeCoverageOutputFileEncoding
@@ -440,6 +437,7 @@ task Convert_Pester_Coverage {
 
     Write-Build -Color 'DarkGray' -Text "`tWriting a backup of original code coverage file to '$codeCoverageOutputBackupFile'."
 
+    # TODO: Use Out-XML
     $xmlSettings = New-Object -TypeName 'System.Xml.XmlWriterSettings'
     $xmlSettings.Indent = $true
     $xmlSettings.Encoding = [System.Text.Encoding]::$CodeCoverageOutputFileEncoding
@@ -480,6 +478,7 @@ task Convert_Pester_Coverage {
 
     Write-Build -Color 'DarkGray' -Text "`tWriting back updated code coverage file to '$CodeCoverageOutputFile'."
 
+    # TODO: Use Out-XML
     $xmlSettings = New-Object -TypeName 'System.Xml.XmlWriterSettings'
     $xmlSettings.Indent = $true
     $xmlSettings.Encoding = [System.Text.Encoding]::$CodeCoverageOutputFileEncoding
