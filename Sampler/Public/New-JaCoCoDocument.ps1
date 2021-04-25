@@ -1,3 +1,4 @@
+
 <#
     .SYNOPSIS
         Creates a new JaCoCo XML document based on the provided missed and hit
