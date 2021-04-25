@@ -9,7 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added new command `New-JaCoCoDocument`.
+- Added new public command `New-JaCoCoDocument`.
+- Added new public command `Format-Xml`.
+- Added new public command `Out-Xml`.
 
 ### Changed
 
@@ -30,7 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Now unit tests properly test the function in the built module, not the
   ones that the pipeline dot-sources into session to be able to dogfooding
   itself.
-  
+
 ## [0.110.1] - 2021-04-08
 
 ### Fixed
