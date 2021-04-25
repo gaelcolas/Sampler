@@ -44,9 +44,9 @@ Describe 'New-JaCoCoDocument' {
     }
 
     AfterEach {
-        if ($null -ne $result)
+        if ($null -ne $xmlResult)
         {
-            Write-Verbose -Message (Format-Xml -XmlDocument $result)
+            Write-Verbose -Message (Format-Xml -XmlDocument $xmlResult)
         }
     }
 
@@ -90,13 +90,13 @@ Describe 'New-JaCoCoDocument' {
                 $CounterName
             )
 
-            $result = Sampler\New-JaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
+            $xmlResult = Sampler\New-JaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
-            $result | Should -BeOfType [System.Xml.XmlDocument]
+            $xmlResult | Should -BeOfType [System.Xml.XmlDocument]
 
             $xPath = '/report/counter[@type="{0}"]' -f $CounterName
 
-            $attributes = $result | Get-XmlAttribute -XPath $xPath
+            $attributes = $xmlResult | Get-XmlAttribute -XPath $xPath
 
             switch ($CounterName)
             {
@@ -127,13 +127,13 @@ Describe 'New-JaCoCoDocument' {
         }
 
         It 'Should have added one package name with the correct attributes' {
-            $result = Sampler\New-JaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
+            $xmlResult = Sampler\New-JaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
-            $result | Should -BeOfType [System.Xml.XmlDocument]
+            $xmlResult | Should -BeOfType [System.Xml.XmlDocument]
 
             $xPath = '/report/package'
 
-            ($result | Get-XmlAttribute -XPath $xPath).name | Should -Be $mockPackageName
+            ($xmlResult | Get-XmlAttribute -XPath $xPath).name | Should -Be $mockPackageName
         }
 
         It 'Should have added the package counter <CounterName> with the correct attributes' -TestCases @(
@@ -155,13 +155,13 @@ Describe 'New-JaCoCoDocument' {
                 $CounterName
             )
 
-            $result = Sampler\New-JaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
+            $xmlResult = Sampler\New-JaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
-            $result | Should -BeOfType [System.Xml.XmlDocument]
+            $xmlResult | Should -BeOfType [System.Xml.XmlDocument]
 
             $xPath = '/report/package[@name="{0}"]/counter[@type="{1}"]' -f $mockPackageName, $CounterName
 
-            $attributes = $result | Get-XmlAttribute -XPath $xPath
+            $attributes = $xmlResult | Get-XmlAttribute -XPath $xPath
 
             switch ($CounterName)
             {
@@ -192,13 +192,13 @@ Describe 'New-JaCoCoDocument' {
         }
 
         It 'Should have added the one class with the correct attributes' {
-            $result = Sampler\New-JaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
+            $xmlResult = Sampler\New-JaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
-            $result | Should -BeOfType [System.Xml.XmlDocument]
+            $xmlResult | Should -BeOfType [System.Xml.XmlDocument]
 
             $xPath = '/report/package[@name="{0}"]/class' -f $mockPackageName
 
-            $attributes = $result | Get-XmlAttribute -XPath $xPath
+            $attributes = $xmlResult | Get-XmlAttribute -XPath $xPath
 
             $attributes.name | Should -Be 'ResourceBase'
             $attributes.sourcefilename | Should -Be 'Classes/001.ResourceBase.ps1'
@@ -223,13 +223,13 @@ Describe 'New-JaCoCoDocument' {
                 $CounterName
             )
 
-            $result = Sampler\New-JaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
+            $xmlResult = Sampler\New-JaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
-            $result | Should -BeOfType [System.Xml.XmlDocument]
+            $xmlResult | Should -BeOfType [System.Xml.XmlDocument]
 
             $xPath = '/report/package[@name="{0}"]/class/counter[@type="{1}"]' -f $mockPackageName, $CounterName
 
-            $attributes = $result | Get-XmlAttribute -XPath $xPath
+            $attributes = $xmlResult | Get-XmlAttribute -XPath $xPath
 
             switch ($CounterName)
             {
@@ -260,13 +260,13 @@ Describe 'New-JaCoCoDocument' {
         }
 
         It 'Should have added the one method with the correct attributes' {
-            $result = Sampler\New-JaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
+            $xmlResult = Sampler\New-JaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
-            $result | Should -BeOfType [System.Xml.XmlDocument]
+            $xmlResult | Should -BeOfType [System.Xml.XmlDocument]
 
             $xPath = '/report/package[@name="{0}"]/class/method' -f $mockPackageName
 
-            $attributes = $result | Get-XmlAttribute -XPath $xPath
+            $attributes = $xmlResult | Get-XmlAttribute -XPath $xPath
 
             $attributes.name | Should -Be 'Compare'
             $attributes.desc | Should -Be '()'
@@ -289,13 +289,13 @@ Describe 'New-JaCoCoDocument' {
                 $CounterName
             )
 
-            $result = Sampler\New-JaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
+            $xmlResult = Sampler\New-JaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
-            $result | Should -BeOfType [System.Xml.XmlDocument]
+            $xmlResult | Should -BeOfType [System.Xml.XmlDocument]
 
             $xPath = '/report/package[@name="{0}"]/class/method/counter[@type="{1}"]' -f $mockPackageName, $CounterName
 
-            $attributes = $result | Get-XmlAttribute -XPath $xPath
+            $attributes = $xmlResult | Get-XmlAttribute -XPath $xPath
 
             switch ($CounterName)
             {
@@ -320,13 +320,13 @@ Describe 'New-JaCoCoDocument' {
         }
 
         It 'Should have added the one source file with the correct attributes' {
-            $result = Sampler\New-JaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
+            $xmlResult = Sampler\New-JaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
-            $result | Should -BeOfType [System.Xml.XmlDocument]
+            $xmlResult | Should -BeOfType [System.Xml.XmlDocument]
 
             $xPath = '/report/package[@name="{0}"]/sourcefile' -f $mockPackageName
 
-            $attributes = $result | Get-XmlAttribute -XPath $xPath
+            $attributes = $xmlResult | Get-XmlAttribute -XPath $xPath
 
             $attributes.name | Should -Be 'Classes/001.ResourceBase.ps1'
         }
@@ -344,13 +344,13 @@ Describe 'New-JaCoCoDocument' {
                 $LineNumber
             )
 
-            $result = Sampler\New-JaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
+            $xmlResult = Sampler\New-JaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
-            $result | Should -BeOfType [System.Xml.XmlDocument]
+            $xmlResult | Should -BeOfType [System.Xml.XmlDocument]
 
             $xPath = '/report/package[@name="{0}"]/sourcefile/line[@nr="{1}"]' -f $mockPackageName, $LineNumber
 
-            $attributes = $result | Get-XmlAttribute -XPath $xPath
+            $attributes = $xmlResult | Get-XmlAttribute -XPath $xPath
 
             switch ($LineNumber)
             {
@@ -391,13 +391,13 @@ Describe 'New-JaCoCoDocument' {
                 $CounterName
             )
 
-            $result = Sampler\New-JaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
+            $xmlResult = Sampler\New-JaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
-            $result | Should -BeOfType [System.Xml.XmlDocument]
+            $xmlResult | Should -BeOfType [System.Xml.XmlDocument]
 
             $xPath = '/report/package[@name="{0}"]/sourcefile/counter[@type="{1}"]' -f $mockPackageName, $CounterName
 
-            $attributes = $result | Get-XmlAttribute -XPath $xPath
+            $attributes = $xmlResult | Get-XmlAttribute -XPath $xPath
 
             switch ($CounterName)
             {
