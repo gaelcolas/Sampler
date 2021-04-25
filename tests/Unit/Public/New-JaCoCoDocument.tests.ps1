@@ -107,7 +107,7 @@ Describe 'New-JaCoCoDocument' {
                 $CounterName
             )
 
-            $result = New-JaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
+            $result = Sampler\New-JaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
             $result | Should -BeOfType [System.Xml.XmlDocument]
 
@@ -144,7 +144,7 @@ Describe 'New-JaCoCoDocument' {
         }
 
         It 'Should have added one package name with the correct attributes' {
-            $result = New-JaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
+            $result = Sampler\New-JaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
             $result | Should -BeOfType [System.Xml.XmlDocument]
 
@@ -172,7 +172,7 @@ Describe 'New-JaCoCoDocument' {
                 $CounterName
             )
 
-            $result = New-JaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
+            $result = Sampler\New-JaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
             $result | Should -BeOfType [System.Xml.XmlDocument]
 
@@ -209,7 +209,7 @@ Describe 'New-JaCoCoDocument' {
         }
 
         It 'Should have added the one class with the correct attributes' {
-            $result = New-JaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
+            $result = Sampler\New-JaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
             $result | Should -BeOfType [System.Xml.XmlDocument]
 
@@ -240,7 +240,7 @@ Describe 'New-JaCoCoDocument' {
                 $CounterName
             )
 
-            $result = New-JaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
+            $result = Sampler\New-JaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
             $result | Should -BeOfType [System.Xml.XmlDocument]
 
@@ -277,7 +277,7 @@ Describe 'New-JaCoCoDocument' {
         }
 
         It 'Should have added the one method with the correct attributes' {
-            $result = New-JaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
+            $result = Sampler\New-JaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
             $result | Should -BeOfType [System.Xml.XmlDocument]
 
@@ -306,7 +306,7 @@ Describe 'New-JaCoCoDocument' {
                 $CounterName
             )
 
-            $result = New-JaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
+            $result = Sampler\New-JaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
             $result | Should -BeOfType [System.Xml.XmlDocument]
 
@@ -337,7 +337,7 @@ Describe 'New-JaCoCoDocument' {
         }
 
         It 'Should have added the one source file with the correct attributes' {
-            $result = New-JaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
+            $result = Sampler\New-JaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
             $result | Should -BeOfType [System.Xml.XmlDocument]
 
@@ -363,7 +363,7 @@ Describe 'New-JaCoCoDocument' {
                 $LineNumber
             )
 
-            $result = New-JaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
+            $result = Sampler\New-JaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
             $result | Should -BeOfType [System.Xml.XmlDocument]
 
@@ -410,7 +410,7 @@ Describe 'New-JaCoCoDocument' {
                 $CounterName
             )
 
-            $result = New-JaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
+            $result = Sampler\New-JaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
             $result | Should -BeOfType [System.Xml.XmlDocument]
 

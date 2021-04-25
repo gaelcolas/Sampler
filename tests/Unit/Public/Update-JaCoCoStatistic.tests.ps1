@@ -130,7 +130,7 @@ Describe 'Update-JaCoCoStatistic' {
                 $Line
             )
 
-            $result = Update-JaCoCoStatistic -Document $mockXmlDocument
+            $result = Sampler\Update-JaCoCoStatistic -Document $mockXmlDocument
 
             $result | Should -BeOfType [System.Xml.XmlDocument]
 
@@ -146,7 +146,7 @@ Describe 'Update-JaCoCoStatistic' {
 
         Context 'When a package exist' {
             It 'Should return the correct statistics for the package counter INSTRUCTION' {
-                $result = Update-JaCoCoStatistic -Document $mockXmlDocument
+                $result = Sampler\Update-JaCoCoStatistic -Document $mockXmlDocument
 
                 $result | Should -BeOfType [System.Xml.XmlDocument]
 
@@ -157,7 +157,7 @@ Describe 'Update-JaCoCoStatistic' {
             }
 
             It 'Should return the correct statistics for the package counter LINE' {
-                $result = Update-JaCoCoStatistic -Document $mockXmlDocument
+                $result = Sampler\Update-JaCoCoStatistic -Document $mockXmlDocument
 
                 $result | Should -BeOfType [System.Xml.XmlDocument]
 
@@ -168,7 +168,7 @@ Describe 'Update-JaCoCoStatistic' {
             }
 
             It 'Should return the correct statistics for the package counter METHOD' {
-                $result = Update-JaCoCoStatistic -Document $mockXmlDocument
+                $result = Sampler\Update-JaCoCoStatistic -Document $mockXmlDocument
 
                 $result | Should -BeOfType [System.Xml.XmlDocument]
 
@@ -179,7 +179,7 @@ Describe 'Update-JaCoCoStatistic' {
             }
 
             It 'Should return the correct statistics for the package counter CLASS' {
-                $result = Update-JaCoCoStatistic -Document $mockXmlDocument
+                $result = Sampler\Update-JaCoCoStatistic -Document $mockXmlDocument
 
                 $result | Should -BeOfType [System.Xml.XmlDocument]
 
@@ -191,7 +191,7 @@ Describe 'Update-JaCoCoStatistic' {
 
             Context 'When sourcefile for class exist' {
                 It 'Should return the correct statistics for the sourcefile counter INSTRUCTION' {
-                    $result = Update-JaCoCoStatistic -Document $mockXmlDocument
+                    $result = Sampler\Update-JaCoCoStatistic -Document $mockXmlDocument
 
                     $result | Should -BeOfType [System.Xml.XmlDocument]
 
@@ -202,7 +202,7 @@ Describe 'Update-JaCoCoStatistic' {
                 }
 
                 It 'Should return the correct statistics for the sourcefile counter LINE' {
-                    $result = Update-JaCoCoStatistic -Document $mockXmlDocument
+                    $result = Sampler\Update-JaCoCoStatistic -Document $mockXmlDocument
 
                     $result | Should -BeOfType [System.Xml.XmlDocument]
 
@@ -213,7 +213,7 @@ Describe 'Update-JaCoCoStatistic' {
                 }
 
                 It 'Should return the correct statistics for the sourcefile counter METHOD' {
-                    $result = Update-JaCoCoStatistic -Document $mockXmlDocument
+                    $result = Sampler\Update-JaCoCoStatistic -Document $mockXmlDocument
 
                     $result | Should -BeOfType [System.Xml.XmlDocument]
 
@@ -224,7 +224,7 @@ Describe 'Update-JaCoCoStatistic' {
                 }
 
                 It 'Should return the correct statistics for the sourcefile counter CLASS' {
-                    $result = Update-JaCoCoStatistic -Document $mockXmlDocument
+                    $result = Sampler\Update-JaCoCoStatistic -Document $mockXmlDocument
 
                     $result | Should -BeOfType [System.Xml.XmlDocument]
 
@@ -237,7 +237,7 @@ Describe 'Update-JaCoCoStatistic' {
 
             Context 'When the package contain a class' {
                 It 'Should return the correct statistics for the class counter INSTRUCTION' {
-                    $result = Update-JaCoCoStatistic -Document $mockXmlDocument
+                    $result = Sampler\Update-JaCoCoStatistic -Document $mockXmlDocument
 
                     $result | Should -BeOfType [System.Xml.XmlDocument]
 
@@ -248,7 +248,7 @@ Describe 'Update-JaCoCoStatistic' {
                 }
 
                 It 'Should return the correct statistics for the class counter LINE' {
-                    $result = Update-JaCoCoStatistic -Document $mockXmlDocument
+                    $result = Sampler\Update-JaCoCoStatistic -Document $mockXmlDocument
 
                     $result | Should -BeOfType [System.Xml.XmlDocument]
 
@@ -259,7 +259,7 @@ Describe 'Update-JaCoCoStatistic' {
                 }
 
                 It 'Should return the correct statistics for the class counter METHOD' {
-                    $result = Update-JaCoCoStatistic -Document $mockXmlDocument
+                    $result = Sampler\Update-JaCoCoStatistic -Document $mockXmlDocument
 
                     $result | Should -BeOfType [System.Xml.XmlDocument]
 
@@ -270,7 +270,7 @@ Describe 'Update-JaCoCoStatistic' {
                 }
 
                 It 'Should return the correct statistics for the class counter CLASS' {
-                    $result = Update-JaCoCoStatistic -Document $mockXmlDocument
+                    $result = Sampler\Update-JaCoCoStatistic -Document $mockXmlDocument
 
                     $result | Should -BeOfType [System.Xml.XmlDocument]
 
@@ -282,7 +282,7 @@ Describe 'Update-JaCoCoStatistic' {
 
                 Context 'When the class contain a method' {
                     It 'Should return the correct statistics for the method counter INSTRUCTION' {
-                        $result = Update-JaCoCoStatistic -Document $mockXmlDocument
+                        $result = Sampler\Update-JaCoCoStatistic -Document $mockXmlDocument
 
                         $result | Should -BeOfType [System.Xml.XmlDocument]
 
@@ -293,7 +293,7 @@ Describe 'Update-JaCoCoStatistic' {
                     }
 
                     It 'Should return the correct statistics for the method counter LINE' {
-                        $result = Update-JaCoCoStatistic -Document $mockXmlDocument
+                        $result = Sampler\Update-JaCoCoStatistic -Document $mockXmlDocument
 
                         $result | Should -BeOfType [System.Xml.XmlDocument]
 
@@ -304,7 +304,7 @@ Describe 'Update-JaCoCoStatistic' {
                     }
 
                     It 'Should return the correct statistics for the method counter METHOD' {
-                        $result = Update-JaCoCoStatistic -Document $mockXmlDocument
+                        $result = Sampler\Update-JaCoCoStatistic -Document $mockXmlDocument
 
                         $result | Should -BeOfType [System.Xml.XmlDocument]
 
@@ -318,7 +318,7 @@ Describe 'Update-JaCoCoStatistic' {
         }
 
         It 'Should return the correct statistics for the report counter INSTRUCTION' {
-            $result = Update-JaCoCoStatistic -Document $mockXmlDocument
+            $result = Sampler\Update-JaCoCoStatistic -Document $mockXmlDocument
 
             $result | Should -BeOfType [System.Xml.XmlDocument]
 
@@ -331,7 +331,7 @@ Describe 'Update-JaCoCoStatistic' {
         }
 
         It 'Should return the correct statistics for the report counter LINE' {
-            $result = Update-JaCoCoStatistic -Document $mockXmlDocument
+            $result = Sampler\Update-JaCoCoStatistic -Document $mockXmlDocument
 
             $result | Should -BeOfType [System.Xml.XmlDocument]
 
@@ -342,7 +342,7 @@ Describe 'Update-JaCoCoStatistic' {
         }
 
         It 'Should return the correct statistics for the report counter METHOD' {
-            $result = Update-JaCoCoStatistic -Document $mockXmlDocument
+            $result = Sampler\Update-JaCoCoStatistic -Document $mockXmlDocument
 
             $result | Should -BeOfType [System.Xml.XmlDocument]
 
@@ -353,7 +353,7 @@ Describe 'Update-JaCoCoStatistic' {
         }
 
         It 'Should return the correct statistics for the report counter CLASS' {
-            $result = Update-JaCoCoStatistic -Document $mockXmlDocument
+            $result = Sampler\Update-JaCoCoStatistic -Document $mockXmlDocument
 
             $result | Should -BeOfType [System.Xml.XmlDocument]
 
