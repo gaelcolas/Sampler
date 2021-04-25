@@ -42,6 +42,10 @@ Describe 'New-JaCoCoDocument' {
         }
     }
 
+    AfterAll {
+        Write-Verbose -Message (Format-Xml -XmlDocument $result)
+    }
+
     Context 'When calculating statistics for a single package' {
         BeforeAll {
             $mockHitCommands = [PSCustomObject] @{
