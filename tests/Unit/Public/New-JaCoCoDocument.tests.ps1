@@ -15,7 +15,7 @@ Import-Module $ProjectName
 
 Describe 'New-JaCoCoDocument' {
     BeforeAll {
-        function Get-XmlAttributeValue
+        function Get-XmlAttribute
         {
             [CmdletBinding()]
             [OutputType([Hashtable])]
@@ -39,31 +39,6 @@ Describe 'New-JaCoCoDocument' {
             }
 
             return $attributeValues
-        }
-
-        function Out-IndentedXml
-        {
-            [CmdletBinding()]
-            param
-            (
-                [Parameter(Mandatory = $true)]
-                [System.Xml.XmlDocument]
-                $XmlDocument
-            )
-
-            $StringWriter = New-Object -TypeName 'System.IO.StringWriter'
-            $XmlWriter = New-Object -TypeName 'System.XMl.XmlTextWriter' -ArgumentList $StringWriter
-
-            $xmlWriter.Formatting = 'indented'
-            $xmlWriter.Indentation = 2
-
-            $XmlDocument.WriteContentTo($XmlWriter)
-
-            $XmlWriter.Flush()
-
-            $StringWriter.Flush()
-
-            Write-Verbose -Message $StringWriter.ToString() -Verbose
         }
     }
 
@@ -113,7 +88,7 @@ Describe 'New-JaCoCoDocument' {
 
             $xPath = '/report/counter[@type="{0}"]' -f $CounterName
 
-            $attributes = $result | Get-XmlAttributeValue -XPath $xPath
+            $attributes = $result | Get-XmlAttribute -XPath $xPath
 
             switch ($CounterName)
             {
@@ -150,7 +125,7 @@ Describe 'New-JaCoCoDocument' {
 
             $xPath = '/report/package'
 
-            ($result | Get-XmlAttributeValue -XPath $xPath).name | Should -Be $mockPackageName
+            ($result | Get-XmlAttribute -XPath $xPath).name | Should -Be $mockPackageName
         }
 
         It 'Should have added the package counter <CounterName> with the correct attributes' -TestCases @(
@@ -178,7 +153,7 @@ Describe 'New-JaCoCoDocument' {
 
             $xPath = '/report/package[@name="{0}"]/counter[@type="{1}"]' -f $mockPackageName, $CounterName
 
-            $attributes = $result | Get-XmlAttributeValue -XPath $xPath
+            $attributes = $result | Get-XmlAttribute -XPath $xPath
 
             switch ($CounterName)
             {
@@ -215,7 +190,7 @@ Describe 'New-JaCoCoDocument' {
 
             $xPath = '/report/package[@name="{0}"]/class' -f $mockPackageName
 
-            $attributes = $result | Get-XmlAttributeValue -XPath $xPath
+            $attributes = $result | Get-XmlAttribute -XPath $xPath
 
             $attributes.name | Should -Be 'ResourceBase'
             $attributes.sourcefilename | Should -Be 'Classes/001.ResourceBase.ps1'
@@ -246,7 +221,7 @@ Describe 'New-JaCoCoDocument' {
 
             $xPath = '/report/package[@name="{0}"]/class/counter[@type="{1}"]' -f $mockPackageName, $CounterName
 
-            $attributes = $result | Get-XmlAttributeValue -XPath $xPath
+            $attributes = $result | Get-XmlAttribute -XPath $xPath
 
             switch ($CounterName)
             {
@@ -283,7 +258,7 @@ Describe 'New-JaCoCoDocument' {
 
             $xPath = '/report/package[@name="{0}"]/class/method' -f $mockPackageName
 
-            $attributes = $result | Get-XmlAttributeValue -XPath $xPath
+            $attributes = $result | Get-XmlAttribute -XPath $xPath
 
             $attributes.name | Should -Be 'Compare'
             $attributes.desc | Should -Be '()'
@@ -312,7 +287,7 @@ Describe 'New-JaCoCoDocument' {
 
             $xPath = '/report/package[@name="{0}"]/class/method/counter[@type="{1}"]' -f $mockPackageName, $CounterName
 
-            $attributes = $result | Get-XmlAttributeValue -XPath $xPath
+            $attributes = $result | Get-XmlAttribute -XPath $xPath
 
             switch ($CounterName)
             {
@@ -343,11 +318,9 @@ Describe 'New-JaCoCoDocument' {
 
             $xPath = '/report/package[@name="{0}"]/sourcefile' -f $mockPackageName
 
-            $attributes = $result | Get-XmlAttributeValue -XPath $xPath
+            $attributes = $result | Get-XmlAttribute -XPath $xPath
 
             $attributes.name | Should -Be 'Classes/001.ResourceBase.ps1'
-
-            # Out-IndentedXml $result
         }
 
         It 'Should have added the source file line <LineNumber> with the correct attributes' -TestCases @(
@@ -369,7 +342,7 @@ Describe 'New-JaCoCoDocument' {
 
             $xPath = '/report/package[@name="{0}"]/sourcefile/line[@nr="{1}"]' -f $mockPackageName, $LineNumber
 
-            $attributes = $result | Get-XmlAttributeValue -XPath $xPath
+            $attributes = $result | Get-XmlAttribute -XPath $xPath
 
             switch ($LineNumber)
             {
@@ -416,7 +389,7 @@ Describe 'New-JaCoCoDocument' {
 
             $xPath = '/report/package[@name="{0}"]/sourcefile/counter[@type="{1}"]' -f $mockPackageName, $CounterName
 
-            $attributes = $result | Get-XmlAttributeValue -XPath $xPath
+            $attributes = $result | Get-XmlAttribute -XPath $xPath
 
             switch ($CounterName)
             {
