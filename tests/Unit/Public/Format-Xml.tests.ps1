@@ -27,11 +27,12 @@ Describe 'Format-Xml' {
     It 'Should format the XML with indentation' {
         $result = Sampler\Format-Xml -XmlDocument $mockXmlDocument -Indented
 
-        ($result -replace '\r?\n', "`n") | Should -Be @"
+        $mockExpectedResult = @"
 <?xml version="1.0" encoding="utf-16" standalone="no"?>
 <a>
   <b />
 </a>
-"@ -replace '\r?\n', "`n"
+"@
+        ($result -replace '\r?\n', "`n") | Should -Be ($mockExpectedResult -replace '\r?\n', "`n")
     }
 }
