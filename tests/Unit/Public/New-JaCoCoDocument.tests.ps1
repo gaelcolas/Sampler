@@ -43,8 +43,11 @@ Describe 'New-JaCoCoDocument' {
         }
     }
 
-    AfterAll {
-        Write-Verbose -Message (Format-Xml -XmlDocument $result)
+    AfterEach {
+        if ($null -ne $result)
+        {
+            Write-Verbose -Message (Format-Xml -XmlDocument $result)
+        }
     }
 
     Context 'When calculating statistics for a single package' {
