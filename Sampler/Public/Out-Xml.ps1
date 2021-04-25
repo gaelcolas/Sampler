@@ -4,7 +4,7 @@
         Outputs an XML document to a file.
 
     .DESCRIPTION
-        Outputs an XML document to a file.
+        Outputs an XML document to the file specified in the parameter Path.
 
     .PARAMETER XmlDocument
         The XML document to format.
