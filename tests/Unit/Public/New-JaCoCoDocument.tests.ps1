@@ -14,13 +14,6 @@ $ProjectName = ((Get-ChildItem -Path $ProjectPath\*\*.psd1).Where{
 Import-Module $ProjectName
 
 Describe 'New-JaCoCoDocument' {
-    AfterEach {
-        if ($null -ne $xmlResult)
-        {
-            Write-Verbose -Message (Format-Xml -XmlDocument $xmlResult)
-        }
-    }
-
     Context 'When calculating statistics for a single package' {
         Context 'When there are just one class' {
             Context 'When there are one hit and one miss' {
