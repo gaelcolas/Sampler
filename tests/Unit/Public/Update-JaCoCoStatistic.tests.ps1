@@ -8,6 +8,8 @@ Import-Module $ProjectName
 
 Describe 'Update-JaCoCoStatistic' {
     BeforeAll {
+        . $PSScriptRoot/../TestHelpers/Get-XmlAttribute.ps1
+
         $mockXmlDocument = @"
 <?xml version="1.0" encoding="us-ascii" standalone="no"?>
 <!DOCTYPE report PUBLIC "-//JACOCO//DTD Report 1.1//EN" "report.dtd"[]>
