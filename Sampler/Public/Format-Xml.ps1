@@ -14,6 +14,10 @@
 
     .EXAMPLE
         Format-Xml -XmlDocument '<?xml version="1.0"?><a><b /></a>' -Indented
+
+    .EXAMPLE
+        $xmlResult | Format-Xml -Indented
+
 #>
 function Format-Xml
 {
@@ -21,7 +25,7 @@ function Format-Xml
     [CmdletBinding()]
     param
     (
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
         [System.Xml.XmlDocument]
         $XmlDocument,
 
