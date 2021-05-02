@@ -8,72 +8,6 @@ Import-Module $ProjectName
 
 Describe 'Update-JaCoCoStatistic' {
     BeforeAll {
-        function Get-XmlAttributeValue
-        {
-            [CmdletBinding()]
-            [OutputType([Hashtable])]
-            param
-            (
-                [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
-                [System.Xml.XmlDocument]
-                $XmlDocument,
-
-                [Parameter(Mandatory = $true)]
-                [System.String]
-                $XPath,
-
-                [Parameter()]
-                [Switch]
-                $LineAttributes
-            )
-
-            $counter = $XmlDocument | Select-XML -XPath $XPath
-
-            if ($LineAttributes.IsPresent)
-            {
-                $counterValues = @{
-                    ci = ($counter.Node | Select-XML -XPath '@ci').Node.Value
-                    mi = ($counter.Node | Select-XML -XPath '@mi').Node.Value
-                    cb = ($counter.Node | Select-XML -XPath '@cb').Node.Value
-                    mb = ($counter.Node | Select-XML -XPath '@mb').Node.Value
-                }
-            }
-            else
-            {
-                $counterValues = @{
-                    Missed = ($counter.Node | Select-XML -XPath '@missed').Node.Value
-                    Covered = ($counter.Node | Select-XML -XPath '@covered').Node.Value
-                }
-            }
-
-            return $counterValues
-        }
-
-        function Write-IndentedXml
-        {
-            [CmdletBinding()]
-            param
-            (
-                [Parameter(Mandatory = $true)]
-                [System.Xml.XmlDocument]
-                $XmlDocument
-            )
-
-            $StringWriter = New-Object -TypeName 'System.IO.StringWriter'
-            $XmlWriter = New-Object -TypeName 'System.XMl.XmlTextWriter' -ArgumentList $StringWriter
-
-            $xmlWriter.Formatting = 'indented'
-            $xmlWriter.Indentation = 2
-
-            $XmlDocument.WriteContentTo($XmlWriter)
-
-            $XmlWriter.Flush()
-
-            $StringWriter.Flush()
-
-            Write-Verbose -Message $StringWriter.ToString() -Verbose
-        }
-
         $mockXmlDocument = @"
 <?xml version="1.0" encoding="us-ascii" standalone="no"?>
 <!DOCTYPE report PUBLIC "-//JACOCO//DTD Report 1.1//EN" "report.dtd"[]>
@@ -136,12 +70,10 @@ Describe 'Update-JaCoCoStatistic' {
 
             $xPath = '/report/package[@name="3.0.0"]/sourcefile[@name="prefix.ps1"]/line[@nr="{0}"]' -f $Line
 
-            ($result | Get-XmlAttributeValue -XPath $xPath -LineAttributes).mi | Should -Be 0
-            ($result | Get-XmlAttributeValue -XPath $xPath -LineAttributes).ci | Should -Be 1
-            ($result | Get-XmlAttributeValue -XPath $xPath -LineAttributes).mb | Should -Be 0
-            ($result | Get-XmlAttributeValue -XPath $xPath -LineAttributes).cb | Should -Be 0
-
-            # Write-IndentedXml $result
+            ($result | Get-XmlAttribute -XPath $xPath).mi | Should -Be 0
+            ($result | Get-XmlAttribute -XPath $xPath).ci | Should -Be 1
+            ($result | Get-XmlAttribute -XPath $xPath).mb | Should -Be 0
+            ($result | Get-XmlAttribute -XPath $xPath).cb | Should -Be 0
         }
 
         Context 'When a package exist' {
@@ -152,8 +84,8 @@ Describe 'Update-JaCoCoStatistic' {
 
                 $xPath = '/report/package[@name="3.0.0"]/counter[@type="INSTRUCTION"]'
 
-                ($result | Get-XmlAttributeValue -XPath $xPath).Missed | Should -Be 0
-                ($result | Get-XmlAttributeValue -XPath $xPath).Covered | Should -Be 3
+                ($result | Get-XmlAttribute -XPath $xPath).Missed | Should -Be 0
+                ($result | Get-XmlAttribute -XPath $xPath).Covered | Should -Be 3
             }
 
             It 'Should return the correct statistics for the package counter LINE' {
@@ -163,8 +95,8 @@ Describe 'Update-JaCoCoStatistic' {
 
                 $xPath = '/report/package[@name="3.0.0"]/counter[@type="LINE"]'
 
-                ($result | Get-XmlAttributeValue -XPath $xPath).Missed | Should -Be 0
-                ($result | Get-XmlAttributeValue -XPath $xPath).Covered | Should -Be 3
+                ($result | Get-XmlAttribute -XPath $xPath).Missed | Should -Be 0
+                ($result | Get-XmlAttribute -XPath $xPath).Covered | Should -Be 3
             }
 
             It 'Should return the correct statistics for the package counter METHOD' {
@@ -174,8 +106,8 @@ Describe 'Update-JaCoCoStatistic' {
 
                 $xPath = '/report/package[@name="3.0.0"]/counter[@type="METHOD"]'
 
-                ($result | Get-XmlAttributeValue -XPath $xPath).Missed | Should -Be 0
-                ($result | Get-XmlAttributeValue -XPath $xPath).Covered | Should -Be 1
+                ($result | Get-XmlAttribute -XPath $xPath).Missed | Should -Be 0
+                ($result | Get-XmlAttribute -XPath $xPath).Covered | Should -Be 1
             }
 
             It 'Should return the correct statistics for the package counter CLASS' {
@@ -185,8 +117,8 @@ Describe 'Update-JaCoCoStatistic' {
 
                 $xPath = '/report/package[@name="3.0.0"]/counter[@type="CLASS"]'
 
-                ($result | Get-XmlAttributeValue -XPath $xPath).Missed | Should -Be 0
-                ($result | Get-XmlAttributeValue -XPath $xPath).Covered | Should -Be 1
+                ($result | Get-XmlAttribute -XPath $xPath).Missed | Should -Be 0
+                ($result | Get-XmlAttribute -XPath $xPath).Covered | Should -Be 1
             }
 
             Context 'When sourcefile for class exist' {
@@ -197,8 +129,8 @@ Describe 'Update-JaCoCoStatistic' {
 
                     $xPath = '/report/package[@name="3.0.0"]/sourcefile[@name="prefix.ps1"]/counter[@type="INSTRUCTION"]'
 
-                    ($result | Get-XmlAttributeValue -XPath $xPath).Missed | Should -Be 0
-                    ($result | Get-XmlAttributeValue -XPath $xPath).Covered | Should -Be 3
+                    ($result | Get-XmlAttribute -XPath $xPath).Missed | Should -Be 0
+                    ($result | Get-XmlAttribute -XPath $xPath).Covered | Should -Be 3
                 }
 
                 It 'Should return the correct statistics for the sourcefile counter LINE' {
@@ -208,8 +140,8 @@ Describe 'Update-JaCoCoStatistic' {
 
                     $xPath = '/report/package[@name="3.0.0"]/sourcefile[@name="prefix.ps1"]/counter[@type="LINE"]'
 
-                    ($result | Get-XmlAttributeValue -XPath $xPath).Missed | Should -Be 0
-                    ($result | Get-XmlAttributeValue -XPath $xPath).Covered | Should -Be 3
+                    ($result | Get-XmlAttribute -XPath $xPath).Missed | Should -Be 0
+                    ($result | Get-XmlAttribute -XPath $xPath).Covered | Should -Be 3
                 }
 
                 It 'Should return the correct statistics for the sourcefile counter METHOD' {
@@ -219,8 +151,8 @@ Describe 'Update-JaCoCoStatistic' {
 
                     $xPath = '/report/package[@name="3.0.0"]/sourcefile[@name="prefix.ps1"]/counter[@type="METHOD"]'
 
-                    ($result | Get-XmlAttributeValue -XPath $xPath).Missed | Should -Be 0
-                    ($result | Get-XmlAttributeValue -XPath $xPath).Covered | Should -Be 1
+                    ($result | Get-XmlAttribute -XPath $xPath).Missed | Should -Be 0
+                    ($result | Get-XmlAttribute -XPath $xPath).Covered | Should -Be 1
                 }
 
                 It 'Should return the correct statistics for the sourcefile counter CLASS' {
@@ -230,8 +162,8 @@ Describe 'Update-JaCoCoStatistic' {
 
                     $xPath = '/report/package[@name="3.0.0"]/sourcefile[@name="prefix.ps1"]/counter[@type="CLASS"]'
 
-                    ($result | Get-XmlAttributeValue -XPath $xPath).Missed | Should -Be 0
-                    ($result | Get-XmlAttributeValue -XPath $xPath).Covered | Should -Be 1
+                    ($result | Get-XmlAttribute -XPath $xPath).Missed | Should -Be 0
+                    ($result | Get-XmlAttribute -XPath $xPath).Covered | Should -Be 1
                 }
             }
 
@@ -243,8 +175,8 @@ Describe 'Update-JaCoCoStatistic' {
 
                     $xPath = '/report/package[@name="3.0.0"]/class/counter[@type="INSTRUCTION"]'
 
-                    ($result | Get-XmlAttributeValue -XPath $xPath).Missed | Should -Be 0
-                    ($result | Get-XmlAttributeValue -XPath $xPath).Covered | Should -Be 3
+                    ($result | Get-XmlAttribute -XPath $xPath).Missed | Should -Be 0
+                    ($result | Get-XmlAttribute -XPath $xPath).Covered | Should -Be 3
                 }
 
                 It 'Should return the correct statistics for the class counter LINE' {
@@ -254,8 +186,8 @@ Describe 'Update-JaCoCoStatistic' {
 
                     $xPath = '/report/package[@name="3.0.0"]/class/counter[@type="LINE"]'
 
-                    ($result | Get-XmlAttributeValue -XPath $xPath).Missed | Should -Be 0
-                    ($result | Get-XmlAttributeValue -XPath $xPath).Covered | Should -Be 3
+                    ($result | Get-XmlAttribute -XPath $xPath).Missed | Should -Be 0
+                    ($result | Get-XmlAttribute -XPath $xPath).Covered | Should -Be 3
                 }
 
                 It 'Should return the correct statistics for the class counter METHOD' {
@@ -265,8 +197,8 @@ Describe 'Update-JaCoCoStatistic' {
 
                     $xPath = '/report/package[@name="3.0.0"]/class/counter[@type="METHOD"]'
 
-                    ($result | Get-XmlAttributeValue -XPath $xPath).Missed | Should -Be 0
-                    ($result | Get-XmlAttributeValue -XPath $xPath).Covered | Should -Be 1
+                    ($result | Get-XmlAttribute -XPath $xPath).Missed | Should -Be 0
+                    ($result | Get-XmlAttribute -XPath $xPath).Covered | Should -Be 1
                 }
 
                 It 'Should return the correct statistics for the class counter CLASS' {
@@ -276,8 +208,8 @@ Describe 'Update-JaCoCoStatistic' {
 
                     $xPath = '/report/package[@name="3.0.0"]/class/counter[@type="CLASS"]'
 
-                    ($result | Get-XmlAttributeValue -XPath $xPath).Missed | Should -Be 0
-                    ($result | Get-XmlAttributeValue -XPath $xPath).Covered | Should -Be 1
+                    ($result | Get-XmlAttribute -XPath $xPath).Missed | Should -Be 0
+                    ($result | Get-XmlAttribute -XPath $xPath).Covered | Should -Be 1
                 }
 
                 Context 'When the class contain a method' {
@@ -288,8 +220,8 @@ Describe 'Update-JaCoCoStatistic' {
 
                         $xPath = '/report/package[@name="3.0.0"]/class/method[@name="<script>"]/counter[@type="INSTRUCTION"]'
 
-                        ($result | Get-XmlAttributeValue -XPath $xPath).Missed | Should -Be 0
-                        ($result | Get-XmlAttributeValue -XPath $xPath).Covered | Should -Be 3
+                        ($result | Get-XmlAttribute -XPath $xPath).Missed | Should -Be 0
+                        ($result | Get-XmlAttribute -XPath $xPath).Covered | Should -Be 3
                     }
 
                     It 'Should return the correct statistics for the method counter LINE' {
@@ -299,8 +231,8 @@ Describe 'Update-JaCoCoStatistic' {
 
                         $xPath = '/report/package[@name="3.0.0"]/class/method[@name="<script>"]/counter[@type="LINE"]'
 
-                        ($result | Get-XmlAttributeValue -XPath $xPath).Missed | Should -Be 0
-                        ($result | Get-XmlAttributeValue -XPath $xPath).Covered | Should -Be 3
+                        ($result | Get-XmlAttribute -XPath $xPath).Missed | Should -Be 0
+                        ($result | Get-XmlAttribute -XPath $xPath).Covered | Should -Be 3
                     }
 
                     It 'Should return the correct statistics for the method counter METHOD' {
@@ -310,8 +242,8 @@ Describe 'Update-JaCoCoStatistic' {
 
                         $xPath = '/report/package[@name="3.0.0"]/class/method[@name="<script>"]/counter[@type="METHOD"]'
 
-                        ($result | Get-XmlAttributeValue -XPath $xPath).Missed | Should -Be 0
-                        ($result | Get-XmlAttributeValue -XPath $xPath).Covered | Should -Be 1
+                        ($result | Get-XmlAttribute -XPath $xPath).Missed | Should -Be 0
+                        ($result | Get-XmlAttribute -XPath $xPath).Covered | Should -Be 1
                     }
                 }
             }
@@ -324,10 +256,8 @@ Describe 'Update-JaCoCoStatistic' {
 
             $xPath = '/report/counter[@type="INSTRUCTION"]'
 
-            ($result | Get-XmlAttributeValue -XPath $xPath).Missed | Should -Be 0
-            ($result | Get-XmlAttributeValue -XPath $xPath).Covered | Should -Be 3
-
-            # Write-IndentedXml $result
+            ($result | Get-XmlAttribute -XPath $xPath).Missed | Should -Be 0
+            ($result | Get-XmlAttribute -XPath $xPath).Covered | Should -Be 3
         }
 
         It 'Should return the correct statistics for the report counter LINE' {
@@ -337,8 +267,8 @@ Describe 'Update-JaCoCoStatistic' {
 
             $xPath = '/report/counter[@type="LINE"]'
 
-            ($result | Get-XmlAttributeValue -XPath $xPath).Missed | Should -Be 0
-            ($result | Get-XmlAttributeValue -XPath $xPath).Covered | Should -Be 3
+            ($result | Get-XmlAttribute -XPath $xPath).Missed | Should -Be 0
+            ($result | Get-XmlAttribute -XPath $xPath).Covered | Should -Be 3
         }
 
         It 'Should return the correct statistics for the report counter METHOD' {
@@ -348,8 +278,8 @@ Describe 'Update-JaCoCoStatistic' {
 
             $xPath = '/report/counter[@type="METHOD"]'
 
-            ($result | Get-XmlAttributeValue -XPath $xPath).Missed | Should -Be 0
-            ($result | Get-XmlAttributeValue -XPath $xPath).Covered | Should -Be 1
+            ($result | Get-XmlAttribute -XPath $xPath).Missed | Should -Be 0
+            ($result | Get-XmlAttribute -XPath $xPath).Covered | Should -Be 1
         }
 
         It 'Should return the correct statistics for the report counter CLASS' {
@@ -359,8 +289,8 @@ Describe 'Update-JaCoCoStatistic' {
 
             $xPath = '/report/counter[@type="CLASS"]'
 
-            ($result | Get-XmlAttributeValue -XPath $xPath).Missed | Should -Be 0
-            ($result | Get-XmlAttributeValue -XPath $xPath).Covered | Should -Be 1
+            ($result | Get-XmlAttribute -XPath $xPath).Missed | Should -Be 0
+            ($result | Get-XmlAttribute -XPath $xPath).Covered | Should -Be 1
         }
     }
 }

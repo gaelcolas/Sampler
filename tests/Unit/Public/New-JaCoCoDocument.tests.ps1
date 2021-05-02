@@ -14,35 +14,6 @@ $ProjectName = ((Get-ChildItem -Path $ProjectPath\*\*.psd1).Where{
 Import-Module $ProjectName
 
 Describe 'New-JaCoCoDocument' {
-    BeforeAll {
-        # TODO: Move this function to TestHelpers and reuse it in other tests
-        function Get-XmlAttribute
-        {
-            [CmdletBinding()]
-            [OutputType([Hashtable])]
-            param
-            (
-                [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
-                [System.Xml.XmlDocument]
-                $XmlDocument,
-
-                [Parameter(Mandatory = $true)]
-                [System.String]
-                $XPath
-            )
-
-            $attributeValues = @{}
-
-            $filteredDocument = $XmlDocument | Select-Xml -XPath $XPath
-
-            ($filteredDocument.Node | Select-Xml -XPath '@*').Node | ForEach-Object -Process {
-                $attributeValues[$_.Name] = $_.Value
-            }
-
-            return $attributeValues
-        }
-    }
-
     AfterEach {
         if ($null -ne $xmlResult)
         {
