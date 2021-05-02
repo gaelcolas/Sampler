@@ -62,10 +62,14 @@ function New-JaCoCoDocument
     param
     (
         [Parameter(Mandatory = $true)]
+        [AllowNull()]
+        [AllowEmptyCollection()]
         [System.Object[]]
         $MissedCommands,
 
         [Parameter(Mandatory = $true)]
+        [AllowNull()]
+        [AllowEmptyCollection()]
         [System.Object[]]
         $HitCommands,
 
@@ -334,7 +338,7 @@ function New-JaCoCoDocument
             #>
             $numberOfInstructionsCovered = (
                 # Make sure to always return an array, even for just one object.
-                , (
+                @(
                     $jaCoCoMethod.Group |
                         Where-Object -FilterScript {
                             $_.HitCount -ge 1
@@ -344,7 +348,7 @@ function New-JaCoCoDocument
 
             $numberOfInstructionsMissed = (
                 # Make sure to always return an array, even for just one object.
-                , (
+                @(
                     $jaCoCoMethod.Group |
                         Where-Object -FilterScript {
                             $_.HitCount -eq 0
@@ -374,7 +378,7 @@ function New-JaCoCoDocument
             #>
             $numberOfLinesCovered = (
                 # Make sure to always return an array, even for just one object.
-                , (
+                @(
                     $jaCoCoMethod.Group |
                         Where-Object -FilterScript {
                             $_.HitCount -ge 1
@@ -385,7 +389,7 @@ function New-JaCoCoDocument
 
             $numberOfLinesMissed = (
                 # Make sure to always return an array, even for just one object.
-                , (
+                @(
                     $jaCoCoMethod.Group |
                         Where-Object -FilterScript {
                             $_.HitCount -eq 0
@@ -418,7 +422,7 @@ function New-JaCoCoDocument
             #>
             $isLineInMethodCovered = (
                 # Make sure to always return an array, even for just one object.
-                , (
+                @(
                     $jaCoCoMethod.Group |
                         Where-Object -FilterScript {
                             $_.HitCount -ge 1
