@@ -668,25 +668,5 @@ function New-JaCoCoDocument
 
     $coverageXml.AppendChild($xmlElementReport) | Out-Null
 
-    if ($DebugPreference -ne 'SilentlyContinue')
-    {
-        $StringWriter = New-Object -TypeName 'System.IO.StringWriter'
-        $XmlWriter = New-Object -TypeName 'System.XMl.XmlTextWriter' -ArgumentList $StringWriter
-
-        $xmlWriter.Formatting = 'indented'
-        $xmlWriter.Indentation = 2
-
-        $coverageXml.WriteContentTo($XmlWriter)
-
-        $XmlWriter.Flush()
-
-        $StringWriter.Flush()
-
-        # Blank row in output
-        ""
-
-        Write-Debug -Message ($StringWriter.ToString() | Out-String)
-    }
-
     return $coverageXml
 }
