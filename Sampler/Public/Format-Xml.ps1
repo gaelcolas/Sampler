@@ -21,6 +21,7 @@
 #>
 function Format-Xml
 {
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseProcessBlockForPipelineCommand', '')]
     [OutputType([System.String])]
     [CmdletBinding()]
     param
