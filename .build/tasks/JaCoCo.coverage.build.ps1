@@ -403,7 +403,7 @@ task Convert_Pester_Coverage {
 
     Write-Build -Color 'DarkGray' -Text "`tWriting converted code coverage file to '$newCoverageFilePath'."
 
-    Out-SamplerXml -Path $newCoverageFilePath -XmlDocument $coverageXml -Encoding [System.Text.Encoding]::$CodeCoverageOutputFileEncoding
+    Out-SamplerXml -Path $newCoverageFilePath -XmlDocument $coverageXml -Encoding $CodeCoverageOutputFileEncoding
 
     Write-Build -Color 'DarkGray' -Text "`tImporting original code coverage file '$CodeCoverageOutputFile'."
 
@@ -426,7 +426,7 @@ task Convert_Pester_Coverage {
 
     Write-Build -Color 'DarkGray' -Text "`tWriting a backup of original code coverage file to '$codeCoverageOutputBackupFile'."
 
-    Out-SamplerXml -Path $codeCoverageOutputBackupFile -XmlDocument $originalXml -Encoding [System.Text.Encoding]::$CodeCoverageOutputFileEncoding
+    Out-SamplerXml -Path $codeCoverageOutputBackupFile -XmlDocument $originalXml -Encoding $CodeCoverageOutputFileEncoding
 
     Write-Build -Color 'DarkGray' -Text "`tRemoving XML node from original code coverage."
 
@@ -458,7 +458,7 @@ task Convert_Pester_Coverage {
 
     Write-Build -Color 'DarkGray' -Text "`tWriting back updated code coverage file to '$CodeCoverageOutputFile'."
 
-    Out-SamplerXml -Path $CodeCoverageOutputFile -XmlDocument $targetXmlDocument -Encoding [System.Text.Encoding]::$CodeCoverageOutputFileEncoding
+    Out-SamplerXml -Path $CodeCoverageOutputFile -XmlDocument $targetXmlDocument -Encoding $CodeCoverageOutputFileEncoding
 
     Write-Build -Color Green -Text 'Code Coverage successfully converted.'
 }
