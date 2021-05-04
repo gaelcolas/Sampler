@@ -356,11 +356,7 @@ function New-SamplerJaCoCoDocument
                 )
             ).Count
 
-            $xmlElementCounterMethodInstruction = $coverageXml.CreateElement('counter')
-            $xmlElementCounterMethodInstruction.SetAttribute('type', 'INSTRUCTION')
-            $xmlElementCounterMethodInstruction.SetAttribute('missed', $numberOfInstructionsMissed)
-            $xmlElementCounterMethodInstruction.SetAttribute('covered', $numberOfInstructionsCovered)
-            $xmlElementMethod.AppendChild($xmlElementCounterMethodInstruction) | Out-Null
+            New-SamplerXmlJaCoCoCounter -XmlNode $xmlElementMethod -CounterType 'INSTRUCTION' -Covered $numberOfInstructionsCovered -Missed $numberOfInstructionsMissed
 
             $classCounterInstruction.Covered += $numberOfInstructionsCovered
             $classCounterInstruction.Missed += $numberOfInstructionsMissed
@@ -398,11 +394,7 @@ function New-SamplerJaCoCoDocument
                 )
             ).Count
 
-            $xmlElementCounterMethodLine = $coverageXml.CreateElement('counter')
-            $xmlElementCounterMethodLine.SetAttribute('type', 'LINE')
-            $xmlElementCounterMethodLine.SetAttribute('missed', $numberOfLinesMissed)
-            $xmlElementCounterMethodLine.SetAttribute('covered', $numberOfLinesCovered)
-            $xmlElementMethod.AppendChild($xmlElementCounterMethodLine) | Out-Null
+            New-SamplerXmlJaCoCoCounter -XmlNode $xmlElementMethod -CounterType 'LINE' -Covered $numberOfLinesCovered -Missed $numberOfLinesMissed
 
             $classCounterLine.Covered += $numberOfLinesCovered
             $classCounterLine.Missed += $numberOfLinesMissed
@@ -457,26 +449,13 @@ function New-SamplerJaCoCoDocument
                 $reportCounterMethod.Missed += 1
             }
 
-            $xmlElementCounterMethod = $coverageXml.CreateElement('counter')
-            $xmlElementCounterMethod.SetAttribute('type', 'METHOD')
-            $xmlElementCounterMethod.SetAttribute('missed', $methodMissed)
-            $xmlElementCounterMethod.SetAttribute('covered', $methodCovered)
-            $xmlElementMethod.AppendChild($xmlElementCounterMethod) | Out-Null
+            New-SamplerXmlJaCoCoCounter -XmlNode $xmlElementMethod -CounterType 'METHOD' -Covered $methodCovered -Missed $methodMissed
 
             $xmlElementClass.AppendChild($xmlElementMethod) | Out-Null
         }
 
-        $xmlElementCounter_ClassInstruction = $coverageXml.CreateElement('counter')
-        $xmlElementCounter_ClassInstruction.SetAttribute('type', 'INSTRUCTION')
-        $xmlElementCounter_ClassInstruction.SetAttribute('missed', $classCounterInstruction.Missed)
-        $xmlElementCounter_ClassInstruction.SetAttribute('covered', $classCounterInstruction.Covered)
-        $xmlElementClass.AppendChild($xmlElementCounter_ClassInstruction) | Out-Null
-
-        $xmlElementCounter_ClassLine = $coverageXml.CreateElement('counter')
-        $xmlElementCounter_ClassLine.SetAttribute('type', 'LINE')
-        $xmlElementCounter_ClassLine.SetAttribute('missed', $classCounterLine.Missed)
-        $xmlElementCounter_ClassLine.SetAttribute('covered', $classCounterLine.Covered)
-        $xmlElementClass.AppendChild($xmlElementCounter_ClassLine) | Out-Null
+        $xmlElementCounter_ClassInstruction = New-SamplerXmlJaCoCoCounter -XmlNode $xmlElementClass -CounterType 'INSTRUCTION' -Covered $classCounterInstruction.Covered -Missed $classCounterInstruction.Missed -PassThru
+        $xmlElementCounter_ClassLine = New-SamplerXmlJaCoCoCounter -XmlNode $xmlElementClass -CounterType 'LINE' -Covered $classCounterLine.Covered -Missed $classCounterLine.Missed -PassThru
 
         if ($classCounterLine.Covered -ge 1)
         {
@@ -497,17 +476,8 @@ function New-SamplerJaCoCoDocument
             $reportCounterClass.Missed += 1
         }
 
-        $xmlElementCounter_ClassMethod = $coverageXml.CreateElement('counter')
-        $xmlElementCounter_ClassMethod.SetAttribute('type', 'METHOD')
-        $xmlElementCounter_ClassMethod.SetAttribute('missed', $classCounterMethod.Missed)
-        $xmlElementCounter_ClassMethod.SetAttribute('covered', $classCounterMethod.Covered)
-        $xmlElementClass.AppendChild($xmlElementCounter_ClassMethod) | Out-Null
-
-        $xmlElementCounter_Class = $coverageXml.CreateElement('counter')
-        $xmlElementCounter_Class.SetAttribute('type', 'CLASS')
-        $xmlElementCounter_Class.SetAttribute('missed', $classMissed)
-        $xmlElementCounter_Class.SetAttribute('covered', $classCovered)
-        $xmlElementClass.AppendChild($xmlElementCounter_Class) | Out-Null
+        $xmlElementCounter_ClassMethod = New-SamplerXmlJaCoCoCounter -XmlNode $xmlElementClass -CounterType 'METHOD' -Covered $classCounterMethod.Covered -Missed $classCounterMethod.Missed -PassThru
+        $xmlElementCounter_Class = New-SamplerXmlJaCoCoCounter -XmlNode $xmlElementClass -CounterType 'CLASS' -Covered $classCovered -Missed $classMissed -PassThru
 
         $xmlElementPackage.AppendChild($xmlElementClass) | Out-Null
 
@@ -615,56 +585,18 @@ function New-SamplerJaCoCoDocument
         }
 
     # Add counters at the package level.
-    $xmlElementCounter_PackageInstruction = $coverageXml.CreateElement('counter')
-    $xmlElementCounter_PackageInstruction.SetAttribute('type', 'INSTRUCTION')
-    $xmlElementCounter_PackageInstruction.SetAttribute('missed', $packageCounterInstruction.Missed)
-    $xmlElementCounter_PackageInstruction.SetAttribute('covered', $packageCounterInstruction.Covered)
-    $xmlElementPackage.AppendChild($xmlElementCounter_PackageInstruction) | Out-Null
-
-    $xmlElementCounter_PackageLine = $coverageXml.CreateElement('counter')
-    $xmlElementCounter_PackageLine.SetAttribute('type', 'LINE')
-    $xmlElementCounter_PackageLine.SetAttribute('missed', $packageCounterLine.Missed)
-    $xmlElementCounter_PackageLine.SetAttribute('covered', $packageCounterLine.Covered)
-    $xmlElementPackage.AppendChild($xmlElementCounter_PackageLine) | Out-Null
-
-    $xmlElementCounter_PackageMethod = $coverageXml.CreateElement('counter')
-    $xmlElementCounter_PackageMethod.SetAttribute('type', 'METHOD')
-    $xmlElementCounter_PackageMethod.SetAttribute('missed', $packageCounterMethod.Missed)
-    $xmlElementCounter_PackageMethod.SetAttribute('covered', $packageCounterMethod.Covered)
-    $xmlElementPackage.AppendChild($xmlElementCounter_PackageMethod) | Out-Null
-
-    $xmlElementCounter_PackageClass = $coverageXml.CreateElement('counter')
-    $xmlElementCounter_PackageClass.SetAttribute('type', 'CLASS')
-    $xmlElementCounter_PackageClass.SetAttribute('missed', $packageCounterClass.Missed)
-    $xmlElementCounter_PackageClass.SetAttribute('covered', $packageCounterClass.Covered)
-    $xmlElementPackage.AppendChild($xmlElementCounter_PackageClass) | Out-Null
+    New-SamplerXmlJaCoCoCounter -XmlNode $xmlElementPackage -CounterType 'INSTRUCTION' -Covered $packageCounterInstruction.Covered -Missed $packageCounterInstruction.Missed
+    New-SamplerXmlJaCoCoCounter -XmlNode $xmlElementPackage -CounterType 'LINE' -Covered $packageCounterLine.Covered -Missed $packageCounterLine.Missed
+    New-SamplerXmlJaCoCoCounter -XmlNode $xmlElementPackage -CounterType 'METHOD' -Covered $packageCounterMethod.Covered -Missed $packageCounterMethod.Missed
+    New-SamplerXmlJaCoCoCounter -XmlNode $xmlElementPackage -CounterType 'CLASS' -Covered $packageCounterClass.Covered -Missed $packageCounterClass.Missed
 
     $xmlElementReport.AppendChild($xmlElementPackage) | Out-Null
 
     # Add counters at the report level.
-    $xmlElementCounter_ReportInstruction = $coverageXml.CreateElement('counter')
-    $xmlElementCounter_ReportInstruction.SetAttribute('type', 'INSTRUCTION')
-    $xmlElementCounter_ReportInstruction.SetAttribute('missed', $reportCounterInstruction.Missed)
-    $xmlElementCounter_ReportInstruction.SetAttribute('covered', $reportCounterInstruction.Covered)
-    $xmlElementReport.AppendChild($xmlElementCounter_ReportInstruction) | Out-Null
-
-    $xmlElementCounter_ReportLine = $coverageXml.CreateElement('counter')
-    $xmlElementCounter_ReportLine.SetAttribute('type', 'LINE')
-    $xmlElementCounter_ReportLine.SetAttribute('missed', $reportCounterLine.Missed)
-    $xmlElementCounter_ReportLine.SetAttribute('covered', $reportCounterLine.Covered)
-    $xmlElementReport.AppendChild($xmlElementCounter_ReportLine) | Out-Null
-
-    $xmlElementCounter_ReportMethod = $coverageXml.CreateElement('counter')
-    $xmlElementCounter_ReportMethod.SetAttribute('type', 'METHOD')
-    $xmlElementCounter_ReportMethod.SetAttribute('missed', $reportCounterMethod.Missed)
-    $xmlElementCounter_ReportMethod.SetAttribute('covered', $reportCounterMethod.Covered)
-    $xmlElementReport.AppendChild($xmlElementCounter_ReportMethod) | Out-Null
-
-    $xmlElementCounter_ReportClass = $coverageXml.CreateElement('counter')
-    $xmlElementCounter_ReportClass.SetAttribute('type', 'CLASS')
-    $xmlElementCounter_ReportClass.SetAttribute('missed', $reportCounterClass.Missed)
-    $xmlElementCounter_ReportClass.SetAttribute('covered', $reportCounterClass.Covered)
-    $xmlElementReport.AppendChild($xmlElementCounter_ReportClass) | Out-Null
+    New-SamplerXmlJaCoCoCounter -XmlNode $xmlElementReport -CounterType 'INSTRUCTION' -Covered $reportCounterInstruction.Covered -Missed $reportCounterInstruction.Missed
+    New-SamplerXmlJaCoCoCounter -XmlNode $xmlElementReport -CounterType 'LINE' -Covered $reportCounterLine.Covered -Missed $reportCounterLine.Missed
+    New-SamplerXmlJaCoCoCounter -XmlNode $xmlElementReport -CounterType 'METHOD' -Covered $reportCounterMethod.Covered -Missed $reportCounterMethod.Missed
+    New-SamplerXmlJaCoCoCounter -XmlNode $xmlElementReport -CounterType 'CLASS' -Covered $reportCounterClass.Covered -Missed $reportCounterClass.Missed
 
     $coverageXml.AppendChild($xmlElementReport) | Out-Null
 

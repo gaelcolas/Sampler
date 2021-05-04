@@ -1,30 +1,45 @@
 
 <#
     .SYNOPSIS
-        Gets the path to the Module manifest in the source folder.
+        Returns a new JaCoCo XML counter node with the specified covered and missed
+        attributes.
 
     .DESCRIPTION
-        This command finds the Module Manifest of the current Sampler project,
-        regardless of the name of the source folder (src, source, or MyProjectName).
-        It looks for psd1 that are not build.psd1 or analyzersettings, 1 folder under
-        the $BuildRoot, and where a property ModuleVersion is set.
+        Returns a new JaCoCo XML counter node with the specified covered and missed
+        attributes.
 
-        This allows to deduct the Module name's from that module Manifest.
+    .PARAMETER XmlNode
+        The XML node that the element should be part appended to as a child.
 
-    .PARAMETER BuildRoot
-        Root folder where the build is called, usually the root of the repository.
+    .PARAMETER CounterType
+        The JaCoCo counter type.
+
+    .PARAMETER Covered
+        The number of covered lines to be used as the value for the covered XML
+        attribute.
+
+    .PARAMETER Missed
+        The number of missed lines to be used as the value for the missed XML
+        attribute.
+
+    .PARAMETER PassThru
+        Returns the element that was created.
 
     .EXAMPLE
-        Get-SamplerProjectModuleManifest -BuildRoot .
-
+        New-SamplerXmlJaCoCoCounter -XmlDocument $myXml -CounterType 'CLASS' -Covered 1 -Missed 2
 #>
-function New-XmlJaCoCoCounter
+function New-SamplerXmlJaCoCoCounter
 {
     [CmdletBinding()]
     [OutputType([System.Xml.XmlElement])]
     param
     (
         [Parameter(Mandatory = $true)]
+        [System.Xml.XmlNode]
+        $XmlNode,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateSet('CLASS', 'LINE', 'METHOD', 'INSTRUCTION')]
         [System.String]
         $CounterType,
 
@@ -34,18 +49,24 @@ function New-XmlJaCoCoCounter
 
         [Parameter()]
         [System.UInt32]
-        $Missed = 0
+        $Missed = 0,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $PassThru
+
     )
 
-    $xmlDocument = New-Object -TypeName 'System.Xml.XmlDocument'
-
-    $xmlElement = $xmlDocument.CreateElement('counter')
+    $xmlElement = $XmlNode.OwnerDocument.CreateElement('counter')
 
     $xmlElement.SetAttribute('type', $CounterType)
-    $xmlElement.SetAttribute('missed', $Covered)
-    $xmlElement.SetAttribute('covered', $Missed)
+    $xmlElement.SetAttribute('missed', $Missed)
+    $xmlElement.SetAttribute('covered', $Covered)
 
-    # Must clone the element to detach it from the XML document.
-    Write-Verbose -Message 'CLONE' -Verbose
-    return $xmlElement.CloneNode($false)
+    $XmlNode.AppendChild($xmlElement) | Out-Null
+
+    if ($PassThru.IsPresent)
+    {
+        return $xmlElement
+    }
 }

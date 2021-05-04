@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added new public command `New-SamplerJaCoCoDocument`.
 - Added new public command `Out-SamplerXml`.
+- Added new private function `New-SamplerXmlJaCoCoCounter`.
 
 ### Changed
 
