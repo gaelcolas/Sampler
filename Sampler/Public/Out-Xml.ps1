@@ -33,7 +33,7 @@ function Out-Xml
         $Path,
 
         [Parameter()]
-        [ValidateSet('UTF8')]
+        [ValidateSet('ASCII', 'BigEndianUnicode', 'Default', 'Latin1', 'Unicode', 'UTF32', 'UTF7', 'UTF8')]
         [System.String]
         $Encoding = 'UTF8'
     )
