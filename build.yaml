@@ -56,7 +56,7 @@ Pester:
     # - tests/Integration
   ExcludeTag:
   Tag:
-  CodeCoverageThreshold: 1 # Set to 0 to bypass
+  CodeCoverageThreshold: 25 # Set to 0 to bypass
   # Set to specific filename to override the default filename.
   # CodeCoverageOutputFile: JaCoCo_coverage.xml
   CodeCoverageOutputFileEncoding: ascii

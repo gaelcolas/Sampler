@@ -56,7 +56,8 @@ InModuleScope $ProjectName {
                     $AddSampleParams
                 )
 
-               { Add-Sample @AddSampleParams  } | Should -Not -Throw
+               { Sampler\Add-Sample @AddSampleParams  } | Should -Not -Throw
+
                Assert-MockCalled -CommandName Invoke-Plaster -Scope It -Times 1
             }
         }
