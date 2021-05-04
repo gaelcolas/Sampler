@@ -271,8 +271,6 @@ task Convert_Pester_Coverage {
 
     "`tModule File Name         = '$moduleFileName'"
 
-    #### TODO: Split Script Task Variables here
-
     $getPesterOutputFileFileNameParameters = @{
         ProjectName       = $ProjectName
         ModuleVersion     = $ModuleVersion
@@ -405,16 +403,7 @@ task Convert_Pester_Coverage {
 
     Write-Build -Color 'DarkGray' -Text "`tWriting converted code coverage file to '$newCoverageFilePath'."
 
-    # TODO: Use Out-XML
-    $xmlSettings = New-Object -TypeName 'System.Xml.XmlWriterSettings'
-    $xmlSettings.Indent = $true
-    $xmlSettings.Encoding = [System.Text.Encoding]::$CodeCoverageOutputFileEncoding
-
-    $xmlWriter = [System.Xml.XmlWriter]::Create($newCoverageFilePath, $xmlSettings)
-
-    $coverageXml.Save($xmlWriter)
-
-    $xmlWriter.Close()
+    Out-Xml -Path $newCoverageFilePath -XmlDocument $coverageXml -Encoding [System.Text.Encoding]::$CodeCoverageOutputFileEncoding
 
     Write-Build -Color 'DarkGray' -Text "`tImporting original code coverage file '$CodeCoverageOutputFile'."
 
@@ -437,16 +426,7 @@ task Convert_Pester_Coverage {
 
     Write-Build -Color 'DarkGray' -Text "`tWriting a backup of original code coverage file to '$codeCoverageOutputBackupFile'."
 
-    # TODO: Use Out-XML
-    $xmlSettings = New-Object -TypeName 'System.Xml.XmlWriterSettings'
-    $xmlSettings.Indent = $true
-    $xmlSettings.Encoding = [System.Text.Encoding]::$CodeCoverageOutputFileEncoding
-
-    $xmlWriter = [System.Xml.XmlWriter]::Create($codeCoverageOutputBackupFile, $xmlSettings)
-
-    $originalXml.Save($xmlWriter)
-
-    $xmlWriter.Close()
+    Out-Xml -Path $codeCoverageOutputBackupFile -XmlDocument $originalXml -Encoding [System.Text.Encoding]::$CodeCoverageOutputFileEncoding
 
     Write-Build -Color 'DarkGray' -Text "`tRemoving XML node from original code coverage."
 
@@ -479,15 +459,7 @@ task Convert_Pester_Coverage {
     Write-Build -Color 'DarkGray' -Text "`tWriting back updated code coverage file to '$CodeCoverageOutputFile'."
 
     # TODO: Use Out-XML
-    $xmlSettings = New-Object -TypeName 'System.Xml.XmlWriterSettings'
-    $xmlSettings.Indent = $true
-    $xmlSettings.Encoding = [System.Text.Encoding]::$CodeCoverageOutputFileEncoding
-
-    $xmlWriter = [System.Xml.XmlWriter]::Create($CodeCoverageOutputFile, $xmlSettings)
-
-    $targetXmlDocument.Save($xmlWriter)
-
-    $xmlWriter.Close()
+    Out-Xml -Path $CodeCoverageOutputFile -XmlDocument $targetXmlDocument -Encoding [System.Text.Encoding]::$CodeCoverageOutputFileEncoding
 
     Write-Build -Color Green -Text 'Code Coverage successfully converted.'
 }
