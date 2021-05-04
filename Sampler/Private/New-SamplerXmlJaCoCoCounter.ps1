@@ -30,6 +30,7 @@
 #>
 function New-SamplerXmlJaCoCoCounter
 {
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingFunctions', '')]
     [CmdletBinding()]
     [OutputType([System.Xml.XmlElement])]
     param
