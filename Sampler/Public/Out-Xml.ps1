@@ -16,7 +16,7 @@
         Specifies the encoding for the file.
 
     .EXAMPLE
-        Out-Xml -XmlDocument '<?xml version="1.0"?><a><b /></a>' -Encoding 'UTF8'
+        Out-Xml -Path 'C:\temp\my.xml' -XmlDocument '<?xml version="1.0"?><a><b /></a>' -Encoding 'UTF8'
 #>
 function Out-Xml
 {
