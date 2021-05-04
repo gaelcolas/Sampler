@@ -9,8 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added new public command `New-JaCoCoDocument`.
-- Added new public command `Out-Xml`.
+- Added new public command `New-SamplerJaCoCoDocument`.
+- Added new public command `Out-SamplerXml`.
 
 ### Changed
 
@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `Set-SamplerTaskVariable.ps1` in the tasks folder. This alias is used to
   dot-source task variables for re-use over multiple build tasks.
 - Moved code from build task `Convert_Pester_Coverage` into a public function
-  `New-JaCoCoDocument`.
+  `New-SamplerJaCoCoDocument`.
 
 ### Fixed
 
@@ -26,7 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Move task _Convert_Pester_Coverage_ to task file `JaCoCo.coverage.build.ps1`.
 - Resolve-Dependency.ps1: fix MinimumPSDependVersion comparison.
 - Resolve-Dependency.ps1: add -Force to all Save-Module.
-- `New-JaCoCoDocument`
+- `New-SamplerJaCoCoDocument`
   - Fixed counters when a method only had either one hit line or one missed line.
 - Now unit tests properly test the function in the built module, not the
   ones that the pipeline dot-sources into session to be able to dogfooding

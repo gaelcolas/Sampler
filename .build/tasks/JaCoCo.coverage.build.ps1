@@ -397,13 +397,13 @@ task Convert_Pester_Coverage {
 
     Write-Build -Color 'DarkGray' -Text "`tBuilding new code coverage file against source."
 
-    $coverageXml = New-JaCoCoDocument -MissedCommands $missedCommands -HitCommands $hitCommands -PackageName $SourcePath -PackageDisplayName $ModuleVersionFolder
+    $coverageXml = New-SamplerJaCoCoDocument -MissedCommands $missedCommands -HitCommands $hitCommands -PackageName $SourcePath -PackageDisplayName $ModuleVersionFolder
 
     $newCoverageFilePath = Join-Path -Path $PesterOutputFolder -ChildPath 'source_coverage.xml'
 
     Write-Build -Color 'DarkGray' -Text "`tWriting converted code coverage file to '$newCoverageFilePath'."
 
-    Out-Xml -Path $newCoverageFilePath -XmlDocument $coverageXml -Encoding [System.Text.Encoding]::$CodeCoverageOutputFileEncoding
+    Out-SamplerXml -Path $newCoverageFilePath -XmlDocument $coverageXml -Encoding [System.Text.Encoding]::$CodeCoverageOutputFileEncoding
 
     Write-Build -Color 'DarkGray' -Text "`tImporting original code coverage file '$CodeCoverageOutputFile'."
 
@@ -426,7 +426,7 @@ task Convert_Pester_Coverage {
 
     Write-Build -Color 'DarkGray' -Text "`tWriting a backup of original code coverage file to '$codeCoverageOutputBackupFile'."
 
-    Out-Xml -Path $codeCoverageOutputBackupFile -XmlDocument $originalXml -Encoding [System.Text.Encoding]::$CodeCoverageOutputFileEncoding
+    Out-SamplerXml -Path $codeCoverageOutputBackupFile -XmlDocument $originalXml -Encoding [System.Text.Encoding]::$CodeCoverageOutputFileEncoding
 
     Write-Build -Color 'DarkGray' -Text "`tRemoving XML node from original code coverage."
 
@@ -458,8 +458,7 @@ task Convert_Pester_Coverage {
 
     Write-Build -Color 'DarkGray' -Text "`tWriting back updated code coverage file to '$CodeCoverageOutputFile'."
 
-    # TODO: Use Out-XML
-    Out-Xml -Path $CodeCoverageOutputFile -XmlDocument $targetXmlDocument -Encoding [System.Text.Encoding]::$CodeCoverageOutputFileEncoding
+    Out-SamplerXml -Path $CodeCoverageOutputFile -XmlDocument $targetXmlDocument -Encoding [System.Text.Encoding]::$CodeCoverageOutputFileEncoding
 
     Write-Build -Color Green -Text 'Code Coverage successfully converted.'
 }

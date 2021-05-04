@@ -13,7 +13,7 @@ $ProjectName = ((Get-ChildItem -Path $ProjectPath\*\*.psd1).Where{
 
 Import-Module $ProjectName
 
-Describe 'Out-Xml' {
+Describe 'Out-SamplerXml' {
     BeforeAll {
         $mockXmlDocument = '<?xml version="1.0" encoding="utf-16" standalone="no"?><a><b /></a>'
     }
@@ -21,7 +21,7 @@ Describe 'Out-Xml' {
     It 'Should write a file with the correct content and correct encoding' {
         $mockPath = Join-Path -Path $TestDrive -ChildPath 'mockOutput.xml'
 
-        $result = Sampler\Out-Xml -XmlDocument $mockXmlDocument -Path $mockPath
+        $result = Sampler\Out-SamplerXml -XmlDocument $mockXmlDocument -Path $mockPath
 
         $contentsInFile = Get-Content -Path $mockPath -Raw
 

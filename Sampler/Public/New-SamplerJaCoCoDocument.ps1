@@ -30,13 +30,13 @@
             Convert-LineNumber -ErrorAction 'Stop' -PassThru | Out-Null
         $pesterObject.CodeCoverage.HitCommands |
             Convert-LineNumber -ErrorAction 'Stop' -PassThru | Out-Null
-        New-JaCoCoDocument `
+        New-SamplerJaCoCoDocument `
             -MissedCommands $pesterObject.CodeCoverage.MissedCommands `
             -HitCommands $pesterObject.CodeCoverage.HitCommands `
             -PackageName 'source'
 
     .EXAMPLE
-        New-JaCoCoDocument `
+        New-SamplerJaCoCoDocument `
             -MissedCommands @{
                 Class            = 'ResourceBase'
                 Function         = 'Compare'
@@ -53,7 +53,7 @@
             } `
             -PackageName 'source'
 #>
-function New-JaCoCoDocument
+function New-SamplerJaCoCoDocument
 {
     [CmdletBinding()]
     [OutputType([System.Xml.XmlDocument])]
