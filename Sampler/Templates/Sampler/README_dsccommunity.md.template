@@ -1,0 +1,45 @@
+# <%= $PLASTER_PARAM_ModuleName %>
+
+<!-- Update what the product or function is called /-->
+This module contains DSC resources for the management and
+configuration of PRODUCT.
+
+<!-- Update with the correct definition number - replace 9999 with the definition number for the pipeline /-->
+[![Build Status](https://dev.azure.com/dsccommunity/<%= $PLASTER_PARAM_ModuleName %>/_apis/build/status/dsccommunity.<%= $PLASTER_PARAM_ModuleName %>?branchName=<%= if ($PLASTER_PARAM_GitMainBranch -eq 'master') { 'master' } else { 'main' } %>)](https://dev.azure.com/dsccommunity/<%= $PLASTER_PARAM_ModuleName %>/_build/latest?definitionId=9999&branchName=<%= if ($PLASTER_PARAM_GitMainBranch -eq 'master') { 'master' } else { 'main' } %>)
+![Azure DevOps coverage (branch)](https://img.shields.io/azure-devops/coverage/dsccommunity/<%= $PLASTER_PARAM_ModuleName %>/9999/<%= if ($PLASTER_PARAM_GitMainBranch -eq 'master') { 'master' } else { 'main' } %>)
+[![codecov](https://codecov.io/gh/dsccommunity/<%= $PLASTER_PARAM_ModuleName %>/branch/<%= if ($PLASTER_PARAM_GitMainBranch -eq 'master') { 'master' } else { 'main' } %>/graph/badge.svg)](https://codecov.io/gh/dsccommunity/<%= $PLASTER_PARAM_ModuleName %>)
+[![Azure DevOps tests](https://img.shields.io/azure-devops/tests/dsccommunity/<%= $PLASTER_PARAM_ModuleName %>/9999/<%= if ($PLASTER_PARAM_GitMainBranch -eq 'master') { 'master' } else { 'main' } %>)](https://dsccommunity.visualstudio.com/<%= $PLASTER_PARAM_ModuleName %>/_test/analytics?definitionId=9999&contextType=build)
+[![PowerShell Gallery (with prereleases)](https://img.shields.io/powershellgallery/vpre/<%= $PLASTER_PARAM_ModuleName %>?label=<%= $PLASTER_PARAM_ModuleName %>%20Preview)](https://www.powershellgallery.com/packages/<%= $PLASTER_PARAM_ModuleName %>/)
+[![PowerShell Gallery](https://img.shields.io/powershellgallery/v/<%= $PLASTER_PARAM_ModuleName %>?label=<%= $PLASTER_PARAM_ModuleName %>)](https://www.powershellgallery.com/packages/<%= $PLASTER_PARAM_ModuleName %>/)
+
+## Code of Conduct
+
+This project has adopted this [Code of Conduct](CODE_OF_CONDUCT.md).
+
+## Releases
+
+For each merge to the branch `<%= if ($PLASTER_PARAM_GitMainBranch -eq 'master') { 'master' } else { 'main' } %>` a preview release will be
+deployed to [PowerShell Gallery](https://www.powershellgallery.com/).
+Periodically a release version tag will be pushed which will deploy a
+full release to [PowerShell Gallery](https://www.powershellgallery.com/).
+
+## Contributing
+
+Please check out common DSC Community [contributing guidelines](https://dsccommunity.org/guidelines/contributing).
+
+## Change log
+
+A full list of changes in each version can be found in the [change log](CHANGELOG.md).
+
+## Documentation
+
+The documentation can be found in the [<%= $PLASTER_PARAM_ModuleName %> Wiki](https://github.com/dsccommunity/<%= $PLASTER_PARAM_ModuleName %>/wiki).
+The DSC resources schema files is used to automatically update the
+documentation on each PR merge.
+
+### Examples
+
+You can review the [Examples](/source/Examples) directory in the <%= $PLASTER_PARAM_ModuleName %> module
+for some general use scenarios for all of the resources that are in the module.
+
+The resource examples are also available in the [<%= $PLASTER_PARAM_ModuleName %> Wiki](https://github.com/dsccommunity/<%= $PLASTER_PARAM_ModuleName %>/wiki).

@@ -46,6 +46,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - codecov.yml.template
     - Codecov.yml is now added for several templates and features. Content
       is dependent on the template that is used.
+  - Now the template 'dsccommunity' gets a `README.md` file.
 
 ### Fixed
 
