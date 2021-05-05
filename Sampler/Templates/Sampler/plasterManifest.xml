@@ -495,7 +495,7 @@
 
     <templateFile source='README_dsccommunity.md.template'
                   destination='${PLASTER_PARAM_ModuleName}/README.md'
-                  condition='${PLASTER_PARAM_ModuleType} -in @("dsccommunity")'
+                  condition='${PLASTER_PARAM_ModuleType} -in @("dsccommunity", "newdsccommunity")'
     />
     <!-- ABOUT MODULE help text file -->
     <templateFile source='about_ModuleName.help.template'
