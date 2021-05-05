@@ -34,8 +34,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Added comment task `Convert_Pester_Coverage` for the _test_ task.
     - Removed leftovers from key DscTest that was kept when using template
       'SimpleModule'.
-    - Updated with entries to support several code coverage scenarios, most
+    - Updated with entries to support several code coverage scenarios, some
       initially commented.
+  - azure-pipelines_dsccommunity.yml
+    - Updated with the latest code coverage scenarios, some initially
+      commented.
 
 ### Fixed
 
