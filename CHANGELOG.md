@@ -27,6 +27,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   to set the session environment variable `$env:ModuleVersion`, nor setting the
   variable `$ModuleVersion` in the PowerShell session (parent scope) before
   running the task `build` ([issue #279](https://github.com/gaelcolas/Sampler/issues/279)).
+- Templates
+  - build.yaml
+    - Comment Pester tag exclusion for all templates so that the default is
+      to use all QA test.
+    - Added comment task `Convert_Pester_Coverage` for the _test_ task.
+    - Removed leftovers from key DscTest that was kept when using template
+      'SimpleModule'.
+    - Updated with entries to support several code coverage scenarios, most
+      initially commented.
 
 ### Fixed
 
