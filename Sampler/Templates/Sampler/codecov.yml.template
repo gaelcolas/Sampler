@@ -1,7 +1,7 @@
 codecov:
   require_ci_to_pass: no
   # master should be the baseline for reporting
-  branch: master
+  branch: <%= if ($PLASTER_PARAM_GitMainBranch -eq 'master') { 'master' } else { 'main' } %>
 
 comment:
   layout: "reach, diff, flags, files"
@@ -23,6 +23,18 @@ coverage:
         # and let codecov.io set the goal for the code changed in the patch.
         target: auto
         threshold: 5
+<%
+    if ($PLASTER_PARAM_ModuleType -in @('dsccommunity')) {
+@"
 
+# This is not needed if the module only contain class-based resources.
 fixes:
-  - '\d+\.\d+\.\d+\/::source/'  # move path "X.Y.Z/" => "source/"
+  - '^\d+\.\d+\.\d+::source'  # move path "X.Y.Z" => "source"
+
+"@
+    }
+%>
+# Use this if there are paths that should not be part of the code coverage, for
+# example a deprecated function where tests has been removed.
+#ignore:
+#  - 'source/Public/Get-Deprecated.ps1'

@@ -595,9 +595,9 @@
     />
 
    <!-- Codecov.io -->
-   <file source='../Sampler/codecov_dsccommunity.yml'
+    <templateFile source='codecov.yml.template'
           destination='${PLASTER_PARAM_ModuleName}/codecov.yml'
-          condition='${PLASTER_PARAM_ModuleType} -in @("dsccommunity", "newdsccommunity")'
+          condition='${PLASTER_PARAM_ModuleType} -in @("dsccommunity", "newdsccommunity", "CompleteSample", "SimpleModule") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("codecov")'
     />
   </content>
 </plasterManifest>
