@@ -134,9 +134,14 @@ BuildWorkflow:
   # Defining test task to be run when invoking `./build.ps1 -Tasks test`
   test:
     - Pester_Tests_Stop_On_Fail
+    # Use this task if pipeline uses code coverage and the module is using the
+    # pattern of Public, Private, Enum, Classes.
+    #- Convert_Pester_Coverage
     - Pester_if_Code_Coverage_Under_Threshold
-    # Use this task when you have multiple parallel tests, which produce multiple
-    # code coverage files and needs to get merged into one file.
+
+  # Use this task when you have multiple parallel tests, which produce multiple
+  # code coverage files and needs to get merged into one file.
+  #merge:
     #- Merge_CodeCoverage_Files
 
   publish:
@@ -191,9 +196,9 @@ Pester:
   # - tests/Unit
   # - tests/Integration
   ExcludeTag:
-    - helpQuality
-    - FunctionalQuality
-    - TestQuality
+  #  - helpQuality
+  #  - FunctionalQuality
+  #  - TestQuality
 "@
     }
 %>
@@ -204,17 +209,25 @@ Pester:
 @"
   CodeCoverageOutputFile: JaCoCo_coverage.xml
   CodeCoverageOutputFileEncoding: ascii
-  # CodeCoverageMergedOutputFile: JaCoCo_Merged.xml
 "@
     }
     else {
 @"
-  # CodeCoverageOutputFile: JaCoCo_$OsShortName.xml
-  # CodeCoverageOutputFileEncoding: ascii
-  # CodeCoverageMergedOutputFile: JaCoCo_Merged.xml
+  #CodeCoverageOutputFile: JaCoCo_$OsShortName.xml
+  #CodeCoverageOutputFileEncoding: ascii
 "@
     }
 %>
+  # Use this if code coverage should be merged from several pipeline test jobs.
+  # Any existing keys above should be replaced.
+  # CodeCoverageOutputFile - the file that is created for each pipeline test job.
+  # CodeCoverageFilePattern - the pattern used to search all pipeline test job artifacts
+  # after the file specified in CodeCoverageOutputFile.
+  # CodeCoverageMergedOutputFile - the file that is created by the merge build task and
+  # is the file that should be uploaded to code coverage services.
+  #CodeCoverageOutputFile: JaCoCo_Merge.xml
+  #CodeCoverageMergedOutputFile: JaCoCo_coverage.xml
+  #CodeCoverageFilePattern: JaCoCo_Merge.xml
 <%
     if ($PLASTER_PARAM_ModuleType -eq 'dsccommunity' -or $PLASTER_PARAM_ModuleType -match 'complete' -or $PLASTER_PARAM_Features -Contains ("All") -or $PLASTER_PARAM_Features -Contains ("DSCResources"))
     {
@@ -239,13 +252,6 @@ DscTest:
     {
 @"
     - Modules/DscResource.Common
-  #  - Templates
-"@
-    }
-    else
-    {
-@"
-  #  - Modules/DscResource.Common
   #  - Templates
 "@
     }
