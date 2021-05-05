@@ -77,13 +77,13 @@
             Tags         = @('Template', 'pipeline', 'plaster', 'DesiredStateConfiguration', 'DSC', 'DSCResourceKit', 'DSCResource', 'Windows', 'MacOS', 'Linux')
 
             # A URL to the license for this module.
-            LicenseUri   = 'https://github.com/gaelcolas/Sampler/blob/master/LICENSE'
+            LicenseUri   = 'https://github.com/gaelcolas/Sampler/blob/main/LICENSE'
 
             # A URL to the main website for this project.
             ProjectUri   = 'https://github.com/gaelcolas/Sampler'
 
             # A URL to an icon representing this module.
-            IconUri      = 'https://raw.githubusercontent.com/gaelcolas/Sampler/master/Sampler/assets/sampler.png'
+            IconUri      = 'https://raw.githubusercontent.com/gaelcolas/Sampler/main/Sampler/assets/sampler.png'
 
             # ReleaseNotes of this module
             ReleaseNotes = ''

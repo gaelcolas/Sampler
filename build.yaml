@@ -81,6 +81,7 @@ DscTest:
   ExcludeModuleFile:
     - Templates
     - Modules/DscResource.Common
+  MainGitBranch: main
 
 ####################################################
 #       Sampler Pipeline Configuration             #
