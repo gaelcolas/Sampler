@@ -492,6 +492,11 @@
                   destination='${PLASTER_PARAM_ModuleName}/README.md'
                   condition='${PLASTER_PARAM_ModuleType} -notin @("dsccommunity", "newdsccommunity")'
     />
+
+    <templateFile source='README_dsccommunity.md.template'
+                  destination='${PLASTER_PARAM_ModuleName}/README.md'
+                  condition='${PLASTER_PARAM_ModuleType} -in @("dsccommunity")'
+    />
     <!-- ABOUT MODULE help text file -->
     <templateFile source='about_ModuleName.help.template'
                   destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/en-US/about_${PLASTER_PARAM_ModuleName}.help.txt'
