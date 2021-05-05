@@ -76,6 +76,7 @@ Describe 'Complete Module Plaster Template' {
                 'build.yaml'
                 'CHANGELOG.md'
                 'CODE_OF_CONDUCT.md'
+                'codecov.yml'
                 'CONTRIBUTING.md'
                 'SECURITY.md'
                 'GitVersion.yml'

@@ -56,6 +56,7 @@ Describe 'DSC Community Plaster Template' {
                 'build.yaml'
                 'CHANGELOG.md'
                 'CODE_OF_CONDUCT.md'
+                'README.md'
                 'SECURITY.md'
                 'LICENSE'
                 'codecov.yml'

@@ -64,6 +64,7 @@ Describe 'DSC Community Plaster Template' {
                 'CONTRIBUTING.md'
                 'GitVersion.yml'
                 'LICENSE'
+                'README.md'
                 'RequiredModules.psd1'
                 'Resolve-Dependency.ps1'
                 'Resolve-Dependency.psd1'
