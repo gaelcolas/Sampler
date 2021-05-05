@@ -50,6 +50,7 @@ Describe 'Simple Module Plaster Template' {
             'build.ps1'
             'build.yaml'
             'CHANGELOG.md'
+            'codecov.yml'
             'README.md'
             'RequiredModules.psd1'
             'Resolve-Dependency.ps1'
