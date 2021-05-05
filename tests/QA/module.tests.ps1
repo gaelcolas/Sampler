@@ -20,12 +20,12 @@ $allModuleFunctions = &$mut {Get-Command -Module $args[0] -CommandType Function 
             !([bool](Get-Command git -EA SilentlyContinue) -and
               [bool](&(Get-Process -id $PID).Path -NoProfile -Command 'git rev-parse --is-inside-work-tree 2>$null'))
             ) {
-            # Get the list of changed files compared with master
+            # Get the list of changed files compared with main
             $HeadCommit = &git rev-parse HEAD
-            $MasterCommit = &git rev-parse origin/master
-            $filesChanged = &git @('diff', "$MasterCommit...$HeadCommit", '--name-only')
+            $defaultBranchCommit = &git rev-parse origin/main
+            $filesChanged = &git @('diff', "$defaultBranchCommit...$HeadCommit", '--name-only')
 
-            if ($HeadCommit -ne $MasterCommit) { # if we're not testing same commit (i.e. master..master)
+            if ($HeadCommit -ne $defaultBranchCommit) { # if we're not testing same commit (i.e. main..main)
                 $filesChanged.Where{ (Split-Path $_ -Leaf) -match '^changelog' } | Should -Not -BeNullOrEmpty
             }
         }
