@@ -41,6 +41,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
       commented.
   - azure-pipelines.yml
     - Updated with the latest code coverage merge scenario.
+  - codecov_dsccommunity.yml
+    - Removed and replaced with codecov.yml.template
+  - codecov.yml.template
+    - Codecov.yml is now added for several templates and features. Content
+      is dependent on the template that is used.
 
 ### Fixed
 
