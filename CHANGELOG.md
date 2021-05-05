@@ -20,6 +20,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   dot-source task variables for re-use over multiple build tasks.
 - Moved code from build task `Convert_Pester_Coverage` into a public function
   `New-SamplerJaCoCoDocument`.
+- Templates
+  - build.yaml
+    - Comment Pester tag exclusion for all templates so that the default is
+      to use all QA test.
+    - Added comment task `Convert_Pester_Coverage` for the _test_ task.
+    - Removed leftovers from key DscTest that was kept when using template
+      'SimpleModule'.
+    - Updated with entries to support several code coverage scenarios, most
+      initially commented.
 
 ### Fixed
 
