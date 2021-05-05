@@ -39,6 +39,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - azure-pipelines_dsccommunity.yml
     - Updated with the latest code coverage scenarios, some initially
       commented.
+  - azure-pipelines.yml
+    - Updated with the latest code coverage merge scenario.
 
 ### Fixed
 
