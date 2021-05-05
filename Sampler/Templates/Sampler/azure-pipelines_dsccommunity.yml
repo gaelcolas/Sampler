@@ -63,7 +63,7 @@ stages:
             inputs:
               buildType: 'current'
               artifactName: $(buildArtifactName)
-              targetPath: '$(Build.SourcesDirectory)/$(buildArtifactName)'
+              targetPath: '$(Build.SourcesDirectory)/$(buildFolderName)'
           - task: PowerShell@2
             name: test
             displayName: 'Run HQRM Test'
@@ -91,7 +91,7 @@ stages:
             inputs:
               buildType: 'current'
               artifactName: $(buildArtifactName)
-              targetPath: '$(Build.SourcesDirectory)/$(buildArtifactName)'
+              targetPath: '$(Build.SourcesDirectory)/$(buildFolderName)'
           - task: PowerShell@2
             name: test
             displayName: 'Run Unit Test'
@@ -129,7 +129,7 @@ stages:
       #      inputs:
       #        buildType: 'current'
       #        artifactName: $(buildArtifactName)
-      #        targetPath: '$(Build.SourcesDirectory)/$(buildArtifactName)'
+      #        targetPath: '$(Build.SourcesDirectory)/$(buildFolderName)'
       #    - task: PowerShell@2
       #      name: test
       #      displayName: 'Run Unit Test'
@@ -164,7 +164,7 @@ stages:
             inputs:
               buildType: 'current'
               artifactName: $(buildArtifactName)
-              targetPath: '$(Build.SourcesDirectory)/$(buildArtifactName)'
+              targetPath: '$(Build.SourcesDirectory)/$(buildFolderName)'
           - task: PowerShell@2
             name: configureWinRM
             displayName: 'Configure WinRM'
@@ -205,7 +205,7 @@ stages:
             inputs:
               buildType: 'current'
               artifactName: $(buildArtifactName)
-              targetPath: '$(Build.SourcesDirectory)/$(buildArtifactName)'
+              targetPath: '$(Build.SourcesDirectory)/$(buildFolderName)'
           - task: DownloadPipelineArtifact@2
             # If several pipeline jobs are generating code coverage, consider renaming this display name:
             displayName: 'Download Test Artifact'
