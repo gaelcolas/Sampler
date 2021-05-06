@@ -190,6 +190,22 @@ This `ModuleVersion` task variable can be overridden by using the key `SemVer`
 in the file `build.yml`, e.g. `SemVer: '99.0.0-preview1'`. This can be used
 if the preferred method of using GitVersion is not available.
 
+The order how the module version is detected is as follows:
+
+- the parameter `ModuleVersion` is set from the command line (passing parameter
+  to build task)
+- if no parameter was passed it defaults to using the property from the
+  environment variable `$env:ModuleVersion` or parent scope variable
+  `$ModuleVersion`
+- if the `ModuleVersion` is still not found it will try to use `GitVersion`
+  if it is available
+- if `GitVersion` is not available the module version is set from the module
+  manifest in the source path using the properties `ModuleVersion` and
+  `PrivateData.PSData.Prerelease`.
+- if `ModuleVersion` was set through 1) or 2) it will override 3) or 4)
+- if module version is set using key `SemVer` in `build.yml` it will
+  override 1), 2), 3), 4), and 5)
+
 ### `OutputDirectory`
 
 The base directory of all output from the build tasks. This is the path
