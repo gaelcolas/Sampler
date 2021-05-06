@@ -24,6 +24,10 @@ CopyPaths:
 %>
   # - Modules
 Encoding: UTF8
+# Can be used to manually specify module semantic version if the preferred method
+# of using GitVersion is not available.
+#SemVer: '99.0.0-preview1'
+
 <%
     if ($PLASTER_PARAM_ModuleType -ne 'dsccommunity') {
 @"
