@@ -192,19 +192,19 @@ if the preferred method of using GitVersion is not available.
 
 The order how the module version is detected is as follows:
 
-- the parameter `ModuleVersion` is set from the command line (passing parameter
-  to build task)
-- if no parameter was passed it defaults to using the property from the
-  environment variable `$env:ModuleVersion` or parent scope variable
-  `$ModuleVersion`
-- if the `ModuleVersion` is still not found it will try to use `GitVersion`
-  if it is available
-- if `GitVersion` is not available the module version is set from the module
-  manifest in the source path using the properties `ModuleVersion` and
-  `PrivateData.PSData.Prerelease`.
-- if `ModuleVersion` was set through 1) or 2) it will override 3) or 4)
-- if module version is set using key `SemVer` in `build.yml` it will
-  override 1), 2), 3), 4), and 5)
+1. the parameter `ModuleVersion` is set from the command line (passing parameter
+   to build task)
+1. if no parameter was passed it defaults to using the property from the
+   environment variable `$env:ModuleVersion` or parent scope variable
+   `$ModuleVersion`
+1. if the `ModuleVersion` is still not found it will try to use `GitVersion`
+   if it is available
+1. if `GitVersion` is not available the module version is set from the module
+   manifest in the source path using the properties `ModuleVersion` and
+   `PrivateData.PSData.Prerelease`.
+1. if `ModuleVersion` was set through 1) or 2) it will override 3) or 4)
+1. if module version is set using key `SemVer` in `build.yml` it will
+   override 1), 2), 3), 4), and 5)
 
 ### `OutputDirectory`
 
