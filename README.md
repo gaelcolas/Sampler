@@ -181,6 +181,15 @@ returned by the executable `gitversion`, or if the executable `gitversion`
 is not available the the variable defaults to an empty string, and the
 build module task will use the version found in the Module Manifest.
 
+It is also possible to set the session environment variable `$env:ModuleVersion`
+in the PowerShell session, or setting the variable `$ModuleVersion` in the
+PowerShell session (the parent scope to `Invoke-Build`) before running the
+task `build`
+
+This `ModuleVersion` task variable can be overridden by using the key `SemVer`
+in the file `build.yml`, e.g. `SemVer: '99.0.0-preview1'`. This can be used
+if the preferred method of using GitVersion is not available.
+
 ### `OutputDirectory`
 
 The base directory of all output from the build tasks. This is the path
