@@ -201,10 +201,11 @@ The order how the module version is detected is as follows:
    if it is available
 1. if `GitVersion` is not available the module version is set from the module
    manifest in the source path using the properties `ModuleVersion` and
-   `PrivateData.PSData.Prerelease`.
-1. if `ModuleVersion` was set through 1) or 2) it will override 3) or 4)
+   `PrivateData.PSData.Prerelease`
 1. if module version is set using key `SemVer` in `build.yml` it will
-   override 1), 2), 3), 4), and 5)
+   override 1), 2), 3), and 4)
+1. ~~if `SemVar` is set through parameter from the command line then it will~~
+   ~~override 1), 2), 3), 4), and 5)~~ Not supported today.
 
 ### `OutputDirectory`
 
