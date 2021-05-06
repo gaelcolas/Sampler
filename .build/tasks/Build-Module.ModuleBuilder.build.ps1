@@ -93,7 +93,12 @@ Task Build_ModuleOutput_ModuleBuilder {
 
     Write-Build -Color 'Green' -text "Building Module to $($buildModuleParams['OutputDirectory'])..."
 
-    $BuiltModule = Build-Module @buildModuleParams -SemVer $ModuleVersion -PassThru
+    if (-not $buildModuleParams.ContainsKey('SemVer'))
+    {
+        $buildModuleParams.Add('SemVer', $ModuleVersion)
+    }
+
+    $BuiltModule = Build-Module @buildModuleParams -PassThru
 
     # if we built the PSM1 on Windows with a BOM, re-write without BOM
     if ($PSVersionTable.PSVersion.Major -le 5)

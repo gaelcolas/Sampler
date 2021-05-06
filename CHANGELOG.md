@@ -20,6 +20,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   dot-source task variables for re-use over multiple build tasks.
 - Moved code from build task `Convert_Pester_Coverage` into a public function
   `New-SamplerJaCoCoDocument`.
+- It is now possible to specify module's semantic version in the build.yml using
+  the key `SemVer`, e.g. `SemVer: '99.0.0-preview1'`. This can be used if the
+  preferred method of using GitVersion is not available, and it is not possible
+  to set the session environment variable `$env:ModuleVersion`, nor setting the
+  variable `$ModuleVersion` in the PowerShell session (parent scope) before
+  running the task `build` ([issue #279](https://github.com/gaelcolas/Sampler/issues/279)).
 
 ### Fixed
 

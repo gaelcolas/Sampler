@@ -181,6 +181,32 @@ returned by the executable `gitversion`, or if the executable `gitversion`
 is not available the the variable defaults to an empty string, and the
 build module task will use the version found in the Module Manifest.
 
+It is also possible to set the session environment variable `$env:ModuleVersion`
+in the PowerShell session, or setting the variable `$ModuleVersion` in the
+PowerShell session (the parent scope to `Invoke-Build`) before running the
+task `build`
+
+This `ModuleVersion` task variable can be overridden by using the key `SemVer`
+in the file `build.yml`, e.g. `SemVer: '99.0.0-preview1'`. This can be used
+if the preferred method of using GitVersion is not available.
+
+The order how the module version is detected is as follows:
+
+1. the parameter `ModuleVersion` is set from the command line (passing parameter
+   to build task)
+1. if no parameter was passed it defaults to using the property from the
+   environment variable `$env:ModuleVersion` or parent scope variable
+   `$ModuleVersion`
+1. if the `ModuleVersion` is still not found it will try to use `GitVersion`
+   if it is available
+1. if `GitVersion` is not available the module version is set from the module
+   manifest in the source path using the properties `ModuleVersion` and
+   `PrivateData.PSData.Prerelease`
+1. if module version is set using key `SemVer` in `build.yml` it will
+   override 1), 2), 3), and 4)
+1. ~~if `SemVar` is set through parameter from the command line then it will~~
+   ~~override 1), 2), 3), 4), and 5)~~ Not supported today.
+
 ### `OutputDirectory`
 
 The base directory of all output from the build tasks. This is the path
