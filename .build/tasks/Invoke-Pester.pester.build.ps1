@@ -91,10 +91,6 @@ task Invoke_Pester_Tests_v4 {
 
     "`tPester Output Folder     = '$PesterOutputFolder"
 
-    $builtDscResourcesFolder = Get-SamplerAbsolutePath -Path 'DSCResources' -RelativeTo $builtModuleBase
-
-    "`tBuilt DSC Resource Path  = '$builtDscResourcesFolder'"
-
     if (-not (Test-Path -Path $PesterOutputFolder))
     {
         Write-Build -Color 'Yellow' -Text "Creating folder $PesterOutputFolder"
@@ -372,10 +368,6 @@ task Fail_Build_If_Pester_Tests_Failed {
 
     "`tCode Coverage Threshold  = '$CodeCoverageThreshold'"
 
-    $builtDscResourcesFolder = Get-SamplerAbsolutePath -Path 'DSCResources' -RelativeTo $builtModuleBase
-
-    "`tBuilt DSC Resource Path  = '$builtDscResourcesFolder'"
-
     $powerShellVersion = 'PSv.{0}' -f $PSVersionTable.PSVersion
 
     $getPesterOutputFileFileNameParameters = @{
@@ -441,11 +433,7 @@ task Invoke_Pester_Tests_v5 {
 
     $PesterOutputFolder = Get-SamplerAbsolutePath -Path $PesterOutputFolder -RelativeTo $OutputDirectory
 
-    "`tPester Output Folder     = '$PesterOutputFolder"
-
-    $builtDscResourcesFolder = Get-SamplerAbsolutePath -Path 'DSCResources' -RelativeTo $builtModuleBase
-
-    "`tBuilt DSC Resource Path  = '$builtDscResourcesFolder'"
+    "`tPester Output Folder    = '$PesterOutputFolder"
 
     if (-not (Test-Path -Path $PesterOutputFolder))
     {
@@ -474,35 +462,36 @@ task Invoke_Pester_Tests_v5 {
 
     $pesterOutputFileFileName = Get-PesterOutputFileFileName @getPesterOutputFileFileNameParameters
 
-    "`tPester Output Filename   = '$pesterOutputFileFileName'"
+    "`tPester Output Filename  = '$pesterOutputFileFileName'"
 
     $pesterOutputFullPath = Get-SamplerAbsolutePath -Path "$($PesterOutputFormat)_$pesterOutputFileFileName" -RelativeTo $PesterOutputFolder
 
-    "`tPester Output Full Path  = '$pesterOutputFullPath'"
+    "`tPester Output Full Path = '$pesterOutputFullPath'"
 
-    # Initialize default value of configuration
+    <#
+        Set default Pester configuration.
+    #>
+
     $defaultPesterParameters = @{
         Configuration = [pesterConfiguration]::Default
     }
 
     $defaultPesterParameters.Configuration.Run.PassThru = $true
-    $defaultPesterParameters.Configuration.Run.Path = @(
-        'tests',
-        (Join-Path -Path $ProjectName -ChildPath 'tests')
-    )
+    $defaultPesterParameters.Configuration.Run.Path = @() # Test script path is added later
+    $defaultPesterParameters.Configuration.Run.ExcludePath = @()
     $defaultPesterParameters.Configuration.Output.Verbosity = 'Detailed'
 
     $defaultPesterParameters.Configuration.CodeCoverage.Enabled = $true
+    $defaultPesterParameters.Configuration.CodeCoverage.Path = @() # Coverage path is added later
     $defaultPesterParameters.Configuration.CodeCoverage.OutputFormat = 'JaCoCo'
     $defaultPesterParameters.Configuration.CodeCoverage.CoveragePercentTarget = 80
     $defaultPesterParameters.Configuration.CodeCoverage.OutputPath = Join-Path -Path $PesterOutputFolder -ChildPath "CodeCov_$pesterOutputFileFileName"
     $defaultPesterParameters.Configuration.CodeCoverage.OutputEncoding = 'UTF8'
-    $defaultPesterParameters.Configuration.CodeCoverage.Path = @() # Coverage path is added later
     $defaultPesterParameters.Configuration.CodeCoverage.ExcludeTests = $true # Exclude our own test code from code coverage.
 
     $defaultPesterParameters.Configuration.TestResult.Enabled = $true
     $defaultPesterParameters.Configuration.TestResult.OutputFormat = 'NUnit2.5'
-    $defaultPesterParameters.Configuration.TestResult.OutputPath = $PesterOutputFolder
+    $defaultPesterParameters.Configuration.TestResult.OutputPath = Join-Path -Path $PesterOutputFolder -ChildPath "TestResult_$pesterOutputFileFileName"
     $defaultPesterParameters.Configuration.TestResult.OutputEncoding = 'UTF8'
     $defaultPesterParameters.Configuration.TestResult.TestSuiteName = $ProjectName
 
@@ -511,12 +500,95 @@ task Invoke_Pester_Tests_v5 {
 
     $pesterParameters = $defaultPesterParameters.Clone()
 
-    # TODO: Add build.yml logic from DscResource.Test to override defaults
+    <#
+        Handle deprecated Pester build configuration.
+    #>
 
-    # Must set $ExcludeFromCodeCoverage from build.yml
-    # Must set $CodeCoverageThreshold from build.yml
-    # Must set $PesterScript from build.yml
+    if ($BuildInfo.Pester -and -not $BuildInfo.Pester.Configuration)
+    {
+        if ($BuildInfo.Pester.Path.Count -ge 1)
+        {
+            $deprecatedBuildConfigPath = $("- " + $BuildInfo.Pester.Path -join "`n        - ")
+        }
 
+        if ($BuildInfo.Pester.Tag.Count -ge 1)
+        {
+            $deprecatedBuildConfigTag = $("- " + $BuildInfo.Pester.Tag -join "`n        - ")
+        }
+
+        if ($BuildInfo.Pester.ExcludeTag.Count -ge 1)
+        {
+            $deprecatedBuildConfigExcludeTag = $("- " + $BuildInfo.Pester.ExcludeTag -join "`n        - ")
+        }
+
+        if ($BuildInfo.Pester.ExcludeFromCodeCoverage.Count -ge 1)
+        {
+            $deprecatedBuildConfigExcludeFromCodeCoverage = $("- " + $BuildInfo.Pester.ExcludeFromCodeCoverage -join "`n    - ")
+        }
+
+        Write-Build -Color 'DarkGray' -Text @"
+
+----------------------------------------------------------------------------------------------------
+Consider updating the build configuration to the new advanced configuration options:
+----------------------------------------------------------------------------------------------------
+# PESTER CONFIG START
+Pester:
+  # Pester Advanced configuration. If a key is not set it is using Sampler pipeline default value.
+  Configuration:
+    Run:
+      Path:
+        $($deprecatedBuildConfigPath)
+      ExcludePath:
+    Filter:
+      Tag:
+        $($deprecatedBuildConfigTag)
+      ExcludeTag:
+        $($deprecatedBuildConfigExcludeTag)
+    Output:
+      Verbosity:
+    CodeCoverage:
+      Path:
+      OutputFormat:
+      CoveragePercentTarget: $($BuildInfo.Pester.CodeCoverageThreshold)
+      OutputPath: $($BuildInfo.Pester.CodeCoverageOutputFile)
+      OutputEncoding: $($BuildInfo.Pester.CodeCoverageOutputFileEncoding)
+      ExcludeTests:
+    TestResult:
+      OutputFormat: $($BuildInfo.Pester.OutputFormat)
+      OutputPath:
+      OutputEncoding:
+      TestSuiteName:
+  # Sampler pipeline configuration
+  ExcludeFromCodeCoverage:
+    $($deprecatedBuildConfigExcludeFromCodeCoverage)
+# PESTER CONFIG END
+----------------------------------------------------------------------------------------------------
+"@
+    }
+
+    # Set $ExcludeFromCodeCoverage from deprecated Pester build configuration.
+    $ExcludeFromCodeCoverage = @($BuildInfo.Pester.ExcludeFromCodeCoverage)
+
+    if ([System.String]::IsNullOrEmpty($CodeCoverageThreshold))
+    {
+        # Set $CodeCoverageThreshold from deprecated Pester build configuration.
+        $CodeCoverageThreshold = $BuildInfo.Pester.CodeCoverageThreshold
+    }
+
+    <#
+        Set $PesterScript from deprecated Pester build configuration, unless it was
+        provided in task parameter.
+    #>
+    if ([System.String]::IsNullOrEmpty($PesterScript))
+    {
+        $PesterScript = @($BuildInfo.Pester.Path)
+    }
+
+    # TODO: Handle deprecated  OutputFormat, ExcludeTag, Tag, CodeCoverageOutputFile, CodeCoverageOutputFileEncoding
+
+    <#
+        TODO: Read new configuration key in build configuration. Add build.yml logic from DscResource.Test to override defaults
+    #>
 
 # # Only run these tags.
 # $pesterConfig.Filter.Tag = @(
@@ -525,33 +597,28 @@ task Invoke_Pester_Tests_v5 {
 #     'ConnectUncPath'
 # )
 
-    # Set all Pester task parameters values to override Pester defaults and Pester key in build config.
+    <#
+        Set all Pester task parameters values to override Pester defaults and Pester key in build config.
+    #>
 
-    if ($PSBoundParameters.ContainsKey('PesterOutputFormat'))
+    if (-not [System.String]::IsNullOrEmpty($CodeCoverageThreshold))
     {
-        $pesterParameters.Configuration.TestResult.OutputFormat = $PesterOutputFormat
+        $pesterParameters.Configuration.CodeCoverage.CoveragePercentTarget = $CodeCoverageThreshold
     }
 
-    "`tTest Result Output Format    = $($pesterParameters.Configuration.TestResult.OutputFormat.Value)"
-
-    if ($PSBoundParameters.ContainsKey('CodeCoverageThreshold'))
+    if ($PesterExcludeTag.Count -gt 0)
     {
-        pesterParameters.Configuration.CodeCoverage.CoveragePercentTarget = $CodeCoverageThreshold
+        $pesterParameters.Configuration.Filter.ExcludeTag = @($PesterExcludeTag)
     }
 
-    if ($PSBoundParameters.ContainsKey('PesterExcludeTag') -and $PesterExcludeTag.Count -gt 0)
+    "`tPester Exclude Tags     = $($pesterParameters.Configuration.Filter.ExcludeTag.Value -join ', ')"
+
+    if ($PesterTag.Count -gt 0)
     {
-        $pesterParameters.Configuration.Filter.ExcludeTag = $PesterExcludeTag
+        $pesterParameters.Configuration.Filter.Tag = @($PesterTag)
     }
 
-    "`tExclude Tags       = $($pesterParameters.Configuration.Filter.ExcludeTag.Value -join ', ')"
-
-    if ($PSBoundParameters.ContainsKey('PesterTag') -and $PesterTag.Count -gt 0)
-    {
-        $pesterParameters.Configuration.Filter.Tag = $PesterTag
-    }
-
-    "`tTags               = $($pesterParameters.Configuration.Filter.Tag.Value -join ', ')"
+    "`tPester Tags             = $($pesterParameters.Configuration.Filter.Tag.Value -join ', ')"
 
     # Import the module that should be tested.
     $moduleUnderTest = Import-Module -Name $ProjectName -PassThru
@@ -587,41 +654,64 @@ task Invoke_Pester_Tests_v5 {
                 $result
             }
 
-            $pesterParameters.Configuration.CodeCoverage.Path = $defaultCodeCoveragePaths.FullName
+            $pesterParameters.Configuration.CodeCoverage.Path = @($defaultCodeCoveragePaths.FullName)
         }
 
         ""
-        "`tCode Coverage Path             = $($pesterParameters.Configuration.CodeCoverage.Path.Value -join ', ')"
-        "`tExclude Code Coverage Path     = $($ExcludeFromCodeCoverage -join ', ')"
-        "`tCode Coverage Output Path      = $($pesterParameters.Configuration.CodeCoverage.OutputPath.Value)"
-        "`tCode Coverage Output Format    = $($pesterParameters.Configuration.CodeCoverage.OutputFormat.Value)"
-        "`tCode Coverage Output Encoding  = $($pesterParameters.Configuration.CodeCoverage.OutputEncoding.Value)"
+        "`tCode Coverage Source Path       = $($pesterParameters.Configuration.CodeCoverage.Path.Value -join ', ')"
+        "`tExclude Code Coverage Path      = $($ExcludeFromCodeCoverage -join ', ')"
+        "`tExclude Tests Source Path       = $($pesterParameters.Configuration.CodeCoverage.ExcludeTests.Value)"
+        "`tCode Coverage Output Path       = $($pesterParameters.Configuration.CodeCoverage.OutputPath.Value)"
+        "`tCode Coverage Output Format     = $($pesterParameters.Configuration.CodeCoverage.OutputFormat.Value)"
+        "`tCode Coverage Output Encoding   = $($pesterParameters.Configuration.CodeCoverage.OutputEncoding.Value)"
+        "`tCode Coverage Percent Threshold = $($pesterParameters.Configuration.CodeCoverage.CoveragePercentTarget.Value)"
     }
 
+    if ($pesterParameters.Configuration.TestResult.Enabled.Value)
+    {
+        if (-not [System.String]::IsNullOrEmpty($PesterOutputFormat))
+        {
+            $pesterParameters.Configuration.TestResult.OutputFormat = $PesterOutputFormat
+        }
+
+        ""
+        "`tTest Result Test Suite Name     = $($pesterParameters.Configuration.TestResult.TestSuiteName.Value)"
+        "`tTest Result Output Path         = $($pesterParameters.Configuration.TestResult.OutputPath.Value)"
+        "`tTest Result Output Format       = $($pesterParameters.Configuration.TestResult.OutputFormat.Value)"
+        "`tTest Result Output Encoding     = $($pesterParameters.Configuration.TestResult.OutputEncoding.Value)"
+        "`tTest Result Percent Threshold   = $($pesterParameters.Configuration.CodeCoverage.CoveragePercentTarget.Value)"
+    }
+    else
+    {
+        Write-Build -Color 'DarkGray' -Text "Disabling Test Results."
+    }
+
+    <#
+        TODO: Support test scripts that requires parameters. Those scripts need
+              to be added as a PesterContainer (for each path). Code below need
+              to handle this in the future.
+    #>
 
     # Evaluate if there is any test script provided from task parameter or build config.
     if ([System.String]::IsNullOrEmpty($PesterScript))
     {
-        # Use the default, search source path recursively for tests.
-        $pesterParameters.Configuration.Run.Path = $SourcePath
+        # Use the default, search project path recursively for tests.
+        $pesterParameters.Configuration.Run.Path = @(
+            Join-Path -Path $ProjectPath -ChildPath 'tests'
+            Join-Path -Path $ProjectPath -ChildPath 'Tests'
+        )
     }
     else
     {
         # Specific test folders are specified.
         $pesterParameters.Configuration.Run.Path = @()
 
-        <#
-            TODO: Support test scripts that requires parameters. Those need to be added
-                  as a PesterContainer (for each path)
-        #>
         foreach ($testFolder in $PesterScript)
         {
             if (-not (Split-Path -IsAbsolute $testFolder))
             {
                 $testFolder = Join-Path -Path $ProjectPath -ChildPath $testFolder
             }
-
-            Write-Build -Color 'DarkGray' -Text "      ... $testFolder"
 
             # The absolute path to this folder exists, adding to the list of pester scripts to run
             if (Test-Path -Path $testFolder)
@@ -632,7 +722,7 @@ task Invoke_Pester_Tests_v5 {
     }
 
     ""
-    "`tTest Scripts       = $($pesterParameters.Configuration.Run.Path.Value -join ', ')"
+    "`tTest Scripts = $($pesterParameters.Configuration.Run.Path.Value -join ', ')"
 
     $script:TestResults = Invoke-Pester @pesterParameters
 
@@ -646,10 +736,6 @@ task Invoke_Pester_Tests_v5 {
 task Pester_If_Code_Coverage_Under_Threshold {
     # Get the vales for task variables, see https://github.com/gaelcolas/Sampler#task-variables.
     . Set-SamplerTaskVariable
-
-    $builtDscResourcesFolder = Get-SamplerAbsolutePath -Path 'DSCResources' -RelativeTo $builtModuleBase
-
-    "`tBuilt DSC Resource Path  = '$builtDscResourcesFolder'"
 
     $GetCodeCoverageThresholdParameters = @{
         RuntimeCodeCoverageThreshold = $CodeCoverageThreshold
@@ -740,10 +826,6 @@ task Upload_Test_Results_To_AppVeyor -If { (property BuildSystem 'unknown') -eq 
     }
 
     $osShortName = Get-OperatingSystemShortName
-
-    $builtDscResourcesFolder = Get-SamplerAbsolutePath -Path 'DSCResources' -RelativeTo $builtModuleBase
-
-    "`tBuilt DSC Resource Path  = '$builtDscResourcesFolder'"
 
     $powerShellVersion = 'PSv.{0}' -f $PSVersionTable.PSVersion
 
