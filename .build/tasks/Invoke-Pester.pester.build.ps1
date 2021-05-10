@@ -649,7 +649,7 @@ Pester:
     # Add empty line to output.
     ""
 
-    if ($BuildInfo.Pester).
+    if ($BuildInfo.Pester)
     {
         $pesterConfigurationSectionNames = ($pesterParameters.Configuration | Get-Member -Type 'Properties').Name
 
