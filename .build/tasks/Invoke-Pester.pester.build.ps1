@@ -455,11 +455,7 @@ task Invoke_Pester_Tests_v5 {
 
     $pesterOutputFileFileName = Get-PesterOutputFileFileName @getPesterOutputFileFileNameParameters
 
-    "`tPester Output Filename  = '$pesterOutputFileFileName'"
-
     $pesterOutputFullPath = Get-SamplerAbsolutePath -Path "$($PesterOutputFormat)_$pesterOutputFileFileName" -RelativeTo $PesterOutputFolder
-
-    "`tPester Output Full Path = '$pesterOutputFullPath'"
 
     #region Handle deprecated Pester build configuration
 
@@ -636,7 +632,7 @@ Pester:
 
     $defaultPesterParameters.Configuration.TestResult.Enabled = $true
     $defaultPesterParameters.Configuration.TestResult.OutputFormat = 'NUnitXml'
-    $defaultPesterParameters.Configuration.TestResult.OutputPath = Join-Path -Path $PesterOutputFolder -ChildPath "TestResult_$pesterOutputFileFileName"
+    $defaultPesterParameters.Configuration.TestResult.OutputPath = $pesterOutputFullPath
     $defaultPesterParameters.Configuration.TestResult.OutputEncoding = 'UTF8'
     $defaultPesterParameters.Configuration.TestResult.TestSuiteName = $ProjectName
 
@@ -761,6 +757,23 @@ Pester:
 
     # Set $ExcludeFromCodeCoverage from Pester build configuration.
     $ExcludeFromCodeCoverage = [System.String[]] @($BuildInfo.Pester.ExcludeFromCodeCoverage)
+
+    <#
+        Make sure paths are absolut paths, except for Test Scripts and Code Coverage paths,
+        those are handle further down.
+    #>
+
+    if ($PesterConfigurationCodeCoverageOutputPath)
+    {
+        $PesterConfigurationCodeCoverageOutputPath = Get-SamplerAbsolutePath -Path $PesterConfigurationCodeCoverageOutputPath -RelativeTo $PesterOutputFolder
+        $pesterParameters.Configuration.CodeCoverage.OutputPath = $PesterConfigurationCodeCoverageOutputPath
+    }
+
+    if ($PesterConfigurationTestResultOutputPath)
+    {
+        $PesterConfigurationTestResultOutputPath = Get-SamplerAbsolutePath -Path $PesterConfigurationTestResultOutputPath -RelativeTo $PesterOutputFolder
+        $pesterParameters.Configuration.TestResult.OutputPath = $PesterConfigurationTestResultOutputPath
+    }
 
     # Add empty line to output
     ""
