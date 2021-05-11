@@ -467,22 +467,22 @@ task Invoke_Pester_Tests_v5 {
     {
         if ($BuildInfo.Pester.Path.Count -ge 1)
         {
-            $deprecatedBuildConfigPath = $("- " + $BuildInfo.Pester.Path -join "`n        - ")
+            $deprecatedBuildConfigPath = "- " + ($BuildInfo.Pester.Path -join "`n        - ")
         }
 
         if ($BuildInfo.Pester.Tag.Count -ge 1)
         {
-            $deprecatedBuildConfigTag = $("- " + $BuildInfo.Pester.Tag -join "`n        - ")
+            $deprecatedBuildConfigTag = "- " + ($BuildInfo.Pester.Tag -join "`n        - ")
         }
 
         if ($BuildInfo.Pester.ExcludeTag.Count -ge 1)
         {
-            $deprecatedBuildConfigExcludeTag = $("- " + $BuildInfo.Pester.ExcludeTag -join "`n        - ")
+            $deprecatedBuildConfigExcludeTag = "- " + ($BuildInfo.Pester.ExcludeTag -join "`n        - ")
         }
 
         if ($BuildInfo.Pester.ExcludeFromCodeCoverage.Count -ge 1)
         {
-            $buildConfigExcludeFromCodeCoverage = $("- " + $BuildInfo.Pester.ExcludeFromCodeCoverage -join "`n    - ")
+            $buildConfigExcludeFromCodeCoverage = "- " + ($BuildInfo.Pester.ExcludeFromCodeCoverage -join "`n    - ")
         }
 
         Write-Build -Color 'DarkGray' -Text @"
