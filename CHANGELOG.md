@@ -57,6 +57,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `Invoke_Pester_Tests_v4` (previously `Invoke_Pester_Test`), and `Invoke_Pester_Tests_v5`.
   - Task `Invoke_Pester_Tests_v4` will not run if Pester 5 is used in the pipeline.
   - Task `Invoke_Pester_Tests_v5` will not run if Pester 4 is used in the pipeline.
+- The task _Convert\_Pester\_Coverage_ was changed to support converting
+  Pester 5 code coverage.
 
 ### Fixed
 
