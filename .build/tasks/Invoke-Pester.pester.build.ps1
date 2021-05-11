@@ -726,7 +726,17 @@ Pester:
 
                         {$_ -is [Pester.DecimalOption]}
                         {
-                            [Pester.DecimalOption] $taskParameterValue
+                            <#
+                                The type [Pester.DecimalOption] cannot convert directly
+                                from string.
+
+                                Depending where the value come from, this will convert the
+                                $taskParameterValue from string to [System.Decimal], then
+                                convert it to [Pester.DecimalOption]. An example is if the
+                                task parameter $CodeCoverageThreshold is passed on the
+                                command line.
+                            #>
+                            [Pester.DecimalOption] [System.Decimal] $taskParameterValue
                         }
 
                         Default
