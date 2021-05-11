@@ -47,6 +47,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Codecov.yml is now added for several templates and features. Content
       is dependent on the template that is used.
   - Now the template 'dsccommunity' gets a `README.md` file.
+- The task _Convert\_Pester\_Coverage_ was changed to support converting
+  Pester 5 code coverage.
 
 ### Fixed
 
