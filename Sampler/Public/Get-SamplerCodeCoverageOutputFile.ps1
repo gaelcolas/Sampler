@@ -32,11 +32,20 @@ function Get-SamplerCodeCoverageOutputFile
         $PesterOutputFolder
     )
 
+    $codeCoverageOutputFile = $null
+
     if ($BuildInfo.ContainsKey('Pester') -and $BuildInfo.Pester.ContainsKey('CodeCoverageOutputFile'))
     {
-        $codeCoverageOutputFile = $executioncontext.invokecommand.expandstring($BuildInfo.Pester.CodeCoverageOutputFile)
+        $codeCoverageOutputFile = $ExecutionContext.InvokeCommand.ExpandString($BuildInfo.Pester.CodeCoverageOutputFile)
+    }
+    elseif ($BuildInfo.ContainsKey('Pester') -and $BuildInfo.Pester.ContainsKey('Configuration') -and $BuildInfo.Pester.Configuration.CodeCoverage.OutputPath)
+    {
+        $codeCoverageOutputFile = $ExecutionContext.InvokeCommand.ExpandString($BuildInfo.Pester.Configuration.CodeCoverage.OutputPath)
+    }
 
-        if (-not (Split-Path -IsAbsolute $codeCoverageOutputFile))
+    if (-not [System.String]::IsNullOrEmpty($codeCoverageOutputFile))
+    {
+        if (-not (Split-Path -Path $codeCoverageOutputFile -IsAbsolute))
         {
             $codeCoverageOutputFile = Join-Path -Path $PesterOutputFolder -ChildPath $codeCoverageOutputFile
 
@@ -45,6 +54,7 @@ function Get-SamplerCodeCoverageOutputFile
     }
     else
     {
+        # Make sure to return the value as $null if it for some reason was set to an empty string.
         $codeCoverageOutputFile = $null
     }
 

@@ -39,11 +39,19 @@ function Get-CodeCoverageThreshold
         if ($BuildInfo.ContainsKey('Pester') -and $BuildInfo.Pester.ContainsKey('CodeCoverageThreshold'))
         {
             $codeCoverageThreshold = $BuildInfo.Pester.CodeCoverageThreshold
+
             Write-Debug -Message "Loaded Code Coverage Threshold from Config file: $codeCoverageThreshold %."
+        }
+        elseif ($BuildInfo.ContainsKey('Pester') -and $BuildInfo.Pester.ContainsKey('Configuration') -and $BuildInfo.Pester.Configuration.CodeCoverage.CoveragePercentTarget)
+        {
+            $codeCoverageThreshold = $BuildInfo.Pester.Configuration.CodeCoverage.CoveragePercentTarget
+
+            Write-Debug -Message "Loaded Code Coverage Threshold from Config file in Pester advanced configuration: $codeCoverageThreshold %."
         }
         else
         {
             $codeCoverageThreshold = 0
+
             Write-Debug -Message "No code coverage threshold value found (param nor config), using the default value."
         }
     }
