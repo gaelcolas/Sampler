@@ -478,6 +478,8 @@ task Convert_Pester_Coverage {
 
     $targetXmlDocument = Update-JaCoCoStatistic -Document $targetXmlDocument
 
+    $sourcePathFolderName = (Split-Path -Path $SourcePath -Leaf) -replace '\\','/'
+
     Write-Build -Color 'DarkGray' -Text ("`tUpdating path to include source folder '{0}' in the package element in the coverage file." -f $sourcePathFolderName)
 
     Select-Xml -Xml $targetXmlDocument -XPath '//package' |
