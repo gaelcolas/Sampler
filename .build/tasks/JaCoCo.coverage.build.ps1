@@ -325,6 +325,10 @@ task Convert_Pester_Coverage {
         $pesterObject = Import-Clixml -Path $PesterResultObjectClixml
     }
 
+    <#
+        Evaluate Pester version to use the correct properties for hit and missed commands.
+        The property Version does not exist on the result object from Pester 4.
+    #>
     if ($pesterObject.Version)
     {
         # Pester 5
@@ -334,18 +338,12 @@ task Convert_Pester_Coverage {
         {
             throw 'When Pester 5 is used then to correctly support code coverage the minimum required version is v5.2.0.'
         }
-    }
-    else
-    {
-        # Pester 4
-        $pesterVersion = [System.Version] '4.0.0' # Set to anything other than 5.0.0 or higher
-    }
-
-    if ($pesterVersion -ge '5.2.0')
-    {
-        # Pester 5
-        $originalMissedCommands = $pesterObject.CodeCoverage.CommandsMissed
-        $originalHitCommands = $pesterObject.CodeCoverage.CommandsExecuted
+        else
+        {
+            # Pester 5
+            $originalMissedCommands = $pesterObject.CodeCoverage.CommandsMissed
+            $originalHitCommands = $pesterObject.CodeCoverage.CommandsExecuted
+        }
     }
     else
     {
