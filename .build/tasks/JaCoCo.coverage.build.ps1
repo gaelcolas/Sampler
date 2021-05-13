@@ -318,19 +318,46 @@ task Convert_Pester_Coverage {
 
     if (-not (Test-Path -Path $PesterResultObjectClixml))
     {
-        throw "No command were tested, nothing to convert."
+        throw 'No command were tested, nothing to convert.'
     }
     else
     {
         $pesterObject = Import-Clixml -Path $PesterResultObjectClixml
     }
 
+    <#
+        Evaluate Pester version to use the correct properties for hit and missed commands.
+        The property Version does not exist on the result object from Pester 4.
+    #>
+    if ($pesterObject.Version)
+    {
+        # Pester 5
+        $pesterVersion = [System.Version] $pesterObject.Version
+
+        if ($pesterVersion -ge '5.0.0' -and $pesterVersion -lt '5.2.0')
+        {
+            throw 'When Pester 5 is used then to correctly support code coverage the minimum required version is v5.2.0.'
+        }
+        else
+        {
+            # Pester 5
+            $originalMissedCommands = $pesterObject.CodeCoverage.CommandsMissed
+            $originalHitCommands = $pesterObject.CodeCoverage.CommandsExecuted
+        }
+    }
+    else
+    {
+        # Pester 4
+        $originalMissedCommands = $pesterObject.CodeCoverage.MissedCommands
+        $originalHitCommands = $pesterObject.CodeCoverage.HitCommands
+    }
+
     # Get all missed commands that are in the main module file.
-    $missedCommands = $pesterObject.CodeCoverage.MissedCommands |
+    $missedCommands = $originalMissedCommands |
         Where-Object -FilterScript { $_.File -match [RegEx]::Escape($moduleFileName) }
 
     # Get all hit commands that are in the main module file.
-    $hitCommands = $pesterObject.CodeCoverage.HitCommands |
+    $hitCommands = $originalHitCommands |
         Where-Object -FilterScript { $_.File -match [RegEx]::Escape($moduleFileName) }
 
     <#
@@ -448,6 +475,8 @@ task Convert_Pester_Coverage {
     Write-Build -Color 'DarkGray' -Text "`tUpdating statistics in the new code coverage file."
 
     $targetXmlDocument = Update-JaCoCoStatistic -Document $targetXmlDocument
+
+    $sourcePathFolderName = Split-Path -Path $SourcePath -Leaf
 
     Write-Build -Color 'DarkGray' -Text ("`tUpdating path to include source folder '{0}' in the package element in the coverage file." -f $sourcePathFolderName)
 

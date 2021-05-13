@@ -58,6 +58,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `Invoke_Pester_Tests_v4` (previously `Invoke_Pester_Test`), and `Invoke_Pester_Tests_v5`.
   - Task `Invoke_Pester_Tests_v4` will not run if Pester 5 is used in the pipeline.
   - Task `Invoke_Pester_Tests_v5` will not run if Pester 4 is used in the pipeline.
+- The task _Convert\_Pester\_Coverage_ was changed to support converting
+  Pester 5 code coverage.
+- The function `Get-CodeCoverageThreshold` was changed to support Pester 5
+  advanced build configuration.
+- The function `Get-SamplerCodeCoverageOutputFile` was changed to support Pester 5
+  advanced build configuration.
 
 ### Fixed
 
@@ -70,6 +76,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Now unit tests properly test the function in the built module, not the
   ones that the pipeline dot-sources into session to be able to dogfooding
   itself.
+- Fix so that _Convert\_Pester\_Coverage_ correctly replaces build version
+  with source folder in JaCoCo file.
 
 ## [0.110.1] - 2021-04-08
 
