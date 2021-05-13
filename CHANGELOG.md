@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added new build task `Import_Pester` ([issue #223](https://github.com/gaelcolas/Sampler/issues/223)).
 - Added new build task `Invoke_Pester_Tests_v5` ([issue #223](https://github.com/gaelcolas/Sampler/issues/223)).
   - Task `Invoke_Pester_Tests_v5` will not run if Pester 4 is used in the pipeline.
+- Added unit test for public command `Get-BuildVersion`.
 
 ### Changed
 
