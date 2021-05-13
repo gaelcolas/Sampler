@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added new public command `New-SamplerJaCoCoDocument`.
 - Added new public command `Out-SamplerXml`.
 - Added new private function `New-SamplerXmlJaCoCoCounter`.
+- Added new build task `Import_Pester` ([issue #223](https://github.com/gaelcolas/Sampler/issues/223)).
+- Added new build task `Invoke_Pester_Tests_v5` ([issue #223](https://github.com/gaelcolas/Sampler/issues/223)).
+  - Task `Invoke_Pester_Tests_v5` will not run if Pester 4 is used in the pipeline.
 
 ### Changed
 
@@ -47,6 +50,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Codecov.yml is now added for several templates and features. Content
       is dependent on the template that is used.
   - Now the template 'dsccommunity' gets a `README.md` file.
+- Task `Invoke_Pester_Test` was renamed to `Invoke_Pester_Tests_v4`.
+  - Pester 5 support was removed from the task and replaced with `Invoke_Pester_Tests_v5`
+  - Task `Invoke_Pester_Tests_v4` will not run if Pester 5 is used in the pipeline.
+- Meta build task `Pester_Tests_Stop_On_Fail` was change to run `Import_Pester`,
+  `Invoke_Pester_Tests_v4` (previously `Invoke_Pester_Test`), and `Invoke_Pester_Tests_v5`.
+  - Task `Invoke_Pester_Tests_v4` will not run if Pester 5 is used in the pipeline.
+  - Task `Invoke_Pester_Tests_v5` will not run if Pester 4 is used in the pipeline.
 
 ### Fixed
 
