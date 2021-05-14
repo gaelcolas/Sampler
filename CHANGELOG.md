@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Now the task `Pester_If_Code_Coverage_Under_Threshold` report the code coverage
+  and correctly fail if the code coverage is under the code coverage threshold.
+
 ## [0.111.0] - 2021-05-13
 
 ### Added

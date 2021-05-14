@@ -955,17 +955,41 @@ task Pester_If_Code_Coverage_Under_Threshold {
         $pesterObject = Import-Clixml -Path $PesterResultObjectClixml
     }
 
-    if ($pesterObject.CodeCoverage.NumberOfCommandsAnalyzed)
+    $reachedCoverageThreshold = $true
+
+    # The Version property only exist in the Pester object returned from Pester 5.
+    if ([System.String]::IsNullOrEmpty($pesterObject.Version))
     {
-        $coverage = $pesterObject.CodeCoverage.NumberOfCommandsExecuted / $pesterObject.CodeCoverage.NumberOfCommandsAnalyzed
-        if ($coverage -lt $CodeCoverageThreshold / 100)
+        # Pester 4
+
+        if ($pesterObject.CodeCoverage.NumberOfCommandsAnalyzed)
         {
-            throw "The Code Coverage FAILURE: ($($Coverage*100) %) is under the threshold of $CodeCoverageThreshold %."
+            $coverage = $pesterObject.CodeCoverage.NumberOfCommandsExecuted / $pesterObject.CodeCoverage.NumberOfCommandsAnalyzed * 100
+
+            if ($coverage -lt $CodeCoverageThreshold)
+            {
+                $reachedCoverageThreshold = $false
+            }
         }
-        else
+    }
+    else
+    {
+        # Pester 5
+        $coverage = $pesterObject.CodeCoverage.CoveragePercent
+
+        if ($coverage -lt $CodeCoverageThreshold)
         {
-            Write-Build -Color Green -Text "Code Coverage SUCCESS with value of $($coverage*100) % (Threshold $CodeCoverageThreshold %)"
+            $reachedCoverageThreshold = $false
         }
+    }
+
+    if ($reachedCoverageThreshold)
+    {
+        Write-Build -Color Green -Text ('Code Coverage SUCCESS with value of {0:0.##} % (threshold {1:0.##} %)' -f $coverage, $CodeCoverageThreshold)
+    }
+    else
+    {
+        throw ('Code Coverage FAILURE: {0:0.##} % is under the threshold of {1:0.##} %.' -f $coverage, $CodeCoverageThreshold)
     }
 }
 
