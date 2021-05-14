@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Task `Invoke_Pester_Tests_v5`
+  - Now the Pester advanced configuration correctly handles `false` values
+    in the build configuration files.
+  - Now the Pester object, that is written to file by to the pipeline,
+    correctly holds all expected objects. `Export-CliXml` defaulted to two
+    levels of depth, now it exports five levels.
+
 ## [0.111.0] - 2021-05-13
 
 ### Added

@@ -671,11 +671,11 @@ Pester:
 
                 if ([System.String]::IsNullOrEmpty($taskParameterValue))
                 {
-                    if ($BuildInfo.Pester.Configuration.$sectionName.$propertyName)
+                    if (-not [System.String]::IsNullOrEmpty($BuildInfo.Pester.Configuration.$sectionName.$propertyName))
                     {
                         $taskParameterValue = $BuildInfo.Pester.Configuration.$sectionName.$propertyName
 
-                        if ($taskParameterValue)
+                        if (-not [System.String]::IsNullOrEmpty($taskParameterValue))
                         {
                             # Use the value from build.yaml.
                             Write-Build -Color 'DarkGray' -Text "Using $taskParameterName from build configuration."
@@ -690,7 +690,7 @@ Pester:
                 }
 
                 # Set the value in the pester configuration object if it was available.
-                if ($taskParameterValue)
+                if (-not [System.String]::IsNullOrEmpty($taskParameterValue))
                 {
                     <#
                         Force conversion from build configuration types to
@@ -889,7 +889,7 @@ Pester:
     $PesterResultObjectCliXml = Join-Path -Path $PesterOutputFolder -ChildPath "PesterObject_$pesterOutputFileFileName"
 
     $null = $script:TestResults |
-        Export-Clixml -Path $PesterResultObjectCliXml -Force
+        Export-Clixml -Depth 5 -Path $PesterResultObjectCliXml -Force
 }
 
 # Synopsis: Fails the build if the code coverage is under predefined threshold.
