@@ -908,7 +908,7 @@ task Pester_If_Code_Coverage_Under_Threshold {
 
     if ($CodeCoverageThreshold -eq 0)
     {
-        Write-Build -Color 'DarkGray' -Text "Code Coverage have been disabled, skipping task."
+        Write-Build -Color 'DarkGray' -Text 'Code Coverage have been disabled, skipping task.'
 
         return
     }
@@ -948,7 +948,7 @@ task Pester_If_Code_Coverage_Under_Threshold {
     {
         if ($CodeCoverageThreshold -eq 0)
         {
-            Write-Build -Color 'Green' -Text "Pester run and Coverage bypassed. No Pester output found but allowed."
+            Write-Build -Color 'Green' -Text 'Pester run and Coverage bypassed. No Pester output found but allowed.'
 
             return
         }
