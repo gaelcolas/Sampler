@@ -803,16 +803,19 @@ Pester:
             $defaultCodeCoveragePaths = (Get-ChildItem -Path $moduleUnderTest.ModuleBase -Include @('*.psm1', '*.ps1') -Recurse).Where{
                 $result = $true
 
-                foreach ($excludePath in $ExcludeFromCodeCoverage)
+                if ($ExcludeFromCodeCoverage)
                 {
-                    if (-not (Split-Path -IsAbsolute $excludePath))
+                    foreach ($excludePath in $ExcludeFromCodeCoverage)
                     {
-                        $excludePath = Join-Path -Path $moduleUnderTest.ModuleBase -ChildPath $excludePath
-                    }
+                        if (-not (Split-Path -IsAbsolute $excludePath))
+                        {
+                            $excludePath = Join-Path -Path $moduleUnderTest.ModuleBase -ChildPath $excludePath
+                        }
 
-                    if ($_.FullName -match ([regex]::Escape($excludePath)))
-                    {
-                        $result = $false
+                        if ($_.FullName -match ([regex]::Escape($excludePath)))
+                        {
+                            $result = $false
+                        }
                     }
                 }
 
