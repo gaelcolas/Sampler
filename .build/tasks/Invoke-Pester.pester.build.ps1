@@ -894,9 +894,6 @@ Pester:
 
 # Synopsis: Fails the build if the code coverage is under predefined threshold.
 task Pester_If_Code_Coverage_Under_Threshold {
-    # Get the vales for task variables, see https://github.com/gaelcolas/Sampler#task-variables.
-    . Set-SamplerTaskVariable
-
     $GetCodeCoverageThresholdParameters = @{
         RuntimeCodeCoverageThreshold = $CodeCoverageThreshold
         BuildInfo                    = $BuildInfo
@@ -904,16 +901,26 @@ task Pester_If_Code_Coverage_Under_Threshold {
 
     $CodeCoverageThreshold = Get-CodeCoverageThreshold @GetCodeCoverageThresholdParameters
 
-    "`tCode Coverage Threshold  = '$CodeCoverageThreshold'"
-
     if (-not $CodeCoverageThreshold)
     {
         $CodeCoverageThreshold = 0
     }
 
+    if ($CodeCoverageThreshold -eq 0)
+    {
+        Write-Build -Color 'DarkGray' -Text "Code Coverage have been disabled, skipping task."
+
+        return
+    }
+
+    # Get the vales for task variables, see https://github.com/gaelcolas/Sampler#task-variables.
+    . Set-SamplerTaskVariable
+
+    "`tCode Coverage Threshold    = '$CodeCoverageThreshold'"
+
     $PesterOutputFolder = Get-SamplerAbsolutePath -Path $PesterOutputFolder -RelativeTo $OutputDirectory
 
-    "`tPester Output Folder     = '$PesterOutputFolder'"
+    "`tPester Output Folder       = '$PesterOutputFolder'"
 
     if (-not (Split-Path -IsAbsolute $PesterOutputFolder))
     {
@@ -935,7 +942,7 @@ task Pester_If_Code_Coverage_Under_Threshold {
 
     $PesterResultObjectClixml = Join-Path $PesterOutputFolder "PesterObject_$PesterOutputFileFileName"
 
-    Write-Build -Color 'White' -Text "`tPester Output Object = $PesterResultObjectClixml"
+    Write-Build -Color 'White' -Text "`tPester Output Object       = $PesterResultObjectClixml"
 
     if (-not (Test-Path -Path $PesterResultObjectClixml))
     {
@@ -975,7 +982,9 @@ task Pester_If_Code_Coverage_Under_Threshold {
     else
     {
         # Pester 5
-        $coverage = $pesterObject.CodeCoverage.CoveragePercent
+
+        # Convert to UInt32 so if CoveragePercent is $null it returns as 0.
+        $coverage = [System.UInt32] $pesterObject.CodeCoverage.CoveragePercent
 
         if ($coverage -lt $CodeCoverageThreshold)
         {
