@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Now the task `Pester_If_Code_Coverage_Under_Threshold` correctly honors
+  the zero value (`0`) of the parameter `CodeCoverageThreshold` when using
+  `build.ps1`, and honors the zero value (`0`) of the Pester advanced build
+  configuration key `CoveragePercentTarget`. If the value is set to `0` the
+  task will now be skipped since code coverage was disabled.
+
 ## [0.111.1] - 2021-05-15
 
 ### Fixed
