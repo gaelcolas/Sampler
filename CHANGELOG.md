@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- If the Pester build configuration key `ExcludeFromCodeCoverage` does
+  not specify a value, the task `Invoke_Pester_Tests_v5` no longer fails.
+
 ## [0.111.2] - 2021-05-21
 
 ### Fixed
