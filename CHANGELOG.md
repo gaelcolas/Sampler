@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.111.3] - 2021-05-21
+
 ### Fixed
 
 - If the Pester build configuration key `ExcludeFromCodeCoverage` does
