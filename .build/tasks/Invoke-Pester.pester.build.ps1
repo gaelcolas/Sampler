@@ -179,9 +179,23 @@ task Invoke_Pester_Tests_v4 {
         }
     }
 
+    $testScriptsToOutput = $PesterScript |
+        ForEach-Object -Process {
+            if ($_ -is [System.Collections.Hashtable])
+            {
+                "$(Convert-SamplerHashtableToString -Hashtable $_), "
+            }
+            else
+            {
+                "$($_), "
+            }
+        }
+
+    $testScriptsToOutput = $testScriptsToOutput.TrimEnd(', ')
+
     "`tProject Path  = $ProjectPath"
     "`tProject Name  = $ProjectName"
-    "`tTest Scripts  = $($PesterScript -join ', ')"
+    "`tTest Scripts  = $($testScriptsToOutput -join ', ')"
     "`tTags          = $($PesterTag -join ', ')"
     "`tExclude Tags  = $($PesterExcludeTag -join ', ')"
     "`tExclude Cov.  = $($ExcludeFromCodeCoverage -join ', ')"
