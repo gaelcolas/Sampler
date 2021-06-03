@@ -307,7 +307,7 @@ task Invoke_Pester_Tests_v4 {
             {
                 foreach ($scriptItem in $PesterScript)
                 {
-                    Write-Build -Color 'DarkGray' -Text "      ... $(Convert-HashtableToString -Hashtable $scriptItem)"
+                    Write-Build -Color 'DarkGray' -Text "      ... $(Convert-SamplerHashtableToString -Hashtable $scriptItem)"
 
                     $pesterParams.Script += $scriptItem
                 }

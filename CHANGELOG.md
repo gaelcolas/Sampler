@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Task `Invoke_Pester_Tests_v4`
+  - It now once again works using a hashtable together with parameter
+    `PesterScript` ([issue #303](https://github.com/gaelcolas/Sampler/issues/303)).
+
 ## [0.111.3] - 2021-05-21
 
 ### Fixed
