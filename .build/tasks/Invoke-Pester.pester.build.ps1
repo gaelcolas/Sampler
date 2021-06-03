@@ -183,15 +183,13 @@ task Invoke_Pester_Tests_v4 {
         ForEach-Object -Process {
             if ($_ -is [System.Collections.Hashtable])
             {
-                "$(Convert-SamplerHashtableToString -Hashtable $_), "
+                Convert-SamplerHashtableToString -Hashtable $_
             }
             else
             {
-                "$($_), "
+                $_
             }
         }
-
-    $testScriptsToOutput = $testScriptsToOutput.TrimEnd(', ')
 
     "`tProject Path  = $ProjectPath"
     "`tProject Name  = $ProjectName"
