@@ -179,9 +179,21 @@ task Invoke_Pester_Tests_v4 {
         }
     }
 
+    $testScriptsToOutput = $PesterScript |
+        ForEach-Object -Process {
+            if ($_ -is [System.Collections.Hashtable])
+            {
+                Convert-SamplerHashtableToString -Hashtable $_
+            }
+            else
+            {
+                $_
+            }
+        }
+
     "`tProject Path  = $ProjectPath"
     "`tProject Name  = $ProjectName"
-    "`tTest Scripts  = $($PesterScript -join ', ')"
+    "`tTest Scripts  = $($testScriptsToOutput -join ', ')"
     "`tTags          = $($PesterTag -join ', ')"
     "`tExclude Tags  = $($PesterExcludeTag -join ', ')"
     "`tExclude Cov.  = $($ExcludeFromCodeCoverage -join ', ')"
@@ -307,7 +319,7 @@ task Invoke_Pester_Tests_v4 {
             {
                 foreach ($scriptItem in $PesterScript)
                 {
-                    Write-Build -Color 'DarkGray' -Text "      ... $(Convert-HashtableToString -Hashtable $scriptItem)"
+                    Write-Build -Color 'DarkGray' -Text "      ... $(Convert-SamplerHashtableToString -Hashtable $scriptItem)"
 
                     $pesterParams.Script += $scriptItem
                 }
