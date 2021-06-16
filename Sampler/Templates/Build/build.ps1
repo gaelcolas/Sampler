@@ -225,6 +225,38 @@ process
         }
 
         <#
+            Add BuildModuleOutput to PSModule Path environment variable.
+            Moved here (not in begin block) because build file can contains BuiltSubModuleDirectory value.
+        #>
+        if ($BuiltModuleSubdirectory)
+        {
+            if (-not (Split-Path -IsAbsolute -Path $BuiltModuleSubdirectory))
+            {
+                $BuildModuleOutput = Join-Path -Path $OutputDirectory -ChildPath $BuiltModuleSubdirectory
+            }
+            else
+            {
+                $BuildModuleOutput = $BuiltModuleSubdirectory
+            }
+        } # test if BuiltModuleSubDirectory set in build config file
+        elseif ($BuildInfo.ContainsKey('BuiltModuleSubDirectory'))
+        {
+            $BuildModuleOutput = Join-Path -Path $OutputDirectory -ChildPath $BuildInfo['BuiltModuleSubdirectory']
+        }
+        else
+        {
+            $BuildModuleOutput = $OutputDirectory
+        }
+
+        # Pre-pending $BuildModuleOutput folder to PSModulePath to resolve built module from this folder.
+        if ($powerShellModulePaths -notcontains $BuildModuleOutput)
+        {
+            Write-Host -Object "[build] Pre-pending '$BuildModuleOutput' folder to PSModulePath" -ForegroundColor Green
+
+            $env:PSModulePath = $BuildModuleOutput + [System.IO.Path]::PathSeparator + $env:PSModulePath
+        }
+
+        <#
             Import Tasks from modules via their exported aliases when defined in Build Manifest.
             https://github.com/nightroman/Invoke-Build/tree/master/Tasks/Import#example-2-import-from-a-module-with-tasks
         #>
