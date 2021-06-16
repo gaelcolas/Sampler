@@ -80,8 +80,24 @@ if ([System.String]::IsNullOrEmpty($SourcePath))
 $OutputDirectory = Get-SamplerAbsolutePath -Path $OutputDirectory -RelativeTo $BuildRoot
 
 "`tOutput Directory           = '$OutputDirectory'"
-
-$BuiltModuleSubdirectory = Get-SamplerAbsolutePath -Path $BuiltModuleSubdirectory -RelativeTo $OutputDirectory
+<#
+    We check if the value is set in build.yaml.
+    1 . If it past to parameter, we use parameter,
+    2 . If it set in build.yaml we use it
+    3 . Use default value
+#>
+if ($PSBoundParameters.ContainsKey('BuiltModuleSubdirectory'))
+{
+    $BuiltModuleSubdirectory = Get-SamplerAbsolutePath -Path $BuiltModuleSubdirectory -RelativeTo $OutputDirectory
+}
+elseif ($BuildInfo.ContainsKey('BuiltModuleSubdirectory'))
+{
+    $BuiltModuleSubdirectory = Get-SamplerAbsolutePath -Path $BuildInfo['BuiltModuleSubdirectory'] -RelativeTo $OutputDirectory
+    $BuildModuleOutput = $BuiltModuleSubdirectory
+}
+else {
+    $BuiltModuleSubdirectory = Get-SamplerAbsolutePath -Path $BuiltModuleSubdirectory -RelativeTo $OutputDirectory
+}
 
 "`tBuilt Module Subdirectory  = '$BuiltModuleSubdirectory'"
 

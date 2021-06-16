@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added support of `BuiltSubDirectoryDirectory` in build configuration files ([issue #299](https://github.com/gaelcolas/Sampler/issues/299)) .
+
 ## [0.111.4] - 2021-06-03
 
 ### Fixed
