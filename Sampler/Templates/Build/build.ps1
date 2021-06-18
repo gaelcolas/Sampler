@@ -440,30 +440,6 @@ Begin
             }
         }
 
-        if ($BuiltModuleSubdirectory)
-        {
-            if (-not (Split-Path -IsAbsolute -Path $BuiltModuleSubdirectory))
-            {
-                $BuildModuleOutput = Join-Path -Path $OutputDirectory -ChildPath $BuiltModuleSubdirectory
-            }
-            else
-            {
-                $BuildModuleOutput = $BuiltModuleSubdirectory
-            }
-        }
-        else
-        {
-            $BuildModuleOutput = $OutputDirectory
-        }
-
-        # Pre-pending $BuildModuleOutput folder to PSModulePath to resolve built module from this folder.
-        if ($powerShellModulePaths -notcontains $BuildModuleOutput)
-        {
-            Write-Host -Object "[pre-build] Pre-pending '$BuildModuleOutput' folder to PSModulePath" -ForegroundColor Green
-
-            $env:PSModulePath = $BuildModuleOutput + [System.IO.Path]::PathSeparator + $env:PSModulePath
-        }
-
         <#
             The variable $PSDependTarget will be used below when building the splatting
             variable before calling Resolve-Dependency.ps1, unless overridden in the
