@@ -891,7 +891,14 @@ Pester:
             # The absolute path to this folder exists, adding to the list of pester scripts to run
             if (Test-Path -Path $testFolder)
             {
-                $pesterParameters.Configuration.Run.Path.Value += $testFolder
+                <#
+                    It is not possible to easily add paths to the Path property
+                    because it throws the error "[Pester.StringArrayOption] does
+                    not contain a method named 'op_Addition'".
+                #>
+                $existingRunPaths = [System.String[]] @($pesterParameters.Configuration.Run.Path.Value)
+
+                $pesterParameters.Configuration.Run.Path = ($existingRunPaths += $testFolder)
             }
         }
     }

@@ -332,7 +332,8 @@ task Convert_Pester_Coverage {
     if ($pesterObject.Version)
     {
         # Pester 5
-        $pesterVersion = [System.Version] $pesterObject.Version
+
+        [System.Version] $pesterVersion, $null = $pesterObject.Version -split '-'
 
         if ($pesterVersion -ge '5.0.0' -and $pesterVersion -lt '5.2.0')
         {
@@ -340,7 +341,6 @@ task Convert_Pester_Coverage {
         }
         else
         {
-            # Pester 5
             $originalMissedCommands = $pesterObject.CodeCoverage.CommandsMissed
             $originalHitCommands = $pesterObject.CodeCoverage.CommandsExecuted
         }
@@ -348,6 +348,7 @@ task Convert_Pester_Coverage {
     else
     {
         # Pester 4
+
         $originalMissedCommands = $pesterObject.CodeCoverage.MissedCommands
         $originalHitCommands = $pesterObject.CodeCoverage.HitCommands
     }

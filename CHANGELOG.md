@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added support of `BuiltSubDirectoryDirectory` in build configuration files ([issue #299](https://github.com/gaelcolas/Sampler/issues/299)) .
 
+### Fixed
+
+- The task `Invoke_Pester_Tests_v5` no longer fails when using Pester 
+  v5.3.0-alpha5 ([issue #307](https://github.com/gaelcolas/Sampler/issues/307)).
+- The task `Convert_Pester_Coverage` no longer fails when using a preview
+  version of Pester ([issue #301](https://github.com/gaelcolas/Sampler/issues/301)).
+
 ## [0.111.4] - 2021-06-03
 
 ### Fixed
