@@ -29,6 +29,7 @@ Describe 'Set-SamplerTaskVariable' {
         $originalModuleVersionFolder = $ModuleVersionFolder
         $originalPreReleaseTag = $PreReleaseTag
         $originalBuiltModuleRootScriptPath = $BuiltModuleRootScriptPath
+        $originalBuildInfo = $BuildInfo
     }
 
     Context 'When calling the function with parameter AsNewBuild' {
@@ -65,6 +66,8 @@ Describe 'Set-SamplerTaskVariable' {
             $OutputDirectory = $originalOutputDirectory
             $BuiltModuleSubdirectory = $originalBuiltModuleSubdirectory
             $ReleaseNotesPath = $originalReleaseNotesPath
+            $BuildInfo = $originalBuildInfo
+
         }
 
         It 'Should return the expected output' {
@@ -85,6 +88,82 @@ Describe 'Set-SamplerTaskVariable' {
             $result | Should -Contain "`tModule Version             = '1.0.0-preview'"
             $result | Should -Contain ("`tRelease Notes path         = '{0}'" -f (Join-Path -Path $TestDrive -ChildPath 'MyProject/output/ReleaseNotes.md'))
         }
+
+        Context 'When BuiltSubModuleDirectory is set on parameter' {
+            BeforeAll {
+                $BuiltModuleSubdirectory = 'SubDir'
+            }
+
+            AfterAll {
+                $BuiltModuleSubdirectory = $originalBuiltModuleSubdirectory
+            }
+
+            It 'Should return the expected output' {
+                $result = . Sampler\Set-SamplerTaskVariable -AsNewBuild
+
+                Write-Debug ($result | Out-String) -Verbose
+
+                $result | Should -Contain "`tProject Name               = 'MyProject'"
+                $result | Should -Contain ("`tSource Path                = '{0}'" -f (Join-Path -Path $TestDrive -ChildPath 'MyProject/source'))
+                $result | Should -Contain ("`tOutput Directory           = '{0}'" -f (Join-Path -Path $TestDrive -ChildPath 'MyProject/output'))
+                $result | Should -Contain ("`tBuilt Module Subdirectory  = '{0}'" -f (Join-Path -Path $TestDrive -ChildPath 'MyProject/output/SubDir'))
+                $result | Should -Contain ("`tModule Manifest Path (src) = '{0}'" -f (Join-Path -Path $TestDrive -ChildPath 'MyProject/source/MyProject.psd1'))
+                $result | Should -Contain "`tModule Version             = '1.0.0-preview'"
+                $result | Should -Contain ("`tRelease Notes path         = '{0}'" -f (Join-Path -Path $TestDrive -ChildPath 'MyProject/output/ReleaseNotes.md'))
+            }
+        }
+
+        Context 'When BuiltSubModuleDirectory is set in the build configuration file' {
+            BeforeAll {
+                $BuiltModuleSubdirectory = ''
+                $BuildInfo['BuiltModuleSubdirectory'] = 'SubDir'
+            }
+
+            AfterAll {
+                $BuildInfo = $originalBuildInfo
+                $BuiltModuleSubdirectory = $originalBuiltModuleSubdirectory
+            }
+
+            It 'Should return the expected output' {
+                $result = . Sampler\Set-SamplerTaskVariable -AsNewBuild -Verbose
+
+                Write-Debug ($result | Out-String) -Verbose
+
+                $result | Should -Contain "`tProject Name               = 'MyProject'"
+                $result | Should -Contain ("`tSource Path                = '{0}'" -f (Join-Path -Path $TestDrive -ChildPath 'MyProject/source'))
+                $result | Should -Contain ("`tOutput Directory           = '{0}'" -f (Join-Path -Path $TestDrive -ChildPath 'MyProject/output'))
+                $result | Should -Contain ("`tBuilt Module Subdirectory  = '{0}'" -f (Join-Path -Path $TestDrive -ChildPath 'MyProject/output/SubDir'))
+                $result | Should -Contain ("`tModule Manifest Path (src) = '{0}'" -f (Join-Path -Path $TestDrive -ChildPath 'MyProject/source/MyProject.psd1'))
+                $result | Should -Contain "`tModule Version             = '1.0.0-preview'"
+                $result | Should -Contain ("`tRelease Notes path         = '{0}'" -f (Join-Path -Path $TestDrive -ChildPath 'MyProject/output/ReleaseNotes.md'))
+            }
+        }
+
+        Context 'When BuiltSubModuleDirectory is set in the build configuration file and on parameter' {
+            BeforeAll {
+                $BuiltModuleSubdirectory = 'SubDir'
+                $BuildInfo['BuiltModuleSubdirectory'] = 'SubDirFile'
+            }
+
+            AfterAll {
+                $BuiltModuleSubdirectory = $originalBuiltModuleSubdirectory
+                $BuildInfo = $originalBuildInfo
+            }
+
+            It 'Should return the expected output' {
+                $result = . Sampler\Set-SamplerTaskVariable -AsNewBuild
+
+                Write-Debug ($result | Out-String) -Verbose
+
+                $result | Should -Contain "`tProject Name               = 'MyProject'"
+                $result | Should -Contain ("`tSource Path                = '{0}'" -f (Join-Path -Path $TestDrive -ChildPath 'MyProject/source'))
+                $result | Should -Contain ("`tOutput Directory           = '{0}'" -f (Join-Path -Path $TestDrive -ChildPath 'MyProject/output'))
+                $result | Should -Contain ("`tBuilt Module Subdirectory  = '{0}'" -f (Join-Path -Path $TestDrive -ChildPath 'MyProject/output/SubDir'))
+                $result | Should -Contain ("`tModule Manifest Path (src) = '{0}'" -f (Join-Path -Path $TestDrive -ChildPath 'MyProject/source/MyProject.psd1'))
+                $result | Should -Contain "`tModule Version             = '1.0.0-preview'"
+                $result | Should -Contain ("`tRelease Notes path         = '{0}'" -f (Join-Path -Path $TestDrive -ChildPath 'MyProject/output/ReleaseNotes.md'))
+            }
+        }
     }
 
     Context 'When calling the function without a parameter' {
@@ -95,6 +174,7 @@ Describe 'Set-SamplerTaskVariable' {
             # Remove parent scope's value.
             $ProjectName = $null
             $SourcePath = $null
+            $BuildInfo = @{}
 
             $OutputDirectory = 'output'
             $BuiltModuleSubdirectory = ''
@@ -191,6 +271,127 @@ Describe 'Set-SamplerTaskVariable' {
             $result | Should -Contain "`tModule Version Folder      = '1.0.0'"
             $result | Should -Contain "`tPre-release Tag            = 'preview'"
             $result | Should -Contain ("`tBuilt Module Root Script   = '{0}'" -f (Join-Path -Path $TestDrive -ChildPath 'MyProject\output\MyProject\1.0.0-preview\MyProject.psm1'))
+        }
+
+        Context 'When BuiltSubModuleDirectory is set on parameter' {
+            BeforeAll {
+                $BuiltModuleSubdirectory = 'SubDir'
+                $mockBuiltModuleManifest = Join-Path -Path $TestDrive -ChildPath 'MyProject/output/SubDir/MyProject/1.0.0-preview/MyProject.psd1'
+                $mockBuiltModuleBase = Join-Path -Path $TestDrive -ChildPath 'MyProject/output/SubDir/MyProject/1.0.0-preview'
+                $mockBuiltModuleRootScriptPath = Join-Path -Path $TestDrive -ChildPath 'MyProject/output/SubDir/MyProject/1.0.0-preview/MyProject.psm1'
+            }
+
+            AfterAll {
+                $BuiltModuleSubdirectory = $originalBuiltModuleSubdirectory
+            }
+
+            It 'Should return the expected output' {
+                <#
+                    Since Sampler adds its own alias in build.ps1 that does not point
+                    to the built module's Set-SamplerTaskVariable we must point
+                    out that the alias to test is the one in the module.
+                #>
+                $result = . Sampler\Set-SamplerTaskVariable
+
+                Write-Debug ($result | Out-String) -Verbose
+
+                $result | Should -Contain "`tProject Name               = 'MyProject'"
+                $result | Should -Contain ("`tSource Path                = '{0}'" -f (Join-Path -Path $TestDrive -ChildPath 'MyProject/source'))
+                $result | Should -Contain ("`tOutput Directory           = '{0}'" -f (Join-Path -Path $TestDrive -ChildPath 'MyProject/output'))
+                $result | Should -Contain ("`tBuilt Module Subdirectory  = '{0}'" -f (Join-Path -Path $TestDrive -ChildPath 'MyProject/output/SubDir'))
+                $result | Should -Contain ("`tModule Manifest Path (src) = '{0}'" -f (Join-Path -Path $TestDrive -ChildPath 'MyProject/source/MyProject.psd1'))
+                $result | Should -Contain "`tModule Version             = '1.0.0-preview'"
+                $result | Should -Contain ("`tRelease Notes path         = '{0}'" -f (Join-Path -Path $TestDrive -ChildPath 'MyProject/output/ReleaseNotes.md'))
+
+                $result | Should -Contain "`tVersioned Output Directory = 'True'"
+                $result | Should -Contain ("`tBuilt Module Manifest      = '{0}'" -f (Join-Path -Path $TestDrive -ChildPath 'MyProject\output\SubDir\MyProject\1.0.0-preview\MyProject.psd1'))
+                $result | Should -Contain ("`tBuilt Module Base          = '{0}'" -f (Join-Path -Path $TestDrive -ChildPath 'MyProject\output\SubDir\MyProject\1.0.0-preview'))
+                $result | Should -Contain "`tModule Version Folder      = '1.0.0'"
+                $result | Should -Contain "`tPre-release Tag            = 'preview'"
+                $result | Should -Contain ("`tBuilt Module Root Script   = '{0}'" -f (Join-Path -Path $TestDrive -ChildPath 'MyProject\output\SubDir\MyProject\1.0.0-preview\MyProject.psm1'))
+            }
+        }
+
+        Context 'When BuiltSubModuleDirectory is set in the build configuration file' {
+            BeforeAll {
+                $BuiltModuleSubdirectory = ''
+                $BuildInfo['BuiltModuleSubdirectory'] = 'SubDir'
+                $mockBuiltModuleManifest = Join-Path -Path $TestDrive -ChildPath 'MyProject/output/SubDir/MyProject/1.0.0-preview/MyProject.psd1'
+                $mockBuiltModuleBase = Join-Path -Path $TestDrive -ChildPath 'MyProject/output/SubDir/MyProject/1.0.0-preview'
+                $mockBuiltModuleRootScriptPath = Join-Path -Path $TestDrive -ChildPath 'MyProject/output/SubDir/MyProject/1.0.0-preview/MyProject.psm1'
+            }
+
+            AfterAll {
+                $BuildInfo = $originalBuildInfo
+                $BuiltModuleSubdirectory = $originalBuiltModuleSubdirectory
+            }
+
+            It 'Should return the expected output' {
+                <#
+                    Since Sampler adds its own alias in build.ps1 that does not point
+                    to the built module's Set-SamplerTaskVariable we must point
+                    out that the alias to test is the one in the module.
+                #>
+                $result = . Sampler\Set-SamplerTaskVariable -Verbose
+
+                Write-Debug ($result | Out-String) -Verbose
+
+                $result | Should -Contain "`tProject Name               = 'MyProject'"
+                $result | Should -Contain ("`tSource Path                = '{0}'" -f (Join-Path -Path $TestDrive -ChildPath 'MyProject/source'))
+                $result | Should -Contain ("`tOutput Directory           = '{0}'" -f (Join-Path -Path $TestDrive -ChildPath 'MyProject/output'))
+                $result | Should -Contain ("`tBuilt Module Subdirectory  = '{0}'" -f (Join-Path -Path $TestDrive -ChildPath 'MyProject/output/SubDir'))
+                $result | Should -Contain ("`tModule Manifest Path (src) = '{0}'" -f (Join-Path -Path $TestDrive -ChildPath 'MyProject/source/MyProject.psd1'))
+                $result | Should -Contain "`tModule Version             = '1.0.0-preview'"
+                $result | Should -Contain ("`tRelease Notes path         = '{0}'" -f (Join-Path -Path $TestDrive -ChildPath 'MyProject/output/ReleaseNotes.md'))
+
+                $result | Should -Contain "`tVersioned Output Directory = 'True'"
+                $result | Should -Contain ("`tBuilt Module Manifest      = '{0}'" -f (Join-Path -Path $TestDrive -ChildPath 'MyProject\output\SubDir\MyProject\1.0.0-preview\MyProject.psd1'))
+                $result | Should -Contain ("`tBuilt Module Base          = '{0}'" -f (Join-Path -Path $TestDrive -ChildPath 'MyProject\output\SubDir\MyProject\1.0.0-preview'))
+                $result | Should -Contain "`tModule Version Folder      = '1.0.0'"
+                $result | Should -Contain "`tPre-release Tag            = 'preview'"
+                $result | Should -Contain ("`tBuilt Module Root Script   = '{0}'" -f (Join-Path -Path $TestDrive -ChildPath 'MyProject\output\SubDir\MyProject\1.0.0-preview\MyProject.psm1'))
+            }
+        }
+
+        Context 'When BuiltSubModuleDirectory is set in the build configuration file and on parameter' {
+            BeforeAll {
+                $BuiltModuleSubdirectory = 'SubDir'
+                $BuildInfo['BuiltModuleSubdirectory'] = 'SubDirFile'
+                $mockBuiltModuleManifest = Join-Path -Path $TestDrive -ChildPath 'MyProject/output/SubDir/MyProject/1.0.0-preview/MyProject.psd1'
+                $mockBuiltModuleBase = Join-Path -Path $TestDrive -ChildPath 'MyProject/output/SubDir/MyProject/1.0.0-preview'
+                $mockBuiltModuleRootScriptPath = Join-Path -Path $TestDrive -ChildPath 'MyProject/output/SubDir/MyProject/1.0.0-preview/MyProject.psm1'
+            }
+
+            AfterAll {
+                $BuiltModuleSubdirectory = $originalBuiltModuleSubdirectory
+                $BuildInfo = $originalBuildInfo
+            }
+
+            It 'Should return the expected output with parameter priority' {
+                <#
+                    Since Sampler adds its own alias in build.ps1 that does not point
+                    to the built module's Set-SamplerTaskVariable we must point
+                    out that the alias to test is the one in the module.
+                #>
+                $result = . Sampler\Set-SamplerTaskVariable
+
+                Write-Debug ($result | Out-String) -Verbose
+
+                $result | Should -Contain "`tProject Name               = 'MyProject'"
+                $result | Should -Contain ("`tSource Path                = '{0}'" -f (Join-Path -Path $TestDrive -ChildPath 'MyProject/source'))
+                $result | Should -Contain ("`tOutput Directory           = '{0}'" -f (Join-Path -Path $TestDrive -ChildPath 'MyProject/output'))
+                $result | Should -Contain ("`tBuilt Module Subdirectory  = '{0}'" -f (Join-Path -Path $TestDrive -ChildPath 'MyProject/output/SubDir'))
+                $result | Should -Contain ("`tModule Manifest Path (src) = '{0}'" -f (Join-Path -Path $TestDrive -ChildPath 'MyProject/source/MyProject.psd1'))
+                $result | Should -Contain "`tModule Version             = '1.0.0-preview'"
+                $result | Should -Contain ("`tRelease Notes path         = '{0}'" -f (Join-Path -Path $TestDrive -ChildPath 'MyProject/output/ReleaseNotes.md'))
+
+                $result | Should -Contain "`tVersioned Output Directory = 'True'"
+                $result | Should -Contain ("`tBuilt Module Manifest      = '{0}'" -f (Join-Path -Path $TestDrive -ChildPath 'MyProject\output\SubDir\MyProject\1.0.0-preview\MyProject.psd1'))
+                $result | Should -Contain ("`tBuilt Module Base          = '{0}'" -f (Join-Path -Path $TestDrive -ChildPath 'MyProject\output\SubDir\MyProject\1.0.0-preview'))
+                $result | Should -Contain "`tModule Version Folder      = '1.0.0'"
+                $result | Should -Contain "`tPre-release Tag            = 'preview'"
+                $result | Should -Contain ("`tBuilt Module Root Script   = '{0}'" -f (Join-Path -Path $TestDrive -ChildPath 'MyProject\output\SubDir\MyProject\1.0.0-preview\MyProject.psm1'))
+            }
         }
     }
 
