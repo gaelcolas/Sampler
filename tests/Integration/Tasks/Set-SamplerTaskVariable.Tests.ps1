@@ -66,8 +66,6 @@ Describe 'Set-SamplerTaskVariable' {
             $OutputDirectory = $originalOutputDirectory
             $BuiltModuleSubdirectory = $originalBuiltModuleSubdirectory
             $ReleaseNotesPath = $originalReleaseNotesPath
-            #$BuildInfo = $originalBuildInfo.Clone()
-
         }
 
         It 'Should return the expected output' {
