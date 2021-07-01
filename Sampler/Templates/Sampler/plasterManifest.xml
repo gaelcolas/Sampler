@@ -452,14 +452,6 @@
 
     <modify path='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/${PLASTER_PARAM_ModuleName}.psd1'
         condition='(Test-Path "${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/${PLASTER_PARAM_ModuleName}.psd1")'>
-            <replace condition="$PLASTER_FileContent -notmatch '^FunctionsToExport\s*\=\s*'''">
-                  <original>(?mi)^FunctionsToExport\s*=\s*'\*'(.*)</original>
-                  <substitute>FunctionsToExport = ''$1</substitute>
-            </replace>
-    </modify>
-
-    <modify path='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/${PLASTER_PARAM_ModuleName}.psd1'
-        condition='(Test-Path "${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/${PLASTER_PARAM_ModuleName}.psd1")'>
             <replace condition="$PLASTER_FileContent -notmatch '\n\s*Prerelease\s\=\s'">
                   <original><![CDATA[(?mi)^(?<psdata>(?<newline>\s*)PSData \= @\{\r\n)(?<end>.*)]]></original>
                   <substitute>${psdata}${newline}    Prerelease = ''${end}</substitute>
