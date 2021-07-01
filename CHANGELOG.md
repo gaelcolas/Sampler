@@ -7,17 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.111.5] - 2021-06-25
-
 ### Added
 
-- Added support of `BuiltSubDirectoryDirectory` in build configuration files
- ([issue #299](https://github.com/gaelcolas/Sampler/issues/299)).
+- Added pester tests for `Set-SamplerVariableTask.ps1`.
 
 ### Fixed
 
 - Removed `$BuiltModuleSubdirectory` definition in the `begin` bloc of `build.ps1`
  template ([issue #299](https://github.com/gaelcolas/Sampler/issues/299)).
+
+## [0.111.5] - 2021-06-25
+
+### Added
+
+- Added support of `BuiltSubDirectoryDirectory` in build configuration files
+ ([issue #299](https://github.com/gaelcolas/Sampler/issues/299))
 
 ### Fixed
 
