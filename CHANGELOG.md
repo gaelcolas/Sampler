@@ -11,6 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added pester tests for `Set-SamplerVariableTask.ps1`.
 
+### Changed
+
+- Changed Plaster Template (`Sampler/Templates/Sampler/plasterManifest.xml`), so
+  that all functions will be exported by default, which in turn correlates with
+  the template code in `Sampler/Sampler.psm1`, which uses
+  `Export-ModuleMember` to export all functions loaded from the
+  `Public` (sub-)folder.
+
 ### Fixed
 
 - Removed `$BuiltModuleSubdirectory` definition in the `begin` bloc of `build.ps1`
