@@ -142,12 +142,12 @@ task publish_nupkg_to_gallery -if ($GalleryApiToken -and (Get-Command -Name 'nug
 
     Import-Module -Name 'ModuleBuilder' -ErrorAction 'Stop'
 
-    $ChangeLogOutputPath = Join-Path $OutputDirectory 'CHANGELOG.md'
+    $ChangeLogOutputPath = Join-Path -Path $OutputDirectory -ChildPath 'CHANGELOG.md'
 
     "`tChangeLogOutputPath = $ChangeLogOutputPath"
 
     # find Module's nupkg
-    $PackageToRelease = Get-ChildItem (Join-Path -Path $OutputDirectory -ChildPath "$ProjectName.$ModuleVersion.nupkg")
+    $PackageToRelease = Get-ChildItem -Path (Join-Path -Path $OutputDirectory -ChildPath "$ProjectName.$ModuleVersion.nupkg")
 
     Write-Build DarkGray "About to release $PackageToRelease"
     if (-not $SkipPublish)
@@ -198,12 +198,6 @@ task package_module_nupkg {
         }
     }
 
-    # find Module manifest
-    $BuiltModuleManifest = (Get-ChildItem (Join-Path $OutputDirectory $ProjectName) -Depth 2 -Filter "$ProjectName.psd1").FullName |
-        Where-Object {
-            $(Test-ModuleManifest -Path $_ -ErrorAction 'SilentlyContinue' ).Version
-        }
-
     if (-not $BuiltModuleManifest)
     {
         throw "No valid manifest found for project $ProjectName."
@@ -239,9 +233,8 @@ task package_module_nupkg {
         }
     }
 
-    $ModulePath = Join-Path -Path $OutputDirectory -ChildPath $ProjectName
     $PublishModuleParams = @{
-        Path            = $ModulePath
+        Path            = $BuiltModuleBase
         Repository      = 'output'
         ErrorAction     = 'Stop'
         ReleaseNotes    = $releaseNotesForLatestRelease
@@ -272,20 +265,13 @@ task publish_module_to_gallery -if ($GalleryApiToken -and (Get-Command -Name 'Pu
         $_.Version -eq $ModuleVersion
     }
 
-    # find Module manifest
-    $BuiltModuleManifest = (Get-ChildItem (Join-Path $OutputDirectory $ProjectName) -Depth 2 -Filter "$ProjectName.psd1").FullName |
-        Where-Object {
-            $(Test-ModuleManifest -Path $_ -ErrorAction 'SilentlyContinue' ).Version
-        }
-
-    # No need to test the manifest again here, because the pipeline tested all manifests via the where-clause already
     if (-not $BuiltModuleManifest)
     {
         throw "No valid manifest found for project $ProjectName."
     }
 
     # Uncomment release notes (the default in Plaster/New-ModuleManifest)
-    $ManifestString = Get-Content -raw $BuiltModuleManifest
+    $ManifestString = Get-Content -Raw $BuiltModuleManifest
     if ( $ManifestString -match '#\sReleaseNotes\s?=')
     {
         $ManifestString = $ManifestString -replace '#\sReleaseNotes\s?=', '  ReleaseNotes ='
@@ -293,13 +279,10 @@ task publish_module_to_gallery -if ($GalleryApiToken -and (Get-Command -Name 'Pu
         [System.IO.File]::WriteAllLines($BuiltModuleManifest, $ManifestString, $Utf8NoBomEncoding)
     }
 
-
-    $ModulePath = Join-Path -Path $OutputDirectory -ChildPath $ProjectName
-
-    Write-Build DarkGray "`nAbout to release $ModulePath"
+    Write-Build DarkGray "`nAbout to release '$BuiltModuleBase'."
 
     $PublishModuleParams = @{
-        Path            = $ModulePath
+        Path            = $BuiltModuleBase
         NuGetApiKey     = $GalleryApiToken
         Repository      = $PSModuleFeed
         ErrorAction     = 'Stop'

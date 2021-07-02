@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Removed `$BuiltModuleSubdirectory` definition in the `begin` bloc of `build.ps1`
  template ([issue #299](https://github.com/gaelcolas/Sampler/issues/299)).
+- Replaced `$ModudulePath` with `$BuiltModuleBase` for the `release.module.build.ps1` task file.
 
 ## [0.111.5] - 2021-06-25
 
