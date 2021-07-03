@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.111.6] - 2021-07-03
+
 ### Added
 
 - Added pester tests for `Set-SamplerVariableTask.ps1`.
