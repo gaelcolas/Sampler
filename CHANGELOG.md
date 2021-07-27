@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Fixed GitHub templates for the Sampler repository.
+- Fixed GitHub templates in the DSC Community Plaster template.
 
 ## [0.111.6] - 2021-07-03
 
