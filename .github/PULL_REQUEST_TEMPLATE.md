@@ -5,9 +5,8 @@
     Your contribution to this project is greatly appreciated!
 
     TITLE: Please be descriptive not sensationalist.
-    Prepend the title with the [DscResourceName] if your PR is specific to a DSC resource.
-    Also prepend with [BREAKING CHANGE] if relevant.
-    i.e. [BREAKING CHANGE][xFile] Add security descriptor property
+    Prepend the title with the [BREAKING CHANGE] if relevant,
+    i.e. [BREAKING CHANGE] Add security descriptor property
 
     You may remove this comment block, and the other comment blocks, but please
     keep the headers and the task list.
@@ -52,12 +51,9 @@
 - [ ] The PR represents a single logical change. i.e. Cosmetic updates should go in different PRs.
 - [ ] Added an entry under the Unreleased section of in the CHANGELOG.md as per [format](https://keepachangelog.com/en/1.0.0/).
 - [ ] Local clean build passes without issue or fail tests (`build.ps1 -ResolveDependency`).
-- [ ] Resource documentation added/updated in README.md.
-- [ ] Resource parameter descriptions added/updated in README.md, schema.mof
-      and comment-based help.
+- [ ] Documentation added/updated in README.md.
 - [ ] Comment-based help added/updated.
 - [ ] Localization strings added/updated in all localization files as appropriate.
-- [ ] Examples appropriately added/updated.
-- [ ] Unit tests added/updated. See [DSC Resource Testing Guidelines](https://github.com/PowerShell/DscResources/blob/master/TestsGuidelines.md).
-- [ ] Integration tests added/updated (where possible). See [DSC Resource Testing Guidelines](https://github.com/PowerShell/DscResources/blob/master/TestsGuidelines.md).
-- [ ] New/changed code adheres to [DSC Resource Style Guidelines](https://github.com/PowerShell/DscResources/blob/master/StyleGuidelines.md) and [Best Practices](https://github.com/PowerShell/DscResources/blob/master/BestPractices.md).
+- [ ] Unit tests added/updated. See [DSC Community Testing Guidelines](https://dsccommunity.org/guidelines/testing-guidelines).
+- [ ] Integration tests added/updated (where possible). See [DSC Community Testing Guidelines](https://dsccommunity.org/guidelines/testing-guidelines).
+- [ ] New/changed code adheres to [DSC Community Style Guidelines](https://dsccommunity.org/styleguidelines).
