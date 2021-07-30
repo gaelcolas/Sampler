@@ -34,9 +34,11 @@ Describe 'Github repo config files Plaster Template' {
                 '.github/ISSUE_TEMPLATE'
 
                 # Files (relative to module folder)
+                '.github/ISSUE_TEMPLATE/config.yml'
                 '.github/ISSUE_TEMPLATE/General.md'
-                '.github/ISSUE_TEMPLATE/Problem_with_resource.md'
-                '.github/ISSUE_TEMPLATE/Resource_proposal.md'
+                '.github/ISSUE_TEMPLATE/Problem_with_module.yml'
+                '.github/ISSUE_TEMPLATE/Problem_with_resource.yml'
+                '.github/ISSUE_TEMPLATE/Resource_proposal.yml'
                 '.github/PULL_REQUEST_TEMPLATE.md'
             )
         }
@@ -44,7 +46,7 @@ Describe 'Github repo config files Plaster Template' {
         It 'Should create a new module without throwing' {
             $invokePlasterParameters = @{
                 TemplatePath      = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/GithubConfig'
-                DestinationPath   = $testdrive
+                DestinationPath   = $mockModuleRootPath
                 NoLogo            = $true
                 Force             = $true
 
@@ -64,8 +66,8 @@ Describe 'Github repo config files Plaster Template' {
             $relativeModulePaths = ($relativeModulePaths -replace '\\', '/').TrimStart('/')
 
             # check files & folders discrepencies
-            $missingFilesOrFolders    = $listOfExpectedFilesAndFolders.Where{$_ -notin $relativeModulePaths}
-            $unexpectedFilesAndFolders  = $relativeModulePaths.Where{$_ -notin $listOfExpectedFilesAndFolders}
+            $missingFilesOrFolders = $listOfExpectedFilesAndFolders.Where{$_ -notin $relativeModulePaths}
+            $unexpectedFilesAndFolders = $relativeModulePaths.Where{$_ -notin $listOfExpectedFilesAndFolders}
             $TreeStructureIsOk = ($missingFilesOrFolders.count -eq 0 -and $unexpectedFilesAndFolders.count -eq 0)
 
             # format the report to be used in because

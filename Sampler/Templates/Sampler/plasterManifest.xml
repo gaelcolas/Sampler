@@ -561,11 +561,6 @@
           condition='${PLASTER_PARAM_ModuleType} -in @("dsccommunity","newdsccommunity","CompleteSample") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("github")'
     />
 
-    <file source=''
-          destination='${PLASTER_PARAM_ModuleName}/.github/ISSUE_TEMPLATE'
-          condition='${PLASTER_PARAM_ModuleType} -in @("dsccommunity","newdsccommunity","CompleteSample") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("github")'
-    />
-
     <file source='../GithubConfig/PULL_REQUEST_TEMPLATE.md'
           destination='${PLASTER_PARAM_ModuleName}/.github/PULL_REQUEST_TEMPLATE.md'
           condition='${PLASTER_PARAM_ModuleType} -in @("CompleteSample") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("github")'
@@ -576,18 +571,33 @@
           condition='${PLASTER_PARAM_ModuleType} -in @("dsccommunity", "newdsccommunity")'
     />
 
+    <file source=''
+          destination='${PLASTER_PARAM_ModuleName}/.github/ISSUE_TEMPLATE'
+          condition='${PLASTER_PARAM_ModuleType} -in @("dsccommunity","newdsccommunity","CompleteSample") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("github")'
+    />
+
+    <templateFile source='../GithubConfig/ISSUE_TEMPLATE/config.yml.template'
+          destination='${PLASTER_PARAM_ModuleName}/.github/ISSUE_TEMPLATE/config.yml'
+          condition='${PLASTER_PARAM_ModuleType} -in @("dsccommunity","newdsccommunity","CompleteSample") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("github")'
+    />
+
     <file source='../GithubConfig/ISSUE_TEMPLATE/General.md'
           destination='${PLASTER_PARAM_ModuleName}/.github/ISSUE_TEMPLATE/General.md'
           condition='${PLASTER_PARAM_ModuleType} -in @("dsccommunity","newdsccommunity","CompleteSample") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("github")'
     />
 
-    <templateFile source='../GithubConfig/ISSUE_TEMPLATE/Problem_with_resource.md.template'
-          destination='${PLASTER_PARAM_ModuleName}/.github/ISSUE_TEMPLATE/Problem_with_resource.md'
+    <templateFile source='../GithubConfig/ISSUE_TEMPLATE/Problem_with_module.yml.template'
+          destination='${PLASTER_PARAM_ModuleName}/.github/ISSUE_TEMPLATE/Problem_with_module.yml'
+          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteSample") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("github")'
+    />
+
+    <templateFile source='../GithubConfig/ISSUE_TEMPLATE/Problem_with_resource.yml.template'
+          destination='${PLASTER_PARAM_ModuleName}/.github/ISSUE_TEMPLATE/Problem_with_resource.yml'
           condition='${PLASTER_PARAM_ModuleType} -in @("dsccommunity","newdsccommunity","CompleteSample") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("github")'
     />
 
-    <file source='../GithubConfig/ISSUE_TEMPLATE/Resource_proposal.md'
-          destination='${PLASTER_PARAM_ModuleName}/.github/ISSUE_TEMPLATE/Resource_proposal.md'
+    <file source='../GithubConfig/ISSUE_TEMPLATE/Resource_proposal.yml'
+          destination='${PLASTER_PARAM_ModuleName}/.github/ISSUE_TEMPLATE/Resource_proposal.yml'
           condition='${PLASTER_PARAM_ModuleType} -in @("dsccommunity","newdsccommunity","CompleteSample") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("github")'
     />
 

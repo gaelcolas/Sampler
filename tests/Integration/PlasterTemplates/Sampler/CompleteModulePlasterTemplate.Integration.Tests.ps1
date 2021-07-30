@@ -30,9 +30,7 @@ Describe 'Complete Module Plaster Template' {
             $mockModuleRootPath = Join-Path -Path $TestDrive -ChildPath $mockModuleName
 
             $listOfExpectedFilesAndFolders = @(
-
                 # Folders (relative to module root)
-
                 '.github'
                 '.github/ISSUE_TEMPLATE'
                 '.vscode'
@@ -63,10 +61,11 @@ Describe 'Complete Module Plaster Template' {
                 'tests/Unit/Public'
 
                 # Files (relative to module root)
-
+                '.github/ISSUE_TEMPLATE/config.yml'
                 '.github/ISSUE_TEMPLATE/General.md'
-                '.github/ISSUE_TEMPLATE/Problem_with_resource.md'
-                '.github/ISSUE_TEMPLATE/Resource_proposal.md'
+                '.github/ISSUE_TEMPLATE/Problem_with_module.yml'
+                '.github/ISSUE_TEMPLATE/Problem_with_resource.yml'
+                '.github/ISSUE_TEMPLATE/Resource_proposal.yml'
                 '.github/PULL_REQUEST_TEMPLATE.md'
                 '.gitattributes'
                 '.gitignore'
