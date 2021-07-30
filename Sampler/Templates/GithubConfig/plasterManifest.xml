@@ -14,32 +14,38 @@
   </parameters>
 
   <content>
-
-      <!-- GITHUB TEMPLATES -->
-   <file source=''
+    <!-- GITHUB TEMPLATES -->
+    <file source=''
           destination='.github'
           condition='${PLASTER_PARAM_ModuleType} -in @("CompleteSample") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("github")'
-    />
-
-    <file source=''
-          destination='.github/ISSUE_TEMPLATE'
     />
 
     <file source='PULL_REQUEST_TEMPLATE.md'
           destination='.github/PULL_REQUEST_TEMPLATE.md'
     />
 
+    <file source=''
+          destination='.github/ISSUE_TEMPLATE'
+    />
+
+    <templateFile source='ISSUE_TEMPLATE/config.yml.template'
+          destination='.github/ISSUE_TEMPLATE/config.yml'
+    />
+
     <file source='ISSUE_TEMPLATE/General.md'
           destination='.github/ISSUE_TEMPLATE/General.md'
     />
 
-    <templateFile source='ISSUE_TEMPLATE/Problem_with_resource.md.template'
-          destination='.github/ISSUE_TEMPLATE/Problem_with_resource.md'
+    <templateFile source='ISSUE_TEMPLATE/Problem_with_module.yml.template'
+          destination='.github/ISSUE_TEMPLATE/Problem_with_module.yml'
     />
 
-    <file source='ISSUE_TEMPLATE/Resource_proposal.md'
-          destination='.github/ISSUE_TEMPLATE/Resource_proposal.md'
+    <templateFile source='ISSUE_TEMPLATE/Problem_with_resource.yml.template'
+          destination='.github/ISSUE_TEMPLATE/Problem_with_resource.yml'
     />
 
+    <file source='ISSUE_TEMPLATE/Resource_proposal.yml'
+          destination='.github/ISSUE_TEMPLATE/Resource_proposal.yml'
+    />
   </content>
 </plasterManifest>

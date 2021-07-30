@@ -1,0 +1,10 @@
+blank_issues_enabled: false
+<%
+if ($PLASTER_PARAM_ModuleType -in @('dsccommunity','newdsccommunity','CompleteSample'))
+{
+'contact_links:
+  - name: "Virtual PowerShell User Group #DSC channel"
+    url: https://dsccommunity.org/community/contact/
+    about: "To talk to the community and maintainers of DSC Community, please visit the #DSC channel."'
+}
+%>
