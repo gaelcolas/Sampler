@@ -1005,8 +1005,8 @@ task Pester_If_Code_Coverage_Under_Threshold {
     {
         # Pester 5
 
-        # Convert to UInt32 so if CoveragePercent is $null it returns as 0.
-        $coverage = [System.UInt32] $pesterObject.CodeCoverage.CoveragePercent
+        # Convert to Decimal so if CoveragePercent is $null it returns as 0.
+        $coverage = [System.Decimal] $pesterObject.CodeCoverage.CoveragePercent
 
         if ($coverage -lt $CodeCoverageThreshold)
         {

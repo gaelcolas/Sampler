@@ -12,6 +12,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed GitHub templates for the Sampler repository.
 - Fixed GitHub templates in the DSC Community Plaster template.
 
+### Fixed
+
+- Task `Pester_If_Code_Coverage_Under_Threshold`
+  - Now the code code coverage threshold is correctly reported using decimals.
+
 ## [0.111.6] - 2021-07-03
 
 ### Added
