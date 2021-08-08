@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.111.8] - 2021-08-08
+
 ### Changed
 
 - Fixed GitHub templates for the Sampler repository.
