@@ -9,7 +9,7 @@ param (
 
     [Parameter()]
     [string]
-    $PesterOutputFormat = (property PesterOutputFormat 'NUnitXml'),
+    $PesterOutputFormat = (property PesterOutputFormat ''),
 
     [Parameter()]
     $DeploymentTags = (property DeploymentTags ''),

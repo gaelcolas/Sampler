@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+
+- Removed `NunitXml` value of `PesterOutputFormat` parameter in `DeployAll.PSDeploy.build.ps1`
+ fix ([issue #292](https://github.com/gaelcolas/Sampler/issues/292)).
+
 ## [0.111.8] - 2021-08-08
 
 ### Changed
