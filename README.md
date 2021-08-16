@@ -6,8 +6,8 @@
 ![Azure DevOps coverage](https://img.shields.io/azure-devops/coverage/Synedgy/Sampler/1)
 ![PowerShell Gallery](https://img.shields.io/powershellgallery/p/Sampler)
 
-This project is a Module and template of a PowerShell module and DSC Resources with its
-PowerShell Build Pipeline automation.
+This project is used to scaffold a PowerShell module project complete with
+PowerShell build and deploy pipeline automation.
 
 Check the video for a quick intro:  
 [![Sampler demo video](https://img.youtube.com/vi/bbpFBsl8K9k/0.jpg)](https://www.youtube.com/watch?v=bbpFBsl8K9k&ab_channel=DSCCommunity)
@@ -17,37 +17,50 @@ The Sampler module in itself serves several purposes:
 - Quickly scaffold a PowerShell module project that can build and enforce some good practices.
 - Provide a minimum set of [InvokeBuild](https://github.com/nightroman/Invoke-Build)
 tasks that help you build, test, pack and publish your module.
-- Help building your module with adding dummy but elaborate elements to your module (Classes, DSC Resources, Class DSC Resource, Helper Module, Embedded helper module...).
+- Help building your module by adding elaborate sample elements like classes,
+  MOF-based DSC resource, class-based DSC resource, helper module, embedded helper
+  module, and more.
 
-## Preqrequisites
+## Prerequisites
 
-### __PowerShellGet__
+### PowerShellGet
 
-Because we resolve dependencies from a nuget feed, whether the public PowerShellGallery or your private repository, a working version of PowerShellGallery is required.
+Because we resolve dependencies from a nuget feed, whether the public
+PowerShellGallery or your private repository, a working version of
+PowerShellGet is required. We recommend the latest version of PowerShellGet v2
+(PowerShellGet v3 will be supported when it is released).
 
-We recommend the latest version of PowerShellv2.
+### Managing the Module versions
 
-### __Managing the Module versions__
+Managing the versions of your module is tedious, and it's hard to be consistent
+over time. The usual tricks like checking what the latest version on the 
+PSGallery is, or use the `BuildNumber` to increment a `0.0.x` version works but
+aren't ideal, especially if we want to stick to [semver](https://semver.org/).
 
-Managing the versions of your module is tedious, and it's
-hard to be consistent over time.
-The usual tricks like checking what the latest version on the PSGallery is, or use the `BuildNumber` to increment a `0.0.x`
-version works but aren't ideal, especially if we want to stick to [semver](https://semver.org/).
+While you can manage the version by updating the module manifest manually or by
+letting your CI tool update the `ModuleVersion` environment variable, we think
+the best is to rely on cross-platform tool [`GitVersion`](https://gitversion.net/docs/).
 
-While you can manage the version by updating the psd1 or letting your CI tool to update the `ModuleVersion` environment variable, we thing the best is to rely on [`GitVersion`](https://gitversion.net/docs/).
+[`GitVersion`](https://gitversion.net/docs/) will generate the version based on
+the git history. You control what version to deploy using [git tags](https://git-scm.com/book/en/v2/Git-Basics-Tagging).
 
-GitVersion will generate the version for you, based on the git history.
+As a rule of thumb, it will look at the latest version tag, and will look at
+the branches and their name, or the commit messages, to try to update the
+Major/Minor/Patch (semantic versioning) based on detected change (configurable
+in the file [`GitVersion.yml`](https://gitversion.net/docs/reference/configuration)
+that is part of your project).
 
-As a rule of thumb, it will look at the latest version tag, and will look at the branches and their name, or the commit messages, to try to update the Major/Minor/Patch based on detected change (configurable in [`GitVersion.yml`](GitVersion.yml)).
+What that means is that we recommend you to install `GitVersion` on your
+development environment, and your CI.
 
-What that means is that we recommend you to install
-`GitVersion` on your dev environent, and your CI.
+See various way to [install GitVersion](https://gitversion.net/docs/usage/cli/installation)
+on your development environment. If you use Chocolatey (install and upgrade):
 
-If you use choco:
 ```PowerShell
 C:\> choco upgrade gitversion.portable
 ```
----
+
+This describes how to [install GitVersion in your CI](https://gitversion.net/docs/usage/ci)
 
 ## Usage
 
