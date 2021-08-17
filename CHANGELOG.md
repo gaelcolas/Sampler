@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added -WhatIf parameter to `release.module.build.ps1`
+
 ## [0.111.8] - 2021-08-08
 
 ### Changed
