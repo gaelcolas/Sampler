@@ -37,7 +37,7 @@ param (
     $SkipPublish = (property SkipPublish ''),
 
     [Parameter()]
-    $WhatIf = (property WhatIf '')
+    $PublishModuleWhatIf = (property PublishModuleWhatIf '')
 )
 
 # Synopsis: Create ReleaseNotes from changelog and update the Changelog for release
@@ -170,6 +170,9 @@ task package_module_nupkg {
     # Force registering the output repository mapping to the Project's output path
     $null = Unregister-PSRepository -Name output -ErrorAction SilentlyContinue
 
+    # Parse PublishModuleWhatIf
+    $null = [bool]::TryParse($PublishModuleWhatIf, [ref]$PublishModuleWhatIf)
+
     $RepositoryParams = @{
         Name            = 'output'
         SourceLocation  = $OutputDirectory
@@ -233,14 +236,12 @@ task package_module_nupkg {
             }
             Write-Build Yellow ("  Packaging Required Module {0} v{1}{2}" -f $Module.Name, $Module.Version.ToString(), $Prerelease)
 
-            if ($WhatIf)
+            if ($PublishModuleWhatIf)
             {
-                Publish-Module -Repository output -ErrorAction SilentlyContinue -Path $module.ModuleBase -WhatIf
+                $PublishModuleParams['WhatIf'] = $True
             }
-            else
-            {
-                Publish-Module -Repository output -ErrorAction SilentlyContinue -Path $module.ModuleBase
-            }
+
+            Publish-Module -Repository output -ErrorAction SilentlyContinue -Path $module.ModuleBase
         }
     }
 
@@ -252,14 +253,12 @@ task package_module_nupkg {
         Force           = $true
     }
 
-    if ($WhatIf)
+    if ($PublishModuleWhatIf)
     {
-        Publish-Module @PublishModuleParams -WhatIf
+        $PublishModuleParams['WhatIf'] = $True
     }
-    else
-    {
-        Publish-Module @PublishModuleParams
-    }
+
+    Publish-Module @PublishModuleParams
 
     Write-Build Green "`n  Packaged $ProjectName NuGet package `n"
     Write-Build DarkGray "  Cleaning up"
@@ -283,6 +282,9 @@ task publish_module_to_gallery -if ($GalleryApiToken -and (Get-Command -Name 'Pu
     $releaseNotesForLatestRelease = $changeLogData.Released | Where-Object -FilterScript {
         $_.Version -eq $ModuleVersion
     }
+
+    # Parse PublishModuleWhatIf
+    $null = [bool]::TryParse($PublishModuleWhatIf, [ref]$PublishModuleWhatIf)
 
     if (-not $BuiltModuleManifest)
     {
@@ -308,11 +310,12 @@ task publish_module_to_gallery -if ($GalleryApiToken -and (Get-Command -Name 'Pu
         ReleaseNotes    = $releaseNotesForLatestRelease
     }
 
-    if ($WhatIf)
+    if ($PublishModuleWhatIf)
     {
-        Publish-Module @PublishModuleParams -WhatIf
+        $PublishModuleParams['WhatIf'] = $True
     }
-    elseif (!$SkipPublish)
+
+    if (!$SkipPublish)
     {
         Publish-Module @PublishModuleParams
     }
