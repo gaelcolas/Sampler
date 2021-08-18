@@ -171,7 +171,7 @@ task package_module_nupkg {
     $null = Unregister-PSRepository -Name output -ErrorAction SilentlyContinue
 
     # Parse PublishModuleWhatIf
-    $null = [bool]::TryParse($PublishModuleWhatIf, [ref]$PublishModuleWhatIf)
+    $null = [bool]::TryParse($PublishModuleWhatIf, [ref]$script:PublishModuleWhatIf)
 
     $RepositoryParams = @{
         Name            = 'output'
@@ -284,7 +284,7 @@ task publish_module_to_gallery -if ($GalleryApiToken -and (Get-Command -Name 'Pu
     }
 
     # Parse PublishModuleWhatIf
-    $null = [bool]::TryParse($PublishModuleWhatIf, [ref]$PublishModuleWhatIf)
+    $null = [bool]::TryParse($PublishModuleWhatIf, [ref]$script:PublishModuleWhatIf)
 
     if (-not $BuiltModuleManifest)
     {
