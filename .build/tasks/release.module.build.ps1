@@ -170,7 +170,7 @@ task package_module_nupkg {
     # Force registering the output repository mapping to the Project's output path
     $null = Unregister-PSRepository -Name output -ErrorAction SilentlyContinue
 
-    # Parse PublishModuleWhatIf
+    # Parse PublishModuleWhatIf to be boolean
     $null = [bool]::TryParse($PublishModuleWhatIf, [ref]$script:PublishModuleWhatIf)
 
     $RepositoryParams = @{
@@ -283,7 +283,7 @@ task publish_module_to_gallery -if ($GalleryApiToken -and (Get-Command -Name 'Pu
         $_.Version -eq $ModuleVersion
     }
 
-    # Parse PublishModuleWhatIf
+    # Parse PublishModuleWhatIf to be boolean
     $null = [bool]::TryParse($PublishModuleWhatIf, [ref]$script:PublishModuleWhatIf)
 
     if (-not $BuiltModuleManifest)
