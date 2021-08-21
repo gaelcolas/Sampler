@@ -9,9 +9,6 @@
 This project is used to scaffold a PowerShell module project complete with
 PowerShell build and deploy pipeline automation.
 
-Check the video for a quick intro:  
-[![Sampler demo video](https://img.youtube.com/vi/bbpFBsl8K9k/0.jpg)](https://www.youtube.com/watch?v=bbpFBsl8K9k&ab_channel=DSCCommunity)
-
 The Sampler module in itself serves several purposes:
 
 - Quickly scaffold a PowerShell module project that can build and enforce some good practices.
@@ -20,6 +17,20 @@ tasks that help you build, test, pack and publish your module.
 - Help building your module by adding elaborate sample elements like classes,
   MOF-based DSC resource, class-based DSC resource, helper module, embedded helper
   module, and more.
+- Avoid the "it works on my machine" or removes the dependence on specific tools
+  (such as a CI tool). 
+- Ensures the build process can be run anywhere the same way (whether behind a
+  firewall, on a developers workstation, or in a build agent).
+- Assume nothing is set up, and you don't have Admin rights.
+- Works cross-platform.
+
+Check the video for a quick intro:
+
+> _Note: The video was made when Sampler was young, and it has been a lot of_
+> _iteration since then, so please also read the documentation below that_
+> _reflects the improvements we made along the way._
+
+[![Sampler demo video](https://img.youtube.com/vi/bbpFBsl8K9k/0.jpg)](https://www.youtube.com/watch?v=bbpFBsl8K9k&ab_channel=DSCCommunity)
 
 ## Prerequisites
 
@@ -30,7 +41,7 @@ PowerShellGallery or your private repository, a working version of
 PowerShellGet is required. We recommend the latest version of PowerShellGet v2
 (PowerShellGet v3 will be supported when it is released).
 
-### Managing the Module versions
+### Managing the Module versions (optional)
 
 Managing the versions of your module is tedious, and it's hard to be consistent
 over time. The usual tricks like checking what the latest version on the 
@@ -39,7 +50,7 @@ aren't ideal, especially if we want to stick to [semver](https://semver.org/).
 
 While you can manage the version by updating the module manifest manually or by
 letting your CI tool update the `ModuleVersion` environment variable, we think
-the best is to rely on cross-platform tool [`GitVersion`](https://gitversion.net/docs/).
+the best is to rely on the cross-platform tool [`GitVersion`](https://gitversion.net/docs/).
 
 [`GitVersion`](https://gitversion.net/docs/) will generate the version based on
 the git history. You control what version to deploy using [git tags](https://git-scm.com/book/en/v2/Git-Basics-Tagging).
@@ -61,111 +72,268 @@ C:\> choco upgrade gitversion.portable
 ```
 
 This describes how to [install GitVersion in your CI](https://gitversion.net/docs/usage/ci)
+if you plan to use the deploy pipelines in the CI.
 
 ## Usage
 
-As per the video above, you can create a new Module project with all files & and pipeline scripts,
-the `build.ps1` is how you interact with the built-in pipeline automation, and
-`build.yaml` how you configure and customize it.
+### How to create a new project
 
-### Bootstrapping repository and Resolve-Dependency
+To create a new project the command `New-SampleModule` should be used. Depending
+on the template used with the command the content in project will contain
+different sample content, some also add addition pipeline jobs. But all templates
+(expect one) will have the basic tasks to have a working pipeline; build, test, deploy.
 
-Quick Start:
+So below how to use each template. The templates are:
 
-```PowerShell
-PS C:\src\Sampler> .\build.ps1
+- `SimpleModule` - Creates a module with minimal structure and pipeline automation.
+- `CompleteSample` - Creates a module with complete structure and example files.
+- `SimpleModule_NoBuild` - Creates a simple module without the build automation.
+- `dsccommunity` - Creates or replace the files needed for the conversion to the
+  new release automation.
+- `newDscCommunity` - Creates or replace the files needed for the conversion to
+  the new release automation.
+- `CustomModule` - Will prompt you for more details as to what you'd like to scaffold.
+
+As per the video above, you can create a new module project with all files and
+pipeline scripts. Once the project is created, the `build.ps1` inside the new
+project is how you interact with the built-in pipeline automation, and the
+file `build.yaml` is where you configure and customize it.
+
+#### `SimpleModule`
+
+Creates a module with minimal structure and pipeline automation.
+
+```powershell
+Install-Module -Name 'Sampler' -Scope 'CurrentUser'
+
+$newSampleModuleParameters = @{
+    DestinationPath   = 'C:\source\HelpUsers\johlju'
+    ModuleType        = 'SimpleModule'
+    ModuleName        = 'MySimpleModule'
+    ModuleAuthor      = 'My Name'
+    ModuleDescription = 'MySimpleModule Description'
+}
+
+New-SampleModule @newSampleModuleParameters
 ```
 
-The `build.ps1` is the _entry point_ to invoke any task or a list of build tasks (workflow),
-leveraging the [`Invoke-Build`](https://www.powershellgallery.com/packages/InvokeBuild/) task runner.
+### How to download dependencies for project
+
+To be able to build the project all the dependencies listed in the file
+`RequiredModules.psd1` must first be available. This is the beginning of
+the build process so that anyone doing a git clone can 're-hydrate' the
+project and start testing and producing the artefact locally with minimum
+environment dependency.
+
+The following command will resolve dependencies:
+
+```powershell
+cd C:\source\MySimpleModule
+
+./build.ps1 -ResolveDependency -Tasks noop
+```
+
+The dependencies will be downloaded (or updated) from the PSGallery (unless
+changed to another repository) and saved in the project folder under
+`./output/RequiredModules`.
+
+> By default, each repository should not rely on your personal development
+> environment, so that it's easier to repeat on any machine or build agent.
+
+Normally this command only needs to be run once, but the command can be run
+anytime to update to a newer version of a required module (if one is available),
+or if the required modules have changed in the file `RequiredModules.psd1`.
+
+> **Note:** If a required module is removed in the file `RequiredModules.psd1`
+> that module will not be automatically removed from the folder
+> `./output/RequiredModules`.
+
+### How to build the project
+
+The following command will build the project:
+
+```powershell
+cd C:\source\MySimpleModule
+
+./build.ps1 -Tasks build
+```
+
+It is also possible to resolve dependencies and build the project
+at the same time using the command:
+
+```powershell
+./build.ps1 -ResolveDependency -Tasks build
+```
+
+If there are any errors during build´it will be shown in the output and the
+build will stop. If it is successful the output should end with:
+
+```plaintext
+Build succeeded. 7 tasks, 0 errors, 0 warnings 00:00:06.1049394
+```
+
+> **NOTE:** The number of tasks can differ depending on which template that
+> was used to create the project.
+
+### How to run tests
+
+> **NOTE:** Which tests are run is determined by the paths configured
+> by a key in the _Pester_ configuration in the file `build.yml`. The key
+> differ depending on _Pester_ version used. The key is `Script` when using
+> _Pester v4_, and `Path` when using _Pester v5_.
+
+If running (or debugging) tests in Visual Studio Code you should first make sure
+the session environment is set correctly. This is normally done when you build
+the project. But if there is no need to rebuild the project it is faster to run
+the following in the _PowerShell Integrated Console_:
+
+```powershell
+./build.ps1 -Tasks noop
+```
+
+This just runs the bootstrap, and then runs the built-in "no operation" (`noop`)
+task which does nothing (there is no code that executes in that task).
+
+### How to run the default workflow
+
+It is possible to do all of the above (resolve dependencies, build, and run tests)
+in just one line by running the following:
+
+```powershell
+./build -ResolveDependency
+```
+
+The parameter `Task` is not used which means this will run the default workflow
+(`.`). The tasks for the default workflow is configured in the file `build.yml`.
+Normally the default workflow builds the project and runs all the configured test.
+
+This means by running this it will build and run all configured tests:
+
+```powershell
+./build.ps1
+```
+
+### How to list all available tasks
+
+Because the build tasks are `InvokeBuild` tasks, we can discover them using
+the `?` task. So to list the available tasks in a project, run the following 
+command:
+
+```powershell
+./build.ps1 -Tasks ?
+```
+
+> **NOTE:** If it is not already done, first make sure to resolve dependencies.
+> Dependencies can also hold tasks that is used in the pipeline.
+
+## About the bootstrap process (`build.ps1`)
+
+The `build.ps1` is the _entry point_ to invoke any task, or a list of build
+tasks (workflow), leveraging the [`Invoke-Build`](https://www.powershellgallery.com/packages/InvokeBuild)
+task runner.
 
 The script do not assume your environment has the required PowerShell modules,
-so the `bootstrap` is done by `build.ps1`, and can resolves the dependencies listed
-in [`RequiredModules.psd1`](RequiredModules.psd1) using `PSDepend`.
+so the bootstrap is done by the project's script file `build.ps1`, and can
+resolve the dependencies listed in the project's file `RequiredModules.psd1`
+using [`PSDepend`](https://www.powershellgallery.com/packages/PSDepend).
 
-Invoking `build.ps1` with the `-ResolveDependency` parameter will prepare your environment like so:
+Invoking `build.ps1` with the `-ResolveDependency` parameter will prepare your
+environment like so:
 
-1. Update your Environment variables ($Env:PSModulePath) to resolve built
-& local (repository) module first (by prepending those paths)
-1. Making sure you have a trustable version of PSGet &
-PackageManagement (`version -gt 1.6`) or install it from *a* gallery
-1. Download or install the `PowerShell-yaml` and `PSDepend` modules needed for
-further dependency management
-1. Read the `build.yaml` configuration
-1. Invoke [PSDepend](https://github.com/RamblingCookieMonster/PSDepend) on
-the RequiredModules.psd1
-1. hand over the task executions to `Invoke-Build` to run the workflow
+1. Updates the session environment variable (`$env:PSModulePath`) to resolve
+   the built module (`.\output`) and the modules in the folder `./output/RequiredModules`
+   by prepending those paths to `$env:PSModulePath`. By prepending the paths
+   to the session `$env:PSModulePath` the build process will make those
+   dependencies available in your session for module discovery and auto-loading,
+   and also possible to use one or more of those modules as part of your built
+   module.
+1. Making sure you have a trustable version of the module _PowerShellGet_ and
+   _PackageManagement_ (`version -gt 1.6`), or it will install it from the
+   configured repository.
+1. Download or install the `PowerShell-yaml` and `PSDepend` modules needed
+   for further dependency management.
+1. Read the `build.yaml` configuration.
+1. If Nuget package provider not present, install and import nuget PackageProvider
+   (proxy enabled).
+1. Invoke [PSDepend]((https://www.powershellgallery.com/packages/PSDepend) on
+   the file `RequiredModules.psd1`. It will not install required modules to
+   your environment, it will save them to your project's folder `./output/RequiredModules`.
+1. Hand over the task executions to `Invoke-Build` to run the configured
+   workflow.
 
->By default, each repository should not rely on your environment,
->so that it's easier to repeat on any machine or build agent.
->Instead of installing required modules to your environment,
->it will save them to the `output/RequiredModules` folder
->of your repository.
->
->By also prepending this path to your `$Env:PSModulePath`,
->the build process will make those dependencies available in your session for
->module discovery and auto-loading.
+If you only want to make sure the environment is configured, or you only want
+to resolve the dependencies, you can call the built-in task `noop` which won't
+do anything. But for the built-in `noop` task to work, the dependencies
+must first have been resolved.
 
-Once the `-ResolveDependency` has been called once, there should not be a need
-to call it again until the `RequiredModules.psd1` is changed.
+## About Sampler build workflow
 
-### Discoverability & noop
+Let's look at the pipeline of the `Sampler` module itself to better explain
+how the pipeline automation is configured for a project created using a
+template from the Sampler module.
 
-Quick Start:
+> **NOTE:** Depending on the Sampler template used when creating a new project
+> there can be addition configuration options - but they can all be added
+> manually those options are needed. The Sampler project itself is not using all
+> features available (an example is DSC resources documentation generation).
+
+### Default Workflow Currently configured
+
+As seen in the bootstrap process above, the different workflows can be configured by editing the `build.psd1`: new tasks can be loaded, and the sequence can be added under the `BuildWorkflow` key by listing the names.
+
+In our case, the [build.yaml](build.yaml) defines several workflows (`.`, `build`, `pack`, `hqrmtest`, `test`, and `publish`) that can be called by using:
+
 ```PowerShell
-PS C:\src\Sampler> .\build.ps1 -Tasks ?
-[pre-build] Starting Build Init
-[build] Starting build with InvokeBuild.
-[build] Parsing defined tasks
-[build] Loading Configuration from C:\src\Sampler\build.yaml
-Adding CopyPlaster
-Adding build
-Adding publish
-Adding test
-Adding .
-[build] Executing requested workflow: ?
-
-Name                                    Jobs
-----                                    ----
-Build_Module_ModuleBuilder              {}
-Build_NestedModules_ModuleBuilder       {}
-[...]
-
-PS C:\src\Sampler> .\build.ps1 -Tasks noop
-[pre-build] Starting Build Init
-[build] Starting build with InvokeBuild.
-[build] Parsing defined tasks
-[build] Loading Configuration from C:\src\Sampler\build.yaml
-Adding CopyPlaster
-Adding build
-Adding publish
-Adding test
-Adding .
-[build] Executing requested workflow: noop
-Build noop C:\src\Sampler\build.ps1
-Redefined task '.'.
-
-===============================================================
-                        NOOP
-Empty task, useful to test the bootstrap process
----------------------------------------------------------------
-  /noop
-  C:\src\Sampler\build.ps1:171
-
-Done /noop 00:00:00.0240027
-Build succeeded. 1 tasks, 0 errors, 0 warnings 00:00:04.4388686
+ .\build.ps1 -Tasks <Workflow_or_task_Name>
 ```
 
-Because the build tasks are `InvokeBuild` tasks, we can discover them
-by using the `?` task (after we've resolved the dependencies):
-`.\build.ps1 -Tasks ?`
+The detail of the **default workflow** is as follow (InvokeBuild defaults to the workflow named '.' when no tasks is specified):
 
-If you only want to mak sure the environment is configured, or you only want to
-resolve the dependency, you can call the built-in task `noop` which won't
-do anything. The `requiredModules` should already be available to the session though.
+```yml
+BuildWorkflow:
+  '.':
+    - build
+    - test
+```
 
-- `.\build.ps1 -tasks noop` - This will just setup your missing environment variables
-- `.\build.ps1 -tasks noop -ResolveDependency` - That one will bootstrap your environment & download required modules
+The tasks `build` and `tests` are meta-tasks or workflow calling other tasks:
+
+```yml
+  build:
+    - Clean
+    - Build_Module_ModuleBuilder
+    - Build_NestedModules_ModuleBuilder
+    - Create_changelog_release_output
+  test:
+    - Pester_Tests_Stop_On_Fail
+    - Pester_if_Code_Coverage_Under_Threshold
+    - hqrmtest
+```
+
+Those tasks are imported from a module, in this case from
+the `.build/` folder, from this `Sampler` module,
+but for another module you would use this line in your `build.yml` config:
+
+```yaml
+ModuleBuildTasks:
+  Sampler:
+    - '*.build.Sampler.ib.tasks' # this means: import (dot source) all aliases ending with .ib.tasks exported by 'Sampler' module
+```
+
+You can edit your `build.yml` to change the workflow, add a custom task,
+create repository-specific task in a `.build/` folder named `*.build.ps1`.
+
+```yml
+  MyTask: {
+    # do something with some PowerShellCode
+    Write-Host "Doing something in a task"
+  }
+
+  build:
+    - Clean
+    - MyTask
+    - call_another_task
+```
 
 ## Task Variables
 
@@ -250,100 +418,3 @@ THe path to the release notes markdown file. Defaults to the path for
 The path to the source folder. Defaults to the same path where the module
 manifest is found in either the folder 'source', 'src', or a folder with
 the same name as the module.
-
-## Sampler Build workflow
-
-To better explain the features available, let's look at the `Sampler` module
-and its configured workflow.
-
-### Bootstrap and re-hydration process
-
-This is the beginning of the build process so that anyone doing a git clone
-can 're-hydrate' the project and start testing and producing the artefacts locally
-with minimum environment dependency. You need `git`, `PowerShell` and
-preferably `GitVersion`.
-
-This avoid the "it works on my machine" or removes the dependence on specific
-tools (such as CI tool). It also ensures the build process can be run anywhere
-the same way (whether behind a firewall, on a dev workstation or in a build agent)
-
-
-- Bootstrap the repository & resolve Dependencies (Module restore).
-
-  - Assume nothing is set up, and you don't have Admin rights
-  - Prepend `.\output\RequiredModules` to your `$Env:PSModulePath`
-  - Prepend `.\output\` to your `$Env:PSModulePath`
-  - If Nuget package provider not present, Install & Import nuget PackageProvider (Proxy enabled)
-  - Invoke PSDepend based on the dependency file [.\RequiredModules.psd1](RequiredModules.psd1)
-  - Hand back over to InvokeBuild task, loaded as per the [`build.yml`](build.yaml)
-
-  > Example:
-  >
-  > `C:\ > .\build.ps1 -ResolveDependency -Tasks noop`
-  >
-  > This should setup your project folder by re-hydrating all required dependencies to build and test your module, and invoke the (empty) task `noop`, so that it does not invoke the default workflow '.'
-  >
-  > The `-ResolveDependency` does not need to be invoked again to speed things up, unless a dependency file/version changes
-  >
-  > The Second run could be:
-  >
-  > `C:\ > .\build.ps1 -Tasks noop`
-
-
-### Default Workflow Currently configured
-
-As seen in the bootstrap process above, the different workflows can be configured by editing the `build.psd1`: new tasks can be loaded, and the sequence can be added under the `BuildWorkflow` key by listing the names.
-
-In our case, [the Build.yaml](build.yaml) defines several workflows (`.`, `build`, `pack`, `hqrmtest`, `test`, and `publish`) that can be called by using:
-
-```PowerShell
- .\build.ps1 -Tasks <Workflow_or_task_Name>
-```
-
-The detail of the **default workflow** is as follow (InvokeBuild defaults to the workflow named '.' when no tasks is specified):
-
-```yml
-BuildWorkflow:
-  '.':
-    - build
-    - test
-```
-
-The tasks `build` and `tests` are meta-tasks or workflow calling other tasks:
-
-```yml
-  build:
-    - Clean
-    - Build_Module_ModuleBuilder
-    - Build_NestedModules_ModuleBuilder
-    - Create_changelog_release_output
-  test:
-    - Pester_Tests_Stop_On_Fail
-    - Pester_if_Code_Coverage_Under_Threshold
-    - hqrmtest
-```
-
-Those tasks are imported from a module, in this case from
-the `.build/` folder, from this `Sampler` module,
-but for another module you would use this line in your `build.yml` config:
-
-```yaml
-ModuleBuildTasks:
-  Sampler:
-    - '*.build.Sampler.ib.tasks' # this means: import (dot source) all aliases ending with .ib.tasks exported by 'Sampler' module
-```
-
-You can edit your `build.yml` to change the workflow, add a custom task,
-create repository-specific task in a `.build/` folder named `*.build.ps1`.
-
-```yml
-  MyTask: {
-    # do something with some PowerShellCode
-    Write-Host "Doing something in a task"
-  }
-
-  build:
-    - Clean
-    - MyTask
-    - call_another_task
-```
