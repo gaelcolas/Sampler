@@ -255,7 +255,7 @@ environment like so:
 1. Read the `build.yaml` configuration.
 1. If Nuget package provider not present, install and import nuget PackageProvider
    (proxy enabled).
-1. Invoke [PSDepend]((https://www.powershellgallery.com/packages/PSDepend) on
+1. Invoke [PSDepend](https://www.powershellgallery.com/packages/PSDepend) on
    the file `RequiredModules.psd1`. It will not install required modules to
    your environment, it will save them to your project's folder `./output/RequiredModules`.
 1. Hand over the task executions to `Invoke-Build` to run the configured
