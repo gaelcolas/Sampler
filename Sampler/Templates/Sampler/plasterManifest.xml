@@ -29,7 +29,7 @@
             value="CompleteSample"/>
 
       <choice label='&amp;DSC Community Module'
-            help="Creates or replace the files needed for the conversion to the new release automation."
+            help="Creates a DSC module according to the DSC Community baseline with a pipeline for build, test, and release automation."
             value="dsccommunity"/>
     </parameter>
     <parameter store="text" name="ModuleAuthor" type="text" prompt="Author's name" default="$Env:Username" />
