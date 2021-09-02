@@ -18,7 +18,7 @@ tasks that help you build, test, pack and publish your module.
   MOF-based DSC resource, class-based DSC resource, helper module, embedded helper
   module, and more.
 - Avoid the "it works on my machine" or removes the dependence on specific tools
-  (such as a CI tool). 
+  (such as a CI tool).
 - Ensures the build process can be run anywhere the same way (whether behind a
   firewall, on a developers workstation, or in a build agent).
 - Assume nothing is set up, and you don't have Admin rights.
@@ -86,14 +86,14 @@ different sample content, some also add addition pipeline jobs. But all template
 So below how to use each template. The templates are:
 
 - `SimpleModule` - Creates a module with minimal structure and pipeline automation.
-- `CompleteSample` - Creates a module with complete structure and example files.
 - `SimpleModule_NoBuild` - Creates a simple module without the build automation.
-- `dsccommunity` - Creates or replace the files needed for the conversion to the
-  new release automation.
-- `newDscCommunity` - Creates or replace the files needed for the conversion to
-  the new release automation.
+- `CompleteSample` - Creates a module with complete structure and example files.
+- `dsccommunity` - Creates a DSC module according to the DSC Community baseline
+   with a pipeline for build, test, and release automation.
 - `CustomModule` - Will prompt you for more details as to what you'd like to scaffold.
-
+- `GCPackage` - Creates a module that can be deployed to be used with _Azure Policy_
+  _Guest Configuration_.
+  
 As per the video above, you can create a new module project with all files and
 pipeline scripts. Once the project is created, the `build.ps1` inside the new
 project is how you interact with the built-in pipeline automation, and the
@@ -107,7 +107,7 @@ Creates a module with minimal structure and pipeline automation.
 Install-Module -Name 'Sampler' -Scope 'CurrentUser'
 
 $newSampleModuleParameters = @{
-    DestinationPath   = 'C:\source\HelpUsers\johlju'
+    DestinationPath   = 'C:\source'
     ModuleType        = 'SimpleModule'
     ModuleName        = 'MySimpleModule'
     ModuleAuthor      = 'My Name'
@@ -116,6 +116,87 @@ $newSampleModuleParameters = @{
 
 New-SampleModule @newSampleModuleParameters
 ```
+
+#### `SimpleModule_NoBuild`
+
+Creates a simple module without the build automation.
+
+```powershell
+Install-Module -Name 'Sampler' -Scope 'CurrentUser'
+
+$newSampleModuleParameters = @{
+    DestinationPath   = 'C:\source'
+    ModuleType        = 'SimpleModule_NoBuild'
+    ModuleName        = 'MySimpleModuleNoBuild'
+    ModuleAuthor      = 'My Name'
+    ModuleDescription = 'MySimpleModuleNoBuild Description'
+}
+
+New-SampleModule @newSampleModuleParameters
+```
+
+#### `CompleteSample`
+
+Creates a module with complete structure and example files.
+
+```powershell
+Install-Module -Name 'Sampler' -Scope 'CurrentUser'
+
+$newSampleModuleParameters = @{
+    DestinationPath   = 'C:\source'
+    ModuleType        = 'CompleteSample'
+    ModuleName        = 'MyCompleteSample'
+    ModuleAuthor      = 'My Name'
+    ModuleDescription = 'MyCompleteSample Description'
+}
+
+New-SampleModule @newSampleModuleParameters
+```
+
+#### `dsccommunity`
+
+Creates a DSC module according to the DSC Community baseline with a pipeline
+for build, test, and release automation.
+
+```powershell
+Install-Module -Name 'Sampler' -Scope 'CurrentUser'
+
+$newSampleModuleParameters = @{
+    DestinationPath   = 'C:\source'
+    ModuleType        = 'dsccommunity'
+    ModuleName        = 'MyDscModule'
+    ModuleAuthor      = 'My Name'
+    ModuleDescription = 'MyDscModule Description'
+}
+
+New-SampleModule @newSampleModuleParameters
+```
+
+#### `CustomModule`
+
+Will prompt you for more details as to what you'd like to scaffold.
+
+```powershell
+Install-Module -Name 'Sampler' -Scope 'CurrentUser'
+
+$samplerModule = Import-Module -Name Sampler -PassThru
+
+$invokePlasterParameters = @{
+   TemplatePath    = Join-Path -Path $samplerModule.ModuleBase -ChildPath 'Templates/Sampler'
+   DestinationPath   = 'C:\source'
+   ModuleType        = 'CustomModule'
+   ModuleName        = 'MyCustomModule'
+   ModuleAuthor      = 'My Name'
+   ModuleDescription = 'MyCustomModule Description'
+}
+
+Invoke-Plaster @invokePlasterParameters
+```
+
+#### `GCPackage`
+
+>**Note:** The `GCPackage` template is not yet available, but can be created using
+>the `dsccommunity` template with modifications, see the section [GCPackage scaffolding](#gcpackage-scaffolding).
 
 ### How to download dependencies for project
 
@@ -334,6 +415,136 @@ create repository-specific task in a `.build/` folder named `*.build.ps1`.
     - MyTask
     - call_another_task
 ```
+
+## GCPackage scaffolding
+
+Creates a module that can be deployed to be used with _Azure Policy_
+_Guest Configuration_. This process will be replaced with a Plaster template.
+
+1. Start by creating a new project using the template `dsccommunity`.
+
+   ```powershell
+   Install-Module -Name 'Sampler' -Scope 'CurrentUser'
+
+   $newSampleModuleParameters = @{
+      DestinationPath   = 'C:\source'
+      ModuleType        = 'dsccommunity'
+      ModuleName        = 'MyGCPackages'
+      ModuleAuthor      = 'My Name'
+      ModuleDescription = 'MyGCPackages Description'
+   }
+
+   New-SampleModule @newSampleModuleParameters
+   ```
+
+1. In the file `build.yaml` add the following top-level key:
+
+   ```yaml
+   BuiltModuleSubdirectory: module
+   ```
+
+1. In the file `build.yaml` modify the `pack` key under the top-level key
+   `BuildWorkflow` by adding the task `gcpack`:
+
+   ```yaml  
+   pack:
+    - build
+    - package_module_nupkg
+    - gcpack
+   ```
+
+1. In the file `build.yaml` modify the `GitHubConfig` top-level key
+   as follows:
+
+   ```yaml  
+   GitHubConfig:
+     GitHubFilesToAdd:
+       - 'CHANGELOG.md'
+     ReleaseAssets:
+       - output/GCPolicyPackages/UserAmyNotPresent*.zip
+     GitHubConfigUserName: myGitHubUserName
+     GitHubConfigUserEmail: myEmail@address.com
+     UpdateChangelogOnPrerelease: false
+   ```
+
+1. In the file `RequiredModules.psd1` add the module _GuestConfiguration_
+   and `xPSDesiredStateConfiguration` to the list of dependency modules.
+
+   ```powershell
+   @{
+      # ... current dependencies
+
+      xPSDesiredStateConfiguration = 'latest'
+      GuestConfiguration = @{
+         Version = 'latest'
+         Parameters = @{
+               AllowPrerelease = $true
+         }
+      }
+   }
+   ```
+
+1. Modify the `azure-pipelines.yml` as follows:
+   1. Replace build image with `windows-latest`.
+   1. In the job `Package_Module` after the job `gitversion` and before the job
+      `package` add this new job:
+      ```yaml
+      - task: PowerShell@2
+        name: Exp_Feature
+        displayName: 'Enable Experimental features'
+        inputs:
+          pwsh: true
+          targetType: inline
+          continueOnError: true
+          script: |
+             ./build.ps1 -Tasks noop -ResolveDependency
+              Import-Module GuestConfiguration
+              Enable-ExperimentalFeature -Name GuestConfiguration.Pester
+              Enable-ExperimentalFeature -Name GuestConfiguration.SetScenario
+              Enable-ExperimentalFeature -Name PSDesiredStateConfiguration.InvokeDscResource -ErrorAction SilentlyContinue
+        env:
+          ModuleVersion: $(gitVersion.NuGetVersionV2)
+      ```
+   1. Remove the job `Test_HQRM`.
+   1. Remove the job `Test_Integration`.
+   1. Remove the job `Code_Coverage`.
+   1. Update deploy condition to use the Azure DevOps organization name:
+      ``` yaml
+      contains(variables['System.TeamFoundationCollectionUri'], 'myorganizationname')
+      ````
+   1. In the job `Deploy_Module` for both the deploy tasks `publishRelease`
+      and `sendChangelogPR` add the following environment variables:
+      ```yaml
+      ReleaseBranch: main
+      MainGitBranch: main
+      ```
+1. Create a new folder `GCPackages` under the folder `source`.
+1. Create a new folder `UserAmyNotPresent` under the new folder `GCPackages`.
+1. Under the folder `UserAmyNotPresent` create a new file `UserAmyNotPresent.config.ps1`.
+1. In the file `UserAmyNotPresent.config.ps1` add the following:
+
+   ```powershell
+   Configuration UserAmyNotPresent {
+      Import-DSCResource -ModuleName 'xPSDesiredStateConfiguration'
+
+      Node UserAmyNotPresent
+      {
+         xUser 'UserAmyNotPresent'
+         {
+               Ensure   = 'Absent'
+               UserName = 'amy'
+         }
+      }
+   }
+   ```
+
+1. Now resolve dependencies and run the task `gcpack`:
+
+   ```powershell
+   build.ps1 -task gcpack -ResolveDependency
+   ```
+1. The built _Guest Configuration_ package can be found in the folder
+   `output\GCPolicyPackages\UserAmyNotPresent`.
 
 ## Task Variables
 
