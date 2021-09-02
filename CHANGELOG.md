@@ -11,6 +11,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added -WhatIf parameter to `release.module.build.ps1`
 
+### Removed
+
+- Removed the template `newDscCommunity` which is replaced by the template
+  `dsccommunity`.
+
+### Changed
+
+- Merged both templates `dsccommunity` and `newDscCommunity` into the
+  template `dsccommunity`.
+- All templates now defaults to using `main` as the default branch.
+
 ## [0.111.8] - 2021-08-08
 
 ### Changed
