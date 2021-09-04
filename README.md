@@ -6,7 +6,7 @@
 ![Azure DevOps coverage](https://img.shields.io/azure-devops/coverage/Synedgy/Sampler/1)
 ![PowerShell Gallery](https://img.shields.io/powershellgallery/p/Sampler)
 
-This project is used to scaffold a PowerShell module project complete with
+This project is used to scaffold a PowerShell module project, complete with
 PowerShell build and deploy pipeline automation.
 
 The Sampler module in itself serves several purposes:
@@ -15,20 +15,20 @@ The Sampler module in itself serves several purposes:
 - Provide a minimum set of [InvokeBuild](https://github.com/nightroman/Invoke-Build)
 tasks that help you build, test, pack and publish your module.
 - Help building your module by adding elaborate sample elements like classes,
-  MOF-based DSC resource, class-based DSC resource, helper module, embedded helper
-  module, and more.
-- Avoid the "it works on my machine" or removes the dependence on specific tools
+  MOF-based DSC resources, class-based DSC resources, helper modules, embedded helper
+  modules, and more.
+- Avoid the "it works on my machine" and remove the dependence on specific tools
   (such as a CI tool).
 - Ensures the build process can be run anywhere the same way (whether behind a
   firewall, on a developers workstation, or in a build agent).
-- Assume nothing is set up, and you don't have Admin rights.
-- Works cross-platform.
+- Assume nothing is set up, and you don't have local administrator rights.
+- Works on Windows, Linux and MacOS.
 
 Check the video for a quick intro:
 
-> _Note: The video was made when Sampler was young, and it has been a lot of_
-> _iteration since then, so please also read the documentation below that_
-> _reflects the improvements we made along the way._
+> _Note: The video was made when Sampler was in early stages. Since that time_
+> _there have been a lot of improvements and changes, so please read the_
+> _ documentation below._
 
 [![Sampler demo video](https://img.youtube.com/vi/bbpFBsl8K9k/0.jpg)](https://www.youtube.com/watch?v=bbpFBsl8K9k&ab_channel=DSCCommunity)
 
@@ -43,35 +43,34 @@ PowerShellGet is required. We recommend the latest version of PowerShellGet v2
 
 ### Managing the Module versions (optional)
 
-Managing the versions of your module is tedious, and it's hard to be consistent
-over time. The usual tricks like checking what the latest version on the 
-PSGallery is, or use the `BuildNumber` to increment a `0.0.x` version works but
-aren't ideal, especially if we want to stick to [semver](https://semver.org/).
+Managing the versions of your module is tedious, and is hard to maintain
+consistency over time. The usual tricks like checking what the latest version on
+PowerShell Gallery is, or use the `BuildNumber` to increment a `0.0.x` version
+works but isn't ideal, especially if we want to stick to [semver](https://semver.org/).
 
 While you can manage the version by updating the module manifest manually or by
 letting your CI tool update the `ModuleVersion` environment variable, we think
-the best is to rely on the cross-platform tool [`GitVersion`](https://gitversion.net/docs/).
+the best method is to rely on the cross-platform tool [`GitVersion`](https://gitversion.net/docs/).
 
 [`GitVersion`](https://gitversion.net/docs/) will generate the version based on
 the git history. You control what version to deploy using [git tags](https://git-scm.com/book/en/v2/Git-Basics-Tagging).
 
-As a rule of thumb, it will look at the latest version tag, and will look at
-the branches and their name, or the commit messages, to try to update the
-Major/Minor/Patch (semantic versioning) based on detected change (configurable
-in the file [`GitVersion.yml`](https://gitversion.net/docs/reference/configuration)
+Generally, GitVersion will look at the latest version tag, the branch names, commit
+messages, to try to determine the Major/Minor/Patch (semantic versioning) based
+on detected change (configurable in the file [`GitVersion.yml`](https://gitversion.net/docs/reference/configuration)
 that is part of your project).
 
-What that means is that we recommend you to install `GitVersion` on your
-development environment, and your CI.
+Therefore, it is recommended that you install `GitVersion` on your development environment
+and on your CI environment build agents.
 
-See various way to [install GitVersion](https://gitversion.net/docs/usage/cli/installation)
+There are various ways to [install GitVersion](https://gitversion.net/docs/usage/cli/installation)
 on your development environment. If you use Chocolatey (install and upgrade):
 
 ```PowerShell
 C:\> choco upgrade gitversion.portable
 ```
 
-This describes how to [install GitVersion in your CI](https://gitversion.net/docs/usage/ci)
+This describes how to [install GitVersion in your CI environment build agents](https://gitversion.net/docs/usage/ci)
 if you plan to use the deploy pipelines in the CI.
 
 ## Usage
@@ -80,10 +79,11 @@ if you plan to use the deploy pipelines in the CI.
 
 To create a new project the command `New-SampleModule` should be used. Depending
 on the template used with the command the content in project will contain
-different sample content, some also add addition pipeline jobs. But all templates
-(expect one) will have the basic tasks to have a working pipeline; build, test, deploy.
+different sample content while some also adds additional pipeline jobs. But all
+templates (except one) will have the basic tasks to have a working pipeline including
+build, test and deploy stages.
 
-So below how to use each template. The templates are:
+The sections below show how to use each template. The templates are:
 
 - `SimpleModule` - Creates a module with minimal structure and pipeline automation.
 - `SimpleModule_NoBuild` - Creates a simple module without the build automation.
@@ -96,8 +96,8 @@ So below how to use each template. The templates are:
   
 As per the video above, you can create a new module project with all files and
 pipeline scripts. Once the project is created, the `build.ps1` inside the new
-project is how you interact with the built-in pipeline automation, and the
-file `build.yaml` is where you configure and customize it.
+project folder is how you interact with the built-in pipeline automation, and
+the file `build.yaml` is where you configure and customize it.
 
 #### `SimpleModule`
 
@@ -198,13 +198,13 @@ Invoke-Plaster @invokePlasterParameters
 >**Note:** The `GCPackage` template is not yet available, but can be created using
 >the `dsccommunity` template with modifications, see the section [GCPackage scaffolding](#gcpackage-scaffolding).
 
-### How to download dependencies for project
+### How to download dependencies for the project
 
-To be able to build the project all the dependencies listed in the file
+To be able to build the project, all the dependencies listed in the file
 `RequiredModules.psd1` must first be available. This is the beginning of
 the build process so that anyone doing a git clone can 're-hydrate' the
-project and start testing and producing the artefact locally with minimum
-environment dependency.
+project and start testing and producing the build artefact locally with
+minimal environmental dependencies.
 
 The following command will resolve dependencies:
 
@@ -214,8 +214,8 @@ cd C:\source\MySimpleModule
 ./build.ps1 -ResolveDependency -Tasks noop
 ```
 
-The dependencies will be downloaded (or updated) from the PSGallery (unless
-changed to another repository) and saved in the project folder under
+The dependencies will be downloaded (or updated) from the PowerShell Gallery (unless
+another repository is specified) and saved in the project folder under
 `./output/RequiredModules`.
 
 > By default, each repository should not rely on your personal development
@@ -246,7 +246,7 @@ at the same time using the command:
 ./build.ps1 -ResolveDependency -Tasks build
 ```
 
-If there are any errors during build´it will be shown in the output and the
+If there are any errors during build they will be shown in the output and the
 build will stop. If it is successful the output should end with:
 
 ```plaintext
@@ -256,24 +256,32 @@ Build succeeded. 7 tasks, 0 errors, 0 warnings 00:00:06.1049394
 > **NOTE:** The number of tasks can differ depending on which template that
 > was used to create the project.
 
-### How to run tests
+### How to set up the build environment in the current PowerShell session
 
-> **NOTE:** Which tests are run is determined by the paths configured
-> by a key in the _Pester_ configuration in the file `build.yml`. The key
-> differ depending on _Pester_ version used. The key is `Script` when using
-> _Pester v4_, and `Path` when using _Pester v5_.
-
-If running (or debugging) tests in Visual Studio Code you should first make sure
-the session environment is set correctly. This is normally done when you build
-the project. But if there is no need to rebuild the project it is faster to run
-the following in the _PowerShell Integrated Console_:
+If you only want to make sure the environment is configured, or you only want
+to resolve the dependencies, you can call the built-in task `noop` ("no operation")
+which won't do anything other than a quick way to run the bootstrap script (there
+is no code that executes in the `noop` task).
 
 ```powershell
 ./build.ps1 -Tasks noop
 ```
 
-This just runs the bootstrap, and then runs the built-in "no operation" (`noop`)
-task which does nothing (there is no code that executes in that task).
+>**Note:** For the built-in `noop` task to work, the dependencies must first
+have been resolved.
+
+### How to run tests
+
+> **NOTE:** Which tests are run is determined by the paths configured
+> by a key in the _Pester_ configuration in the file `build.yml`. The key
+> differs depending on the version of _Pester_ being used. The key is `Script`
+> when using _Pester v4_, and `Path` when using _Pester v5_.
+
+If running (or debugging) tests in Visual Studio Code you should first make sure
+the session environment is set correctly. This is normally done when you build
+the project. But if there is no need to rebuild the project it is faster to run
+the [built-in task `noop`](#how-to-set-up-the-build-environment-in-the-current-powershell-session)
+in the _PowerShell Integrated Console_.
 
 ### How to run the default workflow
 
@@ -285,7 +293,7 @@ in just one line by running the following:
 ```
 
 The parameter `Task` is not used which means this will run the default workflow
-(`.`). The tasks for the default workflow is configured in the file `build.yml`.
+(`.`). The tasks for the default workflow are configured in the file `build.yml`.
 Normally the default workflow builds the project and runs all the configured test.
 
 This means by running this it will build and run all configured tests:
@@ -297,7 +305,7 @@ This means by running this it will build and run all configured tests:
 ### How to list all available tasks
 
 Because the build tasks are `InvokeBuild` tasks, we can discover them using
-the `?` task. So to list the available tasks in a project, run the following 
+the `?` task. So to list the available tasks in a project, run the following
 command:
 
 ```powershell
@@ -305,7 +313,7 @@ command:
 ```
 
 > **NOTE:** If it is not already done, first make sure to resolve dependencies.
-> Dependencies can also hold tasks that is used in the pipeline.
+> Dependencies can also hold tasks that are used in the pipeline.
 
 ## About the bootstrap process (`build.ps1`)
 
@@ -313,7 +321,7 @@ The `build.ps1` is the _entry point_ to invoke any task, or a list of build
 tasks (workflow), leveraging the [`Invoke-Build`](https://www.powershellgallery.com/packages/InvokeBuild)
 task runner.
 
-The script do not assume your environment has the required PowerShell modules,
+The script does not assume your environment has the required PowerShell modules,
 so the bootstrap is done by the project's script file `build.ps1`, and can
 resolve the dependencies listed in the project's file `RequiredModules.psd1`
 using [`PSDepend`](https://www.powershellgallery.com/packages/PSDepend).
@@ -326,49 +334,48 @@ environment like so:
    by prepending those paths to `$env:PSModulePath`. By prepending the paths
    to the session `$env:PSModulePath` the build process will make those
    dependencies available in your session for module discovery and auto-loading,
-   and also possible to use one or more of those modules as part of your built
+   and also make it possible to use one or more of those modules as part of your built
    module.
-1. Making sure you have a trustable version of the module _PowerShellGet_ and
-   _PackageManagement_ (`version -gt 1.6`), or it will install it from the
+1. Making sure you have a compatible version of the modules _PowerShellGet_ and
+   _PackageManagement_ (`version -gt 1.6`). If not, these will be installed from the
    configured repository.
 1. Download or install the `PowerShell-yaml` and `PSDepend` modules needed
    for further dependency management.
 1. Read the `build.yaml` configuration.
-1. If Nuget package provider not present, install and import nuget PackageProvider
+1. If the Nuget package provider is not present, install and import Nuget PackageProvider
    (proxy enabled).
 1. Invoke [PSDepend](https://www.powershellgallery.com/packages/PSDepend) on
    the file `RequiredModules.psd1`. It will not install required modules to
    your environment, it will save them to your project's folder `./output/RequiredModules`.
-1. Hand over the task executions to `Invoke-Build` to run the configured
+1. Hand over the task execution to `Invoke-Build` to run the configured
    workflow.
-
-If you only want to make sure the environment is configured, or you only want
-to resolve the dependencies, you can call the built-in task `noop` which won't
-do anything. But for the built-in `noop` task to work, the dependencies
-must first have been resolved.
 
 ## About Sampler build workflow
 
-Let's look at the pipeline of the `Sampler` module itself to better explain
+Let's look at the pipeline of the `Sampler` module itself to better understand
 how the pipeline automation is configured for a project created using a
 template from the Sampler module.
 
 > **NOTE:** Depending on the Sampler template used when creating a new project
-> there can be addition configuration options - but they can all be added
-> manually those options are needed. The Sampler project itself is not using all
-> features available (an example is DSC resources documentation generation).
+> there can be additional configuration options - but they can all be added
+> manually when those options are needed. The Sampler project itself does not use
+> all features available (an example is DSC resources documentation generation).
 
 ### Default Workflow Currently configured
 
-As seen in the bootstrap process above, the different workflows can be configured by editing the `build.psd1`: new tasks can be loaded, and the sequence can be added under the `BuildWorkflow` key by listing the names.
+As seen in the bootstrap process above, the different workflows can be configured
+by editing the `build.psd1`: new tasks can be loaded, and the sequence can be
+added under the `BuildWorkflow` key by listing the names.
 
-In our case, the [build.yaml](build.yaml) defines several workflows (`.`, `build`, `pack`, `hqrmtest`, `test`, and `publish`) that can be called by using:
+In our case, the [build.yaml](build.yaml) defines several workflows (`.`,
+`build`, `pack`, `hqrmtest`, `test`, and `publish`) that can be called by using:
 
 ```PowerShell
  .\build.ps1 -Tasks <Workflow_or_task_Name>
 ```
 
-The detail of the **default workflow** is as follow (InvokeBuild defaults to the workflow named '.' when no tasks is specified):
+The detail of the **default workflow** is as follow (InvokeBuild defaults to
+the workflow named '.' when no tasks is specified):
 
 ```yml
 BuildWorkflow:
@@ -619,7 +626,7 @@ Refer to the comment-based help for more information about these commands.
 
 ### `Convert-SamplerHashtableToString`
 
-Convert an Hashtable to a string representation. For instance, calling the
+Convert a Hashtable to a string representation. For instance, calling the
 function with this hashtable:
 
 ```powershell
@@ -983,8 +990,8 @@ This example will return the code coverage output file encoding.
 
 ### `Get-SamplerModuleInfo`
 
-This command loads a module manifest and return the hashtable.
-This implementation works around the issue where Windows PowerShell version have
+This command loads a module manifest and returns the hashtable.
+This implementation works around the issue where Windows PowerShell has
 issues with the pwsh `$env:PSModulePath` such as in _VS Code_ with the _VS Code_
 _PowerShell extension_.
 
@@ -1066,7 +1073,7 @@ This example will return the project name of the module in the path `C:\src\MyMo
 
 ### `Get-SamplerSourcePath`
 
-This command returns the project's source path based on the module manifest, 
+This command returns the project's source path based on the module manifest,
 if no module manifest is available it will return `$null`.
 
 #### Syntax
@@ -1187,7 +1194,7 @@ New-SamplerJaCoCoDocument `
 ```
 <!-- markdownlint-enable MD013 - Line length -->
 
-This example will create a new JaCoCo report based on the two hashtables 
+This example will create a new JaCoCo report based on the two hashtables
 containing hit or missed line.
 
 ### `Out-SamplerXml`
@@ -1221,14 +1228,14 @@ in the parameter **XmlDocument**.
 
 ### `Set-SamplerTaskVariable`
 
-This is an alias that points to a script file that is meant to be dot-source
+This is an alias that points to a script file that is meant to be dot-sourced
 from (in) a build task. The script will set common task variables for a build
 task. This function should normally never be called outside of a build task, but
-an exception can be tests, tests can call the alias to set the values prior to
+an exception can be tests; tests can call the alias to set the values prior to
 running tests.
 
 > **Note:** Running the command `Get-Help -Name 'Set-SamplerTaskVariable'` will
-> only return help for the alias, to see the comment-based help for the script,
+> only return help for the alias. To see the comment-based help for the script,
 > run:
 > ```powershell
 > Import-Module -Name Sampler
@@ -1307,7 +1314,7 @@ version for a version string that was returned by GitVersion.
 ### `Update-JaCoCoStatistic`
 
 This command updates statistics of a JaCoCo report. This is meant to be
-run after the command [`Merge-JaCoCoReport`](#merge-jacocoreport) have been
+run after the command [`Merge-JaCoCoReport`](#merge-jacocoreport) has been
 used.
 
 #### Syntax
@@ -1336,13 +1343,13 @@ the updated statistics.
 ## Build Task Variables
 
 A task variable is used in a build task and it can be added as a script
-parameter to build.ps1, set as as an environment variable, and can often
+parameter to build.ps1 or set as as an environment variable. It can often
 be used if defined in parent scope or read from the $BuildInfo properties
 defined in the configuration file.
 
 ### `BuildModuleOutput`
 
-The path where the module will be built. The path will for example
+This is the path where the module will be built. The path will, for example,
 be used for the parameter `OutputDirectory` when calling the cmdlet
 `Build-Module` of the PowerShell module _Invoke-Build_. Defaults to
 the path for `OutputDirectory`, and concatenated with `BuiltModuleSubdirectory`
@@ -1361,7 +1368,7 @@ is not available the the variable defaults to an empty string, and the
 build module task will use the version found in the Module Manifest.
 
 It is also possible to set the session environment variable `$env:ModuleVersion`
-in the PowerShell session, or setting the variable `$ModuleVersion` in the
+in the PowerShell session or set the variable `$ModuleVersion` in the
 PowerShell session (the parent scope to `Invoke-Build`) before running the
 task `build`
 
@@ -1369,7 +1376,7 @@ This `ModuleVersion` task variable can be overridden by using the key `SemVer`
 in the file `build.yml`, e.g. `SemVer: '99.0.0-preview1'`. This can be used
 if the preferred method of using GitVersion is not available.
 
-The order how the module version is detected is as follows:
+The order that the module version is determined is as follows:
 
 1. the parameter `ModuleVersion` is set from the command line (passing parameter
    to build task)
@@ -1384,7 +1391,7 @@ The order how the module version is detected is as follows:
 1. if module version is set using key `SemVer` in `build.yml` it will
    override 1), 2), 3), and 4)
 1. ~~if `SemVar` is set through parameter from the command line then it will~~
-   ~~override 1), 2), 3), 4), and 5)~~ Not supported today.
+   ~~override 1), 2), 3), 4), and 5)~~. This is not yet supported.
 
 ### `OutputDirectory`
 
