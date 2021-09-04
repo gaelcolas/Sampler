@@ -93,7 +93,7 @@ The sections below show how to use each template. The templates are:
 - `CustomModule` - Will prompt you for more details as to what you'd like to scaffold.
 - `GCPackage` - Creates a module that can be deployed to be used with _Azure Policy_
   _Guest Configuration_.
-  
+
 As per the video above, you can create a new module project with all files and
 pipeline scripts. Once the project is created, the `build.ps1` inside the new
 project folder is how you interact with the built-in pipeline automation, and
