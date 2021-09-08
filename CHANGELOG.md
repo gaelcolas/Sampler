@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+
+- Removed `PesterOutputFormat` parameter in `DeployAll.PSDeploy.build.ps1`
+ fix ([issue #292](https://github.com/gaelcolas/Sampler/issues/292)).
+
 ### Added
 
 - Added -WhatIf parameter to `release.module.build.ps1`
