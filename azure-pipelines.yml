@@ -1,13 +1,7 @@
-variables:
-  buildFolderName: output
-  buildArtifactName: output
-  testResultFolderName: testResults
-  defaultBranch: main
-
 trigger:
   branches:
     include:
-    - $(defaultBranch)
+    - main
   paths:
     exclude:
     - CHANGELOG.md
@@ -16,6 +10,12 @@ trigger:
     - "v*"
     exclude:
     - "*-*"
+
+variables:
+  buildFolderName: output
+  buildArtifactName: output
+  testResultFolderName: testResults
+  defaultBranch: main
 
 stages:
   - stage: Build
