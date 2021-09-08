@@ -70,6 +70,7 @@ Describe 'Simple Module No Build Plaster Template' {
                 ModuleDescription = 'Module description'
                 ModuleVersion     = '1.0.0'
                 CustomRepo        = 'PSGallery'
+                MainGitBranch     = 'main'
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw

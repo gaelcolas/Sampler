@@ -96,6 +96,7 @@ Describe 'DSC Community Plaster Template' {
                 ModuleDescription = 'Mock Module Description'
                 CustomRepo        = 'PSGallery'
                 ModuleVersion     = '1.0.0'
+                MainGitBranch     = 'main'
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw
