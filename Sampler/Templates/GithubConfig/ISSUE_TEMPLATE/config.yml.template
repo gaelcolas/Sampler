@@ -1,6 +1,6 @@
 blank_issues_enabled: false
 <%
-if ($PLASTER_PARAM_ModuleType -in @('dsccommunity','newdsccommunity','CompleteSample'))
+if ($PLASTER_PARAM_ModuleType -in @('dsccommunity','CompleteSample'))
 {
 'contact_links:
   - name: "Virtual PowerShell User Group #DSC channel"

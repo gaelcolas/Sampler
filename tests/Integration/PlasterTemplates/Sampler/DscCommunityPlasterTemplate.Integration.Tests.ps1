@@ -36,13 +36,17 @@ Describe 'DSC Community Plaster Template' {
                 '.vscode'
                 'source'
                 'source/en-US'
-                'source/WikiSource'
                 'tests'
+                'tests/Unit'
+                'tests/Unit/Private'
+                'tests/Unit/Public'
+                'source/Classes'
+                'source/Enum'
+                'source/WikiSource'
                 'output'
                 'output/RequiredModules'
 
                 # Files (relative to module root)
-
                 '.gitattributes'
                 '.github/ISSUE_TEMPLATE'
                 '.github/PULL_REQUEST_TEMPLATE.md'
@@ -57,19 +61,21 @@ Describe 'DSC Community Plaster Template' {
                 'build.yaml'
                 'CHANGELOG.md'
                 'CODE_OF_CONDUCT.md'
-                'README.md'
-                'SECURITY.md'
-                'LICENSE'
                 'codecov.yml'
                 'CONTRIBUTING.md'
                 'GitVersion.yml'
+                'LICENSE'
+                'README.md'
                 'RequiredModules.psd1'
                 'Resolve-Dependency.ps1'
                 'Resolve-Dependency.psd1'
+                'SECURITY.md'
                 '.vscode/analyzersettings.psd1'
                 '.vscode/settings.json'
                 '.vscode/tasks.json'
                 'source/en-US/about_ModuleDsc.help.txt'
+                'source/ModuleDsc.psd1'
+                'source/ModuleDsc.psm1'
             )
         }
 
@@ -85,7 +91,12 @@ Describe 'DSC Community Plaster Template' {
                 ModuleType      = 'dsccommunity'
 
                 # Template properties
-                ModuleName      = $mockModuleName
+                ModuleAuthor      = 'Mock Author'
+                ModuleName        = $mockModuleName
+                ModuleDescription = 'Mock Module Description'
+                CustomRepo        = 'PSGallery'
+                ModuleVersion     = '1.0.0'
+                MainGitBranch     = 'main'
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw

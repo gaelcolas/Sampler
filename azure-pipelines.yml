@@ -1,7 +1,13 @@
+variables:
+  buildFolderName: output
+  buildArtifactName: output
+  testResultFolderName: testResults
+  defaultBranch: main
+
 trigger:
   branches:
     include:
-    - main
+    - $(defaultBranch)
   paths:
     exclude:
     - CHANGELOG.md
@@ -10,10 +16,6 @@ trigger:
     - "v*"
     exclude:
     - "*-*"
-variables:
-  buildFolderName: output
-  buildArtifactName: output
-  testResultFolderName: testResults
 
 stages:
   - stage: Build
@@ -265,7 +267,7 @@ stages:
       and(
         succeeded(),
         or(
-          eq(variables['Build.SourceBranch'], 'refs/heads/main'),
+          eq(variables['Build.SourceBranch'], 'refs/heads/$(defaultBranch)'),
           startsWith(variables['Build.SourceBranch'], 'refs/tags/')
         ),
         contains(variables['System.TeamFoundationCollectionUri'], 'synedgy')
@@ -292,8 +294,8 @@ stages:
             env:
               GitHubToken: $(GitHubToken)
               GalleryApiToken: $(GalleryApiToken)
-              ReleaseBranch: main
-              MainGitBranch: main
+              ReleaseBranch: $(defaultBranch)
+              MainGitBranch: $(defaultBranch)
           - task: PowerShell@2
             name: sendChangelogPR
             displayName: 'Send Changelog PR'
@@ -303,5 +305,5 @@ stages:
               pwsh: true
             env:
               GitHubToken: $(GitHubToken)
-              ReleaseBranch: main
-              MainGitBranch: main
+              ReleaseBranch: $(defaultBranch)
+              MainGitBranch: $(defaultBranch)
