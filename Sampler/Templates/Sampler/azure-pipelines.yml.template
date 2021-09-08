@@ -1,13 +1,7 @@
-variables:
-  buildFolderName: output
-  buildArtifactName: output
-  testResultFolderName: testResults
-  defaultBranch: <%= ${PLASTER_PARAM_MainGitBranch} %>
-
 trigger:
   branches:
     include:
-    - $(defaultBranch)
+    - <%= ${PLASTER_PARAM_MainGitBranch} %>
   paths:
     exclude:
     - CHANGELOG.md
@@ -16,6 +10,12 @@ trigger:
     - "v*"
     exclude:
     - "*-*"
+
+variables:
+  buildFolderName: output
+  buildArtifactName: output
+  testResultFolderName: testResults
+  defaultBranch: <%= ${PLASTER_PARAM_MainGitBranch} %>
 
 stages:
   - stage: Build

@@ -1,15 +1,7 @@
-variables:
-  buildFolderName: output
-  buildArtifactName: output
-  testResultFolderName: testResults
-  testArtifactName: testResults
-  sourceFolderName: source
-  defaultBranch: <%= ${PLASTER_PARAM_MainGitBranch} %>
-
 trigger:
   branches:
     include:
-    - $(defaultBranch)
+    - <%= ${PLASTER_PARAM_MainGitBranch} %>
   paths:
     include:
     - source/*
@@ -18,6 +10,14 @@ trigger:
     - "v*"
     exclude:
     - "*-*"
+
+variables:
+  buildFolderName: output
+  buildArtifactName: output
+  testResultFolderName: testResults
+  testArtifactName: testResults
+  sourceFolderName: source
+  defaultBranch: <%= ${PLASTER_PARAM_MainGitBranch} %>
 
 stages:
   - stage: Build

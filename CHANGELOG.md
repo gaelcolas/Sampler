@@ -25,6 +25,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - All templates now defaults to using `main` as the default branch.
 - Updated Sampler documentation in README.md.
 
+### Fixed
+
+- Fix azure-pipelines.yml where variables are not possible to use.
+
 ## [0.111.8] - 2021-08-08
 
 ### Changed
