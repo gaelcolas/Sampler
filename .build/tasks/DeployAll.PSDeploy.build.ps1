@@ -8,10 +8,6 @@ param (
     $ProjectName = (property ProjectName ''),
 
     [Parameter()]
-    [string]
-    $PesterOutputFormat = (property PesterOutputFormat 'NUnitXml'),
-
-    [Parameter()]
     $DeploymentTags = (property DeploymentTags ''),
 
     [Parameter()]
