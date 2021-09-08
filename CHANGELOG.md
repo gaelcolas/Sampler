@@ -27,7 +27,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Fix azure-pipelines.yml where variables are not possible to use.
+- Fix azure-pipelines.yml where variables are not possible to use (triggers
+  and deploy condition).
 
 ## [0.111.8] - 2021-08-08
 

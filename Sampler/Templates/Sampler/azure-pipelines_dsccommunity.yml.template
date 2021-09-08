@@ -245,7 +245,7 @@ stages:
       and(
         succeeded(),
         or(
-          eq(variables['Build.SourceBranch'], 'refs/heads/$(defaultBranch)'),
+          eq(variables['Build.SourceBranch'], 'refs/heads/<%= ${PLASTER_PARAM_MainGitBranch} %>'),
           startsWith(variables['Build.SourceBranch'], 'refs/tags/')
         ),
         contains(variables['System.TeamFoundationCollectionUri'], 'dsccommunity')
