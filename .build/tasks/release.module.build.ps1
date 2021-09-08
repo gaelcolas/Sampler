@@ -34,7 +34,10 @@ param (
     $PSModuleFeed = (property PSModuleFeed 'PSGallery'),
 
     [Parameter()]
-    $SkipPublish = (property SkipPublish '')
+    $SkipPublish = (property SkipPublish ''),
+
+    [Parameter()]
+    $PublishModuleWhatIf = (property PublishModuleWhatIf '')
 )
 
 # Synopsis: Create ReleaseNotes from changelog and update the Changelog for release
@@ -167,6 +170,9 @@ task package_module_nupkg {
     # Force registering the output repository mapping to the Project's output path
     $null = Unregister-PSRepository -Name output -ErrorAction SilentlyContinue
 
+    # Parse PublishModuleWhatIf to be boolean
+    $null = [bool]::TryParse($PublishModuleWhatIf, [ref]$script:PublishModuleWhatIf)
+
     $RepositoryParams = @{
         Name            = 'output'
         SourceLocation  = $OutputDirectory
@@ -229,6 +235,12 @@ task package_module_nupkg {
                 $Prerelease = "-" + $Prerelease
             }
             Write-Build Yellow ("  Packaging Required Module {0} v{1}{2}" -f $Module.Name, $Module.Version.ToString(), $Prerelease)
+
+            if ($PublishModuleWhatIf)
+            {
+                $PublishModuleParams['WhatIf'] = $True
+            }
+
             Publish-Module -Repository output -ErrorAction SilentlyContinue -Path $module.ModuleBase
         }
     }
@@ -241,7 +253,13 @@ task package_module_nupkg {
         Force           = $true
     }
 
+    if ($PublishModuleWhatIf)
+    {
+        $PublishModuleParams['WhatIf'] = $True
+    }
+
     Publish-Module @PublishModuleParams
+
     Write-Build Green "`n  Packaged $ProjectName NuGet package `n"
     Write-Build DarkGray "  Cleaning up"
 
@@ -265,6 +283,9 @@ task publish_module_to_gallery -if ($GalleryApiToken -and (Get-Command -Name 'Pu
         $_.Version -eq $ModuleVersion
     }
 
+    # Parse PublishModuleWhatIf to be boolean
+    $null = [bool]::TryParse($PublishModuleWhatIf, [ref]$script:PublishModuleWhatIf)
+
     if (-not $BuiltModuleManifest)
     {
         throw "No valid manifest found for project $ProjectName."
@@ -287,6 +308,11 @@ task publish_module_to_gallery -if ($GalleryApiToken -and (Get-Command -Name 'Pu
         Repository      = $PSModuleFeed
         ErrorAction     = 'Stop'
         ReleaseNotes    = $releaseNotesForLatestRelease
+    }
+
+    if ($PublishModuleWhatIf)
+    {
+        $PublishModuleParams['WhatIf'] = $True
     }
 
     if (!$SkipPublish)

@@ -9,8 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
-- Removed `NunitXml` value of `PesterOutputFormat` parameter in `DeployAll.PSDeploy.build.ps1`
+- Removed `PesterOutputFormat` parameter in `DeployAll.PSDeploy.build.ps1`
  fix ([issue #292](https://github.com/gaelcolas/Sampler/issues/292)).
+
+### Added
+
+- Added -WhatIf parameter to `release.module.build.ps1`
+
+### Changed
+
+- Updated Sampler documentation in README.md.
 
 ## [0.111.8] - 2021-08-08
 
