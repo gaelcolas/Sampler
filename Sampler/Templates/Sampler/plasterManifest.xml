@@ -339,12 +339,12 @@
     />
 
     <!--   AZURE PIPELINES -->
-    <templateFile source='azure-pipelines.yml'
+    <templateFile source='azure-pipelines.yml.template'
           destination='${PLASTER_PARAM_ModuleName}/azure-pipelines.yml'
           condition='${PLASTER_PARAM_ModuleType} -in @("CompleteSample", "SimpleModule") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("Azure-Pipelines")'
     />
 
-    <templateFile source='azure-pipelines_dsccommunity.yml'
+    <templateFile source='azure-pipelines_dsccommunity.yml.template'
           destination='${PLASTER_PARAM_ModuleName}/azure-pipelines.yml'
           condition='${PLASTER_PARAM_ModuleType} -in @("dsccommunity")'
     />
