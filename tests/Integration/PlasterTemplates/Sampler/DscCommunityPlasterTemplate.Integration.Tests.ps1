@@ -97,7 +97,8 @@ Describe 'DSC Community Plaster Template' {
                 CustomRepo           = 'PSGallery'
                 ModuleVersion        = '1.0.0'
                 MainGitBranch        = 'main'
-                UpstreamOrganization = 'dsccommunity'
+
+                UpstreamOrganizationDscCommunity = 'dsccommunity'
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw
