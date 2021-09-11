@@ -64,22 +64,23 @@ Describe 'Simple Module Plaster Template' {
 
         It 'Should create a new module without throwing' {
             $invokePlasterParameters = @{
-                TemplatePath      = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
-                DestinationPath   = $TestDrive
-                SourceDirectory   = 'source'
-                NoLogo            = $true
-                Force             = $true
+                TemplatePath         = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
+                DestinationPath      = $TestDrive
+                SourceDirectory      = 'source'
+                NoLogo               = $true
+                Force                = $true
 
                 # Template
-                ModuleType        = 'SimpleModule'
+                ModuleType           = 'SimpleModule'
 
                 # Template properties
-                ModuleName        = $mockModuleName
-                ModuleAuthor      = 'SamplerTestUser'
-                ModuleDescription = 'Module description'
-                ModuleVersion     = '1.0.0'
-                CustomRepo        = 'PSGallery'
-                MainGitBranch     = 'main'
+                ModuleName           = $mockModuleName
+                ModuleAuthor         = 'SamplerTestUser'
+                ModuleDescription    = 'Module description'
+                ModuleVersion        = '1.0.0'
+                CustomRepo           = 'PSGallery'
+                MainGitBranch        = 'main'
+                UpstreamOrganization = 'AccountName'
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw

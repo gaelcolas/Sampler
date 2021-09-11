@@ -280,7 +280,7 @@ stages:
           eq(variables['Build.SourceBranch'], 'refs/heads/<%= ${PLASTER_PARAM_MainGitBranch} %>'),
           startsWith(variables['Build.SourceBranch'], 'refs/tags/')
         ),
-        contains(variables['System.TeamFoundationCollectionUri'], 'synedgy')
+        contains(variables['System.TeamFoundationCollectionUri'], '<%= ${PLASTER_PARAM_UpstreanOrganization} %>')
       )
     jobs:
       - job: Deploy_Module

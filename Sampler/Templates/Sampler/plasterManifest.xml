@@ -38,6 +38,8 @@
     <parameter name="ModuleDescription" type="text" prompt="Description of this module" />
     <parameter name="CustomRepo" default="PSGallery" type="text" prompt="Do you pull from default repository (PSGallery) or a custom repository?" />
     <parameter name="ModuleVersion" type="text" prompt="Module version"  default="0.0.1" />
+    <parameter name="UpstreamOrganization" default="MyOrgName" type="text" prompt="What is the name of the upstream GitHub organization/account that will publish the module?" condition="$PLASTER_PARAM_ModuleType -notin @('dsccommunity', 'SimpleModule_NoBuild')" />
+    <parameter name="UpstreamOrganization" default="dsccommunity" type="text" prompt="What is the name of the upstream GitHub organization/account that will publish the module?" condition="$PLASTER_PARAM_ModuleType -in @('dsccommunity')" />
 
     <parameter store="text"  name="License" type="choice" prompt="Do you want to include a License to your project?" default="1" condition='$PLASTER_PARAM_ModuleType -eq "CustomModule"' >
       <choice label='&amp;Yes' value='true' />

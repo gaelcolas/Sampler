@@ -118,24 +118,25 @@ Describe 'Custom Module Plaster Template' {
 
         It 'Should create a new module without throwing' {
             $invokePlasterParameters = @{
-                TemplatePath      = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
-                DestinationPath   = $TestDrive
-                SourceDirectory   = 'source'
-                NoLogo            = $true
-                Force             = $true
+                TemplatePath         = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
+                DestinationPath      = $TestDrive
+                SourceDirectory      = 'source'
+                NoLogo               = $true
+                Force                = $true
 
                 # Template
-                ModuleType        = 'CustomModule'
+                ModuleType           = 'CustomModule'
 
                 # Template properties
-                ModuleName        = $mockModuleName
-                MainGitBranch     = 'main'
-                ModuleAuthor      = 'SamplerTestUser'
-                ModuleDescription = 'Module description'
-                ModuleVersion     = '1.0.0'
-                CustomRepo        = 'PSGallery'
-                License           = 'false'
-                Features          = 'All'
+                ModuleName           = $mockModuleName
+                MainGitBranch        = 'main'
+                ModuleAuthor         = 'SamplerTestUser'
+                ModuleDescription    = 'Module description'
+                ModuleVersion        = '1.0.0'
+                CustomRepo           = 'PSGallery'
+                License              = 'false'
+                Features             = 'All'
+                UpstreamOrganization = 'AccountName'
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw
@@ -264,25 +265,26 @@ Describe 'Custom Module Plaster Template' {
 
         It 'Should create a new module without throwing' {
             $invokePlasterParameters = @{
-                TemplatePath      = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
-                DestinationPath   = $TestDrive
-                SourceDirectory   = 'source'
-                NoLogo            = $true
-                Force             = $true
+                TemplatePath         = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
+                DestinationPath      = $TestDrive
+                SourceDirectory      = 'source'
+                NoLogo               = $true
+                Force                = $true
 
                 # Template
-                ModuleType        = 'CustomModule'
+                ModuleType           = 'CustomModule'
 
                 # Template properties
-                ModuleName        = $mockModuleName
-                MainGitBranch     = 'main'
-                ModuleAuthor      = 'SamplerTestUser'
-                ModuleDescription = 'Module description'
-                ModuleVersion     = '1.0.0'
-                CustomRepo        = 'PSGallery'
-                License           = 'true'
-                LicenseType       = 'MIT'
-                Features          = 'All'
+                ModuleName           = $mockModuleName
+                MainGitBranch        = 'main'
+                ModuleAuthor         = 'SamplerTestUser'
+                ModuleDescription    = 'Module description'
+                ModuleVersion        = '1.0.0'
+                CustomRepo           = 'PSGallery'
+                License              = 'true'
+                LicenseType          = 'MIT'
+                Features             = 'All'
+                UpstreamOrganization = 'AccountName'
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw
@@ -411,25 +413,26 @@ Describe 'Custom Module Plaster Template' {
 
         It 'Should create a new module without throwing' {
             $invokePlasterParameters = @{
-                TemplatePath      = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
-                DestinationPath   = $TestDrive
-                SourceDirectory   = 'source'
-                NoLogo            = $true
-                Force             = $true
+                TemplatePath         = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
+                DestinationPath      = $TestDrive
+                SourceDirectory      = 'source'
+                NoLogo               = $true
+                Force                = $true
 
                 # Template
-                ModuleType        = 'CustomModule'
+                ModuleType           = 'CustomModule'
 
                 # Template properties
-                ModuleName        = $mockModuleName
-                MainGitBranch     = 'main'
-                ModuleAuthor      = 'SamplerTestUser'
-                ModuleDescription = 'Module description'
-                ModuleVersion     = '1.0.0'
-                CustomRepo        = 'PSGallery'
-                License           = 'true'
-                LicenseType       = 'Apache'
-                Features          = 'All'
+                ModuleName           = $mockModuleName
+                MainGitBranch        = 'main'
+                ModuleAuthor         = 'SamplerTestUser'
+                ModuleDescription    = 'Module description'
+                ModuleVersion        = '1.0.0'
+                CustomRepo           = 'PSGallery'
+                License              = 'true'
+                LicenseType          = 'Apache'
+                Features             = 'All'
+                UpstreamOrganization = 'AccountName'
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw
@@ -559,25 +562,26 @@ Describe 'Custom Module Plaster Template' {
 
         It 'Should create a new module without throwing' {
             $invokePlasterParameters = @{
-                TemplatePath      = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
-                DestinationPath   = $TestDrive
-                SourceDirectory   = 'source'
-                NoLogo            = $true
-                Force             = $true
+                TemplatePath         = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
+                DestinationPath      = $TestDrive
+                SourceDirectory      = 'source'
+                NoLogo               = $true
+                Force                = $true
 
                 # Template
-                ModuleType        = 'CustomModule'
+                ModuleType           = 'CustomModule'
 
                 # Template properties
-                ModuleName        = $mockModuleName
-                MainGitBranch     = 'main'
-                ModuleAuthor      = 'SamplerTestUser'
-                ModuleDescription = 'Module description'
-                ModuleVersion     = '1.0.0'
-                CustomRepo        = 'PSGallery'
-                License           = 'true'
-                LicenseType       = 'Apache'
-                Features          = 'All'
+                ModuleName           = $mockModuleName
+                MainGitBranch        = 'main'
+                ModuleAuthor         = 'SamplerTestUser'
+                ModuleDescription    = 'Module description'
+                ModuleVersion        = '1.0.0'
+                CustomRepo           = 'PSGallery'
+                License              = 'true'
+                LicenseType          = 'Apache'
+                Features             = 'All'
+                UpstreamOrganization = 'AccountName'
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw
@@ -638,24 +642,25 @@ Describe 'Custom Module Plaster Template' {
 
         It 'Should create a new module without throwing' {
             $invokePlasterParameters = @{
-                TemplatePath      = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
-                DestinationPath   = $TestDrive
-                SourceDirectory   = 'source'
-                NoLogo            = $true
-                Force             = $true
+                TemplatePath         = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
+                DestinationPath      = $TestDrive
+                SourceDirectory      = 'source'
+                NoLogo               = $true
+                Force                = $true
 
                 # Template
-                ModuleType        = 'CustomModule'
+                ModuleType           = 'CustomModule'
 
                 # Template properties
-                ModuleName        = $mockModuleName
-                MainGitBranch     = 'main'
-                ModuleAuthor      = 'SamplerTestUser'
-                ModuleDescription = 'Module description'
-                ModuleVersion     = '1.0.0'
-                CustomRepo        = 'PSGallery'
-                License           = 'false'
-                Features          = 'Enum'
+                ModuleName           = $mockModuleName
+                MainGitBranch        = 'main'
+                ModuleAuthor         = 'SamplerTestUser'
+                ModuleDescription    = 'Module description'
+                ModuleVersion        = '1.0.0'
+                CustomRepo           = 'PSGallery'
+                License              = 'false'
+                Features             = 'Enum'
+                UpstreamOrganization = 'AccountName'
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw
@@ -716,24 +721,25 @@ Describe 'Custom Module Plaster Template' {
 
         It 'Should create a new module without throwing' {
             $invokePlasterParameters = @{
-                TemplatePath      = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
-                DestinationPath   = $TestDrive
-                SourceDirectory   = 'source'
-                NoLogo            = $true
-                Force             = $true
+                TemplatePath         = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
+                DestinationPath      = $TestDrive
+                SourceDirectory      = 'source'
+                NoLogo               = $true
+                Force                = $true
 
                 # Template
-                ModuleType        = 'CustomModule'
+                ModuleType           = 'CustomModule'
 
                 # Template properties
-                ModuleName        = $mockModuleName
-                MainGitBranch     = 'main'
-                ModuleAuthor      = 'SamplerTestUser'
-                ModuleDescription = 'Module description'
-                ModuleVersion     = '1.0.0'
-                CustomRepo        = 'PSGallery'
-                License           = 'false'
-                Features          = 'Classes' # All,Enum,Classes,DSCResources,SampleScripts,git,Gherkin,UnitTests,ModuleQuality,Build,AppVeyor,TestKitchen
+                ModuleName           = $mockModuleName
+                MainGitBranch        = 'main'
+                ModuleAuthor         = 'SamplerTestUser'
+                ModuleDescription    = 'Module description'
+                ModuleVersion        = '1.0.0'
+                CustomRepo           = 'PSGallery'
+                License              = 'false'
+                Features             = 'Classes' # All,Enum,Classes,DSCResources,SampleScripts,git,Gherkin,UnitTests,ModuleQuality,Build,AppVeyor,TestKitchen
+                UpstreamOrganization = 'AccountName'
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw
@@ -797,24 +803,25 @@ Describe 'Custom Module Plaster Template' {
 
         It 'Should create a new module without throwing' {
             $invokePlasterParameters = @{
-                TemplatePath      = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
-                DestinationPath   = $TestDrive
-                SourceDirectory   = 'source'
-                NoLogo            = $true
-                Force             = $true
+                TemplatePath         = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
+                DestinationPath      = $TestDrive
+                SourceDirectory      = 'source'
+                NoLogo               = $true
+                Force                = $true
 
                 # Template
-                ModuleType        = 'CustomModule'
+                ModuleType           = 'CustomModule'
 
                 # Template properties
-                ModuleName        = $mockModuleName
-                MainGitBranch     = 'main'
-                ModuleAuthor      = 'SamplerTestUser'
-                ModuleDescription = 'Module description'
-                ModuleVersion     = '1.0.0'
-                CustomRepo        = 'PSGallery'
-                License           = 'false'
-                Features          = 'DSCResources' # All,Enum,Classes,DSCResources,SampleScripts,git,Gherkin,UnitTests,ModuleQuality,Build,AppVeyor,TestKitchen
+                ModuleName           = $mockModuleName
+                MainGitBranch        = 'main'
+                ModuleAuthor         = 'SamplerTestUser'
+                ModuleDescription    = 'Module description'
+                ModuleVersion        = '1.0.0'
+                CustomRepo           = 'PSGallery'
+                License              = 'false'
+                Features             = 'DSCResources' # All,Enum,Classes,DSCResources,SampleScripts,git,Gherkin,UnitTests,ModuleQuality,Build,AppVeyor,TestKitchen
+                UpstreamOrganization = 'AccountName'
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw
@@ -876,24 +883,25 @@ Describe 'Custom Module Plaster Template' {
 
         It 'Should create a new module without throwing' {
             $invokePlasterParameters = @{
-                TemplatePath      = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
-                DestinationPath   = $TestDrive
-                SourceDirectory   = 'source'
-                NoLogo            = $true
-                Force             = $true
+                TemplatePath         = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
+                DestinationPath      = $TestDrive
+                SourceDirectory      = 'source'
+                NoLogo               = $true
+                Force                = $true
 
                 # Template
-                ModuleType        = 'CustomModule'
+                ModuleType           = 'CustomModule'
 
                 # Template properties
-                ModuleName        = $mockModuleName
-                MainGitBranch     = 'main'
-                ModuleAuthor      = 'SamplerTestUser'
-                ModuleDescription = 'Module description'
-                ModuleVersion     = '1.0.0'
-                CustomRepo        = 'PSGallery'
-                License           = 'false'
-                Features          = 'SampleScripts' # All,Enum,Classes,DSCResources,SampleScripts,git,Gherkin,UnitTests,ModuleQuality,Build,AppVeyor,TestKitchen
+                ModuleName           = $mockModuleName
+                MainGitBranch        = 'main'
+                ModuleAuthor         = 'SamplerTestUser'
+                ModuleDescription    = 'Module description'
+                ModuleVersion        = '1.0.0'
+                CustomRepo           = 'PSGallery'
+                License              = 'false'
+                Features             = 'SampleScripts' # All,Enum,Classes,DSCResources,SampleScripts,git,Gherkin,UnitTests,ModuleQuality,Build,AppVeyor,TestKitchen
+                UpstreamOrganization = 'AccountName'
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw
@@ -959,24 +967,25 @@ Describe 'Custom Module Plaster Template' {
 
         It 'Should create a new module without throwing' {
             $invokePlasterParameters = @{
-                TemplatePath      = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
-                DestinationPath   = $TestDrive
-                SourceDirectory   = 'source'
-                NoLogo            = $true
-                Force             = $true
+                TemplatePath         = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
+                DestinationPath      = $TestDrive
+                SourceDirectory      = 'source'
+                NoLogo               = $true
+                Force                = $true
 
                 # Template
-                ModuleType        = 'CustomModule'
+                ModuleType           = 'CustomModule'
 
                 # Template properties
-                ModuleName        = $mockModuleName
-                MainGitBranch     = 'main'
-                ModuleAuthor      = 'SamplerTestUser'
-                ModuleDescription = 'Module description'
-                ModuleVersion     = '1.0.0'
-                CustomRepo        = 'PSGallery'
-                License           = 'false'
-                Features          = 'git' # All,Enum,Classes,DSCResources,SampleScripts,git,Gherkin,UnitTests,ModuleQuality,Build,AppVeyor,TestKitchen
+                ModuleName           = $mockModuleName
+                MainGitBranch        = 'main'
+                ModuleAuthor         = 'SamplerTestUser'
+                ModuleDescription    = 'Module description'
+                ModuleVersion        = '1.0.0'
+                CustomRepo           = 'PSGallery'
+                License              = 'false'
+                Features             = 'git' # All,Enum,Classes,DSCResources,SampleScripts,git,Gherkin,UnitTests,ModuleQuality,Build,AppVeyor,TestKitchen
+                UpstreamOrganization = 'AccountName'
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw
@@ -1037,24 +1046,25 @@ Describe 'Custom Module Plaster Template' {
 
         It 'Should create a new module without throwing' {
             $invokePlasterParameters = @{
-                TemplatePath      = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
-                DestinationPath   = $TestDrive
-                SourceDirectory   = 'source'
-                NoLogo            = $true
-                Force             = $true
+                TemplatePath         = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
+                DestinationPath      = $TestDrive
+                SourceDirectory      = 'source'
+                NoLogo               = $true
+                Force                = $true
 
                 # Template
-                ModuleType        = 'CustomModule'
+                ModuleType           = 'CustomModule'
 
                 # Template properties
-                ModuleName        = $mockModuleName
-                MainGitBranch     = 'main'
-                ModuleAuthor      = 'SamplerTestUser'
-                ModuleDescription = 'Module description'
-                ModuleVersion     = '1.0.0'
-                CustomRepo        = 'PSGallery'
-                License           = 'false'
-                Features          = 'UnitTests' # All,Enum,Classes,DSCResources,SampleScripts,git,Gherkin,UnitTests,ModuleQuality,Build,AppVeyor,TestKitchen
+                ModuleName           = $mockModuleName
+                MainGitBranch        = 'main'
+                ModuleAuthor         = 'SamplerTestUser'
+                ModuleDescription    = 'Module description'
+                ModuleVersion        = '1.0.0'
+                CustomRepo           = 'PSGallery'
+                License              = 'false'
+                Features             = 'UnitTests' # All,Enum,Classes,DSCResources,SampleScripts,git,Gherkin,UnitTests,ModuleQuality,Build,AppVeyor,TestKitchen
+                UpstreamOrganization = 'AccountName'
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw
@@ -1117,24 +1127,25 @@ Describe 'Custom Module Plaster Template' {
 
         It 'Should create a new module without throwing' {
             $invokePlasterParameters = @{
-                TemplatePath      = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
-                DestinationPath   = $TestDrive
-                SourceDirectory   = 'source'
-                NoLogo            = $true
-                Force             = $true
+                TemplatePath         = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
+                DestinationPath      = $TestDrive
+                SourceDirectory      = 'source'
+                NoLogo               = $true
+                Force                = $true
 
                 # Template
-                ModuleType        = 'CustomModule'
+                ModuleType           = 'CustomModule'
 
                 # Template properties
-                ModuleName        = $mockModuleName
-                MainGitBranch     = 'main'
-                ModuleAuthor      = 'SamplerTestUser'
-                ModuleDescription = 'Module description'
-                ModuleVersion     = '1.0.0'
-                CustomRepo        = 'PSGallery'
-                License           = 'false'
-                Features          = 'ModuleQuality' # All,Enum,Classes,DSCResources,SampleScripts,git,Gherkin,UnitTests,ModuleQuality,Build,AppVeyor,TestKitchen
+                ModuleName           = $mockModuleName
+                MainGitBranch        = 'main'
+                ModuleAuthor         = 'SamplerTestUser'
+                ModuleDescription    = 'Module description'
+                ModuleVersion        = '1.0.0'
+                CustomRepo           = 'PSGallery'
+                License              = 'false'
+                Features             = 'ModuleQuality' # All,Enum,Classes,DSCResources,SampleScripts,git,Gherkin,UnitTests,ModuleQuality,Build,AppVeyor,TestKitchen
+                UpstreamOrganization = 'AccountName'
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw
@@ -1199,24 +1210,25 @@ Describe 'Custom Module Plaster Template' {
 
         It 'Should create a new module without throwing' {
             $invokePlasterParameters = @{
-                TemplatePath      = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
-                DestinationPath   = $TestDrive
-                SourceDirectory   = 'source'
-                NoLogo            = $true
-                Force             = $true
+                TemplatePath         = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
+                DestinationPath      = $TestDrive
+                SourceDirectory      = 'source'
+                NoLogo               = $true
+                Force                = $true
 
                 # Template
-                ModuleType        = 'CustomModule'
+                ModuleType           = 'CustomModule'
 
                 # Template properties
-                ModuleName        = $mockModuleName
-                MainGitBranch     = 'main'
-                ModuleAuthor      = 'SamplerTestUser'
-                ModuleDescription = 'Module description'
-                ModuleVersion     = '1.0.0'
-                CustomRepo        = 'PSGallery'
-                License           = 'false'
-                Features          = 'Build' # All,Enum,Classes,DSCResources,SampleScripts,git,Gherkin,UnitTests,ModuleQuality,Build,AppVeyor,TestKitchen
+                ModuleName           = $mockModuleName
+                MainGitBranch        = 'main'
+                ModuleAuthor         = 'SamplerTestUser'
+                ModuleDescription    = 'Module description'
+                ModuleVersion        = '1.0.0'
+                CustomRepo           = 'PSGallery'
+                License              = 'false'
+                Features             = 'Build' # All,Enum,Classes,DSCResources,SampleScripts,git,Gherkin,UnitTests,ModuleQuality,Build,AppVeyor,TestKitchen
+                UpstreamOrganization = 'AccountName'
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw
@@ -1276,24 +1288,25 @@ Describe 'Custom Module Plaster Template' {
 
         It 'Should create a new module without throwing' {
             $invokePlasterParameters = @{
-                TemplatePath      = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
-                DestinationPath   = $TestDrive
-                SourceDirectory   = 'source'
-                NoLogo            = $true
-                Force             = $true
+                TemplatePath         = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
+                DestinationPath      = $TestDrive
+                SourceDirectory      = 'source'
+                NoLogo               = $true
+                Force                = $true
 
                 # Template
-                ModuleType        = 'CustomModule'
+                ModuleType           = 'CustomModule'
 
                 # Template properties
-                ModuleName        = $mockModuleName
-                MainGitBranch     = 'main'
-                ModuleAuthor      = 'SamplerTestUser'
-                ModuleDescription = 'Module description'
-                ModuleVersion     = '1.0.0'
-                CustomRepo        = 'PSGallery'
-                License           = 'false'
-                Features          = 'AppVeyor' # All,Enum,Classes,DSCResources,SampleScripts,git,Gherkin,UnitTests,ModuleQuality,Build,AppVeyor,TestKitchen
+                ModuleName           = $mockModuleName
+                MainGitBranch        = 'main'
+                ModuleAuthor         = 'SamplerTestUser'
+                ModuleDescription    = 'Module description'
+                ModuleVersion        = '1.0.0'
+                CustomRepo           = 'PSGallery'
+                License              = 'false'
+                Features             = 'AppVeyor' # All,Enum,Classes,DSCResources,SampleScripts,git,Gherkin,UnitTests,ModuleQuality,Build,AppVeyor,TestKitchen
+                UpstreamOrganization = 'AccountName'
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw
@@ -1355,24 +1368,25 @@ Describe 'Custom Module Plaster Template' {
 
         It 'Should create a new module without throwing' {
             $invokePlasterParameters = @{
-                TemplatePath      = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
-                DestinationPath   = $TestDrive
-                SourceDirectory   = 'source'
-                NoLogo            = $true
-                Force             = $true
+                TemplatePath         = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
+                DestinationPath      = $TestDrive
+                SourceDirectory      = 'source'
+                NoLogo               = $true
+                Force                = $true
 
                 # Template
-                ModuleType        = 'CustomModule'
+                ModuleType           = 'CustomModule'
 
                 # Template properties
-                ModuleName        = $mockModuleName
-                MainGitBranch     = 'main'
-                ModuleAuthor      = 'SamplerTestUser'
-                ModuleDescription = 'Module description'
-                ModuleVersion     = '1.0.0'
-                CustomRepo        = 'PSGallery'
-                License           = 'false'
-                Features          = 'TestKitchen' # All,Enum,Classes,DSCResources,SampleScripts,git,Gherkin,UnitTests,ModuleQuality,Build,AppVeyor,TestKitchen
+                ModuleName           = $mockModuleName
+                MainGitBranch        = 'main'
+                ModuleAuthor         = 'SamplerTestUser'
+                ModuleDescription    = 'Module description'
+                ModuleVersion        = '1.0.0'
+                CustomRepo           = 'PSGallery'
+                License              = 'false'
+                Features             = 'TestKitchen' # All,Enum,Classes,DSCResources,SampleScripts,git,Gherkin,UnitTests,ModuleQuality,Build,AppVeyor,TestKitchen
+                UpstreamOrganization = 'AccountName'
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw
