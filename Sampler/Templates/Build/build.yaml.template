@@ -128,8 +128,14 @@ BuildWorkflow:
     - build
     - package_module_nupkg
 
+<%
+    if($PLASTER_PARAM_ModuleType -in @('dsccommunity')) {
+@"
   hqrmtest:
     - DscResource_Tests_Stop_On_Fail
+"@
+    }
+%>
 
   # Defining test task to be run when invoking `./build.ps1 -Tasks test`
   test:
