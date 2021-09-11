@@ -30,6 +30,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   template `dsccommunity`.
 - All templates now defaults to using `main` as the default branch.
 - Updated Sampler documentation in README.md.
+- Template `SimpleModule` have been modified to remove unnecessary configuration
+  ([issue #277](https://github.com/gaelcolas/Sampler/issues/277)).
 
 ### Fixed
 
