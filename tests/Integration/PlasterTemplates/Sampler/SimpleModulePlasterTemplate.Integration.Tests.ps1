@@ -30,35 +30,37 @@ Describe 'Simple Module Plaster Template' {
             $mockModuleRootPath = Join-Path -Path $TestDrive -ChildPath $mockModuleName
 
             $listOfExpectedFilesAndFolders = @(
+                # Folders (relative to module root)
 
-            # Folders (relative to module root)
+                '.vscode'
+                'source'
+                'source/en-US'
+                'source/Private'
+                'source/Public'
+                'tests'
+                'tests/QA'
+                'output'
+                'output/RequiredModules'
 
-            'source'
-            'source/en-US'
-            'source/Private'
-            'source/Public'
-            'tests'
-            'tests/QA'
-            'output'
-            'output/RequiredModules'
+                # Files (relative to module root)
 
-            # Files (relative to module root)
-
-            '.gitattributes'
-            '.gitignore'
-            'azure-pipelines.yml'
-            'build.ps1'
-            'build.yaml'
-            'CHANGELOG.md'
-            'codecov.yml'
-            'README.md'
-            'RequiredModules.psd1'
-            'Resolve-Dependency.ps1'
-            'Resolve-Dependency.psd1'
-            'source/ModuleDsc.psd1'
-            'source/ModuleDsc.psm1'
-            'source/en-US/about_ModuleDsc.help.txt'
-            'tests/QA/module.tests.ps1'
+                '.gitattributes'
+                '.gitignore'
+                'azure-pipelines.yml'
+                'build.ps1'
+                'build.yaml'
+                'CHANGELOG.md'
+                'codecov.yml'
+                'GitVersion.yml'
+                'README.md'
+                'RequiredModules.psd1'
+                'Resolve-Dependency.ps1'
+                'Resolve-Dependency.psd1'
+                '.vscode/tasks.json'
+                'source/ModuleDsc.psd1'
+                'source/ModuleDsc.psm1'
+                'source/en-US/about_ModuleDsc.help.txt'
+                'tests/QA/module.tests.ps1'
             )
         }
 
@@ -81,6 +83,8 @@ Describe 'Simple Module Plaster Template' {
                 CustomRepo           = 'PSGallery'
                 MainGitBranch        = 'main'
                 UpstreamOrganization = 'AccountName'
+                UseGitVersion        = $true
+                UseCodeCovIo         = $true
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw

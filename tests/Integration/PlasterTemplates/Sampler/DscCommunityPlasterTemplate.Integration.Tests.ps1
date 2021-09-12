@@ -97,6 +97,8 @@ Describe 'DSC Community Plaster Template' {
                 CustomRepo           = 'PSGallery'
                 ModuleVersion        = '1.0.0'
                 MainGitBranch        = 'main'
+                UseGitVersion        = $true
+                UseCodeCovIo         = $true
 
                 UpstreamOrganizationDscCommunity = 'dsccommunity'
             }
