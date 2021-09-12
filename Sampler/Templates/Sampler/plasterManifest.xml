@@ -41,12 +41,12 @@
     <parameter name="UpstreamOrganization" default="MyOrgName" type="text" prompt="What is the name of the upstream GitHub organization/account that will publish the module?" condition="$PLASTER_PARAM_ModuleType -notin @('dsccommunity', 'SimpleModule_NoBuild')" />
     <parameter name="UpstreamOrganizationDscCommunity" default="dsccommunity" type="text" prompt="What is the name of the upstream GitHub organization/account that will publish the module?" condition="$PLASTER_PARAM_ModuleType -in @('dsccommunity')" />
 
-    <parameter name="UseGitVersion" type="choice" prompt="Do you want to use GitVersion to handle automatic versioning for your project?" default="0" condition="$PLASTER_PARAM_ModuleType -notin @('SimpleModule_NoBuild')" >
+    <parameter name="UseGitVersion" type="choice" prompt="Do you want to use GitVersion to handle automatic versioning for your project?" default="0" condition="$PLASTER_PARAM_ModuleType -notin @('SimpleModule_NoBuild', 'CustomModule')" >
       <choice label='&amp;Yes' value='true' />
       <choice label='&amp;No' value='false' />
     </parameter>
 
-    <parameter name="UseCodeCovIo" type="choice" prompt="Do you want to use the service CodeCov.io for code coverage reporting?" default="1" condition="$PLASTER_PARAM_ModuleType -notin @('SimpleModule_NoBuild')" >
+    <parameter name="UseCodeCovIo" type="choice" prompt="Do you want to use the service CodeCov.io for code coverage reporting?" default="1" condition="$PLASTER_PARAM_ModuleType -notin @('SimpleModule_NoBuild', 'CustomModule')" >
       <choice label='&amp;Yes' value='true' />
       <choice label='&amp;No' value='false' />
     </parameter>
