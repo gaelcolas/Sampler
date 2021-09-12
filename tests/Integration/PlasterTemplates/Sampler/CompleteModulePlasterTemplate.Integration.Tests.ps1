@@ -134,6 +134,8 @@ Describe 'Complete Module Plaster Template' {
                 ModuleVersion        = '1.0.0'
                 CustomRepo           = 'PSGallery'
                 UpstreamOrganization = 'AccountName'
+                UseGitVersion        = $true
+                UseCodeCovIo         = $true
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw

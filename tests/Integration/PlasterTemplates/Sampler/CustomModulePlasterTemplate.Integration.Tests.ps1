@@ -137,6 +137,8 @@ Describe 'Custom Module Plaster Template' {
                 License              = 'false'
                 Features             = 'All'
                 UpstreamOrganization = 'AccountName'
+                UseGitVersion        = $true
+                UseCodeCovIo         = $true
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw
@@ -285,6 +287,8 @@ Describe 'Custom Module Plaster Template' {
                 LicenseType          = 'MIT'
                 Features             = 'All'
                 UpstreamOrganization = 'AccountName'
+                UseGitVersion        = $true
+                UseCodeCovIo         = $true
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw
@@ -433,6 +437,8 @@ Describe 'Custom Module Plaster Template' {
                 LicenseType          = 'Apache'
                 Features             = 'All'
                 UpstreamOrganization = 'AccountName'
+                UseGitVersion        = $true
+                UseCodeCovIo         = $true
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw
@@ -582,6 +588,8 @@ Describe 'Custom Module Plaster Template' {
                 LicenseType          = 'Apache'
                 Features             = 'All'
                 UpstreamOrganization = 'AccountName'
+                UseGitVersion        = $true
+                UseCodeCovIo         = $true
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw
@@ -661,6 +669,8 @@ Describe 'Custom Module Plaster Template' {
                 License              = 'false'
                 Features             = 'Enum'
                 UpstreamOrganization = 'AccountName'
+                UseGitVersion        = $true
+                UseCodeCovIo         = $true
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw
@@ -740,6 +750,8 @@ Describe 'Custom Module Plaster Template' {
                 License              = 'false'
                 Features             = 'Classes' # All,Enum,Classes,DSCResources,SampleScripts,git,Gherkin,UnitTests,ModuleQuality,Build,AppVeyor,TestKitchen
                 UpstreamOrganization = 'AccountName'
+                UseGitVersion        = $true
+                UseCodeCovIo         = $true
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw
@@ -822,6 +834,8 @@ Describe 'Custom Module Plaster Template' {
                 License              = 'false'
                 Features             = 'DSCResources' # All,Enum,Classes,DSCResources,SampleScripts,git,Gherkin,UnitTests,ModuleQuality,Build,AppVeyor,TestKitchen
                 UpstreamOrganization = 'AccountName'
+                UseGitVersion        = $true
+                UseCodeCovIo         = $true
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw
@@ -902,6 +916,8 @@ Describe 'Custom Module Plaster Template' {
                 License              = 'false'
                 Features             = 'SampleScripts' # All,Enum,Classes,DSCResources,SampleScripts,git,Gherkin,UnitTests,ModuleQuality,Build,AppVeyor,TestKitchen
                 UpstreamOrganization = 'AccountName'
+                UseGitVersion        = $true
+                UseCodeCovIo         = $true
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw
@@ -986,6 +1002,8 @@ Describe 'Custom Module Plaster Template' {
                 License              = 'false'
                 Features             = 'git' # All,Enum,Classes,DSCResources,SampleScripts,git,Gherkin,UnitTests,ModuleQuality,Build,AppVeyor,TestKitchen
                 UpstreamOrganization = 'AccountName'
+                UseGitVersion        = $true
+                UseCodeCovIo         = $true
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw
@@ -1065,6 +1083,8 @@ Describe 'Custom Module Plaster Template' {
                 License              = 'false'
                 Features             = 'UnitTests' # All,Enum,Classes,DSCResources,SampleScripts,git,Gherkin,UnitTests,ModuleQuality,Build,AppVeyor,TestKitchen
                 UpstreamOrganization = 'AccountName'
+                UseGitVersion        = $true
+                UseCodeCovIo         = $true
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw
@@ -1146,6 +1166,8 @@ Describe 'Custom Module Plaster Template' {
                 License              = 'false'
                 Features             = 'ModuleQuality' # All,Enum,Classes,DSCResources,SampleScripts,git,Gherkin,UnitTests,ModuleQuality,Build,AppVeyor,TestKitchen
                 UpstreamOrganization = 'AccountName'
+                UseGitVersion        = $true
+                UseCodeCovIo         = $true
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw
@@ -1229,6 +1251,8 @@ Describe 'Custom Module Plaster Template' {
                 License              = 'false'
                 Features             = 'Build' # All,Enum,Classes,DSCResources,SampleScripts,git,Gherkin,UnitTests,ModuleQuality,Build,AppVeyor,TestKitchen
                 UpstreamOrganization = 'AccountName'
+                UseGitVersion        = $true
+                UseCodeCovIo         = $true
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw
@@ -1307,6 +1331,8 @@ Describe 'Custom Module Plaster Template' {
                 License              = 'false'
                 Features             = 'AppVeyor' # All,Enum,Classes,DSCResources,SampleScripts,git,Gherkin,UnitTests,ModuleQuality,Build,AppVeyor,TestKitchen
                 UpstreamOrganization = 'AccountName'
+                UseGitVersion        = $true
+                UseCodeCovIo         = $true
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw
@@ -1387,6 +1413,8 @@ Describe 'Custom Module Plaster Template' {
                 License              = 'false'
                 Features             = 'TestKitchen' # All,Enum,Classes,DSCResources,SampleScripts,git,Gherkin,UnitTests,ModuleQuality,Build,AppVeyor,TestKitchen
                 UpstreamOrganization = 'AccountName'
+                UseGitVersion        = $true
+                UseCodeCovIo         = $true
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw

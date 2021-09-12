@@ -30,7 +30,6 @@ Describe 'Simple Module No Build Plaster Template' {
             $mockModuleRootPath = Join-Path -Path $TestDrive -ChildPath $mockModuleName
 
             $listOfExpectedFilesAndFolders = @(
-
                 # Folders (relative to module root)
 
                 'source'
@@ -49,7 +48,6 @@ Describe 'Simple Module No Build Plaster Template' {
                 'source/ModuleDsc.psm1'
                 'source/en-US/about_ModuleDsc.help.txt'
                 'tests/QA/module.tests.ps1'
-
             )
         }
 

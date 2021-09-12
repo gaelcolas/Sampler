@@ -41,6 +41,16 @@
     <parameter name="UpstreamOrganization" default="MyOrgName" type="text" prompt="What is the name of the upstream GitHub organization/account that will publish the module?" condition="$PLASTER_PARAM_ModuleType -notin @('dsccommunity', 'SimpleModule_NoBuild')" />
     <parameter name="UpstreamOrganizationDscCommunity" default="dsccommunity" type="text" prompt="What is the name of the upstream GitHub organization/account that will publish the module?" condition="$PLASTER_PARAM_ModuleType -in @('dsccommunity')" />
 
+    <parameter name="UseGitVersion" type="choice" prompt="Do you want to use GitVersion to handle automatic versioning for your project?" default="0" condition="$PLASTER_PARAM_ModuleType -notin @('SimpleModule_NoBuild')" >
+      <choice label='&amp;Yes' value='true' />
+      <choice label='&amp;No' value='false' />
+    </parameter>
+
+    <parameter name="UseCodeCovIo" type="choice" prompt="Do you want to use the service CodeCov.io for code coverage reporting?" default="1" condition="$PLASTER_PARAM_ModuleType -notin @('SimpleModule_NoBuild')" >
+      <choice label='&amp;Yes' value='true' />
+      <choice label='&amp;No' value='false' />
+    </parameter>
+
     <parameter store="text"  name="License" type="choice" prompt="Do you want to include a License to your project?" default="1" condition='$PLASTER_PARAM_ModuleType -eq "CustomModule"' >
       <choice label='&amp;Yes' value='true' />
       <choice label='&amp;No' value='false' />
@@ -525,7 +535,7 @@
    <!-- GITVERSION CONFIG YAML -->
    <templateFile source='../Git/GitVersion.yml.template'
           destination='${PLASTER_PARAM_ModuleName}/GitVersion.yml'
-          condition='${PLASTER_PARAM_ModuleType} -in @("dsccommunity","CompleteSample","SimpleBuild") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("git")'
+          condition='(${PLASTER_PARAM_UseGitVersion} -eq $true -and ${PLASTER_PARAM_ModuleType} -in @("dsccommunity","CompleteSample","SimpleModule")) -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("git")'
     />
 
    <!-- MARKDOWN LINT -->
@@ -537,19 +547,19 @@
    <!-- VSCODE SETTINGS -->
    <file source='../VscodeConfig/settings.json'
           destination='${PLASTER_PARAM_ModuleName}/.vscode/settings.json'
-          condition='${PLASTER_PARAM_ModuleType} -in @("dsccommunity","CompleteSample","SimpleBuild") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("vscode")'
+          condition='${PLASTER_PARAM_ModuleType} -in @("dsccommunity","CompleteSample") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("vscode")'
     />
 
     <!-- PSScriptAnalyzer VSCODE CONFIG -->
     <file source='../VscodeConfig/analyzersettings.psd1'
           destination='${PLASTER_PARAM_ModuleName}/.vscode/analyzersettings.psd1'
-          condition='${PLASTER_PARAM_ModuleType} -in @("dsccommunity","CompleteSample","SimpleBuild") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("vscode")'
+          condition='${PLASTER_PARAM_ModuleType} -in @("dsccommunity","CompleteSample") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("vscode")'
     />
 
     <!-- VSCODE SETTINGS -->
     <file source='../VscodeConfig/tasks.json'
           destination='${PLASTER_PARAM_ModuleName}/.vscode/tasks.json'
-          condition='${PLASTER_PARAM_ModuleType} -in @("dsccommunity","CompleteSample","SimpleBuild") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("vscode")'
+          condition='${PLASTER_PARAM_ModuleType} -in @("dsccommunity","CompleteSample","SimpleModule") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("vscode")'
     />
 
    <!-- GITHUB TEMPLATES -->
@@ -601,7 +611,7 @@
    <!-- Codecov.io -->
     <templateFile source='codecov.yml.template'
           destination='${PLASTER_PARAM_ModuleName}/codecov.yml'
-          condition='${PLASTER_PARAM_ModuleType} -in @("dsccommunity", "CompleteSample", "SimpleModule") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("codecov")'
+          condition='(${PLASTER_PARAM_UseCodeCovIo} -eq $true -and ${PLASTER_PARAM_ModuleType} -in @("dsccommunity", "CompleteSample", "SimpleModule")) -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("codecov")'
     />
   </content>
 </plasterManifest>
