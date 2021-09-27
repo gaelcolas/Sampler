@@ -92,7 +92,7 @@ task Create_changelog_release_output {
         $ReleaseNotes = Get-Content -raw $ChangeLogOutputPath -ErrorAction SilentlyContinue
     }
 
-    if ((Test-Path -Path $builtModuleManifest -ErrorAction SilentlyContinue) -and $ReleaseNotes)
+    if ($ReleaseNotes -and -not [string]::IsNullOrEmpty($builtModuleManifest) -and (Test-Path -Path $builtModuleManifest -ErrorAction SilentlyContinue))
     {
         try
         {
@@ -132,9 +132,16 @@ task Create_changelog_release_output {
             Write-Build -Color Red "No Release notes found to insert."
         }
 
-        if (-not (Test-Path -Path $builtModuleManifest))
+        if ([string]::IsNullOrEmpty($builtModuleManifest) -or -not (Test-Path -Path $builtModuleManifest))
         {
-            Write-Build -Color Red "No valid manifest found for project $ProjectName. Cannot update the Release Notes."
+            if ([string]::IsNullOrEmpty($ProjectName))
+            {
+                Write-Build -Color DarkGray "No Project Name found so we assume you are not building a PowerShell Module."
+            }
+            else
+            {
+                Write-Build -Color Red "No valid manifest found for project '$ProjectName'. Cannot update the Release Notes."
+            }
         }
     }
 }

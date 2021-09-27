@@ -65,7 +65,7 @@ param
 
 if ([System.String]::IsNullOrEmpty($ProjectName))
 {
-    $ProjectName = Get-SamplerProjectName -BuildRoot $BuildRoot
+    $ProjectName = Get-SamplerProjectName -BuildRoot $BuildRoot -ErrorAction Ignore
 }
 
 "`tProject Name               = '$ProjectName'"
@@ -80,6 +80,11 @@ if ([System.String]::IsNullOrEmpty($SourcePath))
 $OutputDirectory = Get-SamplerAbsolutePath -Path $OutputDirectory -RelativeTo $BuildRoot
 
 "`tOutput Directory           = '$OutputDirectory'"
+
+$ReleaseNotesPath = Get-SamplerAbsolutePath -Path $ReleaseNotesPath -RelativeTo $OutputDirectory
+
+"`tRelease Notes path         = '$ReleaseNotesPath'"
+
 <#
     We check if the value is set in build.yaml.
     1 . If it past to parameter, or defined in parameter property we use parameter,
@@ -121,6 +126,10 @@ if ($AsNewBuild.IsPresent)
     $ModuleVersion = Get-BuildVersion @getBuildVersionParameters
 
     "`tModule Version             = '$ModuleVersion'"
+}
+elseif ([string]::IsNullOrEmpty($ProjectName))
+{
+    Write-Warning -Message "The ProjectName wasn't found. This might be because you are not build PowerShell module, in which case you can ignore this message."
 }
 else
 {
@@ -190,10 +199,6 @@ else
 
     "`tBuilt Module Root Script   = '$BuiltModuleRootScriptPath'"
 }
-
-$ReleaseNotesPath = Get-SamplerAbsolutePath -Path $ReleaseNotesPath -RelativeTo $OutputDirectory
-
-"`tRelease Notes path         = '$ReleaseNotesPath'"
 
 # Blank row in output.
 ""
