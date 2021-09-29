@@ -136,7 +136,7 @@ task Create_changelog_release_output {
         {
             if ([string]::IsNullOrEmpty($ProjectName))
             {
-                Write-Build -Color DarkGray "No Project Name found so we assume you are not building a PowerShell Module."
+                Write-Build -Color DarkGray "No PowerShell module name found. We assume you are not building a PowerShell Module."
             }
             else
             {

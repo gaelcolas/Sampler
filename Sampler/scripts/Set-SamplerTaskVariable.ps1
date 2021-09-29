@@ -129,7 +129,7 @@ if ($AsNewBuild.IsPresent)
 }
 elseif ([string]::IsNullOrEmpty($ProjectName))
 {
-    Write-Warning -Message "The ProjectName wasn't found. This might be because you are not build PowerShell module, in which case you can ignore this message."
+    "No PowerShell module name found. This might be because you are not building a PowerShell module, in which case you can ignore this message."
 }
 else
 {
