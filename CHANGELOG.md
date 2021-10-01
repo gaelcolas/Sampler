@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Making sure the `Set-SamplerTaskVariable` does not fail when there's no Module manifest (i.e. when using Sampler for other reasons than building a module).
+
 ## [0.112.0] - 2021-09-23
 
 ### Removed
