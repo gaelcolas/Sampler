@@ -23,7 +23,7 @@ stages:
       - job: Package_Module
         displayName: 'Package Module'
         pool:
-          vmImage: 'ubuntu 16.04'
+          vmImage: 'ubuntu 18.04'
         steps:
           - task: GitVersion@5
             name: gitVersion
@@ -57,7 +57,7 @@ stages:
         displayName: 'Linux'
         timeoutInMinutes: 0
         pool:
-          vmImage: 'ubuntu 16.04'
+          vmImage: 'ubuntu 18.04'
         steps:
           - task: DownloadPipelineArtifact@2
             displayName: 'Download Pipeline Artifact'
@@ -204,7 +204,7 @@ stages:
           - test_windows_core
           - test_windows_ps
         pool:
-          vmImage: 'ubuntu 16.04'
+          vmImage: 'ubuntu 18.04'
         timeoutInMinutes: 0
         steps:
           - pwsh: |
@@ -276,7 +276,7 @@ stages:
       - job: Deploy_Module
         displayName: 'Deploy Module'
         pool:
-          vmImage: 'ubuntu 16.04'
+          vmImage: 'ubuntu 18.04'
         steps:
           - task: DownloadPipelineArtifact@2
             displayName: 'Download Pipeline Artifact'

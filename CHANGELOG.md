@@ -13,8 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Making sure the `Set-SamplerTaskVariable` does not fail when there's no Module manifest (i.e. when using Sampler for other reasons than building a module).
-- Switched the pipeline to use Ubuntu 18.04.
+- Making sure the `Set-SamplerTaskVariable` does not fail when there's no
+  Module manifest (i.e. when using Sampler for other reasons than building
+  a module).
+- Switched the pipeline to use Ubuntu 18.04 instead of Ubuntu 16.04 as the build
+  worker for some tasks.
 - Template `SimpleModule` have been modified to remove unnecessary configuration
   ([issue #277](https://github.com/gaelcolas/Sampler/issues/277)).
 - Template files are updated.
