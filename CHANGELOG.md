@@ -7,9 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+
+- Template file `Build/RequiredModules.psd1` that was not used.
+
 ### Changed
 
-- Making sure the `Set-SamplerTaskVariable` does not fail when there's no Module manifest (i.e. when using Sampler for other reasons than building a module).
+- Making sure the `Set-SamplerTaskVariable` does not fail when there's no
+  Module manifest (i.e. when using Sampler for other reasons than building
+  a module).
+- Switched the pipeline to use Ubuntu 18.04 instead of Ubuntu 16.04 as the build
+  worker for some tasks.
+- Template `SimpleModule` have been modified to remove unnecessary configuration
+  ([issue #277](https://github.com/gaelcolas/Sampler/issues/277)).
+- Template files are updated.
+  - Module script file no longer contain code that is irrelevant.
+  - Now asks if GitVersion should be used.
+  - Now asks if CodeCov.io should be used.
+  - Now asks for the upstream GitHub organization or account name to be used
+    in Azure Pipelines.
+  - GitVersion.yml now uses the correct chosen default branch.
+  - Codecov.yml now uses the correct chosen default branch.
 
 ## [0.112.0] - 2021-09-23
 

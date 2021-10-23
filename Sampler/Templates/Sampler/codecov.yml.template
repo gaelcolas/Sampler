@@ -1,7 +1,7 @@
 codecov:
   require_ci_to_pass: no
   # master should be the baseline for reporting
-  branch: <%= if ($PLASTER_PARAM_GitMainBranch -eq 'master') { 'master' } else { 'main' } %>
+  branch: <%= ${PLASTER_PARAM_MainGitBranch} %>
 
 comment:
   layout: "reach, diff, flags, files"

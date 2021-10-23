@@ -81,22 +81,26 @@ Describe 'DSC Community Plaster Template' {
 
         It 'Should create a new module without throwing' {
             $invokePlasterParameters = @{
-                TemplatePath    = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
-                DestinationPath = $TestDrive
-                SourceDirectory = 'source'
-                NoLogo          = $true
-                Force           = $true
+                TemplatePath         = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
+                DestinationPath      = $TestDrive
+                SourceDirectory      = 'source'
+                NoLogo               = $true
+                Force                = $true
 
                 # Template
-                ModuleType      = 'dsccommunity'
+                ModuleType           = 'dsccommunity'
 
                 # Template properties
-                ModuleAuthor      = 'Mock Author'
-                ModuleName        = $mockModuleName
-                ModuleDescription = 'Mock Module Description'
-                CustomRepo        = 'PSGallery'
-                ModuleVersion     = '1.0.0'
-                MainGitBranch     = 'main'
+                ModuleAuthor         = 'Mock Author'
+                ModuleName           = $mockModuleName
+                ModuleDescription    = 'Mock Module Description'
+                CustomRepo           = 'PSGallery'
+                ModuleVersion        = '1.0.0'
+                MainGitBranch        = 'main'
+                UseGitVersion        = $true
+                UseCodeCovIo         = $true
+
+                GitHubOwnerDscCommunity = 'dsccommunity'
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw

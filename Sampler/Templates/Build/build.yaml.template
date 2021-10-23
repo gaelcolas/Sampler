@@ -3,7 +3,7 @@
 #          ModuleBuilder Configuration             #
 ####################################################
 <%
-    if ($PLASTER_PARAM_ModuleType -ne 'dsccommunity') {
+    if ($PLASTER_PARAM_ModuleType -notin ('dsccommunity', 'SimpleModule')) {
 @"
 # Path to the Module Manifest to build (where path will be resolved from)
 # SourcePath: ./Sampler/Sampler.psd1
@@ -128,8 +128,14 @@ BuildWorkflow:
     - build
     - package_module_nupkg
 
+<%
+    if($PLASTER_PARAM_ModuleType -in @('dsccommunity')) {
+@"
   hqrmtest:
     - DscResource_Tests_Stop_On_Fail
+"@
+    }
+%>
 
   # Defining test task to be run when invoking `./build.ps1 -Tasks test`
   test:
@@ -147,7 +153,7 @@ BuildWorkflow:
   publish:
     - publish_module_to_gallery
 <%
-    if($PLASTER_PARAM_ModuleType -in @('dsccommunity', 'CompleteModule', 'SimpleModule') -or $PLASTER_PARAM_Features -Contains ('All') -or $PLASTER_PARAM_Features -Contains ('GitHub')) {
+    if($PLASTER_PARAM_ModuleType -in @('dsccommunity', 'CompleteModule') -or $PLASTER_PARAM_Features -Contains ('All')) {
 @"
     - Publish_Release_To_GitHub
     - Publish_GitHub_Wiki_Content
@@ -155,6 +161,15 @@ BuildWorkflow:
 "@
     }
 %>
+<%
+    if($PLASTER_PARAM_ModuleType -in @('SimpleModule') -or $PLASTER_PARAM_Features -Contains ('All') -or $PLASTER_PARAM_Features -Contains ('GitHub')) {
+@"
+    - Publish_Release_To_GitHub
+    - Create_ChangeLog_GitHub_PR
+"@
+    }
+%>
+
 
 ####################################################
 #       PESTER  Configuration                      #
