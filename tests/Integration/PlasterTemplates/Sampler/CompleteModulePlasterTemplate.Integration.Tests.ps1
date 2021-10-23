@@ -133,7 +133,7 @@ Describe 'Complete Module Plaster Template' {
                 ModuleDescription    = 'Module description'
                 ModuleVersion        = '1.0.0'
                 CustomRepo           = 'PSGallery'
-                UpstreamOrganization = 'AccountName'
+                GitHubOwner          = 'AccountName'
                 UseGitVersion        = $true
                 UseCodeCovIo         = $true
             }

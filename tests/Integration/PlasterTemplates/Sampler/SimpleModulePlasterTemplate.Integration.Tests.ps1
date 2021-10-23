@@ -82,7 +82,7 @@ Describe 'Simple Module Plaster Template' {
                 ModuleVersion        = '1.0.0'
                 CustomRepo           = 'PSGallery'
                 MainGitBranch        = 'main'
-                UpstreamOrganization = 'AccountName'
+                GitHubOwner          = 'AccountName'
                 UseGitVersion        = $true
                 UseCodeCovIo         = $true
             }
@@ -175,7 +175,7 @@ Describe 'Simple Module Plaster Template' {
                 ModuleVersion        = '1.0.0'
                 CustomRepo           = 'PSGallery'
                 MainGitBranch        = 'main'
-                UpstreamOrganization = 'AccountName'
+                GitHubOwner          = 'AccountName'
                 UseGitVersion        = $false
                 UseCodeCovIo         = $true
             }
@@ -268,7 +268,7 @@ Describe 'Simple Module Plaster Template' {
                 ModuleVersion        = '1.0.0'
                 CustomRepo           = 'PSGallery'
                 MainGitBranch        = 'main'
-                UpstreamOrganization = 'AccountName'
+                GitHubOwner          = 'AccountName'
                 UseGitVersion        = $true
                 UseCodeCovIo         = $false
             }

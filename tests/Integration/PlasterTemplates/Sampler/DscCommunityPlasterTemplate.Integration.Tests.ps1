@@ -100,7 +100,7 @@ Describe 'DSC Community Plaster Template' {
                 UseGitVersion        = $true
                 UseCodeCovIo         = $true
 
-                UpstreamOrganizationDscCommunity = 'dsccommunity'
+                GitHubOwnerDscCommunity = 'dsccommunity'
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw
