@@ -7,9 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+
+- Template file `Build/RequiredModules.psd1` that was not used.
+
 ### Changed
 
 - Making sure the `Set-SamplerTaskVariable` does not fail when there's no Module manifest (i.e. when using Sampler for other reasons than building a module).
+- Switched the pipeline to use Ubuntu 18.04.
+- Template `SimpleModule` have been modified to remove unnecessary configuration
+  ([issue #277](https://github.com/gaelcolas/Sampler/issues/277)).
+- Template files are updated.
+  - Module script file no longer contain code that is irrelevant.
+  - Now asks if GitVersion should be used.
+  - Now asks if CodeCov.io should be used.
+  - Now asks for the upstream GitHub organization or account name to be used
+    in Azure Pipelines.
+  - GitVersion.yml now uses the correct chosen default branch.
+  - Codecov.yml now uses the correct chosen default branch.
 
 ## [0.112.0] - 2021-09-23
 
@@ -19,7 +34,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  fix ([issue #292](https://github.com/gaelcolas/Sampler/issues/292)).
 - Removed the template `newDscCommunity` which is replaced by the template
   `dsccommunity`.
-- Template file `Build/RequiredModules.psd1` that was not used.
 
 ### Added
 
@@ -31,16 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   template `dsccommunity`.
 - All templates now defaults to using `main` as the default branch.
 - Updated Sampler documentation in README.md.
-- Template `SimpleModule` have been modified to remove unnecessary configuration
-  ([issue #277](https://github.com/gaelcolas/Sampler/issues/277)).
-- Template files are updated.
-  - Module script file no longer contain code that is irrelevant.
-  - Now asks if GitVersion should be used.
-  - Now asks if CodeCov.io should be used.
-  - Now asks for the upstream GitHub organization or account name to be used
-    in Azure Pipelines.
-  - GitVersion.yml now uses the correct chosen default branch.
-  - Codecov.yml now uses the correct chosen default branch.
+
 
 ### Fixed
 
