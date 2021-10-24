@@ -28,5 +28,26 @@ function Get-SamplerSourcePath
         $BuildRoot
     )
 
-    return (Get-SamplerProjectModuleManifest -BuildRoot $BuildRoot).Directory.FullName
+    $SamplerProjectModuleManifest = Get-SamplerProjectModuleManifest -BuildRoot $BuildRoot
+    $samplerSrcPathToTest = Join-Path -Path $BuildRoot -ChildPath 'src'
+    $samplerSourcePathToTest = Join-Path -Path $BuildRoot -ChildPath 'source'
+
+    if ($null -ne $SamplerProjectModuleManifest)
+    {
+        return $SamplerProjectModuleManifest.Directory.FullName
+    }
+    elseif ($null -eq $SamplerProjectModuleManifest -and (Test-Path -Path  $samplerSourcePathToTest))
+    {
+        Write-Debug -Message ('The ''source'' path ''{0}'' was found.' -f $samplerSourcePathToTest)
+        return $samplerSourcePathToTest
+    }
+    elseif ($null -eq $SamplerProjectModuleManifest -and (Test-Path -Path $samplerSrcPathToTest))
+    {
+        Write-Debug -Message ('The ''src'' path ''{0}'' was found.' -f $samplerSrcPathToTest)
+        return $samplerSrcPathToTest
+    }
+    else
+    {
+        throw 'Module Source Path not found.'
+    }
 }
