@@ -41,7 +41,7 @@ function Add-Sample
     (
         [Parameter()]
         # Add a sample component based on the Plaster templates embedded with this module.
-        [ValidateSet('Classes', 'ClassFolderResource', 'ClassResource', 'Composite', 'Enum', 'Examples', 'GithubConfig', 'GCPackage', 'HelperSubModules', 'MofResource', 'PrivateFunction', 'PublicCallPrivateFunctions', 'PublicFunction', 'VscodeConfig')]
+        [ValidateSet('Classes', 'ClassFolderResource', 'ClassResource', 'Composite', 'Enum', 'Examples', 'GithubConfig', 'GCPackage', 'HelperSubModules', 'MofResource', 'PrivateFunction', 'PublicCallPrivateFunctions', 'PublicFunction', 'VscodeConfig', 'ChocolateyPackage')]
         [string]
         $Sample,
 

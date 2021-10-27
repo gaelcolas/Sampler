@@ -75,8 +75,8 @@ task copy_chocolatey_source_to_staging {
 
     foreach ($chocoPackage in $chocoPackages)
     {
-        Write-Build DarkGray "        Copy-Item -Path '$chocoPackages' -Destination '$(Join-Path -Path $ChocolateyBuildOutput -ChildPath $chocoPackage.BaseName)' -Force -Recurse"
-        Copy-Item -Path $chocoPackages -Destination (Join-Path -Path $ChocolateyBuildOutput -ChildPath $chocoPackage.BaseName) -Force -Recurse
+        Write-Build DarkGray "        Copy-Item -Path '$chocoPackage' -Destination '$(Join-Path -Path $ChocolateyBuildOutput -ChildPath $chocoPackage.BaseName)' -Force -Recurse"
+        Copy-Item -Path $chocoPackage -Destination (Join-Path -Path $ChocolateyBuildOutput -ChildPath $chocoPackage.BaseName) -Force -Recurse
     }
 }
 
@@ -102,12 +102,13 @@ task copy_paths_to_choco_staging {
     foreach ($stagedPackage in $stagedPackages)
     {
         $packageName = $stagedPackage.BaseName
-        Write-Build DarkGray "`tCopying folders to $packageName..."
+        $packagePath = Get-SamplerAbsolutePath -Path $packageName -RelativeTo $ChocolateyBuildOutput
+        Write-Build DarkGray "`tCopying folders to '$packageName'..."
         foreach ($copyItem in $copyToPackage)
         {
             $CopyFoldersToChocoParams = @{
-                Path = $ExecutionContext.InvokeCommand.ExpandString($copyItem.source)
-                Destination = $ExecutionContext.InvokeCommand.ExpandString($copyItem.destination)
+                Path = Get-SamplerAbsolutePath -Path $ExecutionContext.InvokeCommand.ExpandString($copyItem.source) -RelativeTo $BuildRoot
+                Destination = Get-SamplerAbsolutePath -Path $ExecutionContext.InvokeCommand.ExpandString($copyItem.destination) -RelativeTo $packagePath
             }
 
             Write-Build DarkGray "`t... '$($CopyFoldersToChocoParams['Path'])' to '$($CopyFoldersToChocoParams['destination'])'."
@@ -219,7 +220,6 @@ task upate_choco_nuspec_data {
 
             $xmlDoc.Save($nuspecPath)
         }
-
     }
 }
 
@@ -272,7 +272,11 @@ task Push_Chocolatey_Package {
     "        ChocolateyPackageSource   = '$ChocolateyPackageSource'"
     "        ChocolateyBuildOuptut     = '$ChocolateyBuildOutput'"
 
-    if ([string]::IsNullOrEmpty($ChocoPushSource) -and $BuildInfo.Chocolatey.ChocoPushSource)
+    if (-not [string]::IsNullOrEmpty($ChocoPushSource))
+    {
+        "        ChocoPushSource           = '$ChocoPushSource'"
+    }
+    elseif ([string]::IsNullOrEmpty($ChocoPushSource) -and $BuildInfo.Chocolatey.ChocoPushSource)
     {
         $ChocoPushSource = $BuildInfo.Chocolatey.ChocoPushSource
         "        ChocoPushSource           = '$ChocoPushSource'"
@@ -288,7 +292,7 @@ task Push_Chocolatey_Package {
     }
 
     "        ChocoPushSourceApiKey     = '$(if (-not [string]::IsNullOrEmpty($ChocoPushSourceApiKey)){"[**REDACTED**]"})'"
-    $null = [bool]::TryParse($SkipChocoPush, [ref]$script:SkipChocoPush)
+    $null = [bool]::TryParse($SkipChocoPush, [ref]$SkipChocoPush)
 
     "        SkipChocoPush             = '`$$($SkipChocoPush)'"
     "" # Empty line
@@ -310,10 +314,20 @@ task Push_Chocolatey_Package {
             $chocoPushArgs += @('--api-key', $ChocoPushSourceApiKey)
         }
 
-        if (-not $SkipChocoPush)
+        if (-not [bool]::Parse($SkipChocoPush))
         {
+            if ($ChocoPushSourceApiKey)
+            {
+                $paramsToShow = $chocoPushArgs
+                $paramsToShow[-1] = "[**REDACTED**]"
+            }
+            else
+            {
+                $paramsToShow = $chocoPushArgs
+            }
+
+            Write-Build DarkGray "`tchoco $($paramsToShow -join ' ')" # Empty line
             &choco $chocoPushArgs
-            Write-Build DarkGray "" # Empty line
         }
         else
         {

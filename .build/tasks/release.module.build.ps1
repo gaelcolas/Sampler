@@ -1,4 +1,5 @@
-param (
+param
+(
     # Base directory of all output (default to 'output')
     [Parameter()]
     [string]
@@ -23,6 +24,10 @@ param (
     $ProjectName = (property ProjectName ''),
 
     [Parameter()]
+    [System.String]
+    $ModuleVersion = (property ModuleVersion ''),
+
+    [Parameter()]
     [string]
     $GalleryApiToken = (property GalleryApiToken ''),
 
@@ -43,7 +48,8 @@ param (
 # Synopsis: Create ReleaseNotes from changelog and update the Changelog for release
 task Create_changelog_release_output {
     # Get the vales for task variables, see https://github.com/gaelcolas/Sampler#task-variables.
-    . Set-SamplerTaskVariable
+    # Adding -AsNewBuild otherwise the version is not resolved when not module manifest (i.e. Choco Package)
+    . Set-SamplerTaskVariable -AsNewBuild
 
     $ChangeLogOutputPath = Get-SamplerAbsolutePath -Path 'CHANGELOG.md' -RelativeTo $OutputDirectory
 
@@ -55,6 +61,7 @@ task Create_changelog_release_output {
         Import-Module ChangelogManagement -ErrorAction Stop
 
         # Update the source changelog file
+        Write-Build DarkGray "`tCreating '$ChangeLogOutputPath'..."
         Update-Changelog -Path $ChangeLogPath -OutputPath $ChangeLogOutputPath -ErrorAction Stop -ReleaseVersion $ModuleVersion -LinkMode none
 
         # Get the updated CHANGELOG.md
