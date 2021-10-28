@@ -61,6 +61,7 @@ task build_guestconfiguration_packages {
         "`t`tPackaging Policy '$($_.Name)'"
         $GCPackageName = $_.Name
         $ConfigurationFile = Join-Path -Path $_.FullName -ChildPath "$GCPackageName.config.ps1"
+        $newPackageParamsFile = Join-Path -Path $_.FullName -ChildPath "$GCPackageName.psd1"
         $MOFFile = Join-Path -Path $_.FullName -ChildPath "$GCPackageName.mof"
 
         if (-not (Test-Path -Path $ConfigurationFile) -and -not (Test-Path -Path $MOFFile))
@@ -86,6 +87,7 @@ task build_guestconfiguration_packages {
                 $MOFFile = $MOFFileAndErrors.Foreach{
                     if ($_ -isnot [System.Management.Automation.ErrorRecord])
                     {
+                        # If the MOF name is localhost.mof, mv to PackageName.mof
                         $_
                     }
                     else
@@ -93,11 +95,27 @@ task build_guestconfiguration_packages {
                         $CompilationErrors += $_
                     }
                 }
+
+                if ((Split-Path -Leaf $MOFFile -ErrorAction 'SilentlyContinue') -eq 'localhost.mof')
+                {
+                    $destinationMof = Join-Path -Path (Join-Path -Path $OutputDirectory -ChildPath 'MOFs') -ChildPath ('{0}.mof' -f $GCPackageName)
+                    $null = Move-Item -Path $MOFFile -Destination $destinationMof -Force -ErrorAction Stop
+                    $MOFFile = $destinationMof
+                }
             }
             catch
             {
                 throw "Compilation error. $($_.Exception.Message)"
             }
+        }
+
+        if (Test-Path -Path $newPackageParamsFile)
+        {
+            $newPackageExtraParams = Import-PowerShellDataFile -Path $newPackageParamsFile -ErrorAction 'Stop'
+        }
+        else
+        {
+            $newPackageExtraParams = @{}
         }
 
         $ZippedGCPackage = (
@@ -107,6 +125,12 @@ task build_guestconfiguration_packages {
                     Name          = $GCPackageName
                     Path          = (Join-Path -Path $OutputDirectory -ChildPath 'GCPolicyPackages')
                     Force         = $true
+                }
+
+                foreach ($paramName in (Get-Command -Name 'New-GuestConfigurationPackage').Parameters.Keys)
+                {
+                    # Override the Parameters from the $GCPackageName.psd1
+                    $NewGCPackageParams[$paramName] = $newPackageExtraParams[$paramName]
                 }
 
                 New-GuestConfigurationPackage @NewGCPackageParams
