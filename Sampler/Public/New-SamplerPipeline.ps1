@@ -12,23 +12,17 @@
         We assume that your current location is the module folder, and within this folder we
         will find the source folder, the tests folder and other supporting files such as build.ps1, the entry point.
 
-    .PARAMETER CustomRepo
-        The Custom PS repository if you want to use an internal (private) feed to pull for dependencies.
-
-    .PARAMETER LicenseType
-        Type of license you would like to add to your repository. We recommend MIT for Open Source projects.
-
-    .PARAMETER SourceDirectory
-        How you would like to call your Source repository to differentiate from the output and the tests folder. We recommend to call it 'source',
-        and the default value is 'source'.
-
-    .PARAMETER Features
-        If you'd rather select specific features from this template to build your module, use this parameter instead.
+    .PARAMETER Pipeline
+        Type of Pipeline you would like to create at the destination folder. You can create a base pipeline using th
+        value `Build` that will include the bootstrap and resolve dependency process, but you will need to edit
+        the `Build.Yaml` to call the tasks you desire.
+        You can also create a Chocolatey pipeline, preconfigured to build Chocolatey packages, or call a Sampler pipeline.
 
     .EXAMPLE
         C:\src> New-SamplerPipeline -DestinationPath . -Pipeline Build -ProjectName MyBuild -License 'true' -LicenseType MIT -SourceDirectory Source  -MainGitBranch main -ModuleDescription 'some desc' -CustomRepo PSGallery -Features *
 
     .NOTES
+        Other parameters will be displayed based on the Template used for the pipeline.
         See Add-Sample to add elements such as functions (private or public), tests, DSC Resources to your project.
 #>
 function New-SamplerPipeline
