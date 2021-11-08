@@ -154,13 +154,13 @@
 
     <!-- LICENSE based on type of license MIT/Apache2/CC...-->
     <!--   MIT License -->
-    <templateFile source='LICENSES/LICENSE.MIT.template'
+    <templateFile source='../Sampler/LICENSES/LICENSE.MIT.template'
                   destination='${PLASTER_PARAM_ProjectName}/LICENSE'
                   condition='(${PLASTER_PARAM_License} -eq "true" -and ${PLASTER_PARAM_LicenseType} -eq "MIT")'
     />
 
     <!--   APACHE License -->
-    <templateFile source='LICENSES/LICENSE.Apache.template'
+    <templateFile source='../Sampler/LICENSES/LICENSE.Apache.template'
                   destination='${PLASTER_PARAM_ProjectName}/LICENSE'
                   condition='${PLASTER_PARAM_License} -eq "true" -and ${PLASTER_PARAM_LicenseType} -eq "Apache"'
     />
