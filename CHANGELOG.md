@@ -10,6 +10,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 - Template file `Build/RequiredModules.psd1` that was not used.
+### Added
+
+- Added Pipeline to build chocolatey packages.
+- Added Sample to add Chocolatey Package source files.
+- Added New-SamplerPipeline to create build, Sampler Module or Chocolatey pipeline.
+- Extra configuration files for passing to Azure Policy Guest Configuration Package on creation.
+
+#### Fixed
+
+- Fixed `Resolve-Dependency.ps1` to not fail when `PowerShell-yaml` module was specified but already loaded (handle on dll). Fixes [#335](https://github.com/gaelcolas/Sampler/issues/335)
+- Fixed default source folder to source and not src.
+- Fixed failed loading when there's no project name (when calling `Set-SamplerTaskVariable`). Fixes [#331](https://github.com/gaelcolas/Sampler/issues/331).
 
 ### Changed
 

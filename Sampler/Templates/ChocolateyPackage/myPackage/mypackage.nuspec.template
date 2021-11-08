@@ -29,15 +29,42 @@ This is a nuspec. It mostly adheres to https://docs.nuget.org/create/Nuspec-Refe
     <!-- == SOFTWARE SPECIFIC SECTION == -->
     <!-- This section is about the software itself -->
     <title><%=$PLASTER_PARAM_PackageName %> (Install)</title>
-    <authors><%=$PLASTER_PARAM_authors %></authors>
+    <authors><%=$PLASTER_PARAM_SoftwareAuthors %></authors>
     <!-- projectUrl is required for the community feed -->
-    <projectUrl><%=$PLASTER_PARAM_projectUrl %></projectUrl>
-    <iconUrl>http://cdn.rawgit.com/__REPLACE_YOUR_REPO__/master/icons/<%=$PLASTER_PARAM_PackageName %>.png</iconUrl>
-    <!-- <copyright>Year Software Vendor</copyright> -->
+<%
+    if ($null -eq $PLASTER_PARAM_projectUrl -or 'null' -eq $PLASTER_PARAM_projectUrl)
+    {
+        "    <!--<projectUrl>Software Source Location - is the software FOSS somewhere? Link to it with this</projectUrl>-->`r`n"
+    }
+    else
+    {
+        "    <projectUrl>$PLASTER_PARAM_projectUrl</projectUrl>`r`n"
+    }
+
+    if (-not [System.String]::IsNullOrEmpty($PLASTER_PARAM_PackageIconUrl) -or 'null' -ne $PLASTER_PARAM_PackageIconUrl)
+    {
+      "    <iconUrl>$PLASTER_PARAM_PackageIconUrl</iconUrl>`r`n"
+    }
+    else
+    {
+      "    <iconUrl>your url for <%=$PLASTER_PARAM_PackageName %>.png</iconUrl>`r`n"
+    }
+
+    "    <!-- <copyright>$([Datetime]::now.Year) Software Vendor</copyright> -->`r`n"
+%>
     <!-- If there is a license Url available, it is required for the community feed -->
     <!-- <licenseUrl>Software License Location __REMOVE_OR_FILL_OUT__</licenseUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>-->
-    <!--<projectSourceUrl>Software Source Location - is the software FOSS somewhere? Link to it with this</projectSourceUrl>-->
+<%
+    if ($null -eq $PLASTER_PARAM_projectUrl -or 'null' -eq $PLASTER_PARAM_projectUrl)
+    {
+        "    <!--<projectSourceUrl>Software Source Location - is the software FOSS somewhere? Link to it with this</projectSourceUrl>-->`r`n"
+    }
+    else
+    {
+        "    <projectSourceUrl>$PLASTER_PARAM_projectUrl</projectSourceUrl>`r`n"
+    }
+%>
     <!--<docsUrl>At what url are the software docs located?</docsUrl>-->
     <!--<mailingListUrl></mailingListUrl>-->
     <!--<bugTrackerUrl></bugTrackerUrl>-->
