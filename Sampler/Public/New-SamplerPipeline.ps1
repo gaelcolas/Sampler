@@ -26,7 +26,7 @@
         If you'd rather select specific features from this template to build your module, use this parameter instead.
 
     .EXAMPLE
-        C:\src> New-SampleModule -DestinationPath . -ModuleType CompleteSample -ModuleAuthor "Gael Colas" -ModuleName MyModule -ModuleVersion 0.0.1 -ModuleDescription "a sample module" -LicenseType MIT -SourceDirectory Source
+        C:\src> New-SamplerPipeline -DestinationPath . -Pipeline Build -ProjectName MyBuild -License 'true' -LicenseType MIT -SourceDirectory Source  -MainGitBranch main -ModuleDescription 'some desc' -CustomRepo PSGallery -Features *
 
     .NOTES
         See Add-Sample to add elements such as functions (private or public), tests, DSC Resources to your project.
