@@ -19,7 +19,7 @@
         You can also create a Chocolatey pipeline, preconfigured to build Chocolatey packages, or call a Sampler pipeline.
 
     .EXAMPLE
-        C:\src> New-SamplerPipeline -DestinationPath . -Pipeline Build -ProjectName MyBuild -License 'true' -LicenseType MIT -SourceDirectory Source  -MainGitBranch main -ModuleDescription 'some desc' -CustomRepo PSGallery -Features *
+        C:\src> New-SamplerPipeline -DestinationPath . -Pipeline Build -ProjectName MyBuild -License 'true' -LicenseType MIT -SourceDirectory Source  -MainGitBranch main -ModuleDescription 'some desc' -CustomRepo PSGallery -Features All
 
     .NOTES
         Other parameters will be displayed based on the Template used for the pipeline.

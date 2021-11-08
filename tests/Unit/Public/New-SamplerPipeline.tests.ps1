@@ -19,44 +19,48 @@ InModuleScope $ProjectName {
                 # The template integration is done separately, hence why we don't need to test it here.
                 # We only test that the Add-Sample parameters & parameter set work with the templates we have defined.
                 @{
-                    TestCaseName = 'classes'
-                    AddSampleParams = @{
-                        Sample          = 'Classes'
+                    TestCaseName = 'Build'
+                    NewSamplerPipelineParams = @{
                         DestinationPath = $TestDrive
+                        Pipeline = 'Build'
+                        ProjectName =  'MyBuild'
+                        License = 'true'
+                        LicenseType = 'MIT'
                         SourceDirectory = 'Source'
+                        MainGitBranch = 'main'
+                        ModuleDescription = 'some desc'
+                        CustomRepo = 'PSGallery'
+                        Features = 'All'
                     }
                 }
 
                 @{
-                    TestCaseName = 'ClassResource'
-                    AddSampleParams = @{
-                        Sample          = 'ClassResource'
+                    TestCaseName = 'ChocolateyPipeline'
+                    NewSamplerPipelineParams = @{
                         DestinationPath = $TestDrive
-                        ResourceName    = 'MyResource'
-                        SourceDirectory = 'source'
+                        Pipeline = 'ChocolateyPipeline'
+                        ProjectName =  'MyChoco'
+                        License = 'true'
+                        LicenseType = 'MIT'
+                        SourceDirectory = 'Source'
+                        MainGitBranch = 'main'
+                        ModuleDescription = 'some desc'
+                        CustomRepo = 'PSGallery'
+                        Features = 'All'
                     }
                 }
-
-                @{
-                    TestCaseName = 'Examples'
-                    AddSampleParams = @{
-                        Sample          = 'Examples'
-                        DestinationPath = $TestDrive
-                    }
-                }
-
             )
 
             mock Invoke-Plaster -mockWith {} -Verifiable -ModuleName Sampler
 
-            It 'New-Sample module should call Invoke-Plaster with test case <TestCaseName>' -TestCases $testCases {
+            It 'New-SamplerPipeline should call Invoke-Plaster with test case <TestCaseName>' -TestCases $testCases {
                 param
                 (
                     $TestCaseName,
-                    $AddSampleParams
+                    $NewSamplerPipelineParams
                 )
 
-               { Sampler\Add-Sample @AddSampleParams  } | Should -Not -Throw
+               { Sampler\New-SamplerPipeline @NewSamplerPipelineParams  } | Should -Not -Throw
 
                Assert-MockCalled -CommandName Invoke-Plaster -Scope It -Times 1
             }
