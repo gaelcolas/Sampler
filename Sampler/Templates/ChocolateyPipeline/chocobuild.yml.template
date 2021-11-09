@@ -1,0 +1,132 @@
+---
+
+####################################################
+#       Sampler Pipeline Configuration             #
+####################################################
+
+# Defining 'Workflows' (suite of InvokeBuild tasks) to be run using their alias
+BuildWorkflow:
+  '.': # "." is the default Invoke-Build workflow. It is called when no -Tasks is specified to the build.ps1
+    - build
+    - test
+
+  build:
+    - clean
+    - copy_chocolatey_source_to_staging
+    - copy_paths_to_choco_staging
+    - Create_changelog_release_output
+    - upate_choco_nuspec_data
+    - build_chocolatey_package
+
+  pack:
+    - build
+
+  hqrmtest:
+    - DscResource_Tests_Stop_On_Fail
+
+  # Defining test task to be run when invoking `./build.ps1 -Tasks test`
+  test:
+    - Pester_Tests_Stop_On_Fail
+    - Pester_if_Code_Coverage_Under_Threshold
+
+  # Use this task when you have multiple parallel tests, which produce multiple
+  # code coverage files and needs to get merged into one file.
+  #merge:
+    #- Merge_CodeCoverage_Files
+
+  publish:
+    - Push_Chocolatey_Package
+    - Publish_Release_To_GitHub
+    - Create_ChangeLog_GitHub_PR
+
+####################################################
+#       Choco Configuration                        #
+####################################################
+
+Chocolatey:
+  CopyToPackage:
+    # - Source: output\RequiredModules\Plaster
+    #   Destination: tools
+  ChocoPushSource: C:\dev\src\a\output\
+  xmlNamespaces:
+    nuspec: http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd
+  UpdateNuspecData: # Bear in mind xpath are case sensitive
+    version:
+      xpath: /nuspec:package/nuspec:metadata/nuspec:version
+      value: $ModuleVersion # From GitVersion or Environment Variable
+    ReleaseNotes:
+      xpath: /nuspec:package/nuspec:metadata/nuspec:releaseNotes
+      value: $ReleaseNotes  # From the Release Notes built in Create_changelog_release_output
+    # packageSourceUrl:
+    #   xpath: /nuspec:package/nuspec:metadata/nuspec:packageSourceUrl
+    #   value: https://github.com/gaelcolas/sampler
+
+
+####################################################
+#       PESTER  Configuration                      #
+####################################################
+
+Pester:
+  OutputFormat: NUnitXML
+  # Excludes one or more paths from being used to calculate code coverage.
+  ExcludeFromCodeCoverage:
+    - Modules/DscResource.Common
+
+  # If no scripts are defined the default is to use all the tests under the project's
+  # tests folder or source folder (if present). Test script paths can be defined to
+  # only run tests in certain folders, or run specific test files, or can be use to
+  # specify the order tests are run.
+  Script:
+#    - tests/Unit
+  ExcludeTag:
+  #  - helpQuality
+  Tag:
+  CodeCoverageThreshold: 0 # Set to 0 to bypass
+
+DscTest:
+  ExcludeTag:
+    - "Common Tests - New Error-Level Script Analyzer Rules"
+  Tag:
+  ExcludeSourceFile:
+    - output
+  ExcludeModuleFile:
+#    - Modules/DscResource.Common
+
+
+# Import ModuleBuilder tasks from a specific PowerShell module using the build
+# task's alias. Wildcard * can be used to specify all tasks that has a similar
+# prefix and or suffix. The module contain the task must be added as a required
+# module in the file RequiredModules.psd1.
+ModuleBuildTasks:
+  Sampler:
+    - '*.build.Sampler.ib.tasks'
+  Sampler.GitHubTasks:
+    - '*.ib.tasks'
+
+# Invoke-Build Header to be used to 'decorate' the terminal output of the tasks.
+TaskHeader: |
+  param($Path)
+  ""
+  "=" * 79
+  Write-Build Cyan "`t`t`t$($Task.Name.replace("_"," ").ToUpper())"
+  Write-Build DarkGray  "$(Get-BuildSynopsis $Task)"
+  "-" * 79
+  Write-Build DarkGray "  $Path"
+  Write-Build DarkGray "  $($Task.InvocationInfo.ScriptName):$($Task.InvocationInfo.ScriptLineNumber)"
+  ""
+<%
+    if ($PLASTER_PARAM_Features -Contains ("All") -or $PLASTER_PARAM_Features -Contains ("GitHub")) {
+@"
+
+# Below is the GitHub configuration to automatically create a PR to update the Changelog
+# after the release of a version. (see Create_ChangeLog_GitHub_PR task of Sampler.GitHubTasks)
+GitHubConfig:
+  GitHubFilesToAdd:
+    - 'CHANGELOG.md'
+    - 'output/$ProjectName*.nupkg'
+  GitHubConfigUserName: YourAccountUserName
+  GitHubConfigUserEmail: youremail@yourprovider.com
+  UpdateChangelogOnPrerelease: false
+"@
+    }
+%>

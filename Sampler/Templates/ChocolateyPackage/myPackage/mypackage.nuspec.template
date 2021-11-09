@@ -1,0 +1,96 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- Read this before creating packages: https://chocolatey.org/docs/create-packages -->
+<!-- It is especially important to read the above link to understand additional requirements when publishing packages to the community feed aka dot org (https://chocolatey.org/packages). -->
+
+<!-- Test your packages in a test environment: https://github.com/chocolatey/chocolatey-test-environment -->
+
+<!--
+This is a nuspec. It mostly adheres to https://docs.nuget.org/create/Nuspec-Reference. Chocolatey uses a special version of NuGet.Core that allows us to do more than was initially possible. As such there are certain things to be aware of:
+
+* the package xmlns schema url may cause issues with nuget.exe
+* Any of the following elements can ONLY be used by choco tools - projectSourceUrl, docsUrl, mailingListUrl, bugTrackerUrl, packageSourceUrl, provides, conflicts, replaces
+* nuget.exe can still install packages with those elements but they are ignored. Any authoring tools or commands will error on those elements
+-->
+
+<!-- You can embed software files directly into packages, as long as you are not bound by distribution rights. -->
+<!-- * If you are an organization making private packages, you probably have no issues here -->
+<!-- * If you are releasing to the community feed, you need to consider distribution rights. -->
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <!-- == PACKAGE SPECIFIC SECTION == -->
+    <id><%=$PLASTER_PARAM_PackageName %></id>
+    <version>__REPLACE__</version>
+    <packageSourceUrl><%=$PLASTER_PARAM_PackageSourceUrl %></packageSourceUrl>
+    <!-- Maintainers of the package (not necessarily the software). -->
+    <owners><%=$PLASTER_PARAM_Owners %></owners>
+    <!-- ============================== -->
+
+    <!-- == SOFTWARE SPECIFIC SECTION == -->
+    <!-- This section is about the software itself -->
+    <title><%=$PLASTER_PARAM_PackageName %> (Install)</title>
+    <authors><%=$PLASTER_PARAM_SoftwareAuthors %></authors>
+    <!-- projectUrl is required for the community feed -->
+<%
+    if ($null -eq $PLASTER_PARAM_projectUrl -or 'null' -eq $PLASTER_PARAM_projectUrl)
+    {
+        "    <!--<projectUrl>Software Source Location - is the software FOSS somewhere? Link to it with this</projectUrl>-->`r`n"
+    }
+    else
+    {
+        "    <projectUrl>$PLASTER_PARAM_projectUrl</projectUrl>`r`n"
+    }
+
+    if (-not [System.String]::IsNullOrEmpty($PLASTER_PARAM_PackageIconUrl) -or 'null' -ne $PLASTER_PARAM_PackageIconUrl)
+    {
+      "    <iconUrl>$PLASTER_PARAM_PackageIconUrl</iconUrl>`r`n"
+    }
+    else
+    {
+      "    <iconUrl>your url for <%=$PLASTER_PARAM_PackageName %>.png</iconUrl>`r`n"
+    }
+
+    "    <!-- <copyright>$([Datetime]::now.Year) Software Vendor</copyright> -->`r`n"
+%>
+    <!-- If there is a license Url available, it is required for the community feed -->
+    <!-- <licenseUrl>Software License Location __REMOVE_OR_FILL_OUT__</licenseUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>-->
+<%
+    if ($null -eq $PLASTER_PARAM_projectUrl -or 'null' -eq $PLASTER_PARAM_projectUrl)
+    {
+        "    <!--<projectSourceUrl>Software Source Location - is the software FOSS somewhere? Link to it with this</projectSourceUrl>-->`r`n"
+    }
+    else
+    {
+        "    <projectSourceUrl>$PLASTER_PARAM_projectUrl</projectSourceUrl>`r`n"
+    }
+%>
+    <!--<docsUrl>At what url are the software docs located?</docsUrl>-->
+    <!--<mailingListUrl></mailingListUrl>-->
+    <!--<bugTrackerUrl></bugTrackerUrl>-->
+    <tags><%=$PLASTER_PARAM_PackageName %> <%=$PLASTER_PARAM_PackageTags %></tags>
+    <summary><%=$PLASTER_PARAM_PackageSummary %></summary>
+    <description><%=$PLASTER_PARAM_PackageDescription %></description>
+    <releaseNotes>__REPLACE_RELEASENOTES__</releaseNotes>
+    <!-- =============================== -->
+
+    <!-- Specifying dependencies and version ranges? https://docs.nuget.org/create/versioning#specifying-version-ranges-in-.nuspec-files -->
+    <!--<dependencies>
+      <dependency id="" version="__MINIMUM_VERSION__" />
+      <dependency id="" version="[__EXACT_VERSION__]" />
+      <dependency id="" version="[_MIN_VERSION_INCLUSIVE, MAX_VERSION_INCLUSIVE]" />
+      <dependency id="" version="[_MIN_VERSION_INCLUSIVE, MAX_VERSION_EXCLUSIVE)" />
+      <dependency id="" />
+      <dependency id="chocolatey-core.extension" version="1.1.0" />
+    </dependencies>-->
+    <!-- chocolatey-core.extension - https://chocolatey.org/packages/chocolatey-core.extension
+         - You want to use Get-UninstallRegistryKey on less than 0.9.10 (in chocolateyUninstall.ps1)
+         - You want to use Get-PackageParameters and on less than 0.11.0
+         - You want to take advantage of other functions in the core community maintainer's team extension package
+    -->
+  </metadata>
+  <files>
+    <!-- this section controls what actually gets packaged into the Chocolatey package -->
+    <file src="tools/**" target="tools" />
+  </files>
+</package>

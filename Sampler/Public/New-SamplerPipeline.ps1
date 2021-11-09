@@ -1,82 +1,64 @@
 
 <#
     .SYNOPSIS
-        Adding code elements (function, enum, class, DSC Resource, tests...) to a module's source.
+        Create a Sampler scaffolding so you can add samples & build pipeline.
 
     .DESCRIPTION
-        Add-Sample is an helper function to invoke a plaster template built-in the Sampler module.
-        With this function you can bootstrap your module project by adding classes, functions and
-        associated tests, examples and configuration elements.
-
-    .PARAMETER Sample
-        Specifies a sample component based on the Plaster templates embedded with this module.
-        The available types of module elements are:
-            - Classes: A sample of 4 classes with inheritence and how to manage the orders to avoid parsing errors.
-            - ClassResource: A Class-Based DSC Resources showing some best practices including tests, Reasons, localized strings.
-            - Composite: A DSC Composite Resource (a configuration block) packaged the right way to make sure it's visible by Get-DscResource.
-            - Enum: An example of a simple Enum.
-            - MofResource: A sample of a MOF-Based DSC Resource following the DSC Community practices.
-            - PrivateFunction: A sample of a Private function (not exported from the module) and its test.
-            - PublicCallPrivateFunctions: A sample of 2 functions where the exported one (public) calls the private one, with the tests.
-            - PublicFunction: A sample public function and its test.
+        New-SamplerPipeline helps you bootstrap your project pipeline, whether it's for a Chocolatey
+        package, Azure Policy Guest Configuration packages or just a pipeline for a CI process.
 
     .PARAMETER DestinationPath
-        Destination of your module source root folder, defaults to the current directory ".".
+        Destination of your project's root folder, defaults to the current directory ".".
         We assume that your current location is the module folder, and within this folder we
-        will find the source folder, the tests folder and other supporting files.
+        will find the source folder, the tests folder and other supporting files such as build.ps1, the entry point.
+
+    .PARAMETER Pipeline
+        Type of Pipeline you would like to create at the destination folder. You can create a base pipeline using th
+        value `Build` that will include the bootstrap and resolve dependency process, but you will need to edit
+        the `Build.Yaml` to call the tasks you desire.
+        You can also create a Chocolatey pipeline, preconfigured to build Chocolatey packages, or call a Sampler pipeline.
 
     .EXAMPLE
-        C:\src\MyModule> Add-Sample -Sample PublicFunction -PublicFunctionName Get-MyStuff
+        C:\src> New-SamplerPipeline -DestinationPath . -Pipeline Build -ProjectName MyBuild -License 'true' -LicenseType MIT -SourceDirectory Source  -MainGitBranch main -ModuleDescription 'some desc' -CustomRepo PSGallery -Features All
 
     .NOTES
-        This module requires and uses Plaster.
+        Other parameters will be displayed based on the Template used for the pipeline.
+        See Add-Sample to add elements such as functions (private or public), tests, DSC Resources to your project.
 #>
-function Add-Sample
+function New-SamplerPipeline
 {
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingFunctions', '')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '')]
-    [CmdletBinding()]
-    [OutputType()]
+    [CmdletBinding(DefaultParameterSetName = 'ByModuleType')]
+    [OutputType([System.Void])]
     param
     (
-        [Parameter()]
-        # Add a sample component based on the Plaster templates embedded with this module.
-        [ValidateSet(
-            'Classes',
-            'ClassFolderResource',
-            'ClassResource',
-            'Composite',
-            'Enum',
-            'Examples',
-            'GithubConfig',
-            'GCPackage',
-            'HelperSubModules',
-            'MofResource',
-            'PrivateFunction',
-            'PublicCallPrivateFunctions',
-            'PublicFunction',
-            'VscodeConfig',
-            'ChocolateyPackage'
-        )]
-        [string]
-        $Sample,
-
-        [Parameter()]
+        [Parameter(Mandatory = $true)]
+        [Alias('Path')]
         [System.String]
-        $DestinationPath = '.'
+        $DestinationPath,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateSet(
+            'Build',
+            'ChocolateyPipeline',
+            'Sampler'
+            )]
+        [System.String]
+        $Pipeline
     )
 
     dynamicparam
     {
         $paramDictionary = New-Object -TypeName System.Management.Automation.RuntimeDefinedParameterDictionary
 
-        if ($null -eq $Sample)
+        if ($null -eq $Pipeline)
         {
             return
         }
 
-        $sampleTemplateFolder = Join-Path -Path 'Templates' -ChildPath $Sample
-        $templatePath = Join-Path -Path $MyInvocation.MyCommand.Module.ModuleBase -ChildPath $sampleTemplateFolder
+        $PipelineTemplateFolder = Join-Path -Path 'Templates' -ChildPath $Pipeline
+        $templatePath = Join-Path -Path $MyInvocation.MyCommand.Module.ModuleBase -ChildPath $PipelineTemplateFolder
 
         $previousErrorActionPreference = $ErrorActionPreference
 
@@ -228,10 +210,10 @@ function Add-Sample
         # Clone the the bound parameters.
         $plasterParameter = @{} + $PSBoundParameters
 
-        $null = $plasterParameter.Remove('Sample')
+        $null = $plasterParameter.Remove('Pipeline')
 
-        $sampleTemplateFolder = Join-Path -Path 'Templates' -ChildPath $Sample
-        $templatePath = Join-Path -Path $MyInvocation.MyCommand.Module.ModuleBase -ChildPath $sampleTemplateFolder
+        $PipelineTemplateFolder = Join-Path -Path 'Templates' -ChildPath $Pipeline
+        $templatePath = Join-Path -Path $MyInvocation.MyCommand.Module.ModuleBase -ChildPath $PipelineTemplateFolder
 
         $plasterParameter.Add('TemplatePath', $templatePath)
 

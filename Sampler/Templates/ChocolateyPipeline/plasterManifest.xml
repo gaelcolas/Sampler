@@ -1,0 +1,260 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<plasterManifest
+  schemaVersion="1.0" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+  <metadata>
+    <name>SamplerBuild</name>
+    <id>010bdb8e-3239-4ce1-b82b-5fdc65674091</id>
+    <version>0.0.1</version>
+    <title>Sampler Build Pipeline</title>
+    <description>Sampler Pipeline (bootstrap only)</description>
+    <author>Gael Colas</author>
+    <tags>Sampler,Template</tags>
+  </metadata>
+  <parameters>
+    <parameter store="text" name="ProjectName" type="text" prompt="Name of your Project/folder" />
+    <parameter store="text" name="MainGitBranch" type="text" prompt="Name of your default branch" default="main" />
+    <parameter name="ModuleDescription" type="text" prompt="Description of this project/repository" />
+    <parameter name="CustomRepo" default="PSGallery" type="text" prompt="Do you pull from default repository (PSGallery) or a custom repository?" />
+
+    <parameter store="text"  name="License" type="choice" prompt="Do you want to include a License to your project?" default="1" >
+      <choice label='&amp;Yes' value='true' />
+      <choice label='&amp;No' value='false' />
+    </parameter>
+
+    <parameter store="text"  name="LicenseType" type="choice" prompt="What license do you want?" default="2" condition='$PLASTER_PARAM_License -eq "true"' >
+      <choice label='&amp;Apache'
+              help="Adds an Apache license file."
+              value="Apache" />
+
+      <choice label='&amp;MIT'
+              help="Adds an MIT license file."
+              value="MIT" />
+
+      <choice label='&amp;None'
+              help="No license specified."
+              value="None" />
+    </parameter>
+
+    <parameter store="text" name="SourceDirectory" type="choice" prompt="What name do you give your source folder?" default="1">
+          <choice label="&amp;The Module's name (${PLASTER_PARAM_ProjectName})" value="${PLASTER_PARAM_ProjectName}" />
+          <choice label="&amp;source" value="source" />
+          <choice label="s&amp;rc" value="src" />
+    </parameter>
+
+    <parameter name="Features" type="multichoice" prompt="What feature would you like to add to your project?" default="0" >
+      <choice label='&amp;*All'
+              help="Adds all features below."
+              value="All"/>
+
+      <choice label='A&amp;zure DevOps Pipeline'
+              help="Adds the azure-pipeline.yml features below."
+              value="Azure-Pipelines"/>
+
+
+      <choice label='&amp;Git ignore'
+              help="Adds project .gitignore."
+              value="git"/>
+
+      <choice label='&amp;Unit Tests'
+              help="Adds Tests folders and example with your features."
+              value="UnitTests"/>
+
+      <choice label='&amp;Build'
+              help="Adds Build folders and an scripts."
+              value="Build"/>
+
+    </parameter>
+  </parameters>
+    <!--
+      condition=''
+      ${PLASTER_PARAM_ModuleType}         SimpleModule CustomModule CompleteSample SimpleModule_NoBuild  SharedDscConfig
+      -in @("SimpleModule","CustomModule","CompleteSample","SimpleModule_NoBuild","SharedDscConfig")
+      ${PLASTER_PARAM_ModuleAuthor}
+      ${PLASTER_PARAM_ProjectName}
+      ${PLASTER_PARAM_ModuleDescription}
+      ${PLASTER_PARAM_ModuleVersion}
+      ${PLASTER_PARAM_License}            true false
+      ${PLASTER_PARAM_LicenseType}        Apache MIT None
+      ${PLASTER_PARAM_Features}           All UnitTests ModuleQuality AppVeyor TestKitchen DSCResources Enum Classes SampleScripts git
+
+     -->
+  <content>
+    <!-- MODULES FOLDER SCAFFOLDING -->
+    <!--   SOURCE MAIN Folder -->
+    <file source=''
+          destination='${PLASTER_PARAM_ProjectName}/${PLASTER_PARAM_SourceDirectory}'
+    />
+
+    <!--   PESTER MAIN FOLDER -->
+    <file source=''
+          destination='${PLASTER_PARAM_ProjectName}/tests'
+          condition='${PLASTER_PARAM_Features} -in @("All","UnitTests","TestKitchen")'
+    />
+
+    <!--   OUTPUT FOLDER -->
+    <file source=''
+          destination='${PLASTER_PARAM_ProjectName}/output'
+    />
+
+    <!--   REQUIRED MODULES FOLDER -->
+    <file source=''
+          destination='${PLASTER_PARAM_ProjectName}/output/RequiredModules'
+    />
+    <!--   WikiSource FOLDER -->
+    <file source=''
+          destination='${PLASTER_PARAM_ProjectName}/${PLASTER_PARAM_SourceDirectory}/WikiSource'
+          condition='${PLASTER_PARAM_Features} -in @("All","Wiki")'
+    />
+    <!-- END OF MODULES FOLDER SCAFFOLDING -->
+
+    <!-- REPOSITORY Files -->
+    <!--   GITIGNORE -->
+    <file source='../Git/gitignore'
+          destination='${PLASTER_PARAM_ProjectName}/.gitignore'
+    />
+
+    <!--   GITATTRIBUTES -->
+    <file source='../Git/gitattributes'
+          destination='${PLASTER_PARAM_ProjectName}/.gitattributes'
+    />
+
+    <!-- BUILD SCRIPTS -->
+    <!--   BUILD.ps1 (ENTRY POINT) -->
+    <file source='../Build/build.ps1'
+          destination='${PLASTER_PARAM_ProjectName}/build.ps1'
+    />
+
+    <!--   REQUIRED MODULES MANIFEST -->
+
+    <templateFile source='../Build/RequiredModules.psd1.template'
+          destination='${PLASTER_PARAM_ProjectName}/RequiredModules.psd1'
+    />
+
+    <!--   RESOLVE DEPENDENCY Script (used in build.ps1) -->
+    <file source='../Build/Resolve-Dependency.ps1'
+          destination='${PLASTER_PARAM_ProjectName}/Resolve-Dependency.ps1'
+    />
+
+    <templateFile source='../Build/Resolve-Dependency.psd1.template'
+          destination='${PLASTER_PARAM_ProjectName}/Resolve-Dependency.psd1'
+    />
+
+    <!--   BUILD YAML CONFIGURATION -->
+    <templateFile source='../ChocolateyPipeline/chocobuild.yml.template'
+          destination='${PLASTER_PARAM_ProjectName}/build.yaml'
+    />
+
+    <!--   AZURE PIPELINES -->
+    <templateFile source='../Sampler/azure-pipelines.yml.template'
+          destination='${PLASTER_PARAM_ProjectName}/azure-pipelines.yml'
+          condition='${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("Azure-Pipelines")'
+    />
+
+    <!-- END OF BUILD SCRIPTS -->
+
+    <!-- LICENSE based on type of license MIT/Apache2/CC...-->
+    <!--   MIT License -->
+    <templateFile source='../Sampler/LICENSES/LICENSE.MIT.template'
+                  destination='${PLASTER_PARAM_ProjectName}/LICENSE'
+                  condition='(${PLASTER_PARAM_License} -eq "true" -and ${PLASTER_PARAM_LicenseType} -eq "MIT")'
+    />
+
+    <!--   APACHE License -->
+    <templateFile source='../Sampler/LICENSES/LICENSE.Apache.template'
+                  destination='${PLASTER_PARAM_ProjectName}/LICENSE'
+                  condition='${PLASTER_PARAM_License} -eq "true" -and ${PLASTER_PARAM_LicenseType} -eq "Apache"'
+    />
+
+    <!-- END OF LICENSE based on type of license MIT/Apache2/CC...-->
+
+    <!-- Add Markup help files -->
+    <templateFile source='../Build/README.md.template'
+                  destination='${PLASTER_PARAM_ProjectName}/README.md'
+    />
+
+   <!-- CONTRIBUTING MD -->
+   <file source='../Build/CONTRIBUTING.md'
+          destination='${PLASTER_PARAM_ProjectName}/CONTRIBUTING.md'
+          condition='${PLASTER_PARAM_Features} -Contains ("All")'
+    />
+
+   <!-- CODE OF CONDUCT MD -->
+   <file source='../Build/CODE_OF_CONDUCT.md'
+          destination='${PLASTER_PARAM_ProjectName}/CODE_OF_CONDUCT.md'
+          condition='${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("git")'
+    />
+
+   <!-- SECURITY MD GENERIC -->
+   <file source='../Build/SECURITY.generic.md'
+          destination='${PLASTER_PARAM_ProjectName}/SECURITY.md'
+          condition='${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("git") -or ${PLASTER_PARAM_Features} -Contains ("github")'
+    />
+
+   <!-- CHANGELOG MD -->
+   <templateFile source='../Build/CHANGELOG.md.template'
+          destination='${PLASTER_PARAM_ProjectName}/CHANGELOG.md'
+          condition='${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("git")'
+   />
+
+   <!-- GITVERSION CONFIG YAML -->
+   <templateFile source='../Git/GitVersion.yml.template'
+          destination='${PLASTER_PARAM_ProjectName}/GitVersion.yml'
+          condition='${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("git")'
+    />
+
+   <!-- VSCODE SETTINGS -->
+   <file source='../VscodeConfig/settings.json'
+          destination='${PLASTER_PARAM_ProjectName}/.vscode/settings.json'
+          condition='${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("vscode")'
+    />
+
+    <!-- PSScriptAnalyzer VSCODE CONFIG -->
+    <file source='../VscodeConfig/analyzersettings.psd1'
+          destination='${PLASTER_PARAM_ProjectName}/.vscode/analyzersettings.psd1'
+          condition='${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("vscode")'
+    />
+
+    <!-- VSCODE SETTINGS -->
+    <file source='../VscodeConfig/tasks.json'
+          destination='${PLASTER_PARAM_ProjectName}/.vscode/tasks.json'
+          condition='${PLASTER_PARAM_ModuleType} -in @("dsccommunity","CompleteSample","SimpleBuild") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("vscode")'
+    />
+
+   <!-- GITHUB TEMPLATES -->
+   <file source=''
+          destination='${PLASTER_PARAM_ProjectName}/.github'
+          condition='${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("github")'
+    />
+
+    <file source='../GithubConfig/PULL_REQUEST_TEMPLATE.md'
+          destination='${PLASTER_PARAM_ProjectName}/.github/PULL_REQUEST_TEMPLATE.md'
+          condition='${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("github")'
+    />
+
+    <file source='../GithubConfig/PULL_REQUEST_TEMPLATE.md'
+          destination='${PLASTER_PARAM_ProjectName}/.github/PULL_REQUEST_TEMPLATE.md'
+          condition='${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("github")'
+    />
+
+    <file source=''
+          destination='${PLASTER_PARAM_ProjectName}/.github/ISSUE_TEMPLATE'
+          condition='${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("github")'
+    />
+
+    <templateFile source='../GithubConfig/ISSUE_TEMPLATE/config.yml.template'
+          destination='${PLASTER_PARAM_ProjectName}/.github/ISSUE_TEMPLATE/config.yml'
+          condition='${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("github")'
+    />
+
+    <file source='../GithubConfig/ISSUE_TEMPLATE/General.md'
+          destination='${PLASTER_PARAM_ProjectName}/.github/ISSUE_TEMPLATE/General.md'
+          condition='${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("github")'
+    />
+
+    <templateFile source='../GithubConfig/ISSUE_TEMPLATE/Problem_with_module.yml.template'
+          destination='${PLASTER_PARAM_ProjectName}/.github/ISSUE_TEMPLATE/Problem_with_module.yml'
+          condition='${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("github")'
+    />
+
+  </content>
+</plasterManifest>

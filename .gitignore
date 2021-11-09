@@ -2,6 +2,7 @@ output/*
 .kitchen/*
 **.bak
 .kitchen.local.yml
+**.nupkg
 
 !**/README.md
 DscResource.tests

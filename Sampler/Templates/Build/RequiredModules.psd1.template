@@ -6,10 +6,10 @@
 <%
     if (-not [System.String]::IsNullOrEmpty($PLASTER_PARAM_CustomRepo)) {
                     # Pull Modules from Custom Repository Name
-"           Repository = '$PLASTER_PARAM_CustomRepo'"
+"            Repository = '$PLASTER_PARAM_CustomRepo'"
     }
     else {
-"           Repository = 'PSGallery'"
+"            Repository = 'PSGallery'"
     }
 %>
         }
@@ -17,7 +17,7 @@
 
     InvokeBuild                 = 'latest'
     PSScriptAnalyzer            = 'latest'
-    Pester                      = '4.10.1'
+    Pester                      = 'latest'
     Plaster                     = 'latest'
     ModuleBuilder               = 'latest'
     ChangelogManagement         = 'latest'

@@ -5,6 +5,7 @@ output/
 !**/README.md
 .kitchen/
 
+*.nupkg
 *.suo
 *.user
 *.coverage

@@ -1,0 +1,93 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<plasterManifest schemaVersion="1.0" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+  <metadata>
+    <name>ChocolateyPackage</name>
+    <id>6ee54c71-fc3b-42c0-ae65-7a70858e3367</id>
+    <version>0.0.1</version>
+    <title>Chocolatey Package Template</title>
+    <description>A template to create a chocolatey package.</description>
+    <author>Gael Colas</author>
+    <tags>Chocolatey, Sampler, Template, Build, Module</tags>
+  </metadata>
+  <parameters>
+    <parameter store="text"  name="SourceDirectory" type="text" prompt="What is your source folder?" default="source" />
+        <!-- This section is about this package, although id and version have ties back to the software -->
+    <!-- id is lowercase and if you want a good separator for words, use '-', not '.'. Dots are only acceptable as suffixes for certain types of packages, e.g. .install, .portable, .extension, .template -->
+    <!-- If the software is cross-platform, attempt to use the same id as the debian/rpm package(s) if possible. -->
+    <parameter store="text"  name="PackageName" type="text" prompt="Please pass in a name for the new package." />
+    <parameter store="text"  name="PackageDescription" type="text" prompt="Provide a description for the new package." />
+    <parameter store="text"  name="PackageSummary" type="text" prompt="Short summary of the Package." />
+    <parameter store="text"  name="projectUrl" type="text" prompt="Project url and source for the software." />
+    <parameter store="text"  name="PackageSourceUrl" type="text" prompt="Project source url for the package (chocolatey specific)." />
+    <parameter store="text"  name="PackageIconUrl" type="text" prompt="Provide the URL to a logo for your package." default="" />
+    <parameter store="text"  name="SoftwareAuthors" type="text" prompt="Authors of the packaged software (not the package)." />
+    <parameter store="text"  name="Owners" type="text" prompt="Owner of the Chocolatey package (not necessarily the authors of the software)." />
+    <parameter store="text"  name="PackageTags" type="text" prompt="Package tags (space separated)" />
+    <parameter store="text"  name="isPublicPackage" type="text" prompt="Is this package intended to be published to the Community fed (chocolatey.org)? (There are some extra requirements)" />
+    <parameter name="PesterVersion" type="choice" default='0' prompt="Select the version of Pester you would like to use for the tests (only testing the file, not the package).">
+      <choice label="Pester v&amp;5"
+        help="Use the latest version of Pester (best for new projects)"
+        value="5" />
+
+      <choice label="Pester v&amp;4"
+        help="Use the previous version of Pester (legacy)."
+        value="4" />
+
+      <choice label="Skip Pester tests"
+        help="Skip and do not add tests to help with validating the package."
+        value="0" />
+    </parameter>
+
+    <!-- <parameter store="text"  name="isPublicPackage" type="text" prompt="Is this package intended to be published to the Community fed (chocolatey.org)? (There are some extra requirements)" /> -->
+  </parameters>
+    <!--
+      ${PLASTER_PARAM_SourceDirectory}
+      ${PLASTER_PARAM_PackageName}
+      ${PLASTER_PARAM_PackageDescription}
+      ${PLASTER_PARAM_PakageSummary}
+      ${PLASTER_PARAM_projectUrl}
+      ${PLASTER_PARAM_PackageIconUrl}
+      ${PLASTER_PARAM_Authors}
+      ${PLASTER_PARAM_Owners}
+      ${PLASTER_PARAM_PackageTags}
+     -->
+  <content>
+    <!-- CHOCO Package source SCAFFOLDING -->
+
+      <!--   SOURCE/chocolatey/PackageName -->
+      <file source=''
+            destination='${PLASTER_PARAM_SourceDirectory}/chocolatey/${PLASTER_PARAM_PackageName}'
+      />
+
+      <!--   SOURCE/chocolatey/PackageName/tools -->
+      <file source=''
+            destination='${PLASTER_PARAM_SourceDirectory}/chocolatey/${PLASTER_PARAM_PackageName}/tools'
+      />
+
+      <!--   SOURCE/chocolatey/PackageName/tools/chocolateybeforemodify.ps1 file -->
+      <templateFile source='../ChocolateyPackage/myPackage/tools/chocolateybeforemodify.ps1'
+                        destination='${PLASTER_PARAM_SourceDirectory}/chocolatey/${PLASTER_PARAM_PackageName}/tools/chocolateybeforemodify.ps1'
+      />
+
+      <!--   SOURCE/chocolatey/PackageName/tools/chocolateybeforemodify.ps1 file -->
+      <templateFile source='../ChocolateyPackage/myPackage/tools/chocolateybeforemodify.ps1'
+                        destination='${PLASTER_PARAM_SourceDirectory}/chocolatey/${PLASTER_PARAM_PackageName}/tools/chocolateyinstall.ps1'
+      />
+
+      <!--   SOURCE/chocolatey/PackageName/tools/chocolateybeforemodify.ps1 file -->
+      <templateFile source='../ChocolateyPackage/myPackage/tools/chocolateybeforemodify.ps1'
+                        destination='${PLASTER_PARAM_SourceDirectory}/chocolatey/${PLASTER_PARAM_PackageName}/tools/chocolateyuninstall.ps1'
+      />
+
+      <!--   SOURCE/chocolatey/PackageName/README.md -->
+      <templateFile source='../ChocolateyPackage/myPackage/README.md'
+                        destination='${PLASTER_PARAM_SourceDirectory}/chocolatey/${PLASTER_PARAM_PackageName}/README.md'
+      />
+
+      <!--   SOURCE/chocolatey/PackageName/mypackage.nuspec -->
+      <templateFile source='../ChocolateyPackage/myPackage/mypackage.nuspec.template'
+                        destination='${PLASTER_PARAM_SourceDirectory}/chocolatey/${PLASTER_PARAM_PackageName}/${PLASTER_PARAM_PackageName}.nuspec'
+      />
+
+  </content>
+</plasterManifest>

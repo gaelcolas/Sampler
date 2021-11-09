@@ -388,10 +388,6 @@ try
         {
             Write-Verbose "PowerShell-Yaml is already available"
         }
-
-        Write-Progress -Activity 'Bootstrap:' -PercentComplete 88 -CurrentOperation 'Importing PowerShell module PowerShell-Yaml'
-
-        Import-Module -Name 'PowerShell-Yaml' -ErrorAction 'Stop'
     }
 
     Write-Progress -Activity 'Bootstrap:' -PercentComplete 90 -CurrentOperation 'Invoke PSDepend'

@@ -60,8 +60,9 @@ task build_guestconfiguration_packages {
     Get-ChildItem -Path $GCPackagesPath -Directory -ErrorAction SilentlyContinue | ForEach-Object -Process {
         "`t`tPackaging Policy '$($_.Name)'"
         $GCPackageName = $_.Name
-        $ConfigurationFile = Join-Path -Path $_.FullName -ChildPath "$GCPackageName.config.ps1"
-        $MOFFile = Join-Path -Path $_.FullName -ChildPath "$GCPackageName.mof"
+        $ConfigurationFile = Join-Path -Path $_.FullName -ChildPath ('{0}.config.ps1' -f $GCPackageName)
+        $newPackageParamsFile = Join-Path -Path $_.FullName -ChildPath ('{0}.psd1' -f $GCPackageName)
+        $MOFFile = Join-Path -Path $_.FullName -ChildPath ('{0}.mof' -f $GCPackageName)
 
         if (-not (Test-Path -Path $ConfigurationFile) -and -not (Test-Path -Path $MOFFile))
         {
@@ -86,6 +87,7 @@ task build_guestconfiguration_packages {
                 $MOFFile = $MOFFileAndErrors.Foreach{
                     if ($_ -isnot [System.Management.Automation.ErrorRecord])
                     {
+                        # If the MOF name is localhost.mof, mv to PackageName.mof
                         $_
                     }
                     else
@@ -93,11 +95,27 @@ task build_guestconfiguration_packages {
                         $CompilationErrors += $_
                     }
                 }
+
+                if ((Split-Path -Leaf $MOFFile -ErrorAction 'SilentlyContinue') -eq 'localhost.mof')
+                {
+                    $destinationMof = Join-Path -Path (Join-Path -Path $OutputDirectory -ChildPath 'MOFs') -ChildPath ('{0}.mof' -f $GCPackageName)
+                    $null = Move-Item -Path $MOFFile -Destination $destinationMof -Force -ErrorAction Stop
+                    $MOFFile = $destinationMof
+                }
             }
             catch
             {
                 throw "Compilation error. $($_.Exception.Message)"
             }
+        }
+
+        if (Test-Path -Path $newPackageParamsFile)
+        {
+            $newPackageExtraParams = Import-PowerShellDataFile -Path $newPackageParamsFile -ErrorAction 'Stop'
+        }
+        else
+        {
+            $newPackageExtraParams = @{}
         }
 
         $ZippedGCPackage = (
@@ -107,6 +125,12 @@ task build_guestconfiguration_packages {
                     Name          = $GCPackageName
                     Path          = (Join-Path -Path $OutputDirectory -ChildPath 'GCPolicyPackages')
                     Force         = $true
+                }
+
+                foreach ($paramName in (Get-Command -Name 'New-GuestConfigurationPackage').Parameters.Keys)
+                {
+                    # Override the Parameters from the $GCPackageName.psd1
+                    $NewGCPackageParams[$paramName] = $newPackageExtraParams[$paramName]
                 }
 
                 New-GuestConfigurationPackage @NewGCPackageParams
@@ -147,7 +171,7 @@ task build_guestconfiguration_packages {
         # If we're running on Windows as admin, we can test the package
         if (-not $IsLinux -and [Security.Principal.WindowsPrincipal]::new([Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator))
         {
-            # We ought to test the the package on a purposed-built vm (i.e. with TK)
+            # We ought to test the the package on a purpose-built vm (i.e. with TK)
             Test-GuestConfigurationPackage -Path $ZippedGCPackage.Path -Verbose
         }
         else
