@@ -40,6 +40,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     in Azure Pipelines.
   - GitVersion.yml now uses the correct chosen default branch.
   - Codecov.yml now uses the correct chosen default branch.
+- Fixed GuestConfiguration compilation to work with GuestConfiguration module version 4.0.0-preview0002.
+- Set the default type to AuditAndSet, but supporting override by creating a '$GCPackageName.psd1' file along with the config. 
 
 ## [0.112.0] - 2021-09-23
 
