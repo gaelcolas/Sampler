@@ -157,7 +157,6 @@ BuildWorkflow:
 @"
     - Publish_Release_To_GitHub
     - Publish_GitHub_Wiki_Content
-    - Create_ChangeLog_GitHub_PR
 "@
     }
 %>
@@ -165,7 +164,6 @@ BuildWorkflow:
     if($PLASTER_PARAM_ModuleType -in @('SimpleModule') -or $PLASTER_PARAM_Features -Contains ('All') -or $PLASTER_PARAM_Features -Contains ('GitHub')) {
 @"
     - Publish_Release_To_GitHub
-    - Create_ChangeLog_GitHub_PR
 "@
     }
 %>

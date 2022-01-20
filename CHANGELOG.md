@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 - Template file `Build/RequiredModules.psd1` that was not used.
+
 ### Added
 
 - Added Pipeline to build chocolatey packages.
@@ -23,6 +24,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed default source folder to source and not src.
 - Fixed failed loading when there's no project name (when calling `Set-SamplerTaskVariable`). Fixes [#331](https://github.com/gaelcolas/Sampler/issues/331).
 - Fixed `Get-SamplerAbsolutePath` returning the wrong path in PowerShell and ISE. Fixes [#341](https://github.com/gaelcolas/Sampler/issues/341).
+- The templates was using the task `Create_ChangeLog_GitHub_PR` in the meta task
+  publish that is also specifically run in a separate Azure Pipelines task. This
+  made the task to run twice.
 
 ### Changed
 
