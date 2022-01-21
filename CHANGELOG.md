@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed `Resolve-Dependency.ps1` to not fail when `PowerShell-yaml` module was specified but already loaded (handle on dll). Fixes [#335](https://github.com/gaelcolas/Sampler/issues/335)
 - Fixed default source folder to source and not src.
 - Fixed failed loading when there's no project name (when calling `Set-SamplerTaskVariable`). Fixes [#331](https://github.com/gaelcolas/Sampler/issues/331).
+- Fixed `Get-SamplerAbsolutePath` returning the wrong path in PowerShell and ISE. Fixes [#341](https://github.com/gaelcolas/Sampler/issues/341).
 
 ### Changed
 
