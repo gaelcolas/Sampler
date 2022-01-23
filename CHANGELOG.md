@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.112.1] - 2022-01-23
+
 ### Removed
 
 - Template file `Build/RequiredModules.psd1` that was not used.
