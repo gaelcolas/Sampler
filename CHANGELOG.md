@@ -27,7 +27,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The templates was using the task `Create_ChangeLog_GitHub_PR` in the meta task
   publish that is also specifically run in a separate Azure Pipelines task. This
   made the task to run twice.
-- Fixed missing full stop (`.`) in the CONTRIBUTING.md. Fixes [#333](https://github.com/gaelcolas/Sampler/issues/333).
+- Fixed missing full stop (`.`) in the CONTRIBUTING.md and the template file.
+  Fixes [#333](https://github.com/gaelcolas/Sampler/issues/333).
 
 ### Changed
 
