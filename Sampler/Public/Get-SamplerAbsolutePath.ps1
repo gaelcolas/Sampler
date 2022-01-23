@@ -57,7 +57,7 @@ function Get-SamplerAbsolutePath
     if (-not [System.Io.Path]::IsPathRooted($RelativeTo))
     {
         # If the path is not rooted it's a relative path
-        $RelativeTo = Join-Path -Path ([System.Io.Path]::GetFullPath('.')) -ChildPath $RelativeTo
+        $RelativeTo = Join-Path -Path ([System.Io.Path]::GetFullPath($PWD.Path)) -ChildPath $RelativeTo
     }
     elseif (-not (Split-Path -IsAbsolute -Path $RelativeTo) -and [System.Io.Path]::IsPathRooted($RelativeTo))
     {
