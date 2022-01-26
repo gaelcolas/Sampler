@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- When running test using Pester 5, and the build configuration (`build.yaml`)
+  do not specify the location of tests in the key `Path`, the pipeline will
+  no longer run the tests twice. Fixes [#337](https://github.com/gaelcolas/Sampler/issues/337)
+
 ## [0.112.1] - 2022-01-23
 
 ### Removed
