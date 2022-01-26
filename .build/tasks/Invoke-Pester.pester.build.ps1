@@ -873,7 +873,6 @@ Pester:
         # Use the default, search project path recursively for tests.
         $pesterParameters.Configuration.Run.Path = @(
             Join-Path -Path $ProjectPath -ChildPath 'tests'
-            Join-Path -Path $ProjectPath -ChildPath 'Tests'
         )
     }
     else
