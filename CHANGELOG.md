@@ -17,7 +17,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Switch to installing GitVersion using `dotnet tool install`. Fixes [#348](https://github.com/gaelcolas/Sampler/issues/348)
 - Updated pipeline to use the build worker image 'ubuntu-latest'.
-- Updated the Plaster templates to use 'dotnet tool install' in the pipeline.
+- Updated pipeline to use the build worker image 'windows-latest'.
+- Updated the Plaster templates
+  - to use 'dotnet tool install' in the pipeline.
+  - to use build image 'ubuntu-latest' in the pipeline.
+  - to use build image 'windows-latest' in the pipeline.
 
 ## [0.112.1] - 2022-01-23
 
