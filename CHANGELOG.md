@@ -7,9 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
 - When running test using Pester 5, and the build configuration (`build.yaml`)
   do not specify the location of tests in the key `Path`, the pipeline will
   no longer run the tests twice. Fixes [#337](https://github.com/gaelcolas/Sampler/issues/337)
+
+### Changed
+
+- Switch to installing GitVersion using `dotnet tool install`. Fixes [#348](https://github.com/gaelcolas/Sampler/issues/348)
+- Updated pipeline to use the build worker image 'ubuntu-latest'.
+- Updated the Plaster templates to use 'dotnet tool install' in the pipeline.
 
 ## [0.112.1] - 2022-01-23
 
@@ -24,7 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added New-SamplerPipeline to create build, Sampler Module or Chocolatey pipeline.
 - Extra configuration files for passing to Azure Policy Guest Configuration Package on creation.
 
-#### Fixed
+### Fixed
 
 - Fixed `Resolve-Dependency.ps1` to not fail when `PowerShell-yaml` module was specified but already loaded (handle on dll). Fixes [#335](https://github.com/gaelcolas/Sampler/issues/335)
 - Fixed default source folder to source and not src.
