@@ -95,7 +95,7 @@ stages:
         displayName: 'Windows (PowerShell Core)'
         timeoutInMinutes: 0
         pool:
-          vmImage: 'windows-2019'
+          vmImage: 'windows-latest'
         steps:
           - task: DownloadPipelineArtifact@2
             displayName: 'Download Pipeline Artifact'
@@ -131,7 +131,7 @@ stages:
         displayName: 'Windows (Windows PowerShell)'
         timeoutInMinutes: 0
         pool:
-          vmImage: 'windows-2019'
+          vmImage: 'windows-latest'
         steps:
           - task: DownloadPipelineArtifact@2
             displayName: 'Download Pipeline Artifact'
