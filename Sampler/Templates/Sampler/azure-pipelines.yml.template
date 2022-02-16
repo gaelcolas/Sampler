@@ -43,7 +43,7 @@ stages:
               arguments: '-ResolveDependency -tasks pack'
               pwsh: true
             env:
-              ModuleVersion: $$(NuGetVersionV2)
+              ModuleVersion: $(NuGetVersionV2)
 
           - task: PublishPipelineArtifact@1
             displayName: 'Publish Build Artifact'
