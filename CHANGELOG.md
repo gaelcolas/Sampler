@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.112.2] - 2022-03-20
+
 ### Fixed
 
 - Fixed explicit parameter value in `build.ps1` while calling `.\Resolve-Dependency.ps1`
