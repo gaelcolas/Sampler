@@ -100,7 +100,8 @@ task build_guestconfiguration_packages {
                     }
                 }
 
-               Write-Build White "`t Compiled '$MOFFile'."
+                $MOFFile = [string]($MOFFile[0]) # ensure it's a single string
+                Write-Build White "`t Compiled '$MOFFile'."
 
                 if ((Split-Path -Leaf -Path $MOFFile -ErrorAction 'SilentlyContinue') -eq 'localhost.mof')
                 {
@@ -114,7 +115,6 @@ task build_guestconfiguration_packages {
             {
                 throw "Compilation error. $($_.Exception.Message)"
             }
-            $MOFFile = [string]($MOFFile[0]) # ensure it's a single string
         }
 
         if (Test-Path -Path $newPackageParamsFile)

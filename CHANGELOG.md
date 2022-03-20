@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed GuestConfiguration build task on MOF file name equal to `localhost.mof`
 - Fixed explicit parameter value in `build.ps1` while calling `.\Resolve-Dependency.ps1`
 - When running test using Pester 5, and the build configuration (`build.yaml`)
   do not specify the location of tests in the key `Path`, the pipeline will
