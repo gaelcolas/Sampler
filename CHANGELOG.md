@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed explicit parameter value in `build.ps1` while calling `.\Resolve-Dependency.ps1`
 - When running test using Pester 5, and the build configuration (`build.yaml`)
   do not specify the location of tests in the key `Path`, the pipeline will
   no longer run the tests twice. Fixes [#337](https://github.com/gaelcolas/Sampler/issues/337)

@@ -467,7 +467,7 @@ begin
             # The parameter has been explicitly used for calling the .build.ps1
             if ($MyInvocation.BoundParameters.ContainsKey($cmdParameter))
             {
-                $paramValue = $MyInvocation.BoundParameters.ContainsKey($cmdParameter)
+                $paramValue = $MyInvocation.BoundParameters.Item($cmdParameter)
 
                 Write-Debug " adding  $cmdParameter :: $paramValue [from user-provided parameters to Build.ps1]"
 
