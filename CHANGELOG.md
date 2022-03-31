@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- The task `Invoke_Pester_Tests_v5` generated a unexpected filename for the
+  test results, compared to the Pester 4 task. Fixes [#355](https://github.com/gaelcolas/Sampler/issues/355)
+
 ## [0.112.2] - 2022-03-20
 
 ### Fixed
