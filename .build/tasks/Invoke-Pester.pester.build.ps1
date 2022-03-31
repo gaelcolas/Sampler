@@ -467,8 +467,6 @@ task Invoke_Pester_Tests_v5 {
 
     $pesterOutputFileFileName = Get-PesterOutputFileFileName @getPesterOutputFileFileNameParameters
 
-    $pesterOutputFullPath = Get-SamplerAbsolutePath -Path "$($PesterOutputFormat)_$pesterOutputFileFileName" -RelativeTo $PesterOutputFolder
-
     #region Handle deprecated Pester build configuration
 
     if ($BuildInfo.Pester -and -not $BuildInfo.Pester.Configuration)
@@ -644,7 +642,7 @@ Pester:
 
     $defaultPesterParameters.Configuration.TestResult.Enabled = $true
     $defaultPesterParameters.Configuration.TestResult.OutputFormat = 'NUnitXml'
-    $defaultPesterParameters.Configuration.TestResult.OutputPath = $pesterOutputFullPath
+    $defaultPesterParameters.Configuration.TestResult.OutputPath = Get-SamplerAbsolutePath -Path "NUnitXml_$pesterOutputFileFileName" -RelativeTo $PesterOutputFolder
     $defaultPesterParameters.Configuration.TestResult.OutputEncoding = 'UTF8'
     $defaultPesterParameters.Configuration.TestResult.TestSuiteName = $ProjectName
 
