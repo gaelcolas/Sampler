@@ -25,7 +25,7 @@ function Get-BuildVersion
     [OutputType([System.String])]
     param
     (
-        [Parameter(Mandatory = $true)]
+        [Parameter()]
         [System.String]
         $ModuleManifestPath,
 
