@@ -1121,6 +1121,11 @@ task Pester_Run_Times {
                     Name = $_.Item.Name
                     Duration = $durationString
                     Result = $_.Result
+                    Passed = $_.PassedCount
+                    Failed = $_.FailedCount
+                    Skipped = $_.SkippedCount
+                    Total = $_.TotalCount
+
                 }
             } |
             Format-Table -Property @(
@@ -1136,11 +1141,16 @@ task Pester_Run_Times {
                 @{
                     Name = 'Result'
                     Expression = { $_.Result }
+                    Align = 'Right'
                 }
+                'Passed'
+                'Failed'
+                'Skipped'
+                'Total'
             )
 
         ""
-        "Total run time: {0}" -f $pesterObject.Duration.ToString("''m' minutes 's' seconds'")
+        "Total run time: {0} ({1} tests was run)" -f $pesterObject.Duration.ToString("''m' minutes 's' seconds'"), $pesterObject.TotalCount
         ""
     }
     else
