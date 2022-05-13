@@ -1125,7 +1125,6 @@ task Pester_Run_Times {
                     Failed = $_.FailedCount
                     Skipped = $_.SkippedCount
                     Total = $_.TotalCount
-
                 }
             } |
             Format-Table -Property @(
