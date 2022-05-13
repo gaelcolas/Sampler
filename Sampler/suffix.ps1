@@ -5,10 +5,6 @@ Get-ChildItem -Path (Join-Path -Path $PSScriptRoot -ChildPath 'tasks\*') -Includ
         $taskFileAliasName = "$($_.BaseName).$ModuleName.ib.tasks"
 
         Set-Alias -Name $taskFileAliasName -Value $_.FullName
-
-        Export-ModuleMember -Alias $taskFileAliasName
     }
 
 Set-Alias -Name 'Set-SamplerTaskVariable' -Value "$PSScriptRoot/scripts/Set-SamplerTaskVariable.ps1"
-
-Export-ModuleMember -Alias 'Set-SamplerTaskVariable'

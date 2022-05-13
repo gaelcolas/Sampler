@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed a problem which occurred on certain machined when using Sampler in
+  Windows PowerShell. Fixes [#350](https://github.com/gaelcolas/Sampler/issues/350)
+
 ## [0.112.3] - 2022-03-31
 
 ### Fixed
