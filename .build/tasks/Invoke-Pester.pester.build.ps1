@@ -1064,5 +1064,99 @@ task Upload_Test_Results_To_AppVeyor -If { (property BuildSystem 'unknown') -eq 
     }
 }
 
+# Synopsis: List the run time for each Pester test.
+task Pester_Run_Times {
+    <#
+        This will evaluate the version of Pester that has been imported into the
+        session is v5.0.0 or higher.
+
+        This is not using task conditioning `-If` because Invoke-Build is evaluate
+        the task conditions before it runs any task which means task Import_Pester
+        have not had a chance to import the module into the session.
+        Also having this evaluation as a task condition will also slow down other
+        tasks noticeable.
+    #>
+    $isWrongPesterVersion = (Get-Module -Name 'Pester').Version -lt [System.Version] '5.0.0'
+
+    # If the correct module is not imported, then exit.
+    if ($isWrongPesterVersion)
+    {
+        "Pester 5 is not used in the pipeline, skipping task.`n"
+
+        return
+    }
+
+    # Get the vales for task variables, see https://github.com/gaelcolas/Sampler#task-variables.
+    . Set-SamplerTaskVariable
+
+    $PesterOutputFolder = Get-SamplerAbsolutePath -Path $PesterOutputFolder -RelativeTo $OutputDirectory
+
+    $getPesterOutputFileFileNameParameters = @{
+        ProjectName       = $ProjectName
+        ModuleVersion     = $ModuleVersion
+        OsShortName       = Get-OperatingSystemShortName
+        PowerShellVersion = ('PSv.{0}' -f $PSVersionTable.PSVersion)
+    }
+
+    $PesterOutputFileFileName = Get-PesterOutputFileFileName @getPesterOutputFileFileNameParameters
+
+    $PesterResultObjectClixml = Join-Path $PesterOutputFolder "PesterObject_$PesterOutputFileFileName"
+
+    "`tPester Output Folder     = {0}" -f $PesterOutputFolder
+    "`tPester Output Object     = {0}" -f $PesterResultObjectClixml
+    ""
+
+    if ((Test-Path -Path $PesterResultObjectClixml))
+    {
+        $pesterObject = Import-Clixml -Path $PesterResultObjectClixml
+
+        $pesterObject.Containers |
+            ForEach-Object -Process {
+                $durationString = $_.Duration.ToString("''m' minutes 's' seconds'")
+                $durationString = $durationString -replace '0 minutes '
+                $durationString = $durationString -replace '1 minutes ', '1 minute '
+                $durationString = $durationString -replace '1 seconds', '1 second '
+
+                [PSCustomObject] @{
+                    Name = $_.Item.Name
+                    Duration = $durationString
+                    Result = $_.Result
+                    Passed = $_.PassedCount
+                    Failed = $_.FailedCount
+                    Skipped = $_.SkippedCount
+                    Total = $_.TotalCount
+                }
+            } |
+            Format-Table -Property @(
+                @{
+                    Name = 'Test Script File'
+                    Expression = { $_.Name }
+                }
+                @{
+                    Name = 'Duration'
+                    Expression = { $_.Duration }
+                    Align = 'Right'
+                }
+                @{
+                    Name = 'Result'
+                    Expression = { $_.Result }
+                    Align = 'Right'
+                }
+                'Passed'
+                'Failed'
+                'Skipped'
+                'Total'
+            )
+
+        ""
+        "Total run time: {0} ({1} tests was run)" -f $pesterObject.Duration.ToString("''m' minutes 's' seconds'"), $pesterObject.TotalCount
+        ""
+    }
+    else
+    {
+        Write-Warning -Message 'Pester result object not found.'
+    }
+}
+
 # Synopsis: Meta task that runs Quality Tests, and fails if they're not successful
-task Pester_Tests_Stop_On_Fail Import_Pester, Invoke_Pester_Tests_v4, Invoke_Pester_Tests_v5, Upload_Test_Results_To_AppVeyor, Fail_Build_If_Pester_Tests_Failed
+task Pester_Tests_Stop_On_Fail Import_Pester, Invoke_Pester_Tests_v4, Invoke_Pester_Tests_v5, Upload_Test_Results_To_AppVeyor, Pester_Run_Times, Fail_Build_If_Pester_Tests_Failed

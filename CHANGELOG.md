@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- New task `Pester_Run_Times` that outputs each test's run time. Only works
+  for Pester 5. The task will be skipped if Pester 4 is used.
+
 ### Fixed
 
 - Fixed a problem which occurred on certain machined when using Sampler in
