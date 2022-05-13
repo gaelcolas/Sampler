@@ -42,14 +42,20 @@ param
     $SkipPublish = (property SkipPublish ''),
 
     [Parameter()]
-    $PublishModuleWhatIf = (property PublishModuleWhatIf '')
+    $PublishModuleWhatIf = (property PublishModuleWhatIf ''),
+
+    [Parameter()]
+    [string]
+    # Sub-Folder (or absolute path) of the Chocolatey build output folder (relative to $OutputDirectory)
+    # Contain the path to one or more Chocolatey packages.
+    # This variable here is used to determine if the repository is building a Chocolatey package.
+    $ChocolateyBuildOutput = (property ChocolateyBuildOutput 'choco')
 )
 
 # Synopsis: Create ReleaseNotes from changelog and update the Changelog for release
 task Create_changelog_release_output {
     # Get the vales for task variables, see https://github.com/gaelcolas/Sampler#task-variables.
-    # Adding -AsNewBuild otherwise the version is not resolved when not module manifest (i.e. Choco Package)
-    . Set-SamplerTaskVariable -AsNewBuild
+    . Set-SamplerTaskVariable
 
     $ChangeLogOutputPath = Get-SamplerAbsolutePath -Path 'CHANGELOG.md' -RelativeTo $OutputDirectory
 

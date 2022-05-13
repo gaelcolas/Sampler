@@ -106,11 +106,27 @@ else {
 
 "`tBuilt Module Subdirectory  = '$BuiltModuleSubdirectory'"
 
-$ModuleManifestPath = Get-SamplerAbsolutePath -Path "$ProjectName.psd1" -RelativeTo $SourcePath
+$ChocolateyBuildOutput = Get-SamplerAbsolutePath -Path $ChocolateyBuildOutput -RelativeTo $OutputDirectory
 
-"`tModule Manifest Path (src) = '$ModuleManifestPath'"
+# If this returns $true then the task Build_Chocolatey_Package created the folder
+$isChocolateyPackage = Test-Path -Path $ChocolateyBuildOutput
 
-if ($AsNewBuild.IsPresent)
+if ($isChocolateyPackage)
+{
+    Write-Debug -Message 'Building a Chocolatey package'
+
+    $ModuleManifestPath = $null
+}
+else
+{
+    Write-Debug -Message 'Building a module with a module manifest'
+
+    $ModuleManifestPath = Get-SamplerAbsolutePath -Path "$ProjectName.psd1" -RelativeTo $SourcePath
+
+    "`tModule Manifest Path (src) = '$ModuleManifestPath'"
+}
+
+if ($AsNewBuild.IsPresent -or $isChocolateyPackage)
 {
     $getBuildVersionParameters = @{
         ModuleManifestPath = $ModuleManifestPath
