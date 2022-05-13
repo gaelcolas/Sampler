@@ -25,7 +25,7 @@ function Get-BuildVersion
     [OutputType([System.String])]
     param
     (
-        [Parameter(Mandatory = $true)]
+        [Parameter()]
         [System.String]
         $ModuleManifestPath,
 
@@ -44,7 +44,7 @@ function Get-BuildVersion
 
             $ModuleVersion = (gitversion | ConvertFrom-Json -ErrorAction 'Stop').NuGetVersionV2
         }
-        else
+        elseif (-not [System.String]::IsNullOrEmpty($ModuleManifestPath))
         {
             Write-Verbose -Message (
                 "GitVersion is not installed. Trying to use the version from module manifest in path '{0}'." -f $ModuleManifestPath
@@ -58,6 +58,10 @@ function Get-BuildVersion
             {
                 $ModuleVersion = $ModuleVersion + '-' + $moduleInfo.PrivateData.PSData.Prerelease
             }
+        }
+        else
+        {
+            throw 'Could not determine the module version because neither GitVersion or a module manifest was present. Please provide the ModuleVersion parameter manually in the file build.yaml with the property ''SemVer:''.'
         }
     }
 

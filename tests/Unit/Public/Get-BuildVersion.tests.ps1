@@ -227,4 +227,28 @@ Describe 'Get-BuildVersion' {
             }
         }
     }
+
+    Context 'When no value is passed for parameter -ModuleManifestPath' {
+        BeforeAll {
+            Mock -CommandName Get-Command -MockWith {
+                return $false
+            } -ModuleName $ProjectName
+        }
+
+        Context 'When $null value is passed for parameter ModuleManifestPath' {
+            It 'Should throw the correct error' {
+                $mockErrorMessage = "Could not determine the module version because neither GitVersion or a module manifest was present. Please provide the ModuleVersion parameter manually in the file build.yaml with the property 'SemVer:'."
+
+                { Sampler\Get-BuildVersion -ModuleManifestPath $null } | Should -Throw -ExpectedMessage $mockErrorMessage
+            }
+        }
+
+        Context 'When empty value is passed for parameter ModuleManifestPath' {
+            It 'Should throw the correct error' {
+                $mockErrorMessage = "Could not determine the module version because neither GitVersion or a module manifest was present. Please provide the ModuleVersion parameter manually in the file build.yaml with the property 'SemVer:'."
+
+                { Sampler\Get-BuildVersion -ModuleManifestPath '' } | Should -Throw -ExpectedMessage $mockErrorMessage
+            }
+        }
+    }
 }
