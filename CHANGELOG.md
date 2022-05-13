@@ -9,8 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Now the module manifest is again updated with the release notes (from
-  the changelog). Fixes [#358](https://github.com/gaelcolas/Sampler/issues/358)
+- The module manifest is now correctly updated with release notes from the
+  changelog. Fixes [#358](https://github.com/gaelcolas/Sampler/issues/358)
 
 ## [0.112.3] - 2022-03-31
 
