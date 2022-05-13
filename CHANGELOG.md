@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.114.0] - 2022-05-13
+
 ### Added
 
 - New task `Pester_Run_Times` that outputs each test's run time. Only works
