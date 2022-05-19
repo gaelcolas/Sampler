@@ -47,7 +47,7 @@ function Get-BuildVersion
             New-Alias -Name 'gitversion' -Value 'dotnet-gitversion' -Scope 'Script' -ErrorAction 'SilentlyContinue'
         }
 
-        if ($gitVersionAvailable)
+        if ($gitVersionAvailable -or $donetGitversionAvailable)
         {
             Write-Verbose -Message 'Using the version from GitVersion.'
 
