@@ -36,9 +36,18 @@ function Get-BuildVersion
 
     if ([System.String]::IsNullOrEmpty($ModuleVersion))
     {
-        Write-Verbose -Message 'Module version is not determined yet. Evaluating methods to get module version.'
+        Write-Verbose -Message 'Module version is not determined yet. Evaluating methods to get new module version.'
 
-        if ((Get-Command -Name 'gitversion' -ErrorAction 'SilentlyContinue'))
+        $gitVersionAvailable = Get-Command -Name 'gitversion' -ErrorAction 'SilentlyContinue'
+        $donetGitversionAvailable = Get-Command -Name 'dotnet-gitversion' -ErrorAction 'SilentlyContinue'
+
+        # If dotnet-gitversion is available and gitversion is not, alias it to gitversion.
+        if ($donetGitversionAvailable -and -not $gitVersionAvailable)
+        {
+            New-Alias -Name 'gitversion' -Value 'dotnet-gitversion' -Scope 'Script' -ErrorAction 'SilentlyContinue'
+        }
+
+        if ($gitVersionAvailable -or $donetGitversionAvailable)
         {
             Write-Verbose -Message 'Using the version from GitVersion.'
 

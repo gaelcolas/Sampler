@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Now supports getting module version from `dotnet-gitversion` if it is available.
+
 ## [0.114.0] - 2022-05-13
 
 ### Added
