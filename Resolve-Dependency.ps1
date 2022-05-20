@@ -99,8 +99,8 @@ param
     $WithYAML,
 
     [Parameter()]
-    [System.String]
-    $GallerySourceLocation
+    [System.Collections.Hashtable]
+    $RegisterGallery
 )
 
 try
@@ -142,7 +142,7 @@ try
     {
         if (-not $PSBoundParameters.Keys.Contains($parameterName) -and $resolveDependencyDefaults.ContainsKey($parameterName))
         {
-            Write-Verbose -Message "Setting $parameterName with $($resolveDependencyDefaults[$parameterName])."
+            Write-Verbose -Message "Setting parameter '$parameterName' to value '$($resolveDependencyDefaults[$parameterName])'."
 
             try
             {
@@ -223,34 +223,37 @@ if (-not $powerShellGetModule -and -not $nuGetProvider)
     $Null = Import-PackageProvider -Name 'NuGet' -RequiredVersion $nuGetProviderVersion -Force
 }
 
-if ($GallerySourceLocation)
+if ($RegisterGallery)
 {
+    if ($RegisterGallery.ContainsKey('Name') -and -not [System.String]::IsNullOrEmpty($RegisterGallery.Name))
+    {
+        $Gallery = $RegisterGallery.Name
+    }
+    else
+    {
+        $RegisterGallery.Name = $Gallery
+    }
+
     Write-Progress -Activity 'Bootstrap:' -PercentComplete 7 -CurrentOperation "Verifying private package repository '$Gallery'" -Completed
 
-    $previousSourceLocation = (Get-PSRepository -Name $Gallery -ErrorAction 'SilentlyContinue').SourceLocation
-    $previousPublishLocation = (Get-PSRepository -Name $Gallery -ErrorAction 'SilentlyContinue').PublishLocation
+    $previousRegisteredRepository = Get-PSRepository -Name $Gallery -ErrorAction 'SilentlyContinue'
 
-    if ($previousSourceLocation -ne $GallerySourceLocation)
+    if ($previousRegisteredRepository.SourceLocation -ne $RegisterGallery.SourceLocation)
     {
-        if ($previousSourceLocation)
+        if ($previousRegisteredRepository)
         {
             Write-Progress -Activity 'Bootstrap:' -PercentComplete 9 -CurrentOperation "Re-registrering private package repository '$Gallery'" -Completed
 
             Unregister-PSRepository -Name $Gallery
+
+            $unregisteredPreviousRepository = $true
         }
         else
         {
             Write-Progress -Activity 'Bootstrap:' -PercentComplete 9 -CurrentOperation "Registering private package repository '$Gallery'" -Completed
         }
 
-        $registerPSRepositoryParameters = @{
-            Name = $Gallery
-            SourceLocation = $GallerySourceLocation
-            PublishLocation = $GallerySourceLocation
-            InstallationPolicy = 'Trusted'
-        }
-
-        Register-PSRepository @registerPSRepositoryParameters
+        Register-PSRepository @RegisterGallery
     }
 }
 
@@ -451,32 +454,52 @@ try
 }
 finally
 {
-    if ($GallerySourceLocation)
+    if ($RegisterGallery)
     {
         Write-Verbose -Message "Removing private package repository '$Gallery'."
-
         Unregister-PSRepository -Name $Gallery
     }
 
-    if ($previousSourceLocation -or $previousPublishLocation)
+    if ($unregisteredPreviousRepository)
     {
         Write-Verbose -Message "Reverting private package repository '$Gallery' to previous location URI:s."
 
         $registerPSRepositoryParameters = @{
-            Name = $Gallery
-            SourceLocation = $previousSourceLocation
-            PublishLocation = $previousPublishLocation
-            # If it was not trusted it will be fixed below.
-            InstallationPolicy = 'Trusted'
+            Name = $previousRegisteredRepository.Name
+            InstallationPolicy = $previousRegisteredRepository.InstallationPolicy
+        }
+
+        if ($previousRegisteredRepository.SourceLocation)
+        {
+            $registerPSRepositoryParameters.SourceLocation = $previousRegisteredRepository.SourceLocation
+        }
+
+        if ($previousRegisteredRepository.PublishLocation)
+        {
+            $registerPSRepositoryParameters.PublishLocation = $previousRegisteredRepository.PublishLocation
+        }
+
+        if ($previousRegisteredRepository.ScriptSourceLocation)
+        {
+            $registerPSRepositoryParameters.ScriptSourceLocation = $previousRegisteredRepository.ScriptSourceLocation
+        }
+
+        if ($previousRegisteredRepository.ScriptPublishLocation)
+        {
+            $registerPSRepositoryParameters.ScriptPublishLocation = $previousRegisteredRepository.ScriptPublishLocation
         }
 
         Register-PSRepository @registerPSRepositoryParameters
     }
 
-    if ($previousGalleryInstallationPolicy -ne 'Trusted')
+    # Only try to revert installation policy if the repository exist
+    if ((Get-PSRepository -Name $Gallery -ErrorAction 'SilentlyContinue'))
     {
-        # Reverting the Installation Policy for the given gallery if it was not already trusted
-        Set-PSRepository -Name $Gallery -InstallationPolicy $previousGalleryInstallationPolicy
+        if ($previousGalleryInstallationPolicy -and $previousGalleryInstallationPolicy -ne 'Trusted')
+        {
+            # Reverting the Installation Policy for the given gallery if it was not already trusted
+            Set-PSRepository -Name $Gallery -InstallationPolicy $previousGalleryInstallationPolicy
+        }
     }
 
     Write-Verbose -Message "Project Bootstrapped, returning to Invoke-Build"
