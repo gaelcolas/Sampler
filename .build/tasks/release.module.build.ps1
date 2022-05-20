@@ -210,20 +210,6 @@ task package_module_nupkg {
     }
     #endregion
 
-    $ChangeLogOutputPath = Join-Path -Path $OutputDirectory -ChildPath 'CHANGELOG.md'
-
-    "`tChangeLogOutputPath = $ChangeLogOutputPath"
-
-    # Do not try to generate ReleaseNotesForLatestRelease when updating Changelog after Major Release.
-    if (Test-Path $ChangeLogOutputPath )
-    {
-        $changeLogData = Get-ChangelogData -Path $ChangeLogOutputPath
-        # Filter out the latest module version change log entries
-        $releaseNotesForLatestRelease = $changeLogData.Released | Where-Object -FilterScript {
-            $_.Version -eq $ModuleVersion
-        }
-    }
-
     if (-not $BuiltModuleManifest)
     {
         throw "No valid manifest found for project $ProjectName."
@@ -269,7 +255,6 @@ task package_module_nupkg {
         Path            = $BuiltModuleBase
         Repository      = 'output'
         ErrorAction     = 'Stop'
-        ReleaseNotes    = $releaseNotesForLatestRelease
         Force           = $true
     }
 
@@ -291,17 +276,6 @@ task publish_module_to_gallery -if ($GalleryApiToken -and (Get-Command -Name 'Pu
     . Set-SamplerTaskVariable
 
     Import-Module -Name 'ModuleBuilder' -ErrorAction 'Stop'
-
-    $ChangeLogOutputPath = Join-Path -Path $OutputDirectory -ChildPath 'CHANGELOG.md'
-
-    "  ChangeLogOutputPath = $ChangeLogOutputPath"
-
-    $changeLogData = Get-ChangelogData -Path $ChangeLogOutputPath
-
-    # Filter out the latest module version change log entries
-    $releaseNotesForLatestRelease = $changeLogData.Released | Where-Object -FilterScript {
-        $_.Version -eq $ModuleVersion
-    }
 
     # Parse PublishModuleWhatIf to be boolean
     $null = [bool]::TryParse($PublishModuleWhatIf, [ref]$script:PublishModuleWhatIf)
@@ -327,16 +301,16 @@ task publish_module_to_gallery -if ($GalleryApiToken -and (Get-Command -Name 'Pu
         NuGetApiKey     = $GalleryApiToken
         Repository      = $PSModuleFeed
         ErrorAction     = 'Stop'
-        ReleaseNotes    = $releaseNotesForLatestRelease
     }
 
     if ($PublishModuleWhatIf)
     {
-        $PublishModuleParams['WhatIf'] = $True
+        $PublishModuleParams['WhatIf'] = $true
     }
 
     if (!$SkipPublish)
     {
+        # Release notes will be used from module manifest
         Publish-Module @PublishModuleParams
     }
 
