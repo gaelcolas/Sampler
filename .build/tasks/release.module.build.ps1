@@ -247,6 +247,7 @@ task package_module_nupkg {
                 $PublishModuleParams['WhatIf'] = $True
             }
 
+            # Release notes will be used from module manifest
             Publish-Module -Repository output -ErrorAction SilentlyContinue -Path $module.ModuleBase
         }
     }
