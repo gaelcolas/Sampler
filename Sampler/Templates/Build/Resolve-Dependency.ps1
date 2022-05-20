@@ -9,7 +9,7 @@
     .PARAMETER PSDependTarget
         Path for PSDepend to be bootstrapped and save other dependencies.
         Can also be CurrentUser or AllUsers if you wish to install the modules in
-        such scope. The default value is './output/RequiredModules' relative to
+        such scope. The default value is 'output/RequiredModules' relative to
         this script's path.
 
     .PARAMETER Proxy
@@ -59,7 +59,7 @@ param
 
     [Parameter()]
     [System.String]
-    $PSDependTarget = (Join-Path -Path $PSScriptRoot -ChildPath './output/RequiredModules'),
+    $PSDependTarget = (Join-Path -Path $PSScriptRoot -ChildPath 'output/RequiredModules'),
 
     [Parameter()]
     [System.Uri]
@@ -96,7 +96,11 @@ param
 
     [Parameter()]
     [System.Management.Automation.SwitchParameter]
-    $WithYAML
+    $WithYAML,
+
+    [Parameter()]
+    [System.Collections.Hashtable]
+    $RegisterGallery
 )
 
 try
@@ -138,7 +142,7 @@ try
     {
         if (-not $PSBoundParameters.Keys.Contains($parameterName) -and $resolveDependencyDefaults.ContainsKey($parameterName))
         {
-            Write-Verbose -Message "Setting $parameterName with $($resolveDependencyDefaults[$parameterName])."
+            Write-Verbose -Message "Setting parameter '$parameterName' to value '$($resolveDependencyDefaults[$parameterName])'."
 
             try
             {
@@ -207,6 +211,7 @@ if (-not $powerShellGetModule -and -not $nuGetProvider)
 
     Write-Information -MessageData 'Bootstrap: Installing NuGet Package Provider from the web (Make sure Microsoft addresses/ranges are allowed).'
 
+    # TODO: This does not handle a private Gallery yet.
     $null = Install-PackageProvider @providerBootstrapParams
 
     $nuGetProvider = Get-PackageProvider -Name 'NuGet' -ListAvailable | Select-Object -First 1
@@ -218,12 +223,50 @@ if (-not $powerShellGetModule -and -not $nuGetProvider)
     $Null = Import-PackageProvider -Name 'NuGet' -RequiredVersion $nuGetProviderVersion -Force
 }
 
+if ($RegisterGallery)
+{
+    if ($RegisterGallery.ContainsKey('Name') -and -not [System.String]::IsNullOrEmpty($RegisterGallery.Name))
+    {
+        $Gallery = $RegisterGallery.Name
+    }
+    else
+    {
+        $RegisterGallery.Name = $Gallery
+    }
+
+    Write-Progress -Activity 'Bootstrap:' -PercentComplete 7 -CurrentOperation "Verifying private package repository '$Gallery'" -Completed
+
+    $previousRegisteredRepository = Get-PSRepository -Name $Gallery -ErrorAction 'SilentlyContinue'
+
+    if ($previousRegisteredRepository.SourceLocation -ne $RegisterGallery.SourceLocation)
+    {
+        if ($previousRegisteredRepository)
+        {
+            Write-Progress -Activity 'Bootstrap:' -PercentComplete 9 -CurrentOperation "Re-registrering private package repository '$Gallery'" -Completed
+
+            Unregister-PSRepository -Name $Gallery
+
+            $unregisteredPreviousRepository = $true
+        }
+        else
+        {
+            Write-Progress -Activity 'Bootstrap:' -PercentComplete 9 -CurrentOperation "Registering private package repository '$Gallery'" -Completed
+        }
+
+        Register-PSRepository @RegisterGallery
+    }
+}
+
 Write-Progress -Activity 'Bootstrap:' -PercentComplete 10 -CurrentOperation "Ensuring Gallery $Gallery is trusted"
 
 # Fail if the given PSGallery is not registered.
 $previousGalleryInstallationPolicy = (Get-PSRepository -Name $Gallery -ErrorAction 'Stop').InstallationPolicy
 
-Set-PSRepository -Name $Gallery -InstallationPolicy 'Trusted' -ErrorAction 'Ignore'
+if ($previousGalleryInstallationPolicy -ne 'Trusted')
+{
+    # Only change policy if the repository is not trusted
+    Set-PSRepository -Name $Gallery -InstallationPolicy 'Trusted' -ErrorAction 'Ignore'
+}
 
 try
 {
@@ -305,7 +348,7 @@ try
         # PSDepend module not found, installing or saving it.
         if ($PSDependTarget -in 'CurrentUser', 'AllUsers')
         {
-            Write-Debug -Message "PSDepend module not found. Attempting to install from Gallery $Gallery."
+            Write-Debug -Message "PSDepend module not found. Attempting to install from Gallery '$Gallery'."
 
             Write-Warning -Message "Installing PSDepend in $PSDependTarget Scope."
 
@@ -373,7 +416,7 @@ try
         {
             Write-Progress -Activity 'Bootstrap:' -PercentComplete 85 -CurrentOperation 'Installing PowerShell module PowerShell-Yaml'
 
-            Write-Verbose -Message "PowerShell-Yaml module not found. Attempting to Save from Gallery $Gallery to $PSDependTarget"
+            Write-Verbose -Message "PowerShell-Yaml module not found. Attempting to Save from Gallery '$Gallery' to '$PSDependTarget'."
 
             $SaveModuleParam = @{
                 Name       = 'PowerShell-Yaml'
@@ -411,7 +454,53 @@ try
 }
 finally
 {
-    # Reverting the Installation Policy for the given gallery
-    Set-PSRepository -Name $Gallery -InstallationPolicy $previousGalleryInstallationPolicy
+    if ($RegisterGallery)
+    {
+        Write-Verbose -Message "Removing private package repository '$Gallery'."
+        Unregister-PSRepository -Name $Gallery
+    }
+
+    if ($unregisteredPreviousRepository)
+    {
+        Write-Verbose -Message "Reverting private package repository '$Gallery' to previous location URI:s."
+
+        $registerPSRepositoryParameters = @{
+            Name = $previousRegisteredRepository.Name
+            InstallationPolicy = $previousRegisteredRepository.InstallationPolicy
+        }
+
+        if ($previousRegisteredRepository.SourceLocation)
+        {
+            $registerPSRepositoryParameters.SourceLocation = $previousRegisteredRepository.SourceLocation
+        }
+
+        if ($previousRegisteredRepository.PublishLocation)
+        {
+            $registerPSRepositoryParameters.PublishLocation = $previousRegisteredRepository.PublishLocation
+        }
+
+        if ($previousRegisteredRepository.ScriptSourceLocation)
+        {
+            $registerPSRepositoryParameters.ScriptSourceLocation = $previousRegisteredRepository.ScriptSourceLocation
+        }
+
+        if ($previousRegisteredRepository.ScriptPublishLocation)
+        {
+            $registerPSRepositoryParameters.ScriptPublishLocation = $previousRegisteredRepository.ScriptPublishLocation
+        }
+
+        Register-PSRepository @registerPSRepositoryParameters
+    }
+
+    # Only try to revert installation policy if the repository exist
+    if ((Get-PSRepository -Name $Gallery -ErrorAction 'SilentlyContinue'))
+    {
+        if ($previousGalleryInstallationPolicy -and $previousGalleryInstallationPolicy -ne 'Trusted')
+        {
+            # Reverting the Installation Policy for the given gallery if it was not already trusted
+            Set-PSRepository -Name $Gallery -InstallationPolicy $previousGalleryInstallationPolicy
+        }
+    }
+
     Write-Verbose -Message "Project Bootstrapped, returning to Invoke-Build"
 }

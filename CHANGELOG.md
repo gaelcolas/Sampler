@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Supports using a private Nuget repository, e.g. a _Azure DevOps Server_
+  _Pipelines_ feed that is using Windows integrated security, or a feed with
+  no security.
 - Now supports getting module version from `dotnet-gitversion` if it is available.
 
 ## [0.114.0] - 2022-05-13
