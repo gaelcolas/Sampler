@@ -13,6 +13,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   _Pipelines_ feed that is using Windows integrated security, or a feed with
   no security.
 - Now supports getting module version from `dotnet-gitversion` if it is available.
+- Test now run in Pester 5.
+
+### Changed
+
+- The QA test that verifies that a change log entry has been added to CHANGELOG.md
+  will no longer fail if the CHANGELOG.md has not been committed but is staged
+  or unstaged. This makes it possible to get the QA tests to pass without having
+  to first commit changes.
+  
 
 ### Fixed
 
