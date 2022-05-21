@@ -244,25 +244,25 @@ stages:
             displayName: 'Download Test Artifact macOS'
             inputs:
               buildType: 'current'
-              artifactName: 'CodeCoverageMacOS'
+              artifactName: 'CodeCoverageMacOS_$(System.JobAttempt)'
               targetPath: '$(Build.SourcesDirectory)/$(buildFolderName)/$(testResultFolderName)'
           - task: DownloadPipelineArtifact@2
             displayName: 'Download Test Artifact Linux'
             inputs:
               buildType: 'current'
-              artifactName: 'CodeCoverageLinux'
+              artifactName: 'CodeCoverageLinux_$(System.JobAttempt)'
               targetPath: '$(Build.SourcesDirectory)/$(buildFolderName)/$(testResultFolderName)'
           - task: DownloadPipelineArtifact@2
             displayName: 'Download Test Artifact Windows (PS 5.1)'
             inputs:
               buildType: 'current'
-              artifactName: 'CodeCoverageWinPS51'
+              artifactName: 'CodeCoverageWinPS51_$(System.JobAttempt)'
               targetPath: '$(Build.SourcesDirectory)/$(buildFolderName)/$(testResultFolderName)'
           - task: DownloadPipelineArtifact@2
             displayName: 'Download Test Artifact Windows (PS7)'
             inputs:
               buildType: 'current'
-              artifactName: 'CodeCoverageWinPS7'
+              artifactName: 'CodeCoverageWinPS7_$(System.JobAttempt)'
               targetPath: '$(Build.SourcesDirectory)/$(buildFolderName)/$(testResultFolderName)'
           - task: PowerShell@2
             name: merge
