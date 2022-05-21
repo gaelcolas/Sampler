@@ -219,6 +219,7 @@ stages:
           - test_linux
           - test_windows_core
           - test_windows_ps
+        condition: succeededOrFailed()
         pool:
           vmImage: 'ubuntu-latest'
         timeoutInMinutes: 0
