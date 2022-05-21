@@ -14,6 +14,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   no security.
 - Now supports getting module version from `dotnet-gitversion` if it is available.
 
+### Fixed
+
+- Task `package_module_nupkg` now correctly adds the release notes to the
+  Nuget package. Fixes [#373](https://github.com/gaelcolas/Sampler/issues/373)
+- Task `publish_module_to_gallery` now correctly adds the release notes to
+  the published module. Fixes [#373](https://github.com/gaelcolas/Sampler/issues/373)
+
 ## [0.114.0] - 2022-05-13
 
 ### Added
