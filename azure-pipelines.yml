@@ -108,9 +108,10 @@ stages:
               testRunTitle: 'Linux'
           - task: PublishPipelineArtifact@1
             displayName: 'Publish Test Artifact'
+            condition: succeededOrFailed()
             inputs:
               targetPath: '$(buildFolderName)/$(testResultFolderName)/'
-              artifactName: 'CodeCoverageLinux'
+              artifactName: 'CodeCoverageLinux_$(System.JobAttempt)'
               parallel: true
 
       - job: test_windows_core
@@ -141,9 +142,10 @@ stages:
               testRunTitle: 'Windows Server Core (PowerShell Core)'
           - task: PublishPipelineArtifact@1
             displayName: 'Publish Test Artifact'
+            condition: succeededOrFailed()
             inputs:
               targetPath: '$(buildFolderName)/$(testResultFolderName)/'
-              artifactName: 'CodeCoverageWinPS7'
+              artifactName: 'CodeCoverageWinPS7_$(System.JobAttempt)'
               parallel: true
 
       - job: test_windows_ps
@@ -174,9 +176,10 @@ stages:
               testRunTitle: 'Windows Server Core (Windows PowerShell)'
           - task: PublishPipelineArtifact@1
             displayName: 'Publish Test Artifact'
+            condition: succeededOrFailed()
             inputs:
               targetPath: '$(buildFolderName)/$(testResultFolderName)/'
-              artifactName: 'CodeCoverageWinPS51'
+              artifactName: 'CodeCoverageWinPS51_$(System.JobAttempt)'
               parallel: true
 
       - job: test_macos
@@ -207,9 +210,10 @@ stages:
               testRunTitle: 'MacOS'
           - task: PublishPipelineArtifact@1
             displayName: 'Publish Test Artifact'
+            condition: succeededOrFailed()
             inputs:
               targetPath: '$(buildFolderName)/$(testResultFolderName)/'
-              artifactName: 'CodeCoverageMacOS'
+              artifactName: 'CodeCoverageMacOS_$(System.JobAttempt)'
               parallel: true
 
       - job: Code_Coverage
