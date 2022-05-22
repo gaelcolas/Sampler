@@ -21,7 +21,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   will no longer fail if the CHANGELOG.md has not been committed but is staged
   or unstaged. This makes it possible to get the QA tests to pass without having
   to first commit changes.
-  
 
 ### Fixed
 
@@ -29,6 +28,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Nuget package. Fixes [#373](https://github.com/gaelcolas/Sampler/issues/373)
 - Task `publish_module_to_gallery` now correctly adds the release notes to
   the published module. Fixes [#373](https://github.com/gaelcolas/Sampler/issues/373)
+- Fix a evaluation in the script `Set-SamplerTaskVariable` so it can be tested
+  individually outside of the pipeline (using `Invoke-Pester`).
 
 ## [0.114.0] - 2022-05-13
 

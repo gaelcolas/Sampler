@@ -95,7 +95,7 @@ if (-not [string]::IsNullOrEmpty($BuiltModuleSubDirectory))
 {
     $BuiltModuleSubdirectory = Get-SamplerAbsolutePath -Path $BuiltModuleSubDirectory -RelativeTo $OutputDirectory
 }
-elseif ($BuildInfo.ContainsKey('BuiltModuleSubdirectory'))
+elseif ($BuildInfo -and $BuildInfo.ContainsKey('BuiltModuleSubdirectory'))
 {
     $BuiltModuleSubdirectory = Get-SamplerAbsolutePath -Path $BuildInfo['BuiltModuleSubdirectory'] -RelativeTo $OutputDirectory
     $BuildModuleOutput = $BuiltModuleSubdirectory

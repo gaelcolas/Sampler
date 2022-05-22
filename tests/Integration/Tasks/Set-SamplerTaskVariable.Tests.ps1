@@ -1,10 +1,28 @@
-$ProjectPathToTest = "$PSScriptRoot\..\..\.." | Convert-Path
-$ProjectNameToTest = ((Get-ChildItem -Path $ProjectPathToTest\*\*.psd1).Where{
-        ($_.Directory.Name -match 'source|src' -or $_.Directory.Name -eq $_.BaseName) -and
-        $(try { Test-ModuleManifest $_.FullName -ErrorAction Stop } catch { $false } )
-    }).BaseName
+BeforeAll {
+    $script:moduleName = 'Sampler'
 
-Import-Module $ProjectNameToTest
+    # If the module is not found, run the build task 'noop'.
+    if (-not (Get-Module -Name $script:moduleName -ListAvailable))
+    {
+        # Redirect all streams to $null, except the error stream (stream 3)
+        & "$PSScriptRoot/../../build.ps1" -Tasks 'noop' 2>&1 4>&1 5>&1 6>&1 > $null
+    }
+
+    # Re-import the module using force to get any code changes between runs.
+    Import-Module -Name $script:moduleName -Force -ErrorAction 'Stop'
+
+    $PSDefaultParameterValues['InModuleScope:ModuleName'] = $script:moduleName
+    #$PSDefaultParameterValues['Mock:ModuleName'] = $script:moduleName
+    #$PSDefaultParameterValues['Should:ModuleName'] = $script:moduleName
+}
+
+AfterAll {
+    #$PSDefaultParameterValues.Remove('Mock:ModuleName')
+    $PSDefaultParameterValues.Remove('InModuleScope:ModuleName')
+    #$PSDefaultParameterValues.Remove('Should:ModuleName')
+
+    Remove-Module -Name $script:moduleName
+}
 
 <#
     This test need to change the variable names that are used in the pipeline to
@@ -29,11 +47,17 @@ Describe 'Set-SamplerTaskVariable' {
         $originalModuleVersionFolder = $ModuleVersionFolder
         $originalPreReleaseTag = $PreReleaseTag
         $originalBuiltModuleRootScriptPath = $BuiltModuleRootScriptPath
-        $originalBuildInfo = $BuildInfo.Clone()
+        $originalBuildInfo = if ($BuildInfo)
+        {
+            $BuildInfo.Clone()
+        }
     }
 
     Context 'When calling the function with parameter AsNewBuild' {
         BeforeAll {
+            # Mock BuildInfo
+            $BuildInfo = @{}
+
             # Mock InvokeBuild variable $BuildRoot.
             $BuildRoot = Join-Path -Path $TestDrive -ChildPath 'MyProject'
 
@@ -66,6 +90,11 @@ Describe 'Set-SamplerTaskVariable' {
             $OutputDirectory = $originalOutputDirectory
             $BuiltModuleSubdirectory = $originalBuiltModuleSubdirectory
             $ReleaseNotesPath = $originalReleaseNotesPath
+
+            if ($originalBuildInfo)
+            {
+                $BuildInfo = $originalBuildInfo.Clone()
+            }
         }
 
         It 'Should return the expected output' {
@@ -119,7 +148,11 @@ Describe 'Set-SamplerTaskVariable' {
 
             AfterAll {
                 $BuiltModuleSubdirectory = $originalBuiltModuleSubdirectory
-                $BuildInfo['BuiltModuleSubdirectory'] = $originalBuildInfo['BuiltModuleSubdirectory']
+
+                if ($originalBuildInfo)
+                {
+                    $BuildInfo['BuiltModuleSubdirectory'] = $originalBuildInfo['BuiltModuleSubdirectory']
+                }
             }
 
             It 'Should return the expected output' {
@@ -145,7 +178,11 @@ Describe 'Set-SamplerTaskVariable' {
 
             AfterAll {
                 $BuiltModuleSubdirectory = $originalBuiltModuleSubdirectory
-                $BuildInfo['BuiltModuleSubdirectory'] = $originalBuildInfo['BuiltModuleSubdirectory']
+
+                if ($originalBuildInfo)
+                {
+                    $BuildInfo['BuiltModuleSubdirectory'] = $originalBuildInfo['BuiltModuleSubdirectory']
+                }
             }
 
             It 'Should return the expected output' {
@@ -166,6 +203,9 @@ Describe 'Set-SamplerTaskVariable' {
 
     Context 'When calling the function without a parameter' {
         BeforeAll {
+            # Mock BuildInfo
+            $BuildInfo = @{}
+
             # Mock InvokeBuild variable $BuildRoot.
             $BuildRoot = Join-Path -Path $TestDrive -ChildPath 'MyProject'
 
@@ -242,7 +282,11 @@ Describe 'Set-SamplerTaskVariable' {
             $OutputDirectory = $originalOutputDirectory
             $BuiltModuleSubdirectory = $originalBuiltModuleSubdirectory
             $ReleaseNotesPath = $originalReleaseNotesPath
-            $BuildInfo = $originalBuildInfo.Clone()
+
+            if ($originalBuildInfo)
+            {
+                $BuildInfo = $originalBuildInfo.Clone()
+            }
         }
 
         It 'Should return the expected output' {
@@ -321,7 +365,11 @@ Describe 'Set-SamplerTaskVariable' {
 
             AfterAll {
                 $BuiltModuleSubdirectory = $originalBuiltModuleSubdirectory
-                $BuildInfo['BuiltModuleSubdirectory'] = $originalBuildInfo['BuiltModuleSubdirectory']
+
+                if ($originalBuildInfo)
+                {
+                    $BuildInfo['BuiltModuleSubdirectory'] = $originalBuildInfo['BuiltModuleSubdirectory']
+                }
             }
 
             It 'Should return the expected output' {
@@ -362,7 +410,11 @@ Describe 'Set-SamplerTaskVariable' {
 
             AfterAll {
                 $BuiltModuleSubdirectory = $originalBuiltModuleSubdirectory
-                $BuildInfo['BuiltModuleSubdirectory'] = $originalBuildInfo['BuiltModuleSubdirectory']
+
+                if ($originalBuildInfo)
+                {
+                    $BuildInfo['BuiltModuleSubdirectory'] = $originalBuildInfo['BuiltModuleSubdirectory']
+                }
             }
 
             It 'Should return the expected output with parameter priority' {
@@ -408,6 +460,7 @@ Describe 'Set-SamplerTaskVariable' {
         $ModuleVersionFolder | Should -Be $originalModuleVersionFolder
         $PreReleaseTag | Should -Be $originalPreReleaseTag
         $BuiltModuleRootScriptPath | Should -Be $originalBuiltModuleRootScriptPath
+
         foreach ($buildKey in $BuildInfo.Keys)
         {
             $BuildInfo[$buildKey] | Should -Be $originalBuildInfo[$buildKey]
