@@ -1,69 +1,79 @@
-$ProjectPath = "$PSScriptRoot\..\..\.." | Convert-Path
-$ProjectName = ((Get-ChildItem -Path $ProjectPath\*\*.psd1).Where{
-        ($_.Directory.Name -match 'source|src' -or $_.Directory.Name -eq $_.BaseName) -and
-        $(try { Test-ModuleManifest $_.FullName -ErrorAction Stop } catch { $false } )
-    }).BaseName
+BeforeAll {
+    $script:moduleName = 'Sampler'
 
-Import-Module $ProjectName
+    # If the module is not found, run the build task 'noop'.
+    if (-not (Get-Module -Name $script:moduleName -ListAvailable))
+    {
+        # Redirect all streams to $null, except the error stream (stream 3)
+        & "$PSScriptRoot/../../build.ps1" -Tasks 'noop' 2>&1 4>&1 5>&1 6>&1 > $null
+    }
 
-InModuleScope $ProjectName {
-    Describe New-SamplerPipeline {
-        Context 'invoke plaster with correct parameters for template' {
+    # Re-import the module using force to get any code changes between runs.
+    Import-Module -Name $script:moduleName -Force -ErrorAction 'Stop'
 
-            BeforeAll {
+    $PSDefaultParameterValues['InModuleScope:ModuleName'] = $script:moduleName
+    $PSDefaultParameterValues['Mock:ModuleName'] = $script:moduleName
+    $PSDefaultParameterValues['Should:ModuleName'] = $script:moduleName
+}
 
+AfterAll {
+    $PSDefaultParameterValues.Remove('Mock:ModuleName')
+    $PSDefaultParameterValues.Remove('InModuleScope:ModuleName')
+    $PSDefaultParameterValues.Remove('Should:ModuleName')
+
+    Remove-Module -Name $script:moduleName
+}
+
+BeforeDiscovery {
+    $testCases = @(
+        <#
+            If the templates do not define those parameters, Invoke-Plaster will fail and this test will catch it.
+            The template integration is done separately, hence why we don't need to test it here.
+            We only test that the Add-Sample parameters & parameter set work with the templates we have defined.
+        #>
+        @{
+            TestCaseName = 'Build'
+            NewSamplerPipelineParameters = @{
+                Pipeline = 'Build'
+                ProjectName =  'MyBuild'
+                License = 'true'
+                LicenseType = 'MIT'
+                SourceDirectory = 'Source'
+                MainGitBranch = 'main'
+                ModuleDescription = 'some desc'
+                CustomRepo = 'PSGallery'
+                Features = 'All'
             }
-
-            $testCases = @(
-                # If the templates do not define those parameters, Invoke-Plaster will fail and this test will catch it.
-                # The template integration is done separately, hence why we don't need to test it here.
-                # We only test that the Add-Sample parameters & parameter set work with the templates we have defined.
-                @{
-                    TestCaseName = 'Build'
-                    NewSamplerPipelineParams = @{
-                        DestinationPath = $TestDrive
-                        Pipeline = 'Build'
-                        ProjectName =  'MyBuild'
-                        License = 'true'
-                        LicenseType = 'MIT'
-                        SourceDirectory = 'Source'
-                        MainGitBranch = 'main'
-                        ModuleDescription = 'some desc'
-                        CustomRepo = 'PSGallery'
-                        Features = 'All'
-                    }
-                }
-
-                @{
-                    TestCaseName = 'ChocolateyPipeline'
-                    NewSamplerPipelineParams = @{
-                        DestinationPath = $TestDrive
-                        Pipeline = 'ChocolateyPipeline'
-                        ProjectName =  'MyChoco'
-                        License = 'true'
-                        LicenseType = 'MIT'
-                        SourceDirectory = 'Source'
-                        MainGitBranch = 'main'
-                        ModuleDescription = 'some desc'
-                        CustomRepo = 'PSGallery'
-                        Features = 'All'
-                    }
-                }
-            )
-
-            mock Invoke-Plaster -mockWith {} -Verifiable -ModuleName Sampler
-
-            It 'New-SamplerPipeline should call Invoke-Plaster with test case <TestCaseName>' -TestCases $testCases {
-                param
-                (
-                    $TestCaseName,
-                    $NewSamplerPipelineParams
-                )
-
-               { Sampler\New-SamplerPipeline @NewSamplerPipelineParams  } | Should -Not -Throw
-
-               Assert-MockCalled -CommandName Invoke-Plaster -Scope It -Times 1
+        }
+        @{
+            TestCaseName = 'ChocolateyPipeline'
+            NewSamplerPipelineParameters = @{
+                Pipeline = 'ChocolateyPipeline'
+                ProjectName =  'MyChoco'
+                License = 'true'
+                LicenseType = 'MIT'
+                SourceDirectory = 'Source'
+                MainGitBranch = 'main'
+                ModuleDescription = 'some desc'
+                CustomRepo = 'PSGallery'
+                Features = 'All'
             }
+        }
+    )
+}
+
+Describe New-SamplerPipeline {
+    Context 'invoke plaster with correct parameters for template' {
+        BeforeAll {
+            Mock -CommandName Invoke-Plaster
+        }
+
+        It 'New-SamplerPipeline should call Invoke-Plaster with test case <TestCaseName>' -ForEach $testCases {
+            $NewSamplerPipelineParameters.DestinationPath = $TestDrive
+
+            { Sampler\New-SamplerPipeline @NewSamplerPipelineParameters  } | Should -Not -Throw
+
+            Should -Invoke -CommandName Invoke-Plaster -Scope It -Times 1
         }
     }
 }

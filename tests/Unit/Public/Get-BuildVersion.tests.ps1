@@ -1,21 +1,28 @@
-$ProjectPath = "$PSScriptRoot\..\..\.." | Convert-Path
-$ProjectName = (
-    (Get-ChildItem -Path $ProjectPath\*\*.psd1).Where{
-        ($_.Directory.Name -match 'source|src' -or $_.Directory.Name -eq $_.BaseName) -and
-        $(
-            try
-            {
-                Test-ModuleManifest $_.FullName -ErrorAction Stop
-            }
-            catch
-            {
-                $false
-            }
-        )
-    }
-).BaseName
+BeforeAll {
+    $script:moduleName = 'Sampler'
 
-Import-Module $ProjectName
+    # If the module is not found, run the build task 'noop'.
+    if (-not (Get-Module -Name $script:moduleName -ListAvailable))
+    {
+        # Redirect all streams to $null, except the error stream (stream 3)
+        & "$PSScriptRoot/../../build.ps1" -Tasks 'noop' 2>&1 4>&1 5>&1 6>&1 > $null
+    }
+
+    # Re-import the module using force to get any code changes between runs.
+    Import-Module -Name $script:moduleName -Force -ErrorAction 'Stop'
+
+    $PSDefaultParameterValues['InModuleScope:ModuleName'] = $script:moduleName
+    $PSDefaultParameterValues['Mock:ModuleName'] = $script:moduleName
+    $PSDefaultParameterValues['Should:ModuleName'] = $script:moduleName
+}
+
+AfterAll {
+    $PSDefaultParameterValues.Remove('Mock:ModuleName')
+    $PSDefaultParameterValues.Remove('InModuleScope:ModuleName')
+    $PSDefaultParameterValues.Remove('Should:ModuleName')
+
+    Remove-Module -Name $script:moduleName
+}
 
 Describe 'Get-BuildVersion' {
     Context 'When a value for parameter ModuleVersion is passed' {
@@ -39,7 +46,7 @@ Describe 'Get-BuildVersion' {
     Context 'When an empty string is passed as value for parameter ModuleVersion' {
         Context 'When gitversion is not available' {
             BeforeAll {
-                Mock -CommandName Get-Command -ModuleName $ProjectName
+                Mock -CommandName Get-Command
             }
 
             Context 'When passing a module version' {
@@ -53,7 +60,7 @@ Describe 'Get-BuildVersion' {
                                 }
                             }
                         }
-                    } -ModuleName $ProjectName
+                    }
                 }
 
                 It 'Should return the correct module version' {
@@ -74,7 +81,7 @@ Describe 'Get-BuildVersion' {
                                 }
                             }
                         }
-                    } -ModuleName $ProjectName
+                    }
                 }
 
                 It 'Should return the correct module version' {
@@ -89,7 +96,7 @@ Describe 'Get-BuildVersion' {
             BeforeAll {
                 Mock -CommandName Get-Command -MockWith {
                     return $true
-                } -ModuleName $ProjectName
+                }
 
                 # Stub for gitversion.exe so we can mock the result.
                 function gitversion
@@ -106,7 +113,7 @@ Describe 'Get-BuildVersion' {
                 BeforeAll {
                     Mock -CommandName gitversion -MockWith {
                         return '{"NuGetVersionV2": "2.1.3"}'
-                    } -ModuleName $ProjectName
+                    }
                 }
 
                 It 'Should return the correct module version' {
@@ -120,7 +127,7 @@ Describe 'Get-BuildVersion' {
                 BeforeAll {
                     Mock -CommandName gitversion -MockWith {
                         return '{"NuGetVersionV2": "2.1.3-preview0023"}'
-                    } -ModuleName $ProjectName
+                    }
                 }
 
                 It 'Should return the correct module version' {
@@ -135,7 +142,7 @@ Describe 'Get-BuildVersion' {
     Context 'When no value is passed for parameter ModuleVersion' {
         Context 'When gitversion is not available' {
             BeforeAll {
-                Mock -CommandName Get-Command -ModuleName $ProjectName
+                Mock -CommandName Get-Command
             }
 
             Context 'When passing a module version' {
@@ -149,7 +156,7 @@ Describe 'Get-BuildVersion' {
                                 }
                             }
                         }
-                    } -ModuleName $ProjectName
+                    }
                 }
 
                 It 'Should return the correct module version' {
@@ -170,7 +177,7 @@ Describe 'Get-BuildVersion' {
                                 }
                             }
                         }
-                    } -ModuleName $ProjectName
+                    }
                 }
 
                 It 'Should return the correct module version' {
@@ -185,7 +192,7 @@ Describe 'Get-BuildVersion' {
             BeforeAll {
                 Mock -CommandName Get-Command -MockWith {
                     return $true
-                } -ModuleName $ProjectName
+                }
 
                 # Stub for gitversion.exe so we can mock the result.
                 function gitversion
@@ -202,7 +209,7 @@ Describe 'Get-BuildVersion' {
                 BeforeAll {
                     Mock -CommandName gitversion -MockWith {
                         return '{"NuGetVersionV2": "2.1.3"}'
-                    } -ModuleName $ProjectName
+                    }
                 }
 
                 It 'Should return the correct module version' {
@@ -216,7 +223,7 @@ Describe 'Get-BuildVersion' {
                 BeforeAll {
                     Mock -CommandName gitversion -MockWith {
                         return '{"NuGetVersionV2": "2.1.3-preview0023"}'
-                    } -ModuleName $ProjectName
+                    }
                 }
 
                 It 'Should return the correct module version' {
@@ -232,7 +239,7 @@ Describe 'Get-BuildVersion' {
         BeforeAll {
             Mock -CommandName Get-Command -MockWith {
                 return $false
-            } -ModuleName $ProjectName
+            }
         }
 
         Context 'When $null value is passed for parameter ModuleManifestPath' {
