@@ -57,7 +57,6 @@ function New-SamplerJaCoCoDocument
 {
     [CmdletBinding()]
     [OutputType([System.Xml.XmlDocument])]
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseOutputTypeCorrectly', '')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingFunctions', '')]
     param
     (
