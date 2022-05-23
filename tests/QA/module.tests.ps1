@@ -45,7 +45,11 @@ BeforeAll {
 
             $filesChanged += $filesStagedAndUnstaged
 
-            $filesChanged | Should -Contain 'CHANGELOG.md' -Because 'the CHANGELOG.md must be updated with at least one entry in the Unreleased section for each PR'
+            # Only check if there are any changed files.
+            if ($filesChanged)
+            {
+                $filesChanged | Should -Contain 'CHANGELOG.md' -Because 'the CHANGELOG.md must be updated with at least one entry in the Unreleased section for each PR'
+            }
         }
 
         It 'Changelog format compliant with keepachangelog format' -skip:(![bool](Get-Command git -EA SilentlyContinue)) {
