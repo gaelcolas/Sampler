@@ -198,15 +198,19 @@ Describe 'Get-BuildVersion' {
                     return $true
                 }
 
-                # Stub for gitversion.exe so we can mock the result.
-                function gitversion
-                {
-                    throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
+                InModuleScope -ScriptBlock {
+                    # Stub for gitversion.exe so we can mock the result.
+                    function script:gitversion
+                    {
+                        throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
+                    }
                 }
             }
 
             AfterAll {
-                Remove-Item -Path 'function:gitversion' -Force
+                InModuleScope -ScriptBlock {
+                    Remove-Item -Path 'function:gitversion' -Force
+                }
             }
 
             Context 'When passing a module version' {
