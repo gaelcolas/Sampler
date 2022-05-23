@@ -30,6 +30,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the published module. Fixes [#373](https://github.com/gaelcolas/Sampler/issues/373)
 - Fix a evaluation in the script `Set-SamplerTaskVariable` so it can be tested
   individually outside of the pipeline (using `Invoke-Pester`).
+- Fix all source files to UTF8 to comply with the HQRM tests (_due to a bug_
+  _in the HQRM tests that runs in Pester 4 this has not been detected until_
+  _moving to Pester 5_).
 
 ## [0.114.0] - 2022-05-13
 
