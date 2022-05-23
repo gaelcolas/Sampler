@@ -35,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   _moving to Pester 5_).
 - Remove HQRM rule suppression in source file for `New-SamplerJaCoCoDocument`
   since it no longer required.
+- Fixed QA test that was breaking release.
 
 ## [0.114.0] - 2022-05-13
 
