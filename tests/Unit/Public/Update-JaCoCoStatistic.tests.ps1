@@ -1,10 +1,28 @@
-$ProjectPath = "$PSScriptRoot\..\..\.." | Convert-Path
-$ProjectName = ((Get-ChildItem -Path $ProjectPath\*\*.psd1).Where{
-        ($_.Directory.Name -match 'source|src' -or $_.Directory.Name -eq $_.BaseName) -and
-        $(try { Test-ModuleManifest $_.FullName -ErrorAction Stop } catch { $false } )
-    }).BaseName
+BeforeAll {
+    $script:moduleName = 'Sampler'
 
-Import-Module $ProjectName
+    # If the module is not found, run the build task 'noop'.
+    if (-not (Get-Module -Name $script:moduleName -ListAvailable))
+    {
+        # Redirect all streams to $null, except the error stream (stream 3)
+        & "$PSScriptRoot/../../build.ps1" -Tasks 'noop' 2>&1 4>&1 5>&1 6>&1 > $null
+    }
+
+    # Re-import the module using force to get any code changes between runs.
+    Import-Module -Name $script:moduleName -Force -ErrorAction 'Stop'
+
+    $PSDefaultParameterValues['InModuleScope:ModuleName'] = $script:moduleName
+    $PSDefaultParameterValues['Mock:ModuleName'] = $script:moduleName
+    $PSDefaultParameterValues['Should:ModuleName'] = $script:moduleName
+}
+
+AfterAll {
+    $PSDefaultParameterValues.Remove('Mock:ModuleName')
+    $PSDefaultParameterValues.Remove('InModuleScope:ModuleName')
+    $PSDefaultParameterValues.Remove('Should:ModuleName')
+
+    Remove-Module -Name $script:moduleName
+}
 
 Describe 'Update-JaCoCoStatistic' {
     BeforeAll {
@@ -50,7 +68,7 @@ Describe 'Update-JaCoCoStatistic' {
     }
 
     Context 'When calculating statistics for a single package' {
-        It 'Should have not changed line <Line> attributes that is used as the base for the calculation' -TestCases @(
+        It 'Should have not changed line <Line> attributes that is used as the base for the calculation' -ForEach @(
             @{
                 Line = 2
             }
@@ -61,11 +79,6 @@ Describe 'Update-JaCoCoStatistic' {
                 Line = 5
             }
         ) {
-            param
-            (
-                $Line
-            )
-
             $result = Sampler\Update-JaCoCoStatistic -Document $mockXmlDocument
 
             $result | Should -BeOfType [System.Xml.XmlDocument]

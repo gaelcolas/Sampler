@@ -1,17 +1,28 @@
-$ProjectPath = "$PSScriptRoot\..\..\.." | Convert-Path
-$ProjectName = ((Get-ChildItem -Path $ProjectPath\*\*.psd1).Where{
-        ($_.Directory.Name -match 'source|src' -or $_.Directory.Name -eq $_.BaseName) -and
-        $(try
-            {
-                Test-ModuleManifest $_.FullName -ErrorAction Stop
-            }
-            catch
-            {
-                $false
-            } )
-    }).BaseName
+BeforeAll {
+    $script:moduleName = 'Sampler'
 
-Import-Module $ProjectName
+    # If the module is not found, run the build task 'noop'.
+    if (-not (Get-Module -Name $script:moduleName -ListAvailable))
+    {
+        # Redirect all streams to $null, except the error stream (stream 3)
+        & "$PSScriptRoot/../../build.ps1" -Tasks 'noop' 2>&1 4>&1 5>&1 6>&1 > $null
+    }
+
+    # Re-import the module using force to get any code changes between runs.
+    Import-Module -Name $script:moduleName -Force -ErrorAction 'Stop'
+
+    $PSDefaultParameterValues['InModuleScope:ModuleName'] = $script:moduleName
+    $PSDefaultParameterValues['Mock:ModuleName'] = $script:moduleName
+    $PSDefaultParameterValues['Should:ModuleName'] = $script:moduleName
+}
+
+AfterAll {
+    $PSDefaultParameterValues.Remove('Mock:ModuleName')
+    $PSDefaultParameterValues.Remove('InModuleScope:ModuleName')
+    $PSDefaultParameterValues.Remove('Should:ModuleName')
+
+    Remove-Module -Name $script:moduleName
+}
 
 Describe 'New-SamplerJaCoCoDocument' {
     BeforeAll {
@@ -41,7 +52,7 @@ Describe 'New-SamplerJaCoCoDocument' {
                     $mockPackageName = '3.0.0'
                 }
 
-                It 'Should have added the report counter <CounterName> with the correct attributes' -TestCases @(
+                It 'Should have added the report counter <CounterName> with the correct attributes' -ForEach @(
                     @{
                         CounterName = 'INSTRUCTION'
                     }
@@ -55,11 +66,6 @@ Describe 'New-SamplerJaCoCoDocument' {
                         CounterName = 'CLASS'
                     }
                 ) {
-                    param
-                    (
-                        $CounterName
-                    )
-
                     $xmlResult = Sampler\New-SamplerJaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
                     $xmlResult | Should -BeOfType [System.Xml.XmlDocument]
@@ -106,7 +112,7 @@ Describe 'New-SamplerJaCoCoDocument' {
                     ($xmlResult | Get-XmlAttribute -XPath $xPath).name | Should -Be $mockPackageName
                 }
 
-                It 'Should have added the package counter <CounterName> with the correct attributes' -TestCases @(
+                It 'Should have added the package counter <CounterName> with the correct attributes' -ForEach @(
                     @{
                         CounterName = 'INSTRUCTION'
                     }
@@ -120,11 +126,6 @@ Describe 'New-SamplerJaCoCoDocument' {
                         CounterName = 'CLASS'
                     }
                 ) {
-                    param
-                    (
-                        $CounterName
-                    )
-
                     $xmlResult = Sampler\New-SamplerJaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
                     $xmlResult | Should -BeOfType [System.Xml.XmlDocument]
@@ -174,7 +175,7 @@ Describe 'New-SamplerJaCoCoDocument' {
                     $attributes.sourcefilename | Should -Be 'Classes/001.ResourceBase.ps1'
                 }
 
-                It 'Should have added the class counter <CounterName> with the correct attributes' -TestCases @(
+                It 'Should have added the class counter <CounterName> with the correct attributes' -ForEach @(
                     @{
                         CounterName = 'INSTRUCTION'
                     }
@@ -188,11 +189,6 @@ Describe 'New-SamplerJaCoCoDocument' {
                         CounterName = 'CLASS'
                     }
                 ) {
-                    param
-                    (
-                        $CounterName
-                    )
-
                     $xmlResult = Sampler\New-SamplerJaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
                     $xmlResult | Should -BeOfType [System.Xml.XmlDocument]
@@ -243,7 +239,7 @@ Describe 'New-SamplerJaCoCoDocument' {
                     $attributes.line | Should -Be '3'
                 }
 
-                It 'Should have added the method counter <CounterName> with the correct attributes' -TestCases @(
+                It 'Should have added the method counter <CounterName> with the correct attributes' -ForEach @(
                     @{
                         CounterName = 'INSTRUCTION'
                     }
@@ -254,11 +250,6 @@ Describe 'New-SamplerJaCoCoDocument' {
                         CounterName = 'METHOD'
                     }
                 ) {
-                    param
-                    (
-                        $CounterName
-                    )
-
                     $xmlResult = Sampler\New-SamplerJaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
                     $xmlResult | Should -BeOfType [System.Xml.XmlDocument]
@@ -301,7 +292,7 @@ Describe 'New-SamplerJaCoCoDocument' {
                     $attributes.name | Should -Be 'Classes/001.ResourceBase.ps1'
                 }
 
-                It 'Should have added the source file line <LineNumber> with the correct attributes' -TestCases @(
+                It 'Should have added the source file line <LineNumber> with the correct attributes' -ForEach @(
                     @{
                         LineNumber = 3
                     }
@@ -309,11 +300,6 @@ Describe 'New-SamplerJaCoCoDocument' {
                         LineNumber = 4
                     }
                 ) {
-                    param
-                    (
-                        $LineNumber
-                    )
-
                     $xmlResult = Sampler\New-SamplerJaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
                     $xmlResult | Should -BeOfType [System.Xml.XmlDocument]
@@ -342,7 +328,7 @@ Describe 'New-SamplerJaCoCoDocument' {
                     }
                 }
 
-                It 'Should have added the source file counter <CounterName> with the correct attributes' -TestCases @(
+                It 'Should have added the source file counter <CounterName> with the correct attributes' -ForEach @(
                     @{
                         CounterName = 'INSTRUCTION'
                     }
@@ -356,11 +342,6 @@ Describe 'New-SamplerJaCoCoDocument' {
                         CounterName = 'CLASS'
                     }
                 ) {
-                    param
-                    (
-                        $CounterName
-                    )
-
                     $xmlResult = Sampler\New-SamplerJaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
                     $xmlResult | Should -BeOfType [System.Xml.XmlDocument]
@@ -413,7 +394,7 @@ Describe 'New-SamplerJaCoCoDocument' {
                     $mockPackageName = '3.0.0'
                 }
 
-                It 'Should have added the report counter <CounterName> with the correct attributes' -TestCases @(
+                It 'Should have added the report counter <CounterName> with the correct attributes' -ForEach @(
                     @{
                         CounterName = 'INSTRUCTION'
                     }
@@ -427,11 +408,6 @@ Describe 'New-SamplerJaCoCoDocument' {
                         CounterName = 'CLASS'
                     }
                 ) {
-                    param
-                    (
-                        $CounterName
-                    )
-
                     $xmlResult = Sampler\New-SamplerJaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
                     $xmlResult | Should -BeOfType [System.Xml.XmlDocument]
@@ -478,7 +454,7 @@ Describe 'New-SamplerJaCoCoDocument' {
                     ($xmlResult | Get-XmlAttribute -XPath $xPath).name | Should -Be $mockPackageName
                 }
 
-                It 'Should have added the package counter <CounterName> with the correct attributes' -TestCases @(
+                It 'Should have added the package counter <CounterName> with the correct attributes' -ForEach @(
                     @{
                         CounterName = 'INSTRUCTION'
                     }
@@ -492,11 +468,6 @@ Describe 'New-SamplerJaCoCoDocument' {
                         CounterName = 'CLASS'
                     }
                 ) {
-                    param
-                    (
-                        $CounterName
-                    )
-
                     $xmlResult = Sampler\New-SamplerJaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
                     $xmlResult | Should -BeOfType [System.Xml.XmlDocument]
@@ -546,7 +517,7 @@ Describe 'New-SamplerJaCoCoDocument' {
                     $attributes.sourcefilename | Should -Be 'Classes/001.ResourceBase.ps1'
                 }
 
-                It 'Should have added the class counter <CounterName> with the correct attributes' -TestCases @(
+                It 'Should have added the class counter <CounterName> with the correct attributes' -ForEach @(
                     @{
                         CounterName = 'INSTRUCTION'
                     }
@@ -560,11 +531,6 @@ Describe 'New-SamplerJaCoCoDocument' {
                         CounterName = 'CLASS'
                     }
                 ) {
-                    param
-                    (
-                        $CounterName
-                    )
-
                     $xmlResult = Sampler\New-SamplerJaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
                     $xmlResult | Should -BeOfType [System.Xml.XmlDocument]
@@ -615,7 +581,7 @@ Describe 'New-SamplerJaCoCoDocument' {
                     $attributes.line | Should -Be '3'
                 }
 
-                It 'Should have added the method counter <CounterName> with the correct attributes' -TestCases @(
+                It 'Should have added the method counter <CounterName> with the correct attributes' -ForEach @(
                     @{
                         CounterName = 'INSTRUCTION'
                     }
@@ -626,11 +592,6 @@ Describe 'New-SamplerJaCoCoDocument' {
                         CounterName = 'METHOD'
                     }
                 ) {
-                    param
-                    (
-                        $CounterName
-                    )
-
                     $xmlResult = Sampler\New-SamplerJaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
                     $xmlResult | Should -BeOfType [System.Xml.XmlDocument]
@@ -688,7 +649,7 @@ Describe 'New-SamplerJaCoCoDocument' {
                     $attributes.cb | Should -Be 0
                 }
 
-                It 'Should have added the source file counter <CounterName> with the correct attributes' -TestCases @(
+                It 'Should have added the source file counter <CounterName> with the correct attributes' -ForEach @(
                     @{
                         CounterName = 'INSTRUCTION'
                     }
@@ -702,11 +663,6 @@ Describe 'New-SamplerJaCoCoDocument' {
                         CounterName = 'CLASS'
                     }
                 ) {
-                    param
-                    (
-                        $CounterName
-                    )
-
                     $xmlResult = Sampler\New-SamplerJaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
                     $xmlResult | Should -BeOfType [System.Xml.XmlDocument]
@@ -759,7 +715,7 @@ Describe 'New-SamplerJaCoCoDocument' {
                     $mockPackageName = '3.0.0'
                 }
 
-                It 'Should have added the report counter <CounterName> with the correct attributes' -TestCases @(
+                It 'Should have added the report counter <CounterName> with the correct attributes' -ForEach @(
                     @{
                         CounterName = 'INSTRUCTION'
                     }
@@ -773,11 +729,6 @@ Describe 'New-SamplerJaCoCoDocument' {
                         CounterName = 'CLASS'
                     }
                 ) {
-                    param
-                    (
-                        $CounterName
-                    )
-
                     $xmlResult = Sampler\New-SamplerJaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
                     $xmlResult | Should -BeOfType [System.Xml.XmlDocument]
@@ -824,7 +775,7 @@ Describe 'New-SamplerJaCoCoDocument' {
                     ($xmlResult | Get-XmlAttribute -XPath $xPath).name | Should -Be $mockPackageName
                 }
 
-                It 'Should have added the package counter <CounterName> with the correct attributes' -TestCases @(
+                It 'Should have added the package counter <CounterName> with the correct attributes' -ForEach @(
                     @{
                         CounterName = 'INSTRUCTION'
                     }
@@ -838,11 +789,6 @@ Describe 'New-SamplerJaCoCoDocument' {
                         CounterName = 'CLASS'
                     }
                 ) {
-                    param
-                    (
-                        $CounterName
-                    )
-
                     $xmlResult = Sampler\New-SamplerJaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
                     $xmlResult | Should -BeOfType [System.Xml.XmlDocument]
@@ -892,7 +838,7 @@ Describe 'New-SamplerJaCoCoDocument' {
                     $attributes.sourcefilename | Should -Be 'Classes/001.ResourceBase.ps1'
                 }
 
-                It 'Should have added the class counter <CounterName> with the correct attributes' -TestCases @(
+                It 'Should have added the class counter <CounterName> with the correct attributes' -ForEach @(
                     @{
                         CounterName = 'INSTRUCTION'
                     }
@@ -906,11 +852,6 @@ Describe 'New-SamplerJaCoCoDocument' {
                         CounterName = 'CLASS'
                     }
                 ) {
-                    param
-                    (
-                        $CounterName
-                    )
-
                     $xmlResult = Sampler\New-SamplerJaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
                     $xmlResult | Should -BeOfType [System.Xml.XmlDocument]
@@ -961,7 +902,7 @@ Describe 'New-SamplerJaCoCoDocument' {
                     $attributes.line | Should -Be '4'
                 }
 
-                It 'Should have added the method counter <CounterName> with the correct attributes' -TestCases @(
+                It 'Should have added the method counter <CounterName> with the correct attributes' -ForEach @(
                     @{
                         CounterName = 'INSTRUCTION'
                     }
@@ -972,11 +913,6 @@ Describe 'New-SamplerJaCoCoDocument' {
                         CounterName = 'METHOD'
                     }
                 ) {
-                    param
-                    (
-                        $CounterName
-                    )
-
                     $xmlResult = Sampler\New-SamplerJaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
                     $xmlResult | Should -BeOfType [System.Xml.XmlDocument]
@@ -1034,7 +970,7 @@ Describe 'New-SamplerJaCoCoDocument' {
                     $attributes.cb | Should -Be 0
                 }
 
-                It 'Should have added the source file counter <CounterName> with the correct attributes' -TestCases @(
+                It 'Should have added the source file counter <CounterName> with the correct attributes' -ForEach @(
                     @{
                         CounterName = 'INSTRUCTION'
                     }
@@ -1048,11 +984,6 @@ Describe 'New-SamplerJaCoCoDocument' {
                         CounterName = 'CLASS'
                     }
                 ) {
-                    param
-                    (
-                        $CounterName
-                    )
-
                     $xmlResult = Sampler\New-SamplerJaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
                     $xmlResult | Should -BeOfType [System.Xml.XmlDocument]
@@ -1115,7 +1046,7 @@ Describe 'New-SamplerJaCoCoDocument' {
                     $mockPackageName = '3.0.0'
                 }
 
-                It 'Should have added the report counter <CounterName> with the correct attributes' -TestCases @(
+                It 'Should have added the report counter <CounterName> with the correct attributes' -ForEach @(
                     @{
                         CounterName = 'INSTRUCTION'
                     }
@@ -1129,11 +1060,6 @@ Describe 'New-SamplerJaCoCoDocument' {
                         CounterName = 'CLASS'
                     }
                 ) {
-                    param
-                    (
-                        $CounterName
-                    )
-
                     $xmlResult = Sampler\New-SamplerJaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
                     $xmlResult | Should -BeOfType [System.Xml.XmlDocument]
@@ -1180,7 +1106,7 @@ Describe 'New-SamplerJaCoCoDocument' {
                     ($xmlResult | Get-XmlAttribute -XPath $xPath).name | Should -Be $mockPackageName
                 }
 
-                It 'Should have added the package counter <CounterName> with the correct attributes' -TestCases @(
+                It 'Should have added the package counter <CounterName> with the correct attributes' -ForEach @(
                     @{
                         CounterName = 'INSTRUCTION'
                     }
@@ -1194,11 +1120,6 @@ Describe 'New-SamplerJaCoCoDocument' {
                         CounterName = 'CLASS'
                     }
                 ) {
-                    param
-                    (
-                        $CounterName
-                    )
-
                     $xmlResult = Sampler\New-SamplerJaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
                     $xmlResult | Should -BeOfType [System.Xml.XmlDocument]
@@ -1248,7 +1169,7 @@ Describe 'New-SamplerJaCoCoDocument' {
                     $attributes.sourcefilename | Should -Be 'Classes/001.ResourceBase.ps1'
                 }
 
-                It 'Should have added the class counter <CounterName> with the correct attributes' -TestCases @(
+                It 'Should have added the class counter <CounterName> with the correct attributes' -ForEach @(
                     @{
                         CounterName = 'INSTRUCTION'
                     }
@@ -1262,11 +1183,6 @@ Describe 'New-SamplerJaCoCoDocument' {
                         CounterName = 'CLASS'
                     }
                 ) {
-                    param
-                    (
-                        $CounterName
-                    )
-
                     $xmlResult = Sampler\New-SamplerJaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
                     $xmlResult | Should -BeOfType [System.Xml.XmlDocument]
@@ -1317,7 +1233,7 @@ Describe 'New-SamplerJaCoCoDocument' {
                     $attributes.line | Should -Be '4'
                 }
 
-                It 'Should have added the method counter <CounterName> with the correct attributes' -TestCases @(
+                It 'Should have added the method counter <CounterName> with the correct attributes' -ForEach @(
                     @{
                         CounterName = 'INSTRUCTION'
                     }
@@ -1328,11 +1244,6 @@ Describe 'New-SamplerJaCoCoDocument' {
                         CounterName = 'METHOD'
                     }
                 ) {
-                    param
-                    (
-                        $CounterName
-                    )
-
                     $xmlResult = Sampler\New-SamplerJaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
                     $xmlResult | Should -BeOfType [System.Xml.XmlDocument]
@@ -1390,7 +1301,7 @@ Describe 'New-SamplerJaCoCoDocument' {
                     $attributes.cb | Should -Be 0
                 }
 
-                It 'Should have added the source file counter <CounterName> with the correct attributes' -TestCases @(
+                It 'Should have added the source file counter <CounterName> with the correct attributes' -ForEach @(
                     @{
                         CounterName = 'INSTRUCTION'
                     }
@@ -1404,11 +1315,6 @@ Describe 'New-SamplerJaCoCoDocument' {
                         CounterName = 'CLASS'
                     }
                 ) {
-                    param
-                    (
-                        $CounterName
-                    )
-
                     $xmlResult = Sampler\New-SamplerJaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
                     $xmlResult | Should -BeOfType [System.Xml.XmlDocument]
@@ -1469,7 +1375,7 @@ Describe 'New-SamplerJaCoCoDocument' {
                     $mockPackageName = '3.0.0'
                 }
 
-                It 'Should have added the report counter <CounterName> with the correct attributes' -TestCases @(
+                It 'Should have added the report counter <CounterName> with the correct attributes' -ForEach @(
                     @{
                         CounterName = 'INSTRUCTION'
                     }
@@ -1483,11 +1389,6 @@ Describe 'New-SamplerJaCoCoDocument' {
                         CounterName = 'CLASS'
                     }
                 ) {
-                    param
-                    (
-                        $CounterName
-                    )
-
                     $xmlResult = Sampler\New-SamplerJaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
                     $xmlResult | Should -BeOfType [System.Xml.XmlDocument]
@@ -1534,7 +1435,7 @@ Describe 'New-SamplerJaCoCoDocument' {
                     ($xmlResult | Get-XmlAttribute -XPath $xPath).name | Should -Be $mockPackageName
                 }
 
-                It 'Should have added the package counter <CounterName> with the correct attributes' -TestCases @(
+                It 'Should have added the package counter <CounterName> with the correct attributes' -ForEach @(
                     @{
                         CounterName = 'INSTRUCTION'
                     }
@@ -1548,11 +1449,6 @@ Describe 'New-SamplerJaCoCoDocument' {
                         CounterName = 'CLASS'
                     }
                 ) {
-                    param
-                    (
-                        $CounterName
-                    )
-
                     $xmlResult = Sampler\New-SamplerJaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
                     $xmlResult | Should -BeOfType [System.Xml.XmlDocument]
@@ -1602,7 +1498,7 @@ Describe 'New-SamplerJaCoCoDocument' {
                     $attributes.sourcefilename | Should -Be 'Public/Get-SomeThing.ps1'
                 }
 
-                It 'Should have added the class counter <CounterName> with the correct attributes' -TestCases @(
+                It 'Should have added the class counter <CounterName> with the correct attributes' -ForEach @(
                     @{
                         CounterName = 'INSTRUCTION'
                     }
@@ -1616,11 +1512,6 @@ Describe 'New-SamplerJaCoCoDocument' {
                         CounterName = 'CLASS'
                     }
                 ) {
-                    param
-                    (
-                        $CounterName
-                    )
-
                     $xmlResult = Sampler\New-SamplerJaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
                     $xmlResult | Should -BeOfType [System.Xml.XmlDocument]
@@ -1671,7 +1562,7 @@ Describe 'New-SamplerJaCoCoDocument' {
                     $attributes.line | Should -Be '3'
                 }
 
-                It 'Should have added the method counter <CounterName> with the correct attributes' -TestCases @(
+                It 'Should have added the method counter <CounterName> with the correct attributes' -ForEach @(
                     @{
                         CounterName = 'INSTRUCTION'
                     }
@@ -1682,11 +1573,6 @@ Describe 'New-SamplerJaCoCoDocument' {
                         CounterName = 'METHOD'
                     }
                 ) {
-                    param
-                    (
-                        $CounterName
-                    )
-
                     $xmlResult = Sampler\New-SamplerJaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
                     $xmlResult | Should -BeOfType [System.Xml.XmlDocument]
@@ -1729,7 +1615,7 @@ Describe 'New-SamplerJaCoCoDocument' {
                     $attributes.name | Should -Be 'Public/Get-SomeThing.ps1'
                 }
 
-                It 'Should have added the source file line <LineNumber> with the correct attributes' -TestCases @(
+                It 'Should have added the source file line <LineNumber> with the correct attributes' -ForEach @(
                     @{
                         LineNumber = 3
                     }
@@ -1737,11 +1623,6 @@ Describe 'New-SamplerJaCoCoDocument' {
                         LineNumber = 4
                     }
                 ) {
-                    param
-                    (
-                        $LineNumber
-                    )
-
                     $xmlResult = Sampler\New-SamplerJaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
                     $xmlResult | Should -BeOfType [System.Xml.XmlDocument]
@@ -1770,7 +1651,7 @@ Describe 'New-SamplerJaCoCoDocument' {
                     }
                 }
 
-                It 'Should have added the source file counter <CounterName> with the correct attributes' -TestCases @(
+                It 'Should have added the source file counter <CounterName> with the correct attributes' -ForEach @(
                     @{
                         CounterName = 'INSTRUCTION'
                     }
@@ -1784,11 +1665,6 @@ Describe 'New-SamplerJaCoCoDocument' {
                         CounterName = 'CLASS'
                     }
                 ) {
-                    param
-                    (
-                        $CounterName
-                    )
-
                     $xmlResult = Sampler\New-SamplerJaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
                     $xmlResult | Should -BeOfType [System.Xml.XmlDocument]
@@ -1841,7 +1717,7 @@ Describe 'New-SamplerJaCoCoDocument' {
                     $mockPackageName = '3.0.0'
                 }
 
-                It 'Should have added the report counter <CounterName> with the correct attributes' -TestCases @(
+                It 'Should have added the report counter <CounterName> with the correct attributes' -ForEach @(
                     @{
                         CounterName = 'INSTRUCTION'
                     }
@@ -1855,11 +1731,6 @@ Describe 'New-SamplerJaCoCoDocument' {
                         CounterName = 'CLASS'
                     }
                 ) {
-                    param
-                    (
-                        $CounterName
-                    )
-
                     $xmlResult = Sampler\New-SamplerJaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
                     $xmlResult | Should -BeOfType [System.Xml.XmlDocument]
@@ -1906,7 +1777,7 @@ Describe 'New-SamplerJaCoCoDocument' {
                     ($xmlResult | Get-XmlAttribute -XPath $xPath).name | Should -Be $mockPackageName
                 }
 
-                It 'Should have added the package counter <CounterName> with the correct attributes' -TestCases @(
+                It 'Should have added the package counter <CounterName> with the correct attributes' -ForEach @(
                     @{
                         CounterName = 'INSTRUCTION'
                     }
@@ -1920,11 +1791,6 @@ Describe 'New-SamplerJaCoCoDocument' {
                         CounterName = 'CLASS'
                     }
                 ) {
-                    param
-                    (
-                        $CounterName
-                    )
-
                     $xmlResult = Sampler\New-SamplerJaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
                     $xmlResult | Should -BeOfType [System.Xml.XmlDocument]
@@ -1974,7 +1840,7 @@ Describe 'New-SamplerJaCoCoDocument' {
                     $attributes.sourcefilename | Should -Be 'Public/Get-SomeThing.ps1'
                 }
 
-                It 'Should have added the class counter <CounterName> with the correct attributes' -TestCases @(
+                It 'Should have added the class counter <CounterName> with the correct attributes' -ForEach @(
                     @{
                         CounterName = 'INSTRUCTION'
                     }
@@ -1988,11 +1854,6 @@ Describe 'New-SamplerJaCoCoDocument' {
                         CounterName = 'CLASS'
                     }
                 ) {
-                    param
-                    (
-                        $CounterName
-                    )
-
                     $xmlResult = Sampler\New-SamplerJaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
                     $xmlResult | Should -BeOfType [System.Xml.XmlDocument]
@@ -2043,7 +1904,7 @@ Describe 'New-SamplerJaCoCoDocument' {
                     $attributes.line | Should -Be '3'
                 }
 
-                It 'Should have added the method counter <CounterName> with the correct attributes' -TestCases @(
+                It 'Should have added the method counter <CounterName> with the correct attributes' -ForEach @(
                     @{
                         CounterName = 'INSTRUCTION'
                     }
@@ -2054,11 +1915,6 @@ Describe 'New-SamplerJaCoCoDocument' {
                         CounterName = 'METHOD'
                     }
                 ) {
-                    param
-                    (
-                        $CounterName
-                    )
-
                     $xmlResult = Sampler\New-SamplerJaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
                     $xmlResult | Should -BeOfType [System.Xml.XmlDocument]
@@ -2116,7 +1972,7 @@ Describe 'New-SamplerJaCoCoDocument' {
                     $attributes.cb | Should -Be 0
                 }
 
-                It 'Should have added the source file counter <CounterName> with the correct attributes' -TestCases @(
+                It 'Should have added the source file counter <CounterName> with the correct attributes' -ForEach @(
                     @{
                         CounterName = 'INSTRUCTION'
                     }
@@ -2130,11 +1986,6 @@ Describe 'New-SamplerJaCoCoDocument' {
                         CounterName = 'CLASS'
                     }
                 ) {
-                    param
-                    (
-                        $CounterName
-                    )
-
                     $xmlResult = Sampler\New-SamplerJaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
                     $xmlResult | Should -BeOfType [System.Xml.XmlDocument]
@@ -2187,7 +2038,7 @@ Describe 'New-SamplerJaCoCoDocument' {
                     $mockPackageName = '3.0.0'
                 }
 
-                It 'Should have added the report counter <CounterName> with the correct attributes' -TestCases @(
+                It 'Should have added the report counter <CounterName> with the correct attributes' -ForEach @(
                     @{
                         CounterName = 'INSTRUCTION'
                     }
@@ -2201,11 +2052,6 @@ Describe 'New-SamplerJaCoCoDocument' {
                         CounterName = 'CLASS'
                     }
                 ) {
-                    param
-                    (
-                        $CounterName
-                    )
-
                     $xmlResult = Sampler\New-SamplerJaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
                     $xmlResult | Should -BeOfType [System.Xml.XmlDocument]
@@ -2252,7 +2098,7 @@ Describe 'New-SamplerJaCoCoDocument' {
                     ($xmlResult | Get-XmlAttribute -XPath $xPath).name | Should -Be $mockPackageName
                 }
 
-                It 'Should have added the package counter <CounterName> with the correct attributes' -TestCases @(
+                It 'Should have added the package counter <CounterName> with the correct attributes' -ForEach @(
                     @{
                         CounterName = 'INSTRUCTION'
                     }
@@ -2266,11 +2112,6 @@ Describe 'New-SamplerJaCoCoDocument' {
                         CounterName = 'CLASS'
                     }
                 ) {
-                    param
-                    (
-                        $CounterName
-                    )
-
                     $xmlResult = Sampler\New-SamplerJaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
                     $xmlResult | Should -BeOfType [System.Xml.XmlDocument]
@@ -2320,7 +2161,7 @@ Describe 'New-SamplerJaCoCoDocument' {
                     $attributes.sourcefilename | Should -Be 'Public/Get-SomeThing.ps1'
                 }
 
-                It 'Should have added the class counter <CounterName> with the correct attributes' -TestCases @(
+                It 'Should have added the class counter <CounterName> with the correct attributes' -ForEach @(
                     @{
                         CounterName = 'INSTRUCTION'
                     }
@@ -2334,11 +2175,6 @@ Describe 'New-SamplerJaCoCoDocument' {
                         CounterName = 'CLASS'
                     }
                 ) {
-                    param
-                    (
-                        $CounterName
-                    )
-
                     $xmlResult = Sampler\New-SamplerJaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
                     $xmlResult | Should -BeOfType [System.Xml.XmlDocument]
@@ -2389,7 +2225,7 @@ Describe 'New-SamplerJaCoCoDocument' {
                     $attributes.line | Should -Be '4'
                 }
 
-                It 'Should have added the method counter <CounterName> with the correct attributes' -TestCases @(
+                It 'Should have added the method counter <CounterName> with the correct attributes' -ForEach @(
                     @{
                         CounterName = 'INSTRUCTION'
                     }
@@ -2400,11 +2236,6 @@ Describe 'New-SamplerJaCoCoDocument' {
                         CounterName = 'METHOD'
                     }
                 ) {
-                    param
-                    (
-                        $CounterName
-                    )
-
                     $xmlResult = Sampler\New-SamplerJaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
                     $xmlResult | Should -BeOfType [System.Xml.XmlDocument]
@@ -2462,7 +2293,7 @@ Describe 'New-SamplerJaCoCoDocument' {
                     $attributes.cb | Should -Be 0
                 }
 
-                It 'Should have added the source file counter <CounterName> with the correct attributes' -TestCases @(
+                It 'Should have added the source file counter <CounterName> with the correct attributes' -ForEach @(
                     @{
                         CounterName = 'INSTRUCTION'
                     }
@@ -2476,11 +2307,6 @@ Describe 'New-SamplerJaCoCoDocument' {
                         CounterName = 'CLASS'
                     }
                 ) {
-                    param
-                    (
-                        $CounterName
-                    )
-
                     $xmlResult = Sampler\New-SamplerJaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
                     $xmlResult | Should -BeOfType [System.Xml.XmlDocument]
@@ -2541,7 +2367,7 @@ Describe 'New-SamplerJaCoCoDocument' {
                     $mockPackageName = '3.0.0'
                 }
 
-                It 'Should have added the report counter <CounterName> with the correct attributes' -TestCases @(
+                It 'Should have added the report counter <CounterName> with the correct attributes' -ForEach @(
                     @{
                         CounterName = 'INSTRUCTION'
                     }
@@ -2555,11 +2381,6 @@ Describe 'New-SamplerJaCoCoDocument' {
                         CounterName = 'CLASS'
                     }
                 ) {
-                    param
-                    (
-                        $CounterName
-                    )
-
                     $xmlResult = Sampler\New-SamplerJaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
                     $xmlResult | Should -BeOfType [System.Xml.XmlDocument]
@@ -2606,7 +2427,7 @@ Describe 'New-SamplerJaCoCoDocument' {
                     ($xmlResult | Get-XmlAttribute -XPath $xPath).name | Should -Be $mockPackageName
                 }
 
-                It 'Should have added the package counter <CounterName> with the correct attributes' -TestCases @(
+                It 'Should have added the package counter <CounterName> with the correct attributes' -ForEach @(
                     @{
                         CounterName = 'INSTRUCTION'
                     }
@@ -2620,11 +2441,6 @@ Describe 'New-SamplerJaCoCoDocument' {
                         CounterName = 'CLASS'
                     }
                 ) {
-                    param
-                    (
-                        $CounterName
-                    )
-
                     $xmlResult = Sampler\New-SamplerJaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
                     $xmlResult | Should -BeOfType [System.Xml.XmlDocument]
@@ -2674,7 +2490,7 @@ Describe 'New-SamplerJaCoCoDocument' {
                     $attributes.sourcefilename | Should -Be 'suffix.ps1'
                 }
 
-                It 'Should have added the class counter <CounterName> with the correct attributes' -TestCases @(
+                It 'Should have added the class counter <CounterName> with the correct attributes' -ForEach @(
                     @{
                         CounterName = 'INSTRUCTION'
                     }
@@ -2688,11 +2504,6 @@ Describe 'New-SamplerJaCoCoDocument' {
                         CounterName = 'CLASS'
                     }
                 ) {
-                    param
-                    (
-                        $CounterName
-                    )
-
                     $xmlResult = Sampler\New-SamplerJaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
                     $xmlResult | Should -BeOfType [System.Xml.XmlDocument]
@@ -2743,7 +2554,7 @@ Describe 'New-SamplerJaCoCoDocument' {
                     $attributes.line | Should -Be '3'
                 }
 
-                It 'Should have added the method counter <CounterName> with the correct attributes' -TestCases @(
+                It 'Should have added the method counter <CounterName> with the correct attributes' -ForEach @(
                     @{
                         CounterName = 'INSTRUCTION'
                     }
@@ -2754,11 +2565,6 @@ Describe 'New-SamplerJaCoCoDocument' {
                         CounterName = 'METHOD'
                     }
                 ) {
-                    param
-                    (
-                        $CounterName
-                    )
-
                     $xmlResult = Sampler\New-SamplerJaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
                     $xmlResult | Should -BeOfType [System.Xml.XmlDocument]
@@ -2801,7 +2607,7 @@ Describe 'New-SamplerJaCoCoDocument' {
                     $attributes.name | Should -Be 'suffix.ps1'
                 }
 
-                It 'Should have added the source file line <LineNumber> with the correct attributes' -TestCases @(
+                It 'Should have added the source file line <LineNumber> with the correct attributes' -ForEach @(
                     @{
                         LineNumber = 3
                     }
@@ -2809,11 +2615,6 @@ Describe 'New-SamplerJaCoCoDocument' {
                         LineNumber = 4
                     }
                 ) {
-                    param
-                    (
-                        $LineNumber
-                    )
-
                     $xmlResult = Sampler\New-SamplerJaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
                     $xmlResult | Should -BeOfType [System.Xml.XmlDocument]
@@ -2842,7 +2643,7 @@ Describe 'New-SamplerJaCoCoDocument' {
                     }
                 }
 
-                It 'Should have added the source file counter <CounterName> with the correct attributes' -TestCases @(
+                It 'Should have added the source file counter <CounterName> with the correct attributes' -ForEach @(
                     @{
                         CounterName = 'INSTRUCTION'
                     }
@@ -2856,11 +2657,6 @@ Describe 'New-SamplerJaCoCoDocument' {
                         CounterName = 'CLASS'
                     }
                 ) {
-                    param
-                    (
-                        $CounterName
-                    )
-
                     $xmlResult = Sampler\New-SamplerJaCoCoDocument -MissedCommands $mockMissedCommands -HitCommands $mockHitCommands -PackageName $mockPackageName
 
                     $xmlResult | Should -BeOfType [System.Xml.XmlDocument]

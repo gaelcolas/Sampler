@@ -1,27 +1,24 @@
-#region HEADER
-$script:projectPath = "$PSScriptRoot\..\..\..\.." | Convert-Path
-$script:projectName = (Get-ChildItem -Path "$script:projectPath\*\*.psd1" | Where-Object -FilterScript {
-        ($_.Directory.Name -match 'source|src' -or $_.Directory.Name -eq $_.BaseName) -and
-        $(try
-            {
-                Test-ModuleManifest -Path $_.FullName -ErrorAction Stop
-            }
-            catch
-            {
-                $false
-            })
-    }).BaseName
+BeforeAll {
+    $script:moduleName = 'Sampler'
 
-$script:moduleName = Get-Module -Name $script:projectName -ListAvailable | Select-Object -First 1
-Remove-Module -Name $script:moduleName -Force -ErrorAction 'SilentlyContinue'
+    # If the module is not found, run the build task 'noop'.
+    if (-not (Get-Module -Name $script:moduleName -ListAvailable))
+    {
+        # Redirect all streams to $null, except the error stream (stream 3)
+        & "$PSScriptRoot/../../build.ps1" -Tasks 'noop' 2>&1 4>&1 5>&1 6>&1 > $null
+    }
 
-$importedModule = Import-Module $script:moduleName -Force -PassThru -ErrorAction 'Stop'
+    # Re-import the module using force to get any code changes between runs.
+    $importedModule = Import-Module -Name $script:moduleName -Force -PassThru -ErrorAction 'Stop'
 
-#endregion HEADER
+    Import-Module -Name "$PSScriptRoot\..\..\IntegrationTestHelpers.psm1"
 
-Import-Module -Name "$PSScriptRoot\..\..\IntegrationTestHelpers.psm1"
+    Install-TreeCommand
+}
 
-Install-TreeCommand
+AfterAll {
+    Remove-Module -Name $script:moduleName
+}
 
 Describe 'Vscode repo config files Plaster Template' {
     Context 'When adding to a module' {

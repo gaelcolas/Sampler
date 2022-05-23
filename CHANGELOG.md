@@ -13,6 +13,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   _Pipelines_ feed that is using Windows integrated security, or a feed with
   no security.
 - Now supports getting module version from `dotnet-gitversion` if it is available.
+- Tests now run in Pester 5.
+
+### Changed
+
+- The QA test that verifies that a change log entry has been added to CHANGELOG.md
+  will no longer fail if the CHANGELOG.md has not been committed but is staged
+  or unstaged. This makes it possible to get the QA tests to pass without having
+  to first commit changes.
 
 ### Fixed
 
@@ -20,6 +28,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Nuget package. Fixes [#373](https://github.com/gaelcolas/Sampler/issues/373)
 - Task `publish_module_to_gallery` now correctly adds the release notes to
   the published module. Fixes [#373](https://github.com/gaelcolas/Sampler/issues/373)
+- Fix a evaluation in the script `Set-SamplerTaskVariable` so it can be tested
+  individually outside of the pipeline (using `Invoke-Pester`).
+- Fix all source files to UTF8 to comply with the HQRM tests (_due to a bug_
+  _in the HQRM tests that runs in Pester 4 this has not been detected until_
+  _moving to Pester 5_).
+- Remove HQRM rule suppression in source file for `New-SamplerJaCoCoDocument`
+  since it no longer required.
 
 ## [0.114.0] - 2022-05-13
 
