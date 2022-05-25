@@ -7,11 +7,10 @@
 @"
 # Path to the Module Manifest to build (where path will be resolved from)
 # SourcePath: ./Sampler/Sampler.psd1
-# Output Directory where ModuleBuilder will build the Module, relative to module manifest
-# OutputDirectory: ../output/Sampler
 "@
     }
 %>
+BuiltModuleSubdirectory: module
 CopyPaths:
   - en-US
 <%
@@ -19,7 +18,7 @@ CopyPaths:
 "  - DSCResources"
     }
     else {
-"#  - DSCResources"
+"#  - DSCResources # Copy the DSCResources folder to the built module (not needed if using class based resources)."
     }
 %>
   # - Modules
