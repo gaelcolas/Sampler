@@ -585,6 +585,31 @@ Add-Sample -Sample PublicFunction -PublicFunctionName Get-MyStuff
 This example adds a public function to the module (in the current folder),
 with a sample unit test that test the public function.
 
+### `Invoke-Git`
+
+This command executes git with the provided arguments and throws an error
+if the call failed.
+
+#### Syntax
+
+<!-- markdownlint-disable MD013 - Line length -->
+```plaintext
+Invoke-Git [-Argument] <string[]> [<CommonParameters>]
+```
+<!-- markdownlint-enable MD013 - Line length -->
+
+#### Outputs
+
+[System.String]
+
+#### Example
+
+```powershell
+Invoke-Git -Argument @('config', 'user.name', 'MyName')
+```
+
+Calls git to set user name in the git config.
+
 ### `New-SampleModule`
 
 This command helps you scaffold your PowerShell module project by creating
