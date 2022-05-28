@@ -1,6 +1,7 @@
 <#
     .SYNOPSIS
-        This is a build task that generates conceptual help.
+        This build task creates and pushes a preview release tag to the default
+        branch.
 
     .PARAMETER ProjectPath
         The root path to the project. Defaults to $BuildRoot.
