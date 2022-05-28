@@ -109,7 +109,7 @@ task Create_Release_Git_Tag {
         This will return the tag on the HEAD commit, or blank if it
         fails (the error that is catched to $null).
 
-        This call should not use Invoke-Git since it should not throw
+        This call should not use Invoke-SamplerGit since it should not throw
         on error, but return $null if failing.
     #>
     $isCurrentTag = git describe --contains 2> $null
@@ -139,8 +139,8 @@ task Create_Release_Git_Tag {
 
         Write-Build DarkGray "`tSetting git configuration."
 
-        Sampler\Invoke-Git -Argument @('config', 'user.name', $GitConfigUserName)
-        Sampler\Invoke-Git -Argument @('config', 'user.email', $GitConfigUserEmail)
+        Sampler\Invoke-SamplerGit -Argument @('config', 'user.name', $GitConfigUserName)
+        Sampler\Invoke-SamplerGit -Argument @('config', 'user.email', $GitConfigUserEmail)
 
         # Make empty line in output
         ""
@@ -149,11 +149,11 @@ task Create_Release_Git_Tag {
 
         Write-Build DarkGray ("`tGetting HEAD commit for the default branch '{0}." -f $MainGitBranch)
 
-        $defaultBranchHeadCommit = Sampler\Invoke-Git -Argument @('rev-parse', "origin/$MainGitBranch")
+        $defaultBranchHeadCommit = Sampler\Invoke-SamplerGit -Argument @('rev-parse', "origin/$MainGitBranch")
 
         Write-Build DarkGray ("`tCreating tag '{0}' on the commit '{1}'." -f $releaseTag, $defaultBranchHeadCommit)
 
-        Sampler\Invoke-Git -Argument @('tag', $releaseTag, $defaultBranchHeadCommit)
+        Sampler\Invoke-SamplerGit -Argument @('tag', $releaseTag, $defaultBranchHeadCommit)
 
         Write-Build DarkGray ("`tPushing created tag '{0}' to the default branch '{1}'." -f $releaseTag, $MainGitBranch)
 
@@ -170,7 +170,7 @@ task Create_Release_Git_Tag {
 
         $pushArguments += @('-c', 'http.sslbackend="schannel"', 'push', 'origin', '--tags')
 
-        Sampler\Invoke-Git -Argument $pushArguments
+        Sampler\Invoke-SamplerGit -Argument $pushArguments
 
         <#
             Wait for a few seconds so the tag have time to propegate.

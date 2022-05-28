@@ -11,7 +11,7 @@
         e.g. @('tag', 'v2.0.0').
 
     .EXAMPLE
-        Invoke-Git -Argument @('config', 'user.name', 'MyName')
+        Invoke-SamplerGit -Argument @('config', 'user.name', 'MyName')
 
         Calls git to set user name in the git config.
 

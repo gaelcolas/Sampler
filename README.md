@@ -594,7 +594,7 @@ if the call failed.
 
 <!-- markdownlint-disable MD013 - Line length -->
 ```plaintext
-Invoke-Git [-Argument] <string[]> [<CommonParameters>]
+Invoke-SamplerGit [-Argument] <string[]> [<CommonParameters>]
 ```
 <!-- markdownlint-enable MD013 - Line length -->
 
@@ -605,7 +605,7 @@ Invoke-Git [-Argument] <string[]> [<CommonParameters>]
 #### Example
 
 ```powershell
-Invoke-Git -Argument @('config', 'user.name', 'MyName')
+Invoke-SamplerGit -Argument @('config', 'user.name', 'MyName')
 ```
 
 Calls git to set user name in the git config.
