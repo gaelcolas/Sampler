@@ -585,6 +585,31 @@ Add-Sample -Sample PublicFunction -PublicFunctionName Get-MyStuff
 This example adds a public function to the module (in the current folder),
 with a sample unit test that test the public function.
 
+### `Invoke-SamplerGit`
+
+This command executes git with the provided arguments and throws an error
+if the call failed.
+
+#### Syntax
+
+<!-- markdownlint-disable MD013 - Line length -->
+```plaintext
+Invoke-SamplerGit [-Argument] <string[]> [<CommonParameters>]
+```
+<!-- markdownlint-enable MD013 - Line length -->
+
+#### Outputs
+
+[System.String]
+
+#### Example
+
+```powershell
+Invoke-SamplerGit -Argument @('config', 'user.name', 'MyName')
+```
+
+Calls git to set user name in the git config.
+
 ### `New-SampleModule`
 
 This command helps you scaffold your PowerShell module project by creating
@@ -1423,3 +1448,53 @@ THe path to the release notes markdown file. Defaults to the path for
 The path to the source folder. Defaults to the same path where the module
 manifest is found in either the folder 'source', 'src', or a folder with
 the same name as the module.
+
+## Tasks
+
+### `Create_Release_Git_Tag`
+
+This build task creates and pushes a preview release tag to the default branch.
+
+>Note: This task is primarily meant to be used for SCM's that does not have
+>releases that connects to tags like GitHub does with GitHub Releases, but
+>this task can also be used as an alternative when using GitHub as SCM.
+
+This is an example of how to use the task in the _build.yaml_ file:
+
+```yaml
+  publish:
+    - Create_Release_Git_Tag
+```
+
+#### Task parameters
+
+Some task parameters are vital for the resource to work. See comment based
+help for the description for each available parameter. Below is the most
+important.
+
+#### Task configuration
+
+The build configuration (_build.yaml_) can be used to control the behavior
+of the build task.
+
+```yaml
+####################################################
+#                Git Configuration                 #
+####################################################
+GitConfig:
+  UserName: bot
+  UserEmail: bot@company.local
+```
+
+#### Section GitConfig
+
+This configures git.  user name and e-mail address of the user before task pushes the
+tag.
+
+##### Property UserName
+
+User name of the user that should push the tag.
+
+##### Property UserEmail
+
+E-mail address of the user that should push the tag.

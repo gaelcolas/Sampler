@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   no security.
 - Now supports getting module version from `dotnet-gitversion` if it is available.
 - Tests now run in Pester 5.
+- Added task `Create_Release_Git_Tag` to create a Git tag for a preview release.
+  Fixes [#351](https://github.com/gaelcolas/Sampler/issues/351)
 
 ### Changed
 
