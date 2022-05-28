@@ -25,7 +25,7 @@
         So we have to determine if git worked or not by checking the last exit code
         and then throw an error to stop the pipeline.
 #>
-function Invoke-Git
+function Invoke-SamplerGit
 {
     param
     (

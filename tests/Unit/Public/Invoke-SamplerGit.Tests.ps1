@@ -24,7 +24,7 @@ AfterAll {
     Remove-Module -Name $script:moduleName
 }
 
-Describe 'Invoke-Git' {
+Describe 'Invoke-SamplerGit' {
     BeforeAll {
         InModuleScope -ScriptBlock {
             # Stub to be able to mock git executable.
@@ -54,7 +54,7 @@ Describe 'Invoke-Git' {
         }
 
         It 'Should call git with one expected argument' {
-            { Sampler\Invoke-Git -Argument @('log') } | Should -Not -Throw
+            { Sampler\Invoke-SamplerGit -Argument @('log') } | Should -Not -Throw
 
             Should -Invoke -CommandName 'git' -ParameterFilter {
                 $Argument -eq 'log'
@@ -62,7 +62,7 @@ Describe 'Invoke-Git' {
         }
 
         It 'Should call git with two expected arguments' {
-            { Sampler\Invoke-Git -Argument @('describe', '--contains') } | Should -Not -Throw
+            { Sampler\Invoke-SamplerGit -Argument @('describe', '--contains') } | Should -Not -Throw
 
             Should -Invoke -CommandName 'git' -ParameterFilter {
                 $Argument -contains 'describe' -and
@@ -87,7 +87,7 @@ Describe 'Invoke-Git' {
         }
 
         It 'Should throw the correct error' {
-            { Sampler\Invoke-Git -Argument @('log') } | Should -Throw -ExpectedMessage 'git returned exit code 1 indicated failure.'
+            { Sampler\Invoke-SamplerGit -Argument @('log') } | Should -Throw -ExpectedMessage 'git returned exit code 1 indicated failure.'
 
             Should -Invoke -CommandName 'git' -ParameterFilter {
                 $Argument -eq 'log'
@@ -97,7 +97,7 @@ Describe 'Invoke-Git' {
 
     Context 'When git does not exist' {
         It 'Should throw an error' {
-            { Sampler\Invoke-Git -Argument @('log') } | Should -Throw -ExpectedMessage 'git: StubNotImplemented'
+            { Sampler\Invoke-SamplerGit -Argument @('log') } | Should -Throw -ExpectedMessage 'git: StubNotImplemented'
         }
     }
 }

@@ -38,9 +38,9 @@ Describe 'Create_Release_Git_Tag' {
 
             Mock -CommandName git
 
-            Mock -CommandName Sampler\Invoke-Git
+            Mock -CommandName Sampler\Invoke-SamplerGit
 
-            Mock -CommandName Sampler\Invoke-Git -ParameterFilter {
+            Mock -CommandName Sampler\Invoke-SamplerGit -ParameterFilter {
                 $Argument -contains 'rev-parse'
             } -MockWith {
                 return '0c23efc'
@@ -101,9 +101,9 @@ Describe 'Create_Release_Git_Tag' {
                 return 'v2.0.0'
             }
 
-            Mock -CommandName Sampler\Invoke-Git
+            Mock -CommandName Sampler\Invoke-SamplerGit
 
-            Mock -CommandName Sampler\Invoke-Git -ParameterFilter {
+            Mock -CommandName Sampler\Invoke-SamplerGit -ParameterFilter {
                 $Argument -contains 'rev-parse'
             } -MockWith {
                 return '0c23efc'

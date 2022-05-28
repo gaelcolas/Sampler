@@ -585,7 +585,7 @@ Add-Sample -Sample PublicFunction -PublicFunctionName Get-MyStuff
 This example adds a public function to the module (in the current folder),
 with a sample unit test that test the public function.
 
-### `Invoke-Git`
+### `Invoke-SamplerGit`
 
 This command executes git with the provided arguments and throws an error
 if the call failed.
