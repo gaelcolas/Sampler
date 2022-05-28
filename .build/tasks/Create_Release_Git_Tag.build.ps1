@@ -3,6 +3,14 @@
         This build task creates and pushes a preview release tag to the default
         branch.
 
+    .DESCRIPTION
+        This build task creates and pushes a preview release tag to the default
+        branch.
+
+        This task is primarily meant to be used for SCM's that does not have
+        releases that connects to tags like GitHub does with GitHub Releases, but
+        this task can also be used as an alternative when using GitHub as SCM.
+
     .PARAMETER ProjectPath
         The root path to the project. Defaults to $BuildRoot.
 

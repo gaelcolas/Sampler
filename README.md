@@ -1455,6 +1455,10 @@ the same name as the module.
 
 This build task creates and pushes a preview release tag to the default branch.
 
+>Note: This task is primarily meant to be used for SCM's that does not have
+>releases that connects to tags like GitHub does with GitHub Releases, but
+>this task can also be used as an alternative when using GitHub as SCM.
+
 This is an example of how to use the task in the _build.yaml_ file:
 
 ```yaml
