@@ -42,12 +42,6 @@ Describe 'Invoke-Git' {
         }
     }
 
-    BeforeEach {
-        InModuleScope -ScriptBlock {
-            $script:LASTEXITCODE = 0
-        }
-    }
-
     AfterAll {
         InModuleScope -ScriptBlock {
             Remove-Item 'function:git'
