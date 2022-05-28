@@ -1448,3 +1448,49 @@ THe path to the release notes markdown file. Defaults to the path for
 The path to the source folder. Defaults to the same path where the module
 manifest is found in either the folder 'source', 'src', or a folder with
 the same name as the module.
+
+## Tasks
+
+### `Create_Release_Git_Tag`
+
+This build task creates and pushes a preview release tag to the default branch.
+
+This is an example of how to use the task in the _build.yaml_ file:
+
+```yaml
+  publish:
+    - Create_Release_Git_Tag
+```
+
+#### Task parameters
+
+Some task parameters are vital for the resource to work. See comment based
+help for the description for each available parameter. Below is the most
+important.
+
+#### Task configuration
+
+The build configuration (_build.yaml_) can be used to control the behavior
+of the build task.
+
+```yaml
+####################################################
+#                Git Configuration                 #
+####################################################
+GitConfig:
+  UserName: bot
+  UserEmail: bot@company.local
+```
+
+#### Section GitConfig
+
+This configures git.  user name and e-mail address of the user before task pushes the
+tag.
+
+##### Property UserName
+
+User name of the user that should push the tag.
+
+##### Property UserEmail
+
+E-mail address of the user that should push the tag.
