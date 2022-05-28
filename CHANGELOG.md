@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Fixes [#351](https://github.com/gaelcolas/Sampler/issues/351)
 - Added task `Create_Release_Branch` to push a branch containing the updated
   change log after release. Fixes [#351](https://github.com/gaelcolas/Sampler/issues/351)
+- Added more unit tests to raise code coverage.
 
 ### Changed
 
