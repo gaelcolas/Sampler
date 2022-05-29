@@ -1468,7 +1468,7 @@ This is an example of how to use the task in the _azure-pipelines.yml_ file:
     pwsh: true
   env:
     MainGitBranch: 'main'
-    RepositoryPAT: $(REPOSITORYPAT)
+    BasicAuthPAT: $(BASICAUTHPAT)
 ```
 
 This can be use in conjunction with the `Create_Release_Git_Tag` task

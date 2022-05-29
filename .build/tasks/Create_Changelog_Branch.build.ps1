@@ -44,7 +44,7 @@
         The name of the default branch. Defaults to 'main'. It is used to compare
         and target the branch against.
 
-    .PARAMETER RepositoryPAT
+    .PARAMETER BasicAuthPAT
         The personal access token to use to access the Azure DevOps Git repository.
         If left out the task assumes the authentication works without an personal
         access token, e.g Windows integrated security.
@@ -103,7 +103,7 @@ param
     $MainGitBranch = (property MainGitBranch 'main'),
 
     [Parameter()]
-    $RepositoryPAT = (property RepositoryPAT ''),
+    $BasicAuthPAT = (property BasicAuthPAT ''),
 
     [Parameter()]
     $BuildInfo = (property BuildInfo @{ })
@@ -156,11 +156,11 @@ task Create_Changelog_Branch {
 
     $pullArguments = @()
 
-    if ($RepositoryPAT)
+    if ($BasicAuthPAT)
     {
         Write-Build DarkGray "`t`tUsing personal access token to pull commits and tags."
 
-        $patBase64 = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(('{0}:{1}' -f 'PAT', $RepositoryPAT)))
+        $patBase64 = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(('{0}:{1}' -f 'PAT', $BasicAuthPAT)))
 
         $pullArguments += @('-c', ('http.extraheader="AUTHORIZATION: basic {0}"' -f $patBase64))
     }
@@ -228,11 +228,11 @@ task Create_Changelog_Branch {
 
     $pushArguments = @()
 
-    if ($RepositoryPAT)
+    if ($BasicAuthPAT)
     {
         Write-Build DarkGray "`t`tUsing personal access token to push the tag."
 
-        $patBase64 = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(('{0}:{1}' -f 'PAT', $RepositoryPAT)))
+        $patBase64 = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(('{0}:{1}' -f 'PAT', $BasicAuthPAT)))
 
         $pushArguments += @('-c', ('http.extraheader="AUTHORIZATION: basic {0}"' -f $patBase64))
     }
