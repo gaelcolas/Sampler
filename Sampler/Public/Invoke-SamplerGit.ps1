@@ -36,15 +36,9 @@ function Invoke-SamplerGit
         $Argument
     )
 
-    # Making sure we redirect the Error Stream to succes in order to capture git non-terminating errors
-    # if ($Argument[-1] -ne '2>&1')
-    # {
-    #     $Argument = $Argument + @('2>&1')
-    # }
-
     # The catch is triggered only if 'git' can't be found.
-    Write-Verbose -Message ('#> {0} {1}' -f 'git', $Argument -join ' ')
-    &git $Argument 2>&1 | Foreach-Object -Process {
+    Write-Verbose -Message ('#> {0} {1}' -f 'git', ($Argument -join ' '))
+    &git $Argument | Foreach-Object -Process {
         if ($_ -is [System.Management.Automation.ErrorRecord])
         {
             throw $_
