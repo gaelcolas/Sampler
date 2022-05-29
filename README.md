@@ -1451,6 +1451,88 @@ the same name as the module.
 
 ## Tasks
 
+### `Create_Changelog_Branch`
+
+This build task creates pushes a branch with the changelog updated with
+the current release version.
+
+This is an example of how to use the task in the _azure-pipelines.yml_ file:
+
+```yaml
+- task: PowerShell@2
+  name: sendChangelogPR
+  displayName: 'Send Changelog PR'
+  inputs:
+    filePath: './build.ps1'
+    arguments: '-tasks Create_Changelog_Branch'
+    pwsh: true
+  env:
+    MainGitBranch: 'main'
+    RepositoryPAT: $(REPOSITORYPAT)
+```
+
+This can be use in conjunction with the `Create_Release_Git_Tag` task
+that creates the release tag.
+
+```yaml
+  publish:
+    - Create_Release_Git_Tag
+    - Create_Changelog_Branch
+```
+
+#### Task parameters
+
+Some task parameters are vital for the resource to work. See comment based
+help for the description for each available parameter. Below is the most
+important.
+
+#### Task configuration
+
+The build configuration (_build.yaml_) can be used to control the behavior
+of the build task.
+
+```yaml
+####################################################
+#             Changelog Configuration              #
+####################################################
+ChangelogConfig:
+  FilesToAdd:
+    - 'CHANGELOG.md'
+  UpdateChangelogOnPrerelease: false
+
+####################################################
+#                Git Configuration                 #
+####################################################
+GitConfig:
+  UserName: bot
+  UserEmail: bot@company.local
+```
+
+#### Section ChangelogConfig
+
+##### Property FilesToAdd
+
+This specifies one or more files to add to the commit when creating the
+PR branch. If left out it will default to the one file _CHANGELOG.md_.
+
+##### Property UpdateChangelogOnPrerelease
+
+- `true`: Always create a changelog PR, even on preview releases.
+- `false`: Only create a changelog PR for full releases. Default.
+
+#### Section GitConfig
+
+This configures git.  user name and e-mail address of the user before task pushes the
+tag.
+
+##### Property UserName
+
+User name of the user that should push the tag.
+
+##### Property UserEmail
+
+E-mail address of the user that should push the tag.
+
 ### `Create_Release_Git_Tag`
 
 This build task creates and pushes a preview release tag to the default branch.

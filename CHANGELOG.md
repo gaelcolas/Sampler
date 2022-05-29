@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Tests now run in Pester 5.
 - Added task `Create_Release_Git_Tag` to create a Git tag for a preview release.
   Fixes [#351](https://github.com/gaelcolas/Sampler/issues/351)
+- Added task `Create_Release_Branch` to push a branch containing the updated
+  change log after release. Fixes [#351](https://github.com/gaelcolas/Sampler/issues/351)
 
 ### Changed
 
