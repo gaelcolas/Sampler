@@ -169,6 +169,7 @@ TaskHeader: |
   ""
 
 GitHubConfig:
+  PublicRepo: 'git@github.com:gaelcolas/Sampler.git'
   GitHubFilesToAdd:
     - 'CHANGELOG.md'
   GitHubConfigUserName: gaelcolas
