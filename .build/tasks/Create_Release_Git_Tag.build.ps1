@@ -37,7 +37,7 @@
     .PARAMETER MainGitBranch
         The name of the default branch. Defaults to 'main'.
 
-    .PARAMETER RepositoryPAT
+    .PARAMETER BasicAuthPAT
         The personal access token used for accessing hte Git repository.
 
     .PARAMETER BuildInfo
@@ -80,7 +80,7 @@ param
     $MainGitBranch = (property MainGitBranch 'main'),
 
     [Parameter()]
-    $RepositoryPAT = (property RepositoryPAT ''),
+    $BasicAuthPAT = (property BasicAuthPAT ''),
 
     [Parameter()]
     [string]
@@ -159,11 +159,11 @@ task Create_Release_Git_Tag {
 
         $pushArguments = @()
 
-        if ($RepositoryPAT)
+        if ($BasicAuthPAT)
         {
             Write-Build DarkGray "`t`tUsing personal access token to push the tag."
 
-            $patBase64 = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(('{0}:{1}' -f 'PAT', $RepositoryPAT)))
+            $patBase64 = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(('{0}:{1}' -f 'PAT', $BasicAuthPAT)))
 
             $pushArguments += @('-c', ('http.extraheader="AUTHORIZATION: basic {0}"' -f $patBase64))
         }

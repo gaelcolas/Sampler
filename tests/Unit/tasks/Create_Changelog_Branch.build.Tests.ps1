@@ -16,28 +16,21 @@ AfterAll {
     Remove-Module -Name $script:moduleName
 }
 
-Describe 'Create_Release_Git_Tag' {
+Describe 'Create_Changelog_Branch' {
     BeforeAll {
-        $buildTaskName = 'Create_Release_Git_Tag'
+        $buildTaskName = 'Create_Changelog_Branch'
 
         $taskAlias = Get-Alias -Name "$buildTaskName.build.Sampler.ib.tasks"
     }
 
     It 'Should have exported the alias correct' {
-        $taskAlias.Name | Should -Be 'Create_Release_Git_Tag.build.Sampler.ib.tasks'
-        $taskAlias.ReferencedCommand | Should -Be 'Create_Release_Git_Tag.build.ps1'
-        $taskAlias.Definition | Should -Match 'Sampler[\/|\\]\d+\.\d+\.\d+[\/|\\]tasks[\/|\\]Create_Release_Git_Tag\.build\.ps1'
+        $taskAlias.Name | Should -Be 'Create_Changelog_Branch.build.Sampler.ib.tasks'
+        $taskAlias.ReferencedCommand | Should -Be 'Create_Changelog_Branch.build.ps1'
+        $taskAlias.Definition | Should -Match 'Sampler[\/|\\]\d+\.\d+\.\d+[\/|\\]tasks[\/|\\]Create_Changelog_Branch\.build\.ps1'
     }
 
-    Context 'When creating a preview release tag' {
+    Context 'When no release tag is found' {
         BeforeAll {
-            function script:git
-            {
-                throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
-            }
-
-            Mock -CommandName git
-
             Mock -CommandName Sampler\Invoke-SamplerGit
 
             Mock -CommandName Sampler\Invoke-SamplerGit -ParameterFilter {
@@ -50,8 +43,6 @@ Describe 'Create_Release_Git_Tag' {
                 return '2.0.0'
             }
 
-            Mock -CommandName Start-Sleep
-
             $mockTaskParameters = @{
                 ProjectPath = Join-Path -Path $TestDrive -ChildPath 'MyModule'
                 OutputDirectory = Join-Path -Path $TestDrive -ChildPath 'MyModule/output'
@@ -61,24 +52,7 @@ Describe 'Create_Release_Git_Tag' {
                 GitConfigUserName = 'bot'
                 GitConfigUserEmail = 'bot@company.local'
                 MainGitBranch = 'main'
-            }
-        }
-
-        AfterAll {
-            Remove-Item 'function:git'
-        }
-
-        It 'Should run the build task without throwing' {
-            {
-                Invoke-Build -Task $buildTaskName -File $taskAlias.Definition @mockTaskParameters
-            } | Should -Not -Throw
-        }
-    }
-
-    Context 'When publishing should be skipped' {
-        BeforeAll {
-            $mockTaskParameters = @{
-                SkipPublish = $true
+                ChangelogPath = 'CHANGELOG.md'
             }
         }
 
@@ -89,31 +63,27 @@ Describe 'Create_Release_Git_Tag' {
         }
     }
 
-    Context 'When commit already got a tag' {
+    Context 'When creating change log PR' {
         BeforeAll {
-            # Stub for git executable
-            function script:git
-            {
-                throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
+            Mock -CommandName Sampler\Invoke-SamplerGit
+
+            Mock -CommandName Sampler\Invoke-SamplerGit -ParameterFilter {
+                $Argument -contains 'rev-parse'
+            } -MockWith {
+                return '0c23efc'
             }
 
-            Mock -CommandName git -MockWith {
+            Mock -CommandName Sampler\Invoke-SamplerGit -ParameterFilter {
+                $Argument -contains 'tag'
+            } -MockWith {
                 return 'v2.0.0'
             }
 
-            Mock -CommandName Sampler\Invoke-SamplerGit
-
-            Mock -CommandName Sampler\Invoke-SamplerGit -ParameterFilter {
-                $Argument -contains 'rev-parse'
-            } -MockWith {
-                return '0c23efc'
-            }
-
             Mock -CommandName Get-BuiltModuleVersion -MockWith {
                 return '2.0.0'
             }
 
-            Mock -CommandName Start-Sleep
+            Mock -CommandName Update-Changelog -RemoveParameterValidation 'Path'
 
             $mockTaskParameters = @{
                 ProjectPath = Join-Path -Path $TestDrive -ChildPath 'MyModule'
@@ -124,11 +94,8 @@ Describe 'Create_Release_Git_Tag' {
                 GitConfigUserName = 'bot'
                 GitConfigUserEmail = 'bot@company.local'
                 MainGitBranch = 'main'
+                ChangelogPath = 'CHANGELOG.md'
             }
-        }
-
-        AfterAll {
-            Remove-Item 'function:git'
         }
 
         It 'Should run the build task without throwing' {
