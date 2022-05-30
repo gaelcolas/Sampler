@@ -79,9 +79,19 @@ task pull_tags_from_public_repo {
         return
     }
 
+    [string] $currentLocalBranch = Invoke-SamplerGit -Argument @('branch','--show-current')
+    if ($currentLocalBranch -ne 'main' )
+    {
+        Write-Build White 'Checking out main branch.'
+        Invoke-SamplerGit -Argument @('checkout', 'main', '--quiet')
+    }
+
+    Write-Build DarkGray 'Reverting to latest code on local repo.'
+    Write-Build DarkGray $(Invoke-SamplerGit -Argument @('fetch', 'origin'))
+    Write-Build DarkGray $(Invoke-SamplerGit -Argument @('reset', '--hard', 'origin/main'))
     # list tags from Public repo
     # (git for-each-ref --sort=creatordate --format '%(refname) %(objectname)' refs/tags).Foreach{$_ -replace 'refs/tags/'}
-    $remoteTags = git ls-remote --tags $publicRepo
+    $remoteTags = Invoke-SamplerGit -Argument @('ls-remote', '--tags', $publicRepo)
     $remoteTags.Foreach({
         Write-Build DarkGray $_
         $id,$tagname = $_ -split '\s+'
@@ -90,17 +100,16 @@ task pull_tags_from_public_repo {
 
         if (-not [string]::IsNullOrEmpty($id) -and -not (git show-ref -s $tagname))
         {
-            Write-Build White ('Missing tag ''{0}'' found for commitid ''{1}''.' -f $tagname,$id)
+            Write-Build White ('Missing tag ''{0}'' for commitid ''{1}''.' -f $tagname,$id)
             # Content from remote/public repo can't be retrieved without checkout (need access to object)
-            $gitResult = git tag $tagname $id 2>&1
-
-            if ($gitResult -is [System.Management.Automation.ErrorRecord])
+            try
             {
-                Write-Build Red ('Error adding tag ''{0}''.{1}.' -f $tagname,$_)
-            }
-            else
-            {
+                $null = Invoke-SamplerGit -Argument @('tag', $tagname, $id) -ErrorAction Stop
                 Write-Build Green ('Tag ''{0}'' added.' -f $tagname)
+            }
+            catch
+            {
+                Write-Build Yellow ('Error adding tag ''{0}'' at id {1}.' -f $tagname, $id)
             }
         }
         elseif (-not [string]::IsNullOrEmpty($id))
@@ -133,29 +142,32 @@ task Save_Git_Work {
         Write-Build Yellow "Saving your $commitsAhead commits to a new local branch named 'save/wip_$pullRequestId'."
         Invoke-SamplerGit -Argument @('branch', $saveToBranch)
     }
-
-    [string] $currentLocalBranch = Invoke-SamplerGit -Argument @('branch','--show-current')
-    if ($currentLocalBranch -ne 'main' )
-    {
-        Write-Build White 'Checking main branch.'
-        Invoke-SamplerGit -Argument @('checkout', 'main', '--quiet')
-    }
-
-    Write-Build DarkGray 'Reverting to latest code on local repo.'
-    Write-Build DarkGray $(Invoke-SamplerGit -Argument @('fetch', 'origin'))
-    Write-Build DarkGray $(Invoke-SamplerGit -Argument @('reset', '--hard', 'origin/main'))
 }
 
-task Pull_Public_PR {
+task git_hard_reset_origin_main {
     # Get the vales for task variables, see https://github.com/gaelcolas/Sampler#task-variables.
     . Set-SamplerTaskVariable
 
-    # $ReleaseTag = "v$ModuleVersion"
+    Write-Build Yellow 'This task meant to run on a local clone of the origin repo.'
+    [string] $currentLocalBranch = Invoke-SamplerGit -Argument @('branch','--show-current')
+    if ($currentLocalBranch -ne 'main' )
+    {
+        Invoke-SamplerGit -Argument @('checkout', 'main', '--quiet')
+    }
 
-    # Assuming a public repo on GitHub, a GithubToken
-    # Assuming a private repo NOT on GitHub
-    # Assuming you're running in your local clone of the private repo
+    # Get the repo back to origin main HEAD (that assumes the current local repo is the private one)
+    Write-Build White 'fetching origin.'
+    Write-Build DarkGray $(Invoke-SamplerGit -Argument @('fetch', 'origin'))
+    Write-Build White 'Resetting to origin/main.'
+    Write-Build DarkGray $(Invoke-SamplerGit -Argument @('reset', '--hard', 'origin/main'))
+}
 
+task Pull_public_GitHub_PR_to_local_private {
+    # Get the vales for task variables, see https://github.com/gaelcolas/Sampler#task-variables.
+    . Set-SamplerTaskVariable
+
+    Write-Build Yellow 'This task is meant to run on a local clone of the private repo (in a public/private relase scenario).'
+    Write-Build DarkGray 'It should be used in a public/private repo to pull a public PR.'
     $publicRepo = $BuildInfo.GitHubConfig.PublicRepo
     if ($publicRepo)
     {
@@ -167,46 +179,38 @@ task Pull_Public_PR {
         return
     }
 
-    [string[]] $unstagedChangedFiles = Invoke-SamplerGit -Argument @('diff', '--name-only')
-    if ($unstagedChangedFiles.count -gt 0)
-    {
-        Write-Build Yellow "Committing changes to [$($unstagedChangedFiles -join ',')]."
-        Invoke-SamplerGit -Argument @('commit', '-a', '-m', "Saving while working on PR $pullrequestId...")
-    }
-
-    $commitsBehind, $commitsAhead = (Invoke-Samplergit -Argument @('rev-list', '--left-right', '--count', 'origin/main...main')) -split '\s+'
-    if ([int]$commitsAhead -gt 0)
-    {
-        Write-Build Yellow "Saving your $commitsAhead commits to a new local branch named 'save/wip_$pullRequestId'."
-        Invoke-SamplerGit -Argument @('branch', "save/wip_$pullRequestId")
-        Invoke-SamplerGit -Argument @('checkout', 'main')
-    }
-
-    [string] $currentLocalBranch = Invoke-SamplerGit -Argument @('branch','--show-current')
-    if ($currentLocalBranch -ne 'main' )
-    {
-        Invoke-SamplerGit -Argument @('checkout', 'main', '--quiet')
-    }
-
-    Write-Build DarkGray $(Invoke-SamplerGit -Argument @('fetch', 'origin'))
-    Write-Build DarkGray $(Invoke-SamplerGit -Argument @('reset', '--hard', 'origin/main'))
-
-    $pullRequestId = Read-Host -Prompt 'What is the Pull Request ID you would like to pull? (379)'
-    $remoteHeadId,$null = (Invoke-SamplerGit -Argument @('ls-remote', $publicRepo, 'HEAD')) -split '\s+'
-    # What's latest local commit
-    $localHeadId = Invoke-SamplerGit -Argument @('rev-parse', 'HEAD')
-    if ($remoteHeadId -ne $localHeadId)
-    {
-        # Reset
-        $null = Invoke-SamplerGit -Argument @('reset','HEAD')
-        # pull
-    }
-
+    $pullRequestId = Read-Host -Prompt 'What is the Pull Request ID you would like to pull? (i.e. 379)'
+    $remoteHeadId,$null = (Invoke-SamplerGit -Argument @('ls-remote', $publicRepo, 'HEAD') -ErrorAction Stop) -split '\s+'
     $prBranch = "pr/publicpr#$pullRequestId"
-    Invoke-SamplerGit -Argument @('remote', 'add', 'public', $publicRepo, '--quiet')
+    try
+    {
+        # If the public remote is already configured, just skip (no override)
+        $publicRemoteUrl = Invoke-SamplerGit -Argument @('remote', 'get-url', 'public') -ErrorAction Stop
+        Write-Build Green ('The remote ''public'' is already set to ''{0}''' -f $publicRemoteUrl)
+    }
+    catch
+    {
+        Invoke-SamplerGit -Argument @('remote', 'add', 'public', $publicRepo, '--quiet')
+        # Validate it worked and report
+        $publicRemoteUrl = Invoke-SamplerGit -Argument @('remote', 'get-url', 'public') -ErrorAction Stop
+        Write-Build Green ('Added remote ''public'' with URL ''{0}''.' -f $publicRemoteUrl)
+    }
+
+    try
+    {
+        # Create the public PR branch or throw
+        Invoke-SamplerGit -Argument @('branch', $prBranch) -ErrorAction Stop
+    }
+    catch
+    {
+        # the prBranch already exists, let's move to the branch
+        Invoke-SamplerGit -Argument @('checkout', $prBranch, '--quiet') -ErrorAction Stop
+    }
+
     $publicPRCommitId, $ref = (Invoke-SamplerGit -Argument @('ls-remote', 'public', "pull/$pullRequestId/head")) -split '\s+'
-    Invoke-SamplerGit -Argument @('pull', 'main') # Make sure our local head is the same as remote origin head
-    # git fetch public "pull/$pullRequestId/head:$prBranch"
-    # git checkout $prBranch # creates an up-to-date version of public main
-    # git cherry-pick $($localHead)..$($prHead)
+    # Get latest local commit
+    $localHeadId = Invoke-SamplerGit -Argument @('rev-parse', 'HEAD')
+    Invoke-SamplerGit -Argument @('pull', 'public', "refs/pull/$pullRequestId/head", '--track' ) # Make sure our local head is the same as remote origin head
+    # $null = Invoke-SamplerGit -Argument @('fetch', 'public', "pull/$pullRequestId/head:$prBranch") -ErrorAction Stop
+    # $null = Invoke-SamplerGit -Argument @('cherry-pick', "$($localHeadId)..$($prHead)")
 }

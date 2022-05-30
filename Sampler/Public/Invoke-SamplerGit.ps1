@@ -41,7 +41,7 @@ function Invoke-SamplerGit
     &git $Argument | Foreach-Object -Process {
         if ($_ -is [System.Management.Automation.ErrorRecord])
         {
-            throw $_
+            Write-Error -Message $_
         }
         elseif (-not [string]::IsNullOrEmpty($_))
         {
@@ -57,6 +57,6 @@ function Invoke-SamplerGit
     #>
     if ($LASTEXITCODE)
     {
-        throw "git returned exit code $LASTEXITCODE indicating failure."
+        Write-Error -Message "git returned exit code $LASTEXITCODE indicating failure."
     }
 }
