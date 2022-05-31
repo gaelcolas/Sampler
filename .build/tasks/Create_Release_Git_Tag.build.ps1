@@ -112,7 +112,14 @@ task Create_Release_Git_Tag {
         This call should not use Invoke-SamplerGit since it should not throw
         on error, but return $null if failing.
     #>
-    $isCurrentTag = git describe --contains 2> $null
+    try {
+        $isCurrentTag = git describe --contains 2> $null
+    }
+    catch {
+        Write-Verbose -Message 'There is no tag defined yet.'
+    }
+
+    $releaseTag = 'v{0}' -f $ModuleVersion
 
     if ($isCurrentTag)
     {
@@ -144,8 +151,6 @@ task Create_Release_Git_Tag {
 
         # Make empty line in output
         ""
-
-        $releaseTag = 'v{0}' -f $ModuleVersion
 
         Write-Build DarkGray ("`tGetting HEAD commit for the default branch '{0}." -f $MainGitBranch)
 
