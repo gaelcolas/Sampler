@@ -43,6 +43,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove HQRM rule suppression in source file for `New-SamplerJaCoCoDocument`
   since it no longer required.
 - Fixed QA test that was breaking release.
+- `Get-MofSchemaName`
+  - Correctly throws an error if the schema MOF cannot be parsed.
 
 ## [0.114.0] - 2022-05-13
 
