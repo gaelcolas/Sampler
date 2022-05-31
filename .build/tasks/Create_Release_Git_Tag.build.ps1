@@ -112,10 +112,12 @@ task Create_Release_Git_Tag {
         This call should not use Invoke-SamplerGit since it should not throw
         on error, but return $null if failing.
     #>
-    try {
+    try
+    {
         $isCurrentTag = git describe --contains 2> $null
     }
-    catch {
+    catch
+    {
         Write-Verbose -Message 'There is no tag defined yet.'
     }
 
@@ -150,7 +152,7 @@ task Create_Release_Git_Tag {
         Sampler\Invoke-SamplerGit -Argument @('config', 'user.email', $GitConfigUserEmail)
 
         # Make empty line in output
-        ""
+        ''
 
         Write-Build DarkGray ("`tGetting HEAD commit for the default branch '{0}." -f $MainGitBranch)
 
