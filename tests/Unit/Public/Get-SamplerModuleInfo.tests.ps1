@@ -29,7 +29,7 @@ Describe 'Get-SamplerModuleInfo' {
         BeforeAll {
             Mock -CommandName Get-Command
             Mock -CommandName Import-Module
-            Mock -CommandName Import-PowerShellDataFile
+            Mock -CommandName Import-PowerShellDataFile -RemoveParameterValidation 'Path'
 
             InModuleScope -ScriptBlock {
                 $script:previousPSVersionTable = $PSVersionTable.Clone()
@@ -60,7 +60,22 @@ Describe 'Get-SamplerModuleInfo' {
         BeforeAll {
             Mock -CommandName Get-Command
             Mock -CommandName Import-Module
-            Mock -CommandName Import-PowerShellDataFile
+            Mock -CommandName Import-PowerShellDataFile -RemoveParameterValidation 'Path'
+
+            InModuleScope -ScriptBlock {
+                $script:previousPSVersionTable = $PSVersionTable.Clone()
+                $script:PSVersionTable = @{
+                    PSVersion = @{
+                        Major = '7'
+                    }
+                }
+            }
+        }
+
+        AfterAll {
+            InModuleScope -ScriptBlock {
+                $script:PSVersionTable = $previousPSVersionTable.Clone()
+            }
         }
 
         It 'Should call the expected mocks' {
