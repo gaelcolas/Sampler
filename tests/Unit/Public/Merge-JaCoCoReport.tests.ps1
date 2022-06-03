@@ -4,7 +4,7 @@ BeforeAll {
     # If the module is not found, run the build task 'noop'.
     if (-not (Get-Module -Name $script:moduleName -ListAvailable))
     {
-        # Redirect all streams to $null, except the error stream (stream 3)
+        # Redirect all streams to $null, except the error stream (stream 2)
         & "$PSScriptRoot/../../build.ps1" -Tasks 'noop' 2>&1 4>&1 5>&1 6>&1 > $null
     }
 
