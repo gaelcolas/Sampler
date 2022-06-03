@@ -63,9 +63,29 @@ function Merge-JaCoCoReport
             {
                 Write-Verbose "    Processing sourcefile: $($mSourcefile.Name)"
 
+                $addedSourcefiles = @()
+
+                $oSourcefile = $oPackage.sourcefile | Where-Object { $_.name -eq $mSourcefile.name }
+
+                if ($oSourcefile.name -in $addedSourcefiles)
+                {
+                    # The sourcefile was added to original document while in this loop.
+                    continue
+                }
+
+                if ($null -eq $oSourcefile)
+                {
+                    # Add missing sourcefile from merge document to original document
+                    $null = $oPackage.AppendChild($oPackage.OwnerDocument.ImportNode($mSourcefile, $true))
+
+                    # Skip this sourcefile when we loop in the foreach()
+                    $addedSourcefiles += $mSourcefile.name
+
+                    continue
+                }
+
                 foreach ($mPackageLine in $mSourcefile.line)
                 {
-                    $oSourcefile = $oPackage.sourcefile | Where-Object { $_.name -eq $mSourcefile.name }
                     $oPackageLine = $oSourcefile.line | Where-Object { $_.nr -eq $mPackageLine.nr }
 
                     if ($null -eq $oPackageLine)
