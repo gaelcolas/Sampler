@@ -25,12 +25,12 @@ AfterAll {
 }
 
 Describe 'Get-OperatingSystemShortName' {
-    Context 'When running in Windows PowerShell on Windows' {
+    Context 'When running in Windows PowerShell on Windows' -Skip:($IsMacOS -or $IsLinux) {
         BeforeAll {
             InModuleScope -ScriptBlock {
                 $script:mockPreviousIsWindows = $IsWindows
                 $script:mockPreviousIsMacOS = $IsMacOS
-                $script:mockPreviousIsWindows = $IsLinux
+                $script:mockPreviousIsLinux = $IsLinux
                 $script:IsWindows = $false
                 $script:IsMacOS = $false
                 $script:IsLinux = $false
@@ -67,7 +67,7 @@ Describe 'Get-OperatingSystemShortName' {
             InModuleScope -ScriptBlock {
                 $script:mockPreviousIsWindows = $IsWindows
                 $script:mockPreviousIsMacOS = $IsMacOS
-                $script:mockPreviousIsWindows = $IsLinux
+                $script:mockPreviousIsLinux = $IsLinux
                 $script:IsWindows = $true
                 $script:IsMacOS = $false
                 $script:IsLinux = $false
@@ -89,12 +89,12 @@ Describe 'Get-OperatingSystemShortName' {
         }
     }
 
-    Context 'When running in PowerShell on macOS' {
+    Context 'When running in PowerShell on macOS' -Skip:($PSVersionTable.PSVersion.Major -eq 5) {
         BeforeAll {
             InModuleScope -ScriptBlock {
                 $script:mockPreviousIsWindows = $IsWindows
                 $script:mockPreviousIsMacOS = $IsMacOS
-                $script:mockPreviousIsWindows = $IsLinux
+                $script:mockPreviousIsLinux = $IsLinux
                 $script:IsWindows = $false
                 $script:IsMacOS = $true
                 $script:IsLinux = $false
@@ -116,12 +116,12 @@ Describe 'Get-OperatingSystemShortName' {
         }
     }
 
-    Context 'When running in PowerShell on Linux' {
+    Context 'When running in PowerShell on Linux' -Skip:($PSVersionTable.PSVersion.Major -eq 5) {
         BeforeAll {
             InModuleScope -ScriptBlock {
                 $script:mockPreviousIsWindows = $IsWindows
                 $script:mockPreviousIsMacOS = $IsMacOS
-                $script:mockPreviousIsWindows = $IsLinux
+                $script:mockPreviousIsLinux = $IsLinux
                 $script:IsWindows = $false
                 $script:IsMacOS = $false
                 $script:IsLinux = $true
