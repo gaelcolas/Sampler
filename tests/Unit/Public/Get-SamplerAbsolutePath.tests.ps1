@@ -39,9 +39,9 @@ Describe 'Get-SamplerAbsolutePath' {
         It 'Should return the correct expanded path' {
             $result = Get-SamplerAbsolutePath -Path './testResult' -RelativeTo './output'
 
-            if ($PSVersionTable.Version.Major -eq 5 )
+            if ($PSVersionTable.PSVersion.Major -eq 5 )
             {
-                $result -replace '\\','/' | Should -Be ((Join-Path -Path $TestDrive -ChildPath './output/testResult') -replace '\\','/')
+                $result -replace '\\','/' | Should -Be ((Join-Path -Path $TestDrive -ChildPath './output/./testResult') -replace '\\','/')
             }
             else
             {
@@ -55,7 +55,7 @@ Describe 'Get-SamplerAbsolutePath' {
         It 'Should return the correct expanded path' {
             $result = Get-SamplerAbsolutePath -Path './testResult' -RelativeTo $TestDrive
 
-            if ($PSVersionTable.Version.Major -eq 5 )
+            if ($PSVersionTable.PSVersion.Major -eq 5 )
             {
                 $result -replace '\\','/' | Should -Be ((Join-Path -Path $TestDrive -ChildPath './testResult') -replace '\\','/')
             }
