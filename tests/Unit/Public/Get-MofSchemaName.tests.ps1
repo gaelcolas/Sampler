@@ -54,13 +54,11 @@ Describe 'Get-MofSchemaName' {
         }
     }
 
-    Context 'When schema mof is invalid' -Skip:$IsMacOS {
+    Context 'When schema mof is invalid' -Skip:($IsMacOS -or $IsLinux) {
         BeforeAll {
             InModuleScope -ScriptBlock {
                 # Mock Windows PowerShell
                 $script:mockPreviousIsWindows = $IsWindows
-                $script:mockPreviousIsMacOS = $IsMacOS
-                $script:mockPreviousIsLinux = $IsLinux
                 $script:IsWindows = $false
             }
 
@@ -87,8 +85,6 @@ class DSC_MockResourceName : OMI_BaseResource
         AfterAll {
             InModuleScope -ScriptBlock {
                 $script:IsWindows = $mockPreviousIsWindows
-                $script:IsMacOS = $mockPreviousIsMacOS
-                $script:IsLinux = $mockPreviousIsLinux
             }
         }
 
@@ -97,16 +93,12 @@ class DSC_MockResourceName : OMI_BaseResource
         }
     }
 
-    Context 'When running in Windows PowerShell on Windows'-Skip:$IsMacOS {
+    Context 'When running in Windows PowerShell on Windows'-Skip:($IsMacOS -or $IsLinux) {
         BeforeAll {
             InModuleScope -ScriptBlock {
                 # Mock Windows PowerShell (on Windows)
                 $script:mockPreviousIsWindows = $IsWindows
-                $script:mockPreviousIsMacOS = $IsMacOS
-                $script:mockPreviousIsLinux = $IsLinux
                 $script:IsWindows = $false
-                $script:IsMacOS = $false
-                $script:IsLinux = $false
             }
 
             # Mock Windows PowerShell
@@ -132,8 +124,6 @@ class DSC_MockResourceName : OMI_BaseResource
         AfterAll {
             InModuleScope -ScriptBlock {
                 $script:IsWindows = $mockPreviousIsWindows
-                $script:IsMacOS = $mockPreviousIsMacOS
-                $script:IsLinux = $mockPreviousIsLinux
             }
         }
 
@@ -145,16 +135,12 @@ class DSC_MockResourceName : OMI_BaseResource
         }
     }
 
-    Context 'When running in PowerShell on Windows' -Skip:$IsMacOS {
+    Context 'When running in PowerShell on Windows' -Skip:($IsMacOS -or $IsLinux) {
         BeforeAll {
             InModuleScope -ScriptBlock {
                 # Mock Windows
                 $script:mockPreviousIsWindows = $IsWindows
-                $script:mockPreviousIsMacOS = $IsMacOS
-                $script:mockPreviousIsLinux = $IsLinux
                 $script:IsWindows = $true
-                $script:IsMacOS = $false
-                $script:IsLinux = $false
             }
 
             # Mock PowerShell
@@ -180,8 +166,6 @@ class DSC_MockResourceName : OMI_BaseResource
         AfterAll {
             InModuleScope -ScriptBlock {
                 $script:IsWindows = $mockPreviousIsWindows
-                $script:IsMacOS = $mockPreviousIsMacOS
-                $script:IsLinux = $mockPreviousIsLinux
             }
         }
 
@@ -193,18 +177,8 @@ class DSC_MockResourceName : OMI_BaseResource
         }
     }
 
-    Context 'When running in PowerShell on Linux' -Skip:$IsMacOS {
+    Context 'When running in PowerShell on Linux' -Skip:($IsMacOS -or $IsWindows -or $PSVersionTable.PSVersion.Major -eq 5) {
         BeforeAll {
-            InModuleScope -ScriptBlock {
-                # Mock Linux
-                $script:mockPreviousIsWindows = $IsWindows
-                $script:mockPreviousIsMacOS = $IsMacOS
-                $script:mockPreviousIsLinux = $IsLinux
-                $script:IsWindows = $false
-                $script:IsMacOS = $false
-                $script:IsLinux = $true
-            }
-
             # Mock PowerShell
             Mock -CommandName Test-Path -MockWith {
                 return $true
@@ -225,14 +199,6 @@ class DSC_MockResourceName : OMI_BaseResource
             }
         }
 
-        AfterAll {
-            InModuleScope -ScriptBlock {
-                $script:IsWindows = $mockPreviousIsWindows
-                $script:IsMacOS = $mockPreviousIsMacOS
-                $script:IsLinux = $mockPreviousIsLinux
-            }
-        }
-
         It 'Should return the correct property values' {
             $result = Sampler\Get-MofSchemaName -Path $TestDrive
 
@@ -241,29 +207,11 @@ class DSC_MockResourceName : OMI_BaseResource
         }
     }
 
-    Context 'When running in PowerShell on macOS' {
+    Context 'When running in PowerShell on macOS' -Skip:($IsLinux -or $IsWindows -or $PSVersionTable.PSVersion.Major -eq 5) {
         BeforeAll {
-            InModuleScope -ScriptBlock {
-                # Mock macOS
-                $script:mockPreviousIsWindows = $IsWindows
-                $script:mockPreviousIsMacOS = $IsMacOS
-                $script:mockPreviousIsLinux = $IsLinux
-                $script:IsWindows = $false
-                $script:IsMacOS = $true
-                $script:IsLinux = $false
-            }
-
             # Mock PowerShell
             Mock -CommandName Test-Path -MockWith {
                 return $true
-            }
-        }
-
-        AfterAll {
-            InModuleScope -ScriptBlock {
-                $script:IsWindows = $mockPreviousIsWindows
-                $script:IsMacOS = $mockPreviousIsMacOS
-                $script:IsLinux = $mockPreviousIsLinux
             }
         }
 
