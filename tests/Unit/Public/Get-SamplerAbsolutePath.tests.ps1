@@ -39,7 +39,7 @@ Describe 'Get-SamplerAbsolutePath' {
         It 'Should return the correct expanded path' {
             $result = Get-SamplerAbsolutePath -Path './testResult' -RelativeTo './output'
 
-            $result | Should -Be (Join-Path -Path $TestDrive -ChildPath 'output/testResult')
+            $result -replace '\\','/' | Should -Be ((Join-Path -Path $TestDrive -ChildPath 'output/testResult') -replace '\\','/')
         }
     }
 
@@ -47,7 +47,7 @@ Describe 'Get-SamplerAbsolutePath' {
         It 'Should return the correct expanded path' {
             $result = Get-SamplerAbsolutePath -Path './testResult' -RelativeTo $TestDrive
 
-            $result | Should -Be (Join-Path -Path $TestDrive -ChildPath 'testResult')
+            $result -replace '\\','/' | Should -Be ((Join-Path -Path $TestDrive -ChildPath 'testResult') -replace '\\','/')
         }
     }
 
@@ -55,7 +55,7 @@ Describe 'Get-SamplerAbsolutePath' {
         It 'Should return the correct expanded path' {
             $result = Get-SamplerAbsolutePath -Path "$TestDrive/testResult" -RelativeTo './output'
 
-            $result | Should -Be (Join-Path -Path $TestDrive -ChildPath 'testResult')
+            $result -replace '\\','/' | Should -Be ((Join-Path -Path $TestDrive -ChildPath 'testResult') -replace '\\','/')
         }
     }
 
@@ -63,7 +63,7 @@ Describe 'Get-SamplerAbsolutePath' {
         It 'Should return the correct expanded path' {
             $result = Get-SamplerAbsolutePath -Path "$TestDrive/testResult" -RelativeTo '/output'
 
-            $result | Should -Be (Join-Path -Path $TestDrive -ChildPath 'testResult')
+            $result -replace '\\','/' | Should -Be ((Join-Path -Path $TestDrive -ChildPath 'testResult') -replace '\\','/')
         }
     }
 
@@ -81,7 +81,7 @@ Describe 'Get-SamplerAbsolutePath' {
         It 'Should return the correct expanded path' {
             $result = Get-SamplerAbsolutePath -Path "/testResult" -RelativeTo '/output'
 
-            $result | Should -Be (Join-Path -Path $PWD.drive.root -ChildPath 'testResult')
+            $result -replace '\\','/' | Should -Be ((Join-Path -Path $PWD.drive.root -ChildPath 'testResult') -replace '\\','/')
         }
     }
 }
