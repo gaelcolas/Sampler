@@ -24,7 +24,7 @@ AfterAll {
     Remove-Module -Name $script:moduleName
 }
 
-Describe 'Get-SamplerAbsolutePath' {
+Describe 'Get-SamplerBuiltModuleBase' {
     Context 'When passing mandatory parameters' {
         It 'Should return the correct path' {
             $result = Get-SamplerBuiltModuleBase -OutputDirectory $TestDrive -ModuleName 'MyModule'
@@ -78,6 +78,5 @@ Describe 'Get-SamplerAbsolutePath' {
                 $result | Should -Be $expectedPath
             }
         }
-
     }
 }
