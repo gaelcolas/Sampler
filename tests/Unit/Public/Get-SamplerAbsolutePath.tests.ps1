@@ -39,15 +39,30 @@ Describe 'Get-SamplerAbsolutePath' {
         It 'Should return the correct expanded path' {
             $result = Get-SamplerAbsolutePath -Path './testResult' -RelativeTo './output'
 
-            $result -replace '\\','/' | Should -Be ((Join-Path -Path $TestDrive -ChildPath 'output/testResult') -replace '\\','/')
+            if ($PSVersionTable.Version.Major -eq 5 )
+            {
+                $result -replace '\\','/' | Should -Be ((Join-Path -Path $TestDrive -ChildPath './output/testResult') -replace '\\','/')
+            }
+            else
+            {
+                $result -replace '\\','/' | Should -Be ((Join-Path -Path $TestDrive -ChildPath 'output/testResult') -replace '\\','/')
+            }
+
         }
     }
 
-    Context 'When Path is relative and RelativeTo is absolut' {
+    Context 'When Path is relative and RelativeTo is absolute' {
         It 'Should return the correct expanded path' {
             $result = Get-SamplerAbsolutePath -Path './testResult' -RelativeTo $TestDrive
 
-            $result -replace '\\','/' | Should -Be ((Join-Path -Path $TestDrive -ChildPath 'testResult') -replace '\\','/')
+            if ($PSVersionTable.Version.Major -eq 5 )
+            {
+                $result -replace '\\','/' | Should -Be ((Join-Path -Path $TestDrive -ChildPath './testResult') -replace '\\','/')
+            }
+            else
+            {
+                $result -replace '\\','/' | Should -Be ((Join-Path -Path $TestDrive -ChildPath 'testResult') -replace '\\','/')
+            }
         }
     }
 
