@@ -158,7 +158,7 @@ Describe 'Merge-JaCoCoReport' {
         }
     }
 
-    Context 'When a sourcefile is missing in original document' {
+    Context 'When lines in a sourcefile is missing in original document' {
         BeforeAll {
             $mockXmlDocument1 = @"
 <?xml version="1.0" encoding="us-ascii" standalone="no"?>
