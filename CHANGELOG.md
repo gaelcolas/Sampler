@@ -59,6 +59,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   will no longer fail if the CHANGELOG.md has not been committed but is staged
   or unstaged. This makes it possible to get the QA tests to pass without having
   to first commit changes.
+- `Merge-JaCoCoReport`
+  - Improvements to be able to merge missing elements, like entire source files.
 
 ### Fixed
 
