@@ -30,7 +30,7 @@ Describe 'Get-MofSchemaName' {
             InModuleScope -ScriptBlock {
                 $script:mockPreviousIsWindows = $IsWindows
                 $script:mockPreviousIsMacOS = $IsMacOS
-                $script:mockPreviousIsWindows = $IsLinux
+                $script:mockPreviousIsLinux = $IsLinux
                 $script:IsWindows = $false
                 $script:IsMacOS = $false
                 $script:IsLinux = $false
@@ -59,6 +59,8 @@ Describe 'Get-MofSchemaName' {
             InModuleScope -ScriptBlock {
                 # Mock Windows PowerShell
                 $script:mockPreviousIsWindows = $IsWindows
+                $script:mockPreviousIsMacOS = $IsMacOS
+                $script:mockPreviousIsLinux = $IsLinux
                 $script:IsWindows = $false
             }
 
@@ -101,7 +103,7 @@ class DSC_MockResourceName : OMI_BaseResource
                 # Mock Windows PowerShell (on Windows)
                 $script:mockPreviousIsWindows = $IsWindows
                 $script:mockPreviousIsMacOS = $IsMacOS
-                $script:mockPreviousIsWindows = $IsLinux
+                $script:mockPreviousIsLinux = $IsLinux
                 $script:IsWindows = $false
                 $script:IsMacOS = $false
                 $script:IsLinux = $false
@@ -149,7 +151,7 @@ class DSC_MockResourceName : OMI_BaseResource
                 # Mock Windows
                 $script:mockPreviousIsWindows = $IsWindows
                 $script:mockPreviousIsMacOS = $IsMacOS
-                $script:mockPreviousIsWindows = $IsLinux
+                $script:mockPreviousIsLinux = $IsLinux
                 $script:IsWindows = $true
                 $script:IsMacOS = $false
                 $script:IsLinux = $false
@@ -197,7 +199,7 @@ class DSC_MockResourceName : OMI_BaseResource
                 # Mock Linux
                 $script:mockPreviousIsWindows = $IsWindows
                 $script:mockPreviousIsMacOS = $IsMacOS
-                $script:mockPreviousIsWindows = $IsLinux
+                $script:mockPreviousIsLinux = $IsLinux
                 $script:IsWindows = $false
                 $script:IsMacOS = $false
                 $script:IsLinux = $true
@@ -245,7 +247,7 @@ class DSC_MockResourceName : OMI_BaseResource
                 # Mock macOS
                 $script:mockPreviousIsWindows = $IsWindows
                 $script:mockPreviousIsMacOS = $IsMacOS
-                $script:mockPreviousIsWindows = $IsLinux
+                $script:mockPreviousIsLinux = $IsLinux
                 $script:IsWindows = $false
                 $script:IsMacOS = $true
                 $script:IsLinux = $false
