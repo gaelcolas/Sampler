@@ -33,7 +33,7 @@ Describe 'Get-PesterOutputFileFileName' {
             PowerShellVersion = '7.2'
         }
 
-        $result = Get-PesterOutputFileFileName @getPesterOutputFileFileNameParameters
+        $result = Sampler\Get-PesterOutputFileFileName @getPesterOutputFileFileNameParameters
 
         $result | Should -Be 'MyModule_v2.0.0.Windows.7.2.xml'
     }

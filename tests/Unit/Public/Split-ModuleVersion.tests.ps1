@@ -26,7 +26,7 @@ AfterAll {
 
 Describe 'Split-ModuleVersion' {
     It 'Should split a preview release module version' {
-        $result = Split-ModuleVersion -ModuleVersion '1.15.0-pr0224'
+        $result = Sampler\Split-ModuleVersion -ModuleVersion '1.15.0-pr0224'
 
         $result.Version | Should -Be '1.15.0'
         $result.PreReleaseString | Should -Be 'pr0224'
@@ -34,7 +34,7 @@ Describe 'Split-ModuleVersion' {
     }
 
     It 'Should split preview release module version with build information suffix' {
-        $result = Split-ModuleVersion -ModuleVersion '1.15.0-pr0224-0022+Sha.47ae45eb2cfed02b249f239a7c55e5c71b26ab76.Date.2020-01-07'
+        $result = Sampler\Split-ModuleVersion -ModuleVersion '1.15.0-pr0224-0022+Sha.47ae45eb2cfed02b249f239a7c55e5c71b26ab76.Date.2020-01-07'
 
         $result.Version | Should -Be '1.15.0'
         $result.PreReleaseString | Should -Be 'pr0224'
@@ -42,7 +42,7 @@ Describe 'Split-ModuleVersion' {
     }
 
     It 'Should split a full release module version' {
-        $result = Split-ModuleVersion -ModuleVersion '1.15.0'
+        $result = Sampler\Split-ModuleVersion -ModuleVersion '1.15.0'
 
         $result.Version | Should -Be '1.15.0'
         $result.PreReleaseString | Should -BeNullOrEmpty

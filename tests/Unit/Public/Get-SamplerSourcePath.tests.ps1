@@ -31,7 +31,7 @@ Describe 'Get-SamplerSourcePath' {
         }
 
         It 'Should throw the correct error message' {
-            { Get-SamplerSourcePath -BuildRoot $TestDrive } | Should -Throw -ExpectedMessage 'Module Source Path not found.'
+            { Sampler\Get-SamplerSourcePath -BuildRoot $TestDrive } | Should -Throw -ExpectedMessage 'Module Source Path not found.'
         }
     }
 
@@ -51,7 +51,7 @@ Describe 'Get-SamplerSourcePath' {
         }
 
         It 'Should return the correct path' {
-            $result = Get-SamplerSourcePath -BuildRoot $TestDrive
+            $result = Sampler\Get-SamplerSourcePath -BuildRoot $TestDrive
 
             $result | Should -Be (Join-Path -Path $TestDrive -ChildPath 'src')
         }
@@ -73,7 +73,7 @@ Describe 'Get-SamplerSourcePath' {
         }
 
         It 'Should return the correct path' {
-            $result = Get-SamplerSourcePath -BuildRoot $TestDrive
+            $result = Sampler\Get-SamplerSourcePath -BuildRoot $TestDrive
 
             $result | Should -Be (Join-Path -Path $TestDrive -ChildPath 'source')
         }
@@ -91,7 +91,7 @@ Describe 'Get-SamplerSourcePath' {
         }
 
         It 'Should return the correct path' {
-            $result = Get-SamplerSourcePath -BuildRoot $TestDrive
+            $result = Sampler\Get-SamplerSourcePath -BuildRoot $TestDrive
 
             $result | Should -Be (Join-Path -Path $TestDrive -ChildPath (Join-Path -Path 'src' -ChildPath 'MyModule.psd1'))
         }
@@ -109,7 +109,7 @@ Describe 'Get-SamplerSourcePath' {
         }
 
         It 'Should return the correct path' {
-            $result = Get-SamplerSourcePath -BuildRoot $TestDrive
+            $result = Sampler\Get-SamplerSourcePath -BuildRoot $TestDrive
 
             $result | Should -Be (Join-Path -Path $TestDrive -ChildPath (Join-Path -Path 'source' -ChildPath 'MyModule.psd1'))
         }

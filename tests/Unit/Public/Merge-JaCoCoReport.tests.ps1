@@ -104,7 +104,7 @@ Describe 'Merge-JaCoCoReport' {
 
         }
         It 'Should merge the coverage reports' {
-            $result = Merge-JaCoCoReport -OriginalDocument $mockXmlDocument1 -MergeDocument $mockXmlDocument2
+            $result = Sampler\Merge-JaCoCoReport -OriginalDocument $mockXmlDocument1 -MergeDocument $mockXmlDocument2
 
             $result | Should -BeOfType [System.Xml.XmlDocument]
 

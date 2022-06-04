@@ -33,7 +33,7 @@ Describe 'Get-SamplerModuleRootPath' {
         }
 
         It 'Should return $null' {
-            $result = Get-SamplerModuleRootPath -ModuleManifestPath $TestDrive
+            $result = Sampler\Get-SamplerModuleRootPath -ModuleManifestPath $TestDrive
 
             $result | Should -BeNullOrEmpty
         }
@@ -49,7 +49,7 @@ Describe 'Get-SamplerModuleRootPath' {
         }
 
         It 'Should return $null' {
-            $result = Get-SamplerModuleRootPath -ModuleManifestPath (Join-Path -Path $TestDrive -ChildPath 'MyModule')
+            $result = Sampler\Get-SamplerModuleRootPath -ModuleManifestPath (Join-Path -Path $TestDrive -ChildPath 'MyModule')
 
             $result | Should -Be (Join-Path -Path $TestDrive -ChildPath 'MyModule.psm1')
         }

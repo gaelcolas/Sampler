@@ -32,7 +32,7 @@ Describe 'Get-SamplerBuiltModuleManifest' {
     }
 
     It 'Should return the correct file path' {
-        $result = Get-SamplerBuiltModuleManifest -OutputDirectory $TestDrive -ModuleName 'MyModule'
+        $result = Sampler\Get-SamplerBuiltModuleManifest -OutputDirectory $TestDrive -ModuleName 'MyModule'
 
         $result | Should -Be (Join-Path -Path $TestDrive -ChildPath (Join-Path -Path 'MyModule' -ChildPath 'MyModule.psd1'))
     }

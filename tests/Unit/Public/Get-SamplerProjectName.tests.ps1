@@ -34,7 +34,7 @@ Describe 'Get-SamplerProjectName' {
     }
 
     It 'Should return the project name' {
-        $result = Get-SamplerProjectName -BuildRoot $TestDrive
+        $result = Sampler\Get-SamplerProjectName -BuildRoot $TestDrive
 
         $result | Should -Be 'MyModule'
     }

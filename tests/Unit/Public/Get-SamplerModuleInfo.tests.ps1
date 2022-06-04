@@ -48,7 +48,7 @@ Describe 'Get-SamplerModuleInfo' {
         }
 
         It 'Should call the expected mocks' {
-            { Get-SamplerModuleInfo -ModuleManifestPath $TestDrive } | Should -Not -Throw
+            { Sampler\Get-SamplerModuleInfo -ModuleManifestPath $TestDrive } | Should -Not -Throw
 
             Should -Invoke -CommandName Get-Command -Exactly -Times 1 -Scope It
             Should -Invoke -CommandName Import-Module -Exactly -Times 1 -Scope It
@@ -79,7 +79,7 @@ Describe 'Get-SamplerModuleInfo' {
         }
 
         It 'Should call the expected mocks' {
-            { Get-SamplerModuleInfo -ModuleManifestPath $TestDrive } | Should -Not -Throw
+            { Sampler\Get-SamplerModuleInfo -ModuleManifestPath $TestDrive } | Should -Not -Throw
 
             Should -Invoke -CommandName Get-Command -Exactly -Times 1 -Scope It
             Should -Invoke -CommandName Import-Module -Exactly -Times 0 -Scope It

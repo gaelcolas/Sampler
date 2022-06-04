@@ -26,13 +26,13 @@ AfterAll {
 
 Describe 'Get-SamplerCodeCoverageOutputFileEncoding' {
     It 'Should return $null' {
-        $result = Get-SamplerCodeCoverageOutputFileEncoding -BuildInfo @{}
+        $result = Sampler\Get-SamplerCodeCoverageOutputFileEncoding -BuildInfo @{}
 
         $result | Should -BeNullOrEmpty
     }
 
     It 'Should return the correct file encoding' {
-        $result = Get-SamplerCodeCoverageOutputFileEncoding -BuildInfo @{
+        $result = Sampler\Get-SamplerCodeCoverageOutputFileEncoding -BuildInfo @{
             Pester = @{
                 CodeCoverageOutputFileEncoding = 'UTF8'
             }

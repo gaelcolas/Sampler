@@ -27,7 +27,7 @@ AfterAll {
 Describe 'Get-SamplerBuiltModuleBase' {
     Context 'When passing mandatory parameters' {
         It 'Should return the correct path' {
-            $result = Get-SamplerBuiltModuleBase -OutputDirectory $TestDrive -ModuleName 'MyModule'
+            $result = Sampler\Get-SamplerBuiltModuleBase -OutputDirectory $TestDrive -ModuleName 'MyModule'
 
             $result | Should -Be (Join-Path -Path $TestDrive -ChildPath 'MyModule')
         }
@@ -35,7 +35,7 @@ Describe 'Get-SamplerBuiltModuleBase' {
 
     Context 'When passing parameter BuildModuleSubdirectory' {
         It 'Should return the correct path' {
-            $result = Get-SamplerBuiltModuleBase -OutputDirectory $TestDrive -ModuleName 'MyModule' -BuiltModuleSubdirectory 'builtModule'
+            $result = Sampler\Get-SamplerBuiltModuleBase -OutputDirectory $TestDrive -ModuleName 'MyModule' -BuiltModuleSubdirectory 'builtModule'
 
             $expectedPath = Join-Path -Path $TestDrive -ChildPath (Join-Path -Path 'builtModule' -ChildPath 'MyModule')
 
@@ -45,7 +45,7 @@ Describe 'Get-SamplerBuiltModuleBase' {
 
     Context 'When passing parameter VersionedOutputDirectory' {
         It 'Should return the correct path' {
-            $result = Get-SamplerBuiltModuleBase -OutputDirectory $TestDrive -ModuleName 'MyModule' -VersionedOutputDirectory
+            $result = Sampler\Get-SamplerBuiltModuleBase -OutputDirectory $TestDrive -ModuleName 'MyModule' -VersionedOutputDirectory
 
             $expectedPath = Join-Path -Path $TestDrive -ChildPath (Join-Path -Path 'MyModule' -ChildPath '*')
 
@@ -61,7 +61,7 @@ Describe 'Get-SamplerBuiltModuleBase' {
                 test currently reflect what it actually returns for it to pass.
             #>
             It 'Should return the correct path' {
-                $result = Get-SamplerBuiltModuleBase -OutputDirectory $TestDrive -ModuleName 'MyModule' -ModuleVersion '*'
+                $result = Sampler\Get-SamplerBuiltModuleBase -OutputDirectory $TestDrive -ModuleName 'MyModule' -ModuleVersion '*'
 
                 $expectedPath = Join-Path -Path $TestDrive -ChildPath 'MyModule'
 
@@ -71,7 +71,7 @@ Describe 'Get-SamplerBuiltModuleBase' {
 
         Context 'When passing an specific module version' {
             It 'Should return the correct path' {
-                $result = Get-SamplerBuiltModuleBase -OutputDirectory $TestDrive -ModuleName 'MyModule' -ModuleVersion '2.0.0'
+                $result = Sampler\Get-SamplerBuiltModuleBase -OutputDirectory $TestDrive -ModuleName 'MyModule' -ModuleVersion '2.0.0'
 
                 $expectedPath = Join-Path -Path $TestDrive -ChildPath (Join-Path -Path 'MyModule' -ChildPath '2.0.0')
 

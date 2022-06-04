@@ -37,7 +37,7 @@ Describe 'Get-SamplerAbsolutePath' {
         }
 
         It 'Should return the correct expanded path' {
-            $result = Get-SamplerAbsolutePath -Path './testResult' -RelativeTo './output'
+            $result = Sampler\Get-SamplerAbsolutePath -Path './testResult' -RelativeTo './output'
 
             if ($PSVersionTable.PSVersion.Major -eq 5 )
             {
@@ -53,7 +53,7 @@ Describe 'Get-SamplerAbsolutePath' {
 
     Context 'When Path is relative and RelativeTo is absolute' {
         It 'Should return the correct expanded path' {
-            $result = Get-SamplerAbsolutePath -Path './testResult' -RelativeTo $TestDrive
+            $result = Sampler\Get-SamplerAbsolutePath -Path './testResult' -RelativeTo $TestDrive
 
             if ($PSVersionTable.PSVersion.Major -eq 5 )
             {
@@ -68,7 +68,7 @@ Describe 'Get-SamplerAbsolutePath' {
 
     Context 'When Path is absolute and RelativeTo is relative' {
         It 'Should return the correct expanded path' {
-            $result = Get-SamplerAbsolutePath -Path "$TestDrive/testResult" -RelativeTo './output'
+            $result = Sampler\Get-SamplerAbsolutePath -Path "$TestDrive/testResult" -RelativeTo './output'
 
             $result -replace '\\','/' | Should -Be ((Join-Path -Path $TestDrive -ChildPath 'testResult') -replace '\\','/')
         }
@@ -76,7 +76,7 @@ Describe 'Get-SamplerAbsolutePath' {
 
     Context 'When Path is absolute and RelativeTo is rooted' {
         It 'Should return the correct expanded path' {
-            $result = Get-SamplerAbsolutePath -Path "$TestDrive/testResult" -RelativeTo '/output'
+            $result = Sampler\Get-SamplerAbsolutePath -Path "$TestDrive/testResult" -RelativeTo '/output'
 
             $result -replace '\\','/' | Should -Be ((Join-Path -Path $TestDrive -ChildPath 'testResult') -replace '\\','/')
         }
@@ -94,7 +94,7 @@ Describe 'Get-SamplerAbsolutePath' {
         }
 
         It 'Should return the correct expanded path' {
-            $result = Get-SamplerAbsolutePath -Path "/testResult" -RelativeTo '/output'
+            $result = Sampler\Get-SamplerAbsolutePath -Path "/testResult" -RelativeTo '/output'
 
             $result -replace '\\','/' | Should -Be ((Join-Path -Path $PWD.drive.root -ChildPath 'testResult') -replace '\\','/')
         }
