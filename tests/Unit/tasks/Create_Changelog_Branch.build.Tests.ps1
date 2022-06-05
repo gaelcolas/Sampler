@@ -31,16 +31,15 @@ Describe 'Create_Changelog_Branch' {
 
     Context 'When no release tag is found' {
         BeforeAll {
+            # Dot-source mocks (this is also used in unit tests for build tasks)
+            . $PSScriptRoot/../TestHelpers/MockSetSamplerTaskVariable
+
             Mock -CommandName Sampler\Invoke-SamplerGit
 
             Mock -CommandName Sampler\Invoke-SamplerGit -ParameterFilter {
                 $Argument -contains 'rev-parse'
             } -MockWith {
                 return '0c23efc'
-            }
-
-            Mock -CommandName Get-BuiltModuleVersion -MockWith {
-                return '2.0.0'
             }
 
             $mockTaskParameters = @{
@@ -65,6 +64,9 @@ Describe 'Create_Changelog_Branch' {
 
     Context 'When creating change log PR' {
         BeforeAll {
+            # Dot-source mocks (this is also used in unit tests for build tasks)
+            . $PSScriptRoot/../TestHelpers/MockSetSamplerTaskVariable
+
             Mock -CommandName Sampler\Invoke-SamplerGit
 
             Mock -CommandName Sampler\Invoke-SamplerGit -ParameterFilter {
@@ -77,10 +79,6 @@ Describe 'Create_Changelog_Branch' {
                 $Argument -contains 'tag'
             } -MockWith {
                 return 'v2.0.0'
-            }
-
-            Mock -CommandName Get-BuiltModuleVersion -MockWith {
-                return '2.0.0'
             }
 
             Mock -CommandName Update-Changelog -RemoveParameterValidation 'Path'

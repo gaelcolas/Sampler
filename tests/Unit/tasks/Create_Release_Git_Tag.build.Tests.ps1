@@ -31,6 +31,9 @@ Describe 'Create_Release_Git_Tag' {
 
     Context 'When creating a preview release tag' {
         BeforeAll {
+            # Dot-source mocks (this is also used in unit tests for build tasks)
+            . $PSScriptRoot/../TestHelpers/MockSetSamplerTaskVariable
+
             function script:git
             {
                 throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
@@ -44,10 +47,6 @@ Describe 'Create_Release_Git_Tag' {
                 $Argument -contains 'rev-parse'
             } -MockWith {
                 return '0c23efc'
-            }
-
-            Mock -CommandName Get-BuiltModuleVersion -MockWith {
-                return '2.0.0'
             }
 
             Mock -CommandName Start-Sleep
@@ -91,6 +90,9 @@ Describe 'Create_Release_Git_Tag' {
 
     Context 'When commit already got a tag' {
         BeforeAll {
+            # Dot-source mocks (this is also used in unit tests for build tasks)
+            . $PSScriptRoot/../TestHelpers/MockSetSamplerTaskVariable
+
             # Stub for git executable
             function script:git
             {
@@ -107,10 +109,6 @@ Describe 'Create_Release_Git_Tag' {
                 $Argument -contains 'rev-parse'
             } -MockWith {
                 return '0c23efc'
-            }
-
-            Mock -CommandName Get-BuiltModuleVersion -MockWith {
-                return '2.0.0'
             }
 
             Mock -CommandName Start-Sleep
