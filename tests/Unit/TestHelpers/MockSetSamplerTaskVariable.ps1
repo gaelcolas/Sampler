@@ -86,3 +86,8 @@ Mock -CommandName Get-SamplerModuleRootPath -MockWith {
             Join-Path -ChildPath 'MyModule.psm1'
     )
 }
+
+# This is only used when calling Set-SamplerTaskVariable with parameter -AsNewBuild
+Mock -CommandName Get-BuildVersion -MockWith {
+    return '2.0.0'
+}
