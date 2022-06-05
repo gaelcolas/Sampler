@@ -1,4 +1,3 @@
-
 BeforeAll {
     $script:moduleName = 'Sampler'
 
@@ -29,17 +28,11 @@ Describe 'Build-Module.ModuleBuilder' {
 
 Describe 'Build_ModuleOutput_ModuleBuilder' {
     BeforeAll {
-        $previousBuildInfo = $null
+        # Dot-source mocks (this is also used in unit tests for build tasks)
+        . $PSScriptRoot/../TestHelpers/MockSetSamplerTaskVariable
 
-        if ($BuildInfo)
-        {
-            $previousBuildInfo = $BuildInfo.Clone()
-        }
-
-        $taskAlias = Get-Alias -Name 'Build-Module.ModuleBuilder.build.Sampler.ib.tasks'
-
-        Mock -CommandName Get-BuiltModuleVersion -MockWith {
-            return '2.0.0'
+        $BuildInfo = @{
+            CopyPaths = @('folder1','folder2')
         }
 
         Mock -CommandName Get-Command -MockWith {
@@ -54,10 +47,6 @@ Describe 'Build_ModuleOutput_ModuleBuilder' {
                 Invoke-Build that runs in the same scope a the task.
             #>
             $Name -eq 'Build-Module'
-        }
-
-        $BuildInfo = @{
-            CopyPaths = @('folder1','folder2')
         }
 
         Mock -CommandName Build-Module -RemoveParameterValidation 'SourcePath'
@@ -76,6 +65,8 @@ Describe 'Build_ModuleOutput_ModuleBuilder' {
 
         Mock -CommandName Update-Metadata -RemoveParameterValidation 'Path'
 
+        $taskAlias = Get-Alias -Name 'Build-Module.ModuleBuilder.build.Sampler.ib.tasks'
+
         $mockTaskParameters = @{
             OutputDirectory = Join-Path -Path $TestDrive -ChildPath 'MyModule/output'
             SourcePath = Join-Path -Path $TestDrive -ChildPath 'MyModule/source'
@@ -83,18 +74,122 @@ Describe 'Build_ModuleOutput_ModuleBuilder' {
         }
     }
 
-    AfterAll {
-        if ($previousBuildInfo)
+    It 'Should run the build task without throwing' {
         {
-            $BuildInfo = $previousBuildInfo.Clone()
+            Invoke-Build -Task 'Build_ModuleOutput_ModuleBuilder' -File $taskAlias.Definition @mockTaskParameters
+        } | Should -Not -Throw
+    }
+}
+
+Describe 'Build_NestedModules_ModuleBuilder' {
+    BeforeAll {
+        # Dot-source mocks (this is also used in unit tests for build tasks)
+        . $PSScriptRoot/../TestHelpers/MockSetSamplerTaskVariable
+
+        $BuildInfo = @{
+            CopyPaths = @('folder1','folder2')
+        }
+
+        $taskAlias = Get-Alias -Name 'Build-Module.ModuleBuilder.build.Sampler.ib.tasks'
+
+        $mockTaskParameters = @{
+            OutputDirectory = Join-Path -Path $TestDrive -ChildPath 'MyModule/output'
+            SourcePath = Join-Path -Path $TestDrive -ChildPath 'MyModule/source'
+            ProjectName = 'MyModule'
         }
     }
 
-    Context 'When creating a preview release tag' {
+    Context 'When build configuration does not contain nested module' {
+        BeforeAll {
+            Mock -CommandName Get-SamplerModuleInfo -MockWith {
+                return @{
+                    NestedModules = @()
+                }
+            } -RemoveParameterValidation 'ModuleManifestPath'
+        }
+
         It 'Should run the build task without throwing' {
             {
-                Invoke-Build -Task 'Build_ModuleOutput_ModuleBuilder' -File $taskAlias.Definition @mockTaskParameters
+                Invoke-Build -Task 'Build_NestedModules_ModuleBuilder' -File $taskAlias.Definition @mockTaskParameters
             } | Should -Not -Throw
+        }
+    }
+
+    Context 'When build configuration contain a nested module' {
+        Context 'When nested module should only be copied' {
+            BeforeAll {
+                # TODO: Add test when a nested module is in build configuration and should be copied
+
+                Mock -CommandName Get-SamplerModuleInfo -MockWith {
+                    return @{
+                        NestedModules = @()
+                    }
+                } -RemoveParameterValidation 'ModuleManifestPath'
+
+                # Mock -CommandName Get-Command -MockWith {
+                #     return @{
+                #         Parameters = @{
+                #             Keys = @('SourcePath', 'OutputDirectory', 'VersionedOutputDirectory', 'CopyPaths')
+                #         }
+                #     }
+                # } -ParameterFilter {
+                #     <#
+                #         Make sure to only mock the command in the task, otherwise we mess up
+                #         Invoke-Build that runs in the same scope a the task.
+                #     #>
+                #     $Name -eq 'Build-Module'
+                # }
+
+                # Mock -CommandName Build-Module -RemoveParameterValidation 'SourcePath'
+
+                # Mock -CommandName Test-Path -MockWith {
+                #     return $true
+                # } -ParameterFilter {
+                #     $Path -match 'ReleaseNotes.md'
+                # }
+
+                # Mock -CommandName Get-Content -ParameterFilter {
+                #     $Path -match 'ReleaseNotes.md'
+                # } -MockWith {
+                #     return 'Mock release notes'
+                # }
+
+                # Mock -CommandName Update-Metadata -RemoveParameterValidation 'Path'
+            }
+
+            It 'Should run the build task without throwing' {
+                {
+                    Invoke-Build -Task 'Build_NestedModules_ModuleBuilder' -File $taskAlias.Definition @mockTaskParameters
+                } | Should -Not -Throw
+            }
+        }
+
+        Context 'When nested module should be built' {
+            # TODO: Add test when a nested module is in build configuration and should be built
+        }
+
+        Context 'When nested module should be added to manifest' {
+            BeforeAll {
+                Mock -CommandName Get-SamplerModuleInfo -MockWith {
+                    return @{
+                        NestedModules = @()
+                    }
+                } -RemoveParameterValidation 'ModuleManifestPath'
+            }
+
+            # TODO: Add test when a nested module is in build configuration and should be added to module manifest
+        }
+
+        Context 'When module manifest already contain a nested module' {
+            BeforeAll {
+                Mock -CommandName Get-SamplerModuleInfo -MockWith {
+                    return @{
+                        NestedModules = @('PreviousNestedModule')
+                    }
+                } -RemoveParameterValidation 'ModuleManifestPath'
+            }
+
+            # TODO: Add tests for when there is already a nested module in the manifest to make sure it adds and not removes
         }
     }
 }
