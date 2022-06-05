@@ -199,11 +199,6 @@ else
     if ($BuiltModuleManifest)
     {
         $BuiltModuleRootScriptPath = Get-SamplerModuleRootPath -ModuleManifestPath $BuiltModuleManifest
-
-        if ($BuiltModuleRootScriptPath)
-        {
-            $BuiltModuleRootScriptPath = (Get-Item -Path $BuiltModuleRootScriptPath -ErrorAction 'SilentlyContinue').FullName
-        }
     }
 
     "`tBuilt Module Root Script   = '$BuiltModuleRootScriptPath'"
