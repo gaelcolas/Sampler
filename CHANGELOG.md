@@ -33,6 +33,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   will no longer fail if the CHANGELOG.md has not been committed but is staged
   or unstaged. This makes it possible to get the QA tests to pass without having
   to first commit changes.
+- Some unnecessary code was removed from the script `Set-SamplerTaskVariable`
+  since the functions `Get-SamplerBuiltModuleManifest` and `Get-SamplerBuiltModuleBase`
+  already handle returning the absolute path. It also simplified mocking the
+  functions for the unit tests.
 
 ### Fixed
 

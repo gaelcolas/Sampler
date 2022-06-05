@@ -175,18 +175,11 @@ else
     }
 
     $BuiltModuleManifest = Get-SamplerBuiltModuleManifest @GetBuiltModuleManifestParams
-    if ($BuiltModuleManifest)
-    {
-        $BuiltModuleManifest = (Get-Item -Path $BuiltModuleManifest -ErrorAction 'SilentlyContinue').FullName
-    }
 
     "`tBuilt Module Manifest      = '$BuiltModuleManifest'"
 
     $BuiltModuleBase = Get-SamplerBuiltModuleBase @GetBuiltModuleManifestParams
-    if ($BuiltModuleBase)
-    {
-        $BuiltModuleBase = (Get-Item -Path $BuiltModuleBase -ErrorAction 'SilentlyContinue').FullName
-    }
+
 
     "`tBuilt Module Base          = '$BuiltModuleBase'"
 
