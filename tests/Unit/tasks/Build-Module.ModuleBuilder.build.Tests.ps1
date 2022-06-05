@@ -49,7 +49,39 @@ Describe 'Build_ModuleOutput_ModuleBuilder' {
             $Name -eq 'Build-Module'
         }
 
-        Mock -CommandName Build-Module -RemoveParameterValidation 'SourcePath'
+        Mock -CommandName Build-Module -RemoveParameterValidation 'SourcePath' -MockWith {
+            # This is necessary to mock Windows PowerShell
+            return @{
+                RootModule = (
+                    Join-Path -Path $TestDrive -ChildPath 'output' |
+                        Join-Path -ChildPath 'builtModule' |
+                        Join-Path -ChildPath 'MyModule' |
+                        Join-Path -ChildPath '2.0.0' |
+                        Join-Path -ChildPath 'MyModule.psm1'
+                )
+            }
+        }
+
+        # This is necessary to mock Windows PowerShell
+        New-Item -Name 'MyModule.psm1' -ItemType File -Force -Path (
+            Join-Path -Path $TestDrive -ChildPath 'output' |
+                Join-Path -ChildPath 'builtModule' |
+                Join-Path -ChildPath 'MyModule' |
+                Join-Path -ChildPath '2.0.0'
+        )
+
+        # This is necessary to mock Windows PowerShell
+        Mock -CommandName Get-Content -MockWith {
+            return '# Mocked .psm1 file'
+        } -ParameterFilter {
+            $Path -eq (
+                Join-Path -Path $TestDrive -ChildPath 'output' |
+                    Join-Path -ChildPath 'builtModule' |
+                    Join-Path -ChildPath 'MyModule' |
+                    Join-Path -ChildPath '2.0.0' |
+                    Join-Path -ChildPath 'MyModule.psm1'
+            )
+        }
 
         Mock -CommandName Test-Path -MockWith {
             return $true
