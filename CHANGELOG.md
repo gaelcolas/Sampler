@@ -12,6 +12,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed the task `Set_Build_Environment_Variables` since it is not used,
   and build helpers are not in use anymore. Fixes [#376](https://github.com/gaelcolas/Sampler/issues/376)
 
+### Added
+
+- Added more unit tests to raise code coverage.
+
+### Changed
+
+- Some unnecessary code was removed from the script `Set-SamplerTaskVariable`
+  since the functions `Get-SamplerBuiltModuleManifest`, `Get-SamplerBuiltModuleBase`,
+  and `Get-SamplerModuleRootPath` already handle returning the absolute path.
+  It also simplified mocking the functions for the unit tests.
+
+### Fixed
+
+- `Get-MofSchemaName`
+  - Correctly throws an error if the schema MOF cannot be parsed.
+
 ## [0.115.0] - 2022-06-09
 
 ### Added
@@ -25,7 +41,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Fixes [#351](https://github.com/gaelcolas/Sampler/issues/351)
 - Added task `Create_Release_Branch` to push a branch containing the updated
   change log after release. Fixes [#351](https://github.com/gaelcolas/Sampler/issues/351)
-- Added more unit tests to raise code coverage.
 
 ### Changed
 
@@ -33,10 +48,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   will no longer fail if the CHANGELOG.md has not been committed but is staged
   or unstaged. This makes it possible to get the QA tests to pass without having
   to first commit changes.
-- Some unnecessary code was removed from the script `Set-SamplerTaskVariable`
-  since the functions `Get-SamplerBuiltModuleManifest`, `Get-SamplerBuiltModuleBase`,
-  and `Get-SamplerModuleRootPath` already handle returning the absolute path.
-  It also simplified mocking the functions for the unit tests.
 
 ### Fixed
 
@@ -52,8 +63,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove HQRM rule suppression in source file for `New-SamplerJaCoCoDocument`
   since it no longer required.
 - Fixed QA test that was breaking release.
-- `Get-MofSchemaName`
-  - Correctly throws an error if the schema MOF cannot be parsed.
 
 ## [0.114.0] - 2022-05-13
 
