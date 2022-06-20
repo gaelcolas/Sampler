@@ -31,7 +31,7 @@ Describe 'Create_Changelog_Branch' {
 
     Context 'When no release tag is found' {
         BeforeAll {
-            # Dot-source mocks (this is also used in unit tests for build tasks)
+            # Dot-source mocks
             . $PSScriptRoot/../TestHelpers/MockSetSamplerTaskVariable
 
             Mock -CommandName Sampler\Invoke-SamplerGit
@@ -64,7 +64,7 @@ Describe 'Create_Changelog_Branch' {
 
     Context 'When creating change log PR' {
         BeforeAll {
-            # Dot-source mocks (this is also used in unit tests for build tasks)
+            # Dot-source mocks
             . $PSScriptRoot/../TestHelpers/MockSetSamplerTaskVariable
 
             Mock -CommandName Sampler\Invoke-SamplerGit

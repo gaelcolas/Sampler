@@ -31,7 +31,7 @@ Describe 'Create_Release_Git_Tag' {
 
     Context 'When creating a preview release tag' {
         BeforeAll {
-            # Dot-source mocks (this is also used in unit tests for build tasks)
+            # Dot-source mocks
             . $PSScriptRoot/../TestHelpers/MockSetSamplerTaskVariable
 
             function script:git
@@ -90,7 +90,7 @@ Describe 'Create_Release_Git_Tag' {
 
     Context 'When commit already got a tag' {
         BeforeAll {
-            # Dot-source mocks (this is also used in unit tests for build tasks)
+            # Dot-source mocks
             . $PSScriptRoot/../TestHelpers/MockSetSamplerTaskVariable
 
             # Stub for git executable

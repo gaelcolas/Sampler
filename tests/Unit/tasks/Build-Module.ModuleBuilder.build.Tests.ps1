@@ -28,7 +28,7 @@ Describe 'Build-Module.ModuleBuilder' {
 
 Describe 'Build_ModuleOutput_ModuleBuilder' {
     BeforeAll {
-        # Dot-source mocks (this is also used in unit tests for build tasks)
+        # Dot-source mocks
         . $PSScriptRoot/../TestHelpers/MockSetSamplerTaskVariable
 
         $BuildInfo = @{
@@ -115,7 +115,7 @@ Describe 'Build_ModuleOutput_ModuleBuilder' {
 
 Describe 'Build_NestedModules_ModuleBuilder' {
     BeforeAll {
-        # Dot-source mocks (this is also used in unit tests for build tasks)
+        # Dot-source mocks
         . $PSScriptRoot/../TestHelpers/MockSetSamplerTaskVariable
 
         $BuildInfo = @{
@@ -150,7 +150,14 @@ Describe 'Build_NestedModules_ModuleBuilder' {
     Context 'When build configuration contain a nested module' {
         Context 'When nested module should only be copied' {
             BeforeAll {
-                # TODO: Add test when a nested module is in build configuration and should be copied
+                $BuildInfo.NestedModule = @{
+                    'DscResource.Common' = @{
+                        CopyOnly = $true
+                        Path = './output/RequiredModules/DscResource.Common'
+                        AddToManifest = $false
+                        Exclude = 'PSGetModuleInfo.xml'
+                    }
+                }
 
                 Mock -CommandName Get-SamplerModuleInfo -MockWith {
                     return @{
@@ -158,35 +165,8 @@ Describe 'Build_NestedModules_ModuleBuilder' {
                     }
                 } -RemoveParameterValidation 'ModuleManifestPath'
 
-                # Mock -CommandName Get-Command -MockWith {
-                #     return @{
-                #         Parameters = @{
-                #             Keys = @('SourcePath', 'OutputDirectory', 'VersionedOutputDirectory', 'CopyPaths')
-                #         }
-                #     }
-                # } -ParameterFilter {
-                #     <#
-                #         Make sure to only mock the command in the task, otherwise we mess up
-                #         Invoke-Build that runs in the same scope a the task.
-                #     #>
-                #     $Name -eq 'Build-Module'
-                # }
-
-                # Mock -CommandName Build-Module -RemoveParameterValidation 'SourcePath'
-
-                # Mock -CommandName Test-Path -MockWith {
-                #     return $true
-                # } -ParameterFilter {
-                #     $Path -match 'ReleaseNotes.md'
-                # }
-
-                # Mock -CommandName Get-Content -ParameterFilter {
-                #     $Path -match 'ReleaseNotes.md'
-                # } -MockWith {
-                #     return 'Mock release notes'
-                # }
-
-                # Mock -CommandName Update-Metadata -RemoveParameterValidation 'Path'
+                Mock -CommandName Copy-Item
+                Mock -CommandName Update-Metadata
             }
 
             It 'Should run the build task without throwing' {
@@ -197,7 +177,31 @@ Describe 'Build_NestedModules_ModuleBuilder' {
         }
 
         Context 'When nested module should be built' {
-            # TODO: Add test when a nested module is in build configuration and should be built
+            BeforeAll {
+                $BuildInfo.NestedModule = @{
+                    'DscResource.Common' = @{
+                        CopyOnly = $false
+                        Path = './output/RequiredModules/DscResource.Common'
+                        AddToManifest = $false
+                        Exclude = 'PSGetModuleInfo.xml'
+                    }
+                }
+
+                Mock -CommandName Get-SamplerModuleInfo -MockWith {
+                    return @{
+                        NestedModules = @()
+                    }
+                } -RemoveParameterValidation 'ModuleManifestPath'
+
+                Mock -CommandName Build-Module -RemoveParameterValidation 'SourcePath'
+                Mock -CommandName Update-Metadata
+            }
+
+            It 'Should run the build task without throwing' {
+                {
+                    Invoke-Build -Task 'Build_NestedModules_ModuleBuilder' -File $taskAlias.Definition @mockTaskParameters
+                } | Should -Not -Throw
+            }
         }
 
         Context 'When nested module should be added to manifest' {
