@@ -149,58 +149,158 @@ Describe 'Build_NestedModules_ModuleBuilder' {
 
     Context 'When build configuration contain a nested module' {
         Context 'When nested module should only be copied' {
-            BeforeAll {
-                $BuildInfo.NestedModule = @{
-                    'DscResource.Common' = @{
-                        CopyOnly = $true
-                        Path = './output/RequiredModules/DscResource.Common'
-                        AddToManifest = $false
-                        Exclude = 'PSGetModuleInfo.xml'
+            Context 'When property Path is not provided in build configuration' {
+                BeforeAll {
+                    $BuildInfo.NestedModule = @{
+                        'DscResource.Common' = @{
+                            CopyOnly = $true
+                            AddToManifest = $false
+                            Exclude = 'PSGetModuleInfo.xml'
+                        }
                     }
+
+                    Mock -CommandName Get-SamplerModuleInfo -MockWith {
+                        return @{
+                            NestedModules = @()
+                        }
+                    } -RemoveParameterValidation 'ModuleManifestPath'
+
+                    Mock -CommandName Copy-Item
                 }
 
-                Mock -CommandName Get-SamplerModuleInfo -MockWith {
-                    return @{
-                        NestedModules = @()
-                    }
-                } -RemoveParameterValidation 'ModuleManifestPath'
+                It 'Should run the build task without throwing' {
+                    {
+                        Invoke-Build -Task 'Build_NestedModules_ModuleBuilder' -File $taskAlias.Definition @mockTaskParameters
+                    } | Should -Not -Throw
 
-                Mock -CommandName Copy-Item
-                Mock -CommandName Update-Metadata
+                    Should -Invoke -CommandName Copy-Item -ParameterFilter {
+                        ($Path -replace '\\', '/') -eq ((Join-Path -Path $TestDrive -ChildPath 'MyModule\source\Modules\DscResource.Common\DscResource.Common.psd1') -replace '\\', '/')
+                    } -Exactly -Times 1 -Scope It
+                }
             }
 
-            It 'Should run the build task without throwing' {
-                {
-                    Invoke-Build -Task 'Build_NestedModules_ModuleBuilder' -File $taskAlias.Definition @mockTaskParameters
-                } | Should -Not -Throw
+            Context 'When property Path is provided in build configuration' {
+                BeforeAll {
+                    $BuildInfo.NestedModule = @{
+                        'DscResource.Common' = @{
+                            CopyOnly = $true
+                            Path = "$TestDrive/Modules/DscResource.Common"
+                            AddToManifest = $false
+                            Exclude = 'PSGetModuleInfo.xml'
+                        }
+                    }
+
+                    Mock -CommandName Get-SamplerModuleInfo -MockWith {
+                        return @{
+                            NestedModules = @()
+                        }
+                    } -RemoveParameterValidation 'ModuleManifestPath'
+
+                    Mock -CommandName Copy-Item
+                }
+
+                It 'Should run the build task without throwing' {
+                    {
+                        Invoke-Build -Task 'Build_NestedModules_ModuleBuilder' -File $taskAlias.Definition @mockTaskParameters
+                    } | Should -Not -Throw
+
+                    Should -Invoke -CommandName Copy-Item -ParameterFilter {
+                        ($Path -replace '\\', '/') -eq ((Join-Path -Path $TestDrive -ChildPath 'Modules\DscResource.Common\DscResource.Common.psd1') -replace '\\', '/')
+                    } -Exactly -Times 1 -Scope It
+                }
             }
         }
 
         Context 'When nested module should be built' {
-            BeforeAll {
-                $BuildInfo.NestedModule = @{
-                    'DscResource.Common' = @{
-                        CopyOnly = $false
-                        Path = './output/RequiredModules/DscResource.Common'
-                        AddToManifest = $false
-                        Exclude = 'PSGetModuleInfo.xml'
+            Context 'When property SourcePath is not provided in build configuration' {
+                BeforeAll {
+                    $BuildInfo.NestedModule = @{
+                        'DscResource.Common' = @{
+                            CopyOnly = $false
+                            AddToManifest = $false
+                            Exclude = 'PSGetModuleInfo.xml'
+                        }
+                    }
+
+                    Mock -CommandName Get-SamplerModuleInfo -MockWith {
+                        return @{
+                            NestedModules = @()
+                        }
+                    } -RemoveParameterValidation 'ModuleManifestPath'
+
+                    Mock -CommandName Build-Module -RemoveParameterValidation 'SourcePath'
+                }
+
+                It 'Should run the build task without throwing' {
+                    {
+                        Invoke-Build -Task 'Build_NestedModules_ModuleBuilder' -File $taskAlias.Definition @mockTaskParameters
+                    } | Should -Not -Throw
+
+                    Should -Invoke -CommandName Build-Module -Exactly -Times 1 -Scope It
+                }
+            }
+
+            Context 'When property SourcePath is provided in build configuration' {
+                BeforeAll {
+                    $BuildInfo.NestedModule = @{
+                        'DscResource.Common' = @{
+                            SourcePath = './output/$ProjectName/$ModuleVersionFolder/Modules/$NestedModuleName'
+                            AddToManifest = $false
+                            Exclude = 'PSGetModuleInfo.xml'
+                        }
+                    }
+
+                    Mock -CommandName Get-SamplerModuleInfo -MockWith {
+                        return @{
+                            NestedModules = @()
+                        }
+                    } -RemoveParameterValidation 'ModuleManifestPath'
+
+                    Mock -CommandName Build-Module -RemoveParameterValidation 'SourcePath'
+                }
+
+                It 'Should run the build task without throwing' {
+                    {
+                        Invoke-Build -Task 'Build_NestedModules_ModuleBuilder' -File $taskAlias.Definition @mockTaskParameters
+                    } | Should -Not -Throw
+
+                    Should -Invoke -CommandName Build-Module -Exactly -Times 1 -Scope It
+                }
+            }
+
+            Context 'When property Verbose is provided in build configuration' {
+                BeforeAll {
+                    $BuildInfo.NestedModule = @{
+                        'DscResource.Common' = @{
+                            SourcePath = './output/$ProjectName/$ModuleVersionFolder/Modules/$NestedModuleName'
+                            AddToManifest = $false
+                            Exclude = 'PSGetModuleInfo.xml'
+                            Verbose = $true
+                        }
+                    }
+
+                    Mock -CommandName Get-SamplerModuleInfo -MockWith {
+                        return @{
+                            NestedModules = @()
+                        }
+                    } -RemoveParameterValidation 'ModuleManifestPath'
+
+                    Mock -CommandName Build-Module -RemoveParameterValidation 'SourcePath'
+                    Mock -CommandName Write-Verbose -ParameterFilter {
+                        $Message -match 'OutputDirectory'
                     }
                 }
 
-                Mock -CommandName Get-SamplerModuleInfo -MockWith {
-                    return @{
-                        NestedModules = @()
-                    }
-                } -RemoveParameterValidation 'ModuleManifestPath'
+                It 'Should run the build task without throwing' {
+                    {
+                        Invoke-Build -Task 'Build_NestedModules_ModuleBuilder' -File $taskAlias.Definition @mockTaskParameters
+                    } | Should -Not -Throw
 
-                Mock -CommandName Build-Module -RemoveParameterValidation 'SourcePath'
-                Mock -CommandName Update-Metadata
-            }
-
-            It 'Should run the build task without throwing' {
-                {
-                    Invoke-Build -Task 'Build_NestedModules_ModuleBuilder' -File $taskAlias.Definition @mockTaskParameters
-                } | Should -Not -Throw
+                    Should -Invoke -CommandName Build-Module -Exactly -Times 1 -Scope It
+                    Should -Invoke -CommandName Write-Verbose -ParameterFilter {
+                        $Message -match 'OutputDirectory'
+                    } -Exactly -Times 1 -Scope It
+                }
             }
         }
 
