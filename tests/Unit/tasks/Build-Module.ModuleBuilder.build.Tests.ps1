@@ -479,14 +479,193 @@ Describe 'Build_NestedModules_ModuleBuilder' {
 
         Context 'When module manifest already contain a nested module' {
             BeforeAll {
+                $BuildInfo.NestedModule = @{
+                    'DscResource.Common' = @{
+                        CopyOnly = $true
+                        AddToManifest = $true
+                        Exclude = 'PSGetModuleInfo.xml'
+                    }
+                }
+
                 Mock -CommandName Get-SamplerModuleInfo -MockWith {
                     return @{
                         NestedModules = @('PreviousNestedModule')
                     }
                 } -RemoveParameterValidation 'ModuleManifestPath'
+
+                Mock -CommandName Copy-Item
+                Mock -CommandName Get-ChildItem -ParameterFilter {
+                    $Include -contains '*.psd1'
+                } -MockWith {
+                    return @{
+                        Directory = @{
+                            Name = 'DscResource.Common'
+                        }
+                        BaseName = 'DscResource.Common'
+                        # Need to use DirectorySeparatorChar to make the mocked path correctly cross-plattform.
+                        FullName = "$BuiltModuleBase{0}Modules{0}DscResource.Common{0}DscResource.Common.psd1" -f $([System.IO.Path]::DirectorySeparatorChar)
+                    }
+                }
+
+                Mock -CommandName Test-ModuleManifest -RemoveParameterValidation 'Path' -MockWith {
+                    return @{
+                        Version = '2.0.0'
+                    }
+                }
+
+                Mock -CommandName Get-Item -RemoveParameterValidation 'Path' -MockWith {
+                    return @{
+                        FullName = "$BuiltModuleBase{0}Modules{0}DscResource.Common{0}DscResource.Common.psd1" -f $([System.IO.Path]::DirectorySeparatorChar)
+                    }
+                }
+
+                Mock -CommandName Update-Metadata
             }
 
-            # TODO: Add tests for when there is already a nested module in the manifest to make sure it adds and not removes
+            It 'Should run the build task without throwing' {
+                {
+                    Invoke-Build -Task 'Build_NestedModules_ModuleBuilder' -File $taskAlias.Definition @mockTaskParameters
+                } | Should -Not -Throw
+
+                Should -Invoke -CommandName Update-Metadata -ParameterFilter {
+                    $Value -contains '.{0}{0}Modules{0}DscResource.Common{0}DscResource.Common.psd1' -f $([System.IO.Path]::DirectorySeparatorChar) `
+                    -and $Value -contains 'PreviousNestedModule'
+                } -Exactly -Times 1 -Scope It
+            }
+        }
+    }
+}
+
+Describe 'Build_DscResourcesToExport_ModuleBuilder' {
+    BeforeAll {
+        # Dot-source mocks
+        . $PSScriptRoot/../TestHelpers/MockSetSamplerTaskVariable
+
+        $taskAlias = Get-Alias -Name 'Build-Module.ModuleBuilder.build.Sampler.ib.tasks'
+
+        $mockTaskParameters = @{
+            OutputDirectory = Join-Path -Path $TestDrive -ChildPath 'MyModule/output'
+            SourcePath = Join-Path -Path $TestDrive -ChildPath 'MyModule/source'
+            ProjectName = 'MyModule'
+        }
+    }
+
+    Context 'When a module have a MOF-based DSC resource' {
+        BeforeAll {
+            $mockModuleDSCResourcePath = $TestDrive | Join-Path -ChildPath 'DSCResources'
+6
+            # Need to create the folder so mock for Get-ChildItem work.
+            New-Item -Path $mockModuleDSCResourcePath -ItemType Directory -Force
+
+            Mock -CommandName Get-SamplerAbsolutePath -ParameterFilter {
+                $Path -eq 'DSCResources'
+            } -MockWith {
+                return $mockModuleDSCResourcePath
+            }
+
+            Mock -CommandName Get-ChildItem -ParameterFilter {
+                $Path -eq $mockModuleDSCResourcePath
+            } -MockWith {
+                return $TestDrive
+            }
+
+            Mock -CommandName Get-ChildItem -ParameterFilter {
+                $Include -eq '*.schema.mof'
+            } -MockWith {
+                return @{
+                    FullName = (Join-Path -Path $TestDrive -ChildPath 'DSCResources/MyResource.schema.mof')
+                }
+            }
+
+            Mock -CommandName Get-MofSchemaName -MockWith {
+                return @{
+                    Name = 'MyResource'
+                    FriendlyName = 'MyResourceFriendlyName'
+                }
+            }
+
+            Mock -CommandName Get-SamplerModuleInfo -MockWith {
+                return @{
+                    DscResourcesToExport = @()
+                }
+            } -RemoveParameterValidation 'ModuleManifestPath'
+
+            Mock -CommandName Get-Item -RemoveParameterValidation 'Path' -MockWith {
+                return @{
+                    FullName = 'MyModule.psd1'
+                }
+            }
+
+            Mock -CommandName Update-Metadata
+        }
+
+        It 'Should run the build task without throwing' {
+            {
+                Invoke-Build -Task 'Build_DscResourcesToExport_ModuleBuilder' -File $taskAlias.Definition @mockTaskParameters
+            } | Should -Not -Throw
+
+            Should -Invoke -CommandName Update-Metadata -ParameterFilter {
+                $PropertyName -eq 'DscResourcesToExport' -and
+                $Value -contains 'MyResourceFriendlyName'
+            } -Exactly -Times 1 -Scope It
+        }
+    }
+
+    Context 'When a module have a class-based DSC resource' {
+        BeforeAll {
+            # Mock a path that does not exist
+            $mockModuleDSCResourcePath = $TestDrive | Join-Path -ChildPath 'NoModule' | Join-Path -ChildPath 'DSCResources'
+
+            Mock -CommandName Get-SamplerAbsolutePath -ParameterFilter {
+                $Path -eq 'DSCResources'
+            } -MockWith {
+                return $mockModuleDSCResourcePath
+            }
+
+            <#
+                Be careful to make sure this only mock Test-Path in the task, not
+                any Test-Path that exist in Set-SamplerTaskVariable
+            #>
+            Mock -CommandName Test-Path -MockWith {
+                return $true
+            } -ParameterFilter {
+                $Path -match 'MyModule\.psm1'
+            }
+
+            Mock -CommandName Get-ClassBasedResourceName -MockWith {
+                return 'MyClassDscResource'
+            }
+
+            Mock -CommandName Get-ChildItem -ParameterFilter {
+                $Path -eq $mockModuleDSCResourcePath
+            } -MockWith {
+                return $null
+            }
+
+            Mock -CommandName Get-SamplerModuleInfo -MockWith {
+                return @{
+                    DscResourcesToExport = @()
+                }
+            } -RemoveParameterValidation 'ModuleManifestPath'
+
+            Mock -CommandName Get-Item -RemoveParameterValidation 'Path' -MockWith {
+                return @{
+                    FullName = 'MyModule.psd1'
+                }
+            }
+
+            Mock -CommandName Update-Metadata
+        }
+
+        It 'Should run the build task without throwing' {
+            {
+                Invoke-Build -Task 'Build_DscResourcesToExport_ModuleBuilder' -File $taskAlias.Definition @mockTaskParameters
+            } | Should -Not -Throw
+
+            Should -Invoke -CommandName Update-Metadata -ParameterFilter {
+                $PropertyName -eq 'DscResourcesToExport' -and
+                $Value -contains 'MyClassDscResource'
+            } -Exactly -Times 1 -Scope It
         }
     }
 }
