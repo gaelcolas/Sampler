@@ -305,15 +305,176 @@ Describe 'Build_NestedModules_ModuleBuilder' {
         }
 
         Context 'When nested module should be added to manifest' {
-            BeforeAll {
-                Mock -CommandName Get-SamplerModuleInfo -MockWith {
-                    return @{
-                        NestedModules = @()
+            Context 'When nested module is copied' {
+                Context 'When copied nested module contain a module manifest' {
+                    BeforeAll {
+                        $BuildInfo.NestedModule = @{
+                            'DscResource.Common' = @{
+                                CopyOnly = $true
+                                AddToManifest = $true
+                                Exclude = 'PSGetModuleInfo.xml'
+                            }
+                        }
+
+                        Mock -CommandName Get-SamplerModuleInfo -MockWith {
+                            return @{
+                                NestedModules = @()
+                            }
+                        } -RemoveParameterValidation 'ModuleManifestPath'
+
+                        Mock -CommandName Copy-Item
+                        Mock -CommandName Get-ChildItem -ParameterFilter {
+                            $Include -contains '*.psd1'
+                        } -MockWith {
+                            return @{
+                                Directory = @{
+                                    Name = 'DscResource.Common'
+                                }
+                                BaseName = 'DscResource.Common'
+                                # Need to use DirectorySeparatorChar to make the mocked path correctly cross-plattform.
+                                FullName = "$BuiltModuleBase{0}Modules{0}DscResource.Common{0}DscResource.Common.psd1" -f $([System.IO.Path]::DirectorySeparatorChar)
+                            }
+                        }
+
+                        Mock -CommandName Test-ModuleManifest -RemoveParameterValidation 'Path' -MockWith {
+                            return @{
+                                Version = '2.0.0'
+                            }
+                        }
+
+                        Mock -CommandName Get-Item -RemoveParameterValidation 'Path' -MockWith {
+                            return @{
+                                FullName = "$BuiltModuleBase{0}Modules{0}DscResource.Common{0}DscResource.Common.psd1" -f $([System.IO.Path]::DirectorySeparatorChar)
+                            }
+                        }
+
+                        Mock -CommandName Update-Metadata
                     }
-                } -RemoveParameterValidation 'ModuleManifestPath'
+
+                    It 'Should run the build task without throwing' {
+                        {
+                            Invoke-Build -Task 'Build_NestedModules_ModuleBuilder' -File $taskAlias.Definition @mockTaskParameters
+                        } | Should -Not -Throw
+
+                        Should -Invoke -CommandName Update-Metadata -ParameterFilter {
+                            $Value -contains '.{0}{0}Modules{0}DscResource.Common{0}DscResource.Common.psd1' -f $([System.IO.Path]::DirectorySeparatorChar)
+                        } -Exactly -Times 1 -Scope It
+                    }
+                }
+
+                Context 'When copied nested module just contain a module script file' {
+                    BeforeAll {
+                        $BuildInfo.NestedModule = @{
+                            'DscResource.Common' = @{
+                                CopyOnly = $true
+                                AddToManifest = $true
+                                Exclude = 'PSGetModuleInfo.xml'
+                            }
+                        }
+
+                        Mock -CommandName Get-SamplerModuleInfo -MockWith {
+                            return @{
+                                NestedModules = @()
+                            }
+                        } -RemoveParameterValidation 'ModuleManifestPath'
+
+                        Mock -CommandName Copy-Item
+
+                        Mock -CommandName Get-ChildItem -ParameterFilter {
+                            $Include -contains '*.psd1'
+                        }
+
+                        Mock -CommandName Get-ChildItem -ParameterFilter {
+                            $Include -contains '*.psm1'
+                        } -MockWith {
+                            return @{
+                                Directory = @{
+                                    Name = 'DscResource.Common'
+                                }
+                                BaseName = 'DscResource.Common'
+                                # Need to use DirectorySeparatorChar to make the mocked path correctly cross-plattform.
+                                FullName = "$BuiltModuleBase{0}Modules{0}DscResource.Common{0}DscResource.Common.psm1" -f $([System.IO.Path]::DirectorySeparatorChar)
+                            }
+                        }
+
+                        Mock -CommandName Test-ModuleManifest -RemoveParameterValidation 'Path' -MockWith {
+                            return @{
+                                Version = '2.0.0'
+                            }
+                        }
+
+                        Mock -CommandName Get-Item -RemoveParameterValidation 'Path' -MockWith {
+                            return @{
+                                FullName = "$BuiltModuleBase{0}Modules{0}DscResource.Common{0}DscResource.Common.psm1" -f $([System.IO.Path]::DirectorySeparatorChar)
+                            }
+                        }
+
+                        Mock -CommandName Update-Metadata
+                    }
+
+                    It 'Should run the build task without throwing' {
+                        {
+                            Invoke-Build -Task 'Build_NestedModules_ModuleBuilder' -File $taskAlias.Definition @mockTaskParameters
+                        } | Should -Throw -ExpectedMessage '*Path must point to a .psd1 file*'
+                    }
+                }
             }
 
-            # TODO: Add test when a nested module is in build configuration and should be added to module manifest
+            Context 'When nested module is built' {
+                BeforeAll {
+                    $BuildInfo.NestedModule = @{
+                        'DscResource.Common' = @{
+                            CopyOnly = $false
+                            AddToManifest = $true
+                            Exclude = 'PSGetModuleInfo.xml'
+                        }
+                    }
+
+                    Mock -CommandName Get-SamplerModuleInfo -MockWith {
+                        return @{
+                            NestedModules = @()
+                        }
+                    } -RemoveParameterValidation 'ModuleManifestPath'
+
+                    Mock -CommandName Build-Module -RemoveParameterValidation 'SourcePath'
+                    Mock -CommandName Get-ChildItem -ParameterFilter {
+                        $Include -contains '*.psd1'
+                    } -MockWith {
+                        return @{
+                            Directory = @{
+                                Name = 'DscResource.Common'
+                            }
+                            BaseName = 'DscResource.Common'
+                            # Need to use DirectorySeparatorChar to make the mocked path correctly cross-plattform.
+                            FullName = "$BuiltModuleBase{0}Modules{0}DscResource.Common{0}DscResource.Common.psd1" -f $([System.IO.Path]::DirectorySeparatorChar)
+                        }
+                    }
+
+                    Mock -CommandName Test-ModuleManifest -RemoveParameterValidation 'Path' -MockWith {
+                        return @{
+                            Version = '2.0.0'
+                        }
+                    }
+
+                    Mock -CommandName Get-Item -RemoveParameterValidation 'Path' -MockWith {
+                        return @{
+                            FullName = "$BuiltModuleBase{0}Modules{0}DscResource.Common{0}DscResource.Common.psd1" -f $([System.IO.Path]::DirectorySeparatorChar)
+                        }
+                    }
+
+                    Mock -CommandName Update-Metadata
+                }
+
+                It 'Should run the build task without throwing' {
+                    {
+                        Invoke-Build -Task 'Build_NestedModules_ModuleBuilder' -File $taskAlias.Definition @mockTaskParameters
+                    } | Should -Not -Throw
+
+                    Should -Invoke -CommandName Update-Metadata -ParameterFilter {
+                        $Value -contains '.{0}{0}Modules{0}DscResource.Common{0}DscResource.Common.psd1' -f $([System.IO.Path]::DirectorySeparatorChar)
+                    } -Exactly -Times 1 -Scope It
+                }
+            }
         }
 
         Context 'When module manifest already contain a nested module' {
