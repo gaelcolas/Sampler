@@ -40,13 +40,13 @@ Describe 'Deploy_with_PSDeploy' {
     }
 
     It 'Should run the build task without throwing' {
+        # Stub for Invoke-PSDeploy since the module is not part of Sampler build process.
+        function Invoke-PSDeploy {}
+
+        Mock -CommandName Import-Module
+        Mock -CommandName Invoke-PSDeploy
+
         {
-            # Stub for Invoke-PSDeploy since the module is not part of Sampler build process.
-            function Invoke-PSDeploy {}
-
-            Mock -CommandName Import-Module
-            Mock -CommandName Invoke-PSDeploy
-
             Invoke-Build -Task 'Deploy_with_PSDeploy' -File $taskAlias.Definition @mockTaskParameters
         } | Should -Not -Throw
     }
