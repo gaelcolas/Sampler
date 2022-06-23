@@ -54,5 +54,108 @@ Describe 'copy_chocolatey_source_to_staging' {
             Invoke-Build -Task 'copy_chocolatey_source_to_staging' -File $taskAlias.Definition @mockTaskParameters
         } | Should -Not -Throw
 
+        Should -Invoke -CommandName Copy-Item -Exactly -Times 1 -Scope It
+    }
+}
+
+Describe 'copy_paths_to_choco_staging' {
+    BeforeAll {
+        # Dot-source mocks
+        . $PSScriptRoot/../TestHelpers/MockSetSamplerTaskVariable
+
+        $taskAlias = Get-Alias -Name 'ChocolateyPackage.build.Sampler.ib.tasks'
+
+        $mockTaskParameters = @{
+            SourcePath = Join-Path -Path $TestDrive -ChildPath 'MyModule/source'
+            ProjectName = 'MyModule'
+        }
+    }
+
+    Context 'When there is a package to copy' {
+        BeforeAll {
+            Mock -CommandName Get-ChildItem -ParameterFilter {
+                $Path -match 'choco'
+            } -MockWith {
+                return @{
+                    BaseName = 'MyPackage1'
+                }
+            }
+
+            Mock -CommandName Copy-Item
+        }
+
+        Context 'When using Recurse' {
+            BeforeAll {
+                $BuildInfo = @{
+                    Chocolatey = @{
+                        copyToPackage = @{
+                            Source = 'output\RequiredModules\Plaster'
+                            Destination = 'MyPackage'
+                            Recurse = $true
+                            Exclude = 'NotThisFile*'
+                            Force = $true
+                        }
+                    }
+                }
+            }
+
+            It 'Should run the build task without throwing' {
+                {
+                    Invoke-Build -Task 'copy_paths_to_choco_staging' -File $taskAlias.Definition @mockTaskParameters
+                } | Should -Not -Throw
+
+                Should -Invoke -CommandName Copy-Item -Exactly -Times 1 -Scope It
+            }
+        }
+
+        Context 'When Recurse is not used' {
+            BeforeAll {
+                $BuildInfo = @{
+                    Chocolatey = @{
+                        copyToPackage = @{
+                            Source = 'output\RequiredModules\Plaster'
+                            Destination = 'MyPackage'
+                            Recurse = $false
+                            Exclude = 'NotThisFile*'
+                            Force = $true
+                        }
+                    }
+                }
+            }
+
+            It 'Should run the build task without throwing' {
+                {
+                    Invoke-Build -Task 'copy_paths_to_choco_staging' -File $taskAlias.Definition @mockTaskParameters
+                } | Should -Not -Throw
+
+                Should -Invoke -CommandName Copy-Item -Exactly -Times 1 -Scope It
+            }
+        }
+
+        Context 'When specifying package' {
+            BeforeAll {
+                $BuildInfo = @{
+                    Chocolatey = @{
+                        copyToPackage = @{
+                            Source = 'output\RequiredModules\Plaster'
+                            Destination = 'MyPackage'
+                            Recurse = $false
+                            Exclude = 'NotThisFile*'
+                            Force = $true
+                            PackageName = 'MyPackage1'
+                        }
+                    }
+                }
+            }
+
+            It 'Should run the build task without throwing' {
+                {
+                    Invoke-Build -Task 'copy_paths_to_choco_staging' -File $taskAlias.Definition @mockTaskParameters
+                } | Should -Not -Throw
+
+                Should -Invoke -CommandName Copy-Item -Exactly -Times 1 -Scope It
+            }
+        }
+
     }
 }
