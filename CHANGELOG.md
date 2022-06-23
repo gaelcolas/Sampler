@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   since the functions `Get-SamplerBuiltModuleManifest`, `Get-SamplerBuiltModuleBase`,
   and `Get-SamplerModuleRootPath` already handle returning the absolute path.
   It also simplified mocking the functions for the unit tests.
+- Task `copy_paths_to_choco_staging`
+  - Now handle property `Exclude` and `Force` correctly.
 
 ### Fixed
 
