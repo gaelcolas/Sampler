@@ -159,3 +159,102 @@ Describe 'copy_paths_to_choco_staging' {
 
     }
 }
+
+Describe 'upate_choco_nuspec_data' {
+    BeforeAll {
+        # Dot-source mocks
+        . $PSScriptRoot/../TestHelpers/MockSetSamplerTaskVariable
+
+        $taskAlias = Get-Alias -Name 'ChocolateyPackage.build.Sampler.ib.tasks'
+
+        $mockTaskParameters = @{
+            SourcePath = Join-Path -Path $TestDrive -ChildPath 'MyModule/source'
+            ProjectName = 'MyModule'
+        }
+    }
+
+    Context 'When there is a staged package' {
+        BeforeAll {
+            $BuildInfo = @{
+                Chocolatey = @{
+                    xmlNamespaces = @{
+                        nuspec = 'http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd'
+                    }
+                    UpdateNuspecData = @{
+                        Version = @{
+                            XPath = '/nuspec:package/nuspec:metadata/nuspec:version'
+                            # This will be resolved to correct value in the task.
+                            Version = '$ModuleVersion'
+                        }
+                        ReleaseNotes = @{
+                            XPath = '/nuspec:package/nuspec:metadata/nuspec:releaseNotes'
+                            # This will be resolved to correct value in the task.
+                            Version = '$ReleaseNotes'
+                        }
+                    }
+                }
+            }
+
+            # Mock no-existent ReleaseNotes.md
+            Mock -CommandName Get-Content -ParameterFilter {
+                $Path -match 'ReleaseNotes.md'
+            }
+
+            # Get release notes from the changelog
+            Mock -CommandName Get-Content -ParameterFilter {
+                $Path -match 'CHANGELOG.md'
+            } -MockWith {
+                return 'Mock changelog content'
+            }
+
+            $mockNuspecPath = $TestDrive | Join-Path -ChildPath 'MyPackage1'
+            $mockNuspecFilePath = $mockNuspecPath | Join-Path -ChildPath 'MyPackage1.nuspec'
+
+            $mockNuspecContent = @'
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="https://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>MyPackage1</id>
+    <version>__REPLACE__</version>
+    <packageSourceUrl>https://github.com/gaelcolas/MyChocoPackage</packageSourceUrl>
+    <owners>MyName</owners>
+    <title>MyChocoPackage1 (Install)</title>
+    <authors>MyName</authors>
+    <projectUrl>https://company.local/project</projectUrl>
+    <iconUrl>null</iconUrl>
+    <projectSourceUrl>https://company.local/project</projectSourceUrl>
+    <tags>MyChocoPackage1 MyName</tags>
+    <summary>MyChocoPackage1 package sources</summary>
+    <description>MyChocoPackage1 example</description>
+    <releaseNotes>__REPLACE_RELEASENOTES__</releaseNotes>
+  </metadata>
+  <files>
+    <file src="tools/**" target="tools" />
+  </files>
+</package>
+'@
+
+            New-Item -Path $mockNuspecPath -ItemType 'Directory' -Force
+
+            # Need to write the nuspec to file so the task can manipulate the XML.
+            $mockNuspecContent | Out-File -FilePath $mockNuspecFilePath -NoClobber -Encoding 'UTF8' -Force | Out-Null
+
+            Mock -CommandName Get-ChildItem -ParameterFilter {
+                $Path -match 'choco'
+            } -MockWith {
+                return @{
+                    BaseName = 'MyPackage1'
+                    FullName = $mockNuspecPath
+                }
+            }
+
+            Mock -CommandName Copy-Item
+        }
+
+        It 'Should run the build task without throwing' {
+            {
+                Invoke-Build -Task 'upate_choco_nuspec_data' -File $taskAlias.Definition @mockTaskParameters
+            } | Should -Not -Throw
+        }
+    }
+}
