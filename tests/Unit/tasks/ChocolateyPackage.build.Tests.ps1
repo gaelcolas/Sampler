@@ -247,8 +247,6 @@ Describe 'upate_choco_nuspec_data' {
                     FullName = $mockNuspecPath
                 }
             }
-
-            Mock -CommandName Copy-Item
         }
 
         It 'Should run the build task without throwing' {
@@ -256,5 +254,149 @@ Describe 'upate_choco_nuspec_data' {
                 Invoke-Build -Task 'upate_choco_nuspec_data' -File $taskAlias.Definition @mockTaskParameters
             } | Should -Not -Throw
         }
+    }
+}
+
+Describe 'Build_Chocolatey_Package' {
+    BeforeAll {
+        # Dot-source mocks
+        . $PSScriptRoot/../TestHelpers/MockSetSamplerTaskVariable
+
+        $taskAlias = Get-Alias -Name 'ChocolateyPackage.build.Sampler.ib.tasks'
+
+        $mockTaskParameters = @{
+            SourcePath = Join-Path -Path $TestDrive -ChildPath 'MyModule/source'
+            ProjectName = 'MyModule'
+        }
+
+        # Stub for executable choco
+        function choco {}
+    }
+
+    Context 'When there is a staged package' {
+        Context 'choco returns unknown output' {
+            BeforeAll {
+                Mock -CommandName Get-ChildItem -ParameterFilter {
+                    $Path -match 'choco'
+                } -MockWith {
+                    return @{
+                        BaseName = 'MyPackage1'
+                        FullName = $TestDrive | Join-Path -ChildPath 'MyPackage1'
+                    }
+                }
+
+                Mock -CommandName Get-Item -ParameterFilter {
+                    $Path -match '\.nuspec'
+                } -MockWith {
+                    return '<xml>mock-nuspec-xml</xml>'
+                }
+
+                Mock -CommandName choco -MockWith {
+                    return 'Mock unknown output'
+                }
+            }
+
+            It 'Should run the build task without throwing' {
+                {
+                    Invoke-Build -Task 'Build_Chocolatey_Package' -File $taskAlias.Definition @mockTaskParameters
+                } | Should -Not -Throw
+
+                Should -Invoke -CommandName choco -Exactly -Times 1 -Scope It
+            }
+        }
+
+        Context 'choco returns that package was created' {
+            BeforeAll {
+                Mock -CommandName Get-ChildItem -ParameterFilter {
+                    $Path -match 'choco'
+                } -MockWith {
+                    return @{
+                        BaseName = 'MyPackage1'
+                        FullName = $TestDrive | Join-Path -ChildPath 'MyPackage1'
+                    }
+                }
+
+                Mock -CommandName Get-Item -ParameterFilter {
+                    $Path -match '\.nuspec'
+                } -MockWith {
+                    return '<xml>mock-nuspec-xml</xml>'
+                }
+
+                Mock -CommandName choco -MockWith {
+                    return "created package 'MyPackage1'"
+                }
+            }
+
+            It 'Should run the build task without throwing' {
+                {
+                    Invoke-Build -Task 'Build_Chocolatey_Package' -File $taskAlias.Definition @mockTaskParameters
+                } | Should -Not -Throw
+
+                Should -Invoke -CommandName choco -Exactly -Times 1 -Scope It
+            }
+        }
+
+        Context 'choco returns that it is not a valid package' {
+            BeforeAll {
+                Mock -CommandName Get-ChildItem -ParameterFilter {
+                    $Path -match 'choco'
+                } -MockWith {
+                    return @{
+                        BaseName = 'MyPackage1'
+                        FullName = $TestDrive | Join-Path -ChildPath 'MyPackage1'
+                    }
+                }
+
+                Mock -CommandName Get-Item -ParameterFilter {
+                    $Path -match '\.nuspec'
+                } -MockWith {
+                    return '<xml>mock-nuspec-xml</xml>'
+                }
+
+                Mock -CommandName choco -MockWith {
+                    return 'not a valid'
+                }
+            }
+
+            It 'Should run the build task without throwing' {
+                {
+                    Invoke-Build -Task 'Build_Chocolatey_Package' -File $taskAlias.Definition @mockTaskParameters
+                } | Should -Throw -ExpectedMessage 'not a valid'
+
+                Should -Invoke -CommandName choco -Exactly -Times 1 -Scope It
+            }
+        }
+
+        Context 'choco returns that is invalid package' {
+            BeforeAll {
+                Mock -CommandName Get-ChildItem -ParameterFilter {
+                    $Path -match 'choco'
+                } -MockWith {
+                    return @{
+                        BaseName = 'MyPackage1'
+                        FullName = $TestDrive | Join-Path -ChildPath 'MyPackage1'
+                    }
+                }
+
+                Mock -CommandName Get-Item -ParameterFilter {
+                    $Path -match '\.nuspec'
+                } -MockWith {
+                    return '<xml>mock-nuspec-xml</xml>'
+                }
+
+                Mock -CommandName choco -MockWith {
+                    return 'Invalid'
+                }
+            }
+
+            It 'Should run the build task without throwing' {
+                {
+                    Invoke-Build -Task 'Build_Chocolatey_Package' -File $taskAlias.Definition @mockTaskParameters
+                } | Should -Throw -ExpectedMessage 'Invalid'
+
+                Should -Invoke -CommandName choco -Exactly -Times 1 -Scope It
+            }
+        }
+
     }
 }
