@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added more unit tests to raise code coverage.
+  - Deprecated Pester 4 HQRM tests was removed from code coverage. The new
+    Pester 5 HQRM test are in module DscResource.Test and is tested there.
 
 ### Changed
 

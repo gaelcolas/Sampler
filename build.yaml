@@ -67,6 +67,9 @@ Pester:
     - Templates
     - Modules/DscResource.Common
     - Assets
+    # This is deprecated Pester 4 HQRM test, the HQRM test for Pester 5 has been
+    # moved to module DscResource.Test.
+    - tasks/DscResource.Test.build.ps1
 
 ####################################################
 #           Code Coverage Configuration            #
