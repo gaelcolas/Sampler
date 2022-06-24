@@ -54,8 +54,25 @@ Describe 'Create_changelog_release_output' {
 
             Mock -CommandName ConvertFrom-Changelog -RemoveParameterValidation 'Path'
 
-            Mock -CommandName Get-Content -MockWith {
+            Mock -CommandName Get-Content -ParameterFilter {
+                $Path -match 'ReleaseNotes\.md'
+            } -MockWith {
                 return 'Mock changelog release output'
+            }
+
+            Mock -CommandName Get-Content -ParameterFilter {
+                $Path -match 'builtModule'
+            } -MockWith {
+                <#
+                    The variable $BuiltModuleManifest will be set in the task
+                    (mocked by MockSetSamplerTaskVariable) with a path to the
+                    $TestDrive.
+                    Here we make sure the path exist so that WriteAllLines() works
+                    that is called in the task.
+                #>
+                New-Item -Path ($BuiltModuleManifest | Split-Path -Parent) -ItemType Directory -Force
+
+                return '# ReleaseNotes ='
             }
 
             Mock -CommandName Test-Path -ParameterFilter {

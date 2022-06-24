@@ -22,11 +22,31 @@
     .PARAMETER ProjectName
         The project name.
 
+    .PARAMETER ModuleVersion
+        The module version that was built.
+
+    .PARAMETER GalleryApiToken
+        The module version that was built.
+
+    .PARAMETER NuGetPublishSource
+        The source to publish nuget packages. Defaults to https://www.powershellgallery.com.
+
+    .PARAMETER PSModuleFeed
+        The name of the feed (repository) that is passed to command Publish-Module.
+        Defaults to 'PSGallery'.
+
+    .PARAMETER SkipPublish
+        If publishing should be skipped. Defaults to $false.
+
+    .PARAMETER PublishModuleWhatIf
+        If the publish command will be run with '-WhatIf' to show what will happen
+        during publishing. Defaults to $false.
+
     .PARAMETER ChocolateyBuildOutput
         Sub-Folder (or absolute path) of the Chocolatey build output folder (relative
         to $OutputDirectory). Contain the path to one or more Chocolatey packages.
         This variable $ChocolateyBuildOutput also used to determine if the repository
-        is building a Chocolatey package.
+        is building a Chocolatey package. Defaults to 'choco'.
 #>
 
 param
