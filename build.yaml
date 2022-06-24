@@ -165,6 +165,9 @@ TaskHeader: |
   ""
   "=" * 79
   Write-Build Cyan "`t`t`t$($Task.Name.replace("_"," ").ToUpper())"
+  ### DEBUG START
+  Write-Verbose -Message ($Task | Out-String) -Verbose
+  ### DEBUG END
   Write-Build DarkGray  "$(Get-BuildSynopsis $Task)"
   "-" * 79
   Write-Build DarkGray "  $Path"
