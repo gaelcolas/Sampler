@@ -397,6 +397,53 @@ Describe 'Build_Chocolatey_Package' {
                 Should -Invoke -CommandName choco -Exactly -Times 1 -Scope It
             }
         }
+    }
+}
 
+Describe 'Push_Chocolatey_Package' {
+    BeforeAll {
+        # Dot-source mocks
+        . $PSScriptRoot/../TestHelpers/MockSetSamplerTaskVariable
+
+        $taskAlias = Get-Alias -Name 'ChocolateyPackage.build.Sampler.ib.tasks'
+
+        $mockTaskParameters = @{
+            SourcePath = Join-Path -Path $TestDrive -ChildPath 'MyModule/source'
+            ProjectName = 'MyModule'
+        }
+
+        # Stub for executable choco
+        function choco {}
+    }
+
+    Context 'When there is a built package' {
+        BeforeAll {
+            $BuildInfo = @{
+                Chocolatey = @{
+                    ChocoPushSource = 'C:\dev\src\a\output\'
+                    ChocoPushSourceApiKey = 'mock-api-key'
+                }
+            }
+
+            Mock -CommandName Get-ChildItem -ParameterFilter {
+                $Path -match 'choco'
+            } -MockWith {
+                return @{
+                    BaseName = 'MyPackage1'
+                    FullName = $TestDrive | Join-Path -ChildPath 'MyPackage1'
+                    Extension = '.nupkg'
+                }
+            }
+
+            Mock -CommandName choco
+        }
+
+        It 'Should run the build task without throwing' {
+            {
+                Invoke-Build -Task 'Push_Chocolatey_Package' -File $taskAlias.Definition @mockTaskParameters
+            } | Should -Not -Throw
+
+            Should -Invoke -CommandName choco -Exactly -Times 1 -Scope It
+        }
     }
 }
