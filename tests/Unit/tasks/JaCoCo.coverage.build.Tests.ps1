@@ -183,7 +183,7 @@ Describe 'Convert_Pester_Coverage' {
         }
     }
 
-    Context 'When to old Pester 5 version is used' {
+    Context 'When older Pester 5 version is used' {
         BeforeAll {
             Mock -CommandName Get-CodeCoverageThreshold -MockWith {
                 return 70
@@ -221,6 +221,12 @@ Describe 'Convert_Pester_Coverage' {
         BeforeAll {
             Mock -CommandName Get-CodeCoverageThreshold -MockWith {
                 return 70
+            }
+
+            Mock -CommandName Get-SamplerAbsolutePath -ParameterFilter {
+                $Path -match 'testResults'
+            } -MockWith {
+                return $TestDrive | Join-Path -ChildPath 'testResults'
             }
 
             Mock -CommandName Get-PesterOutputFileFileName -MockWith {
