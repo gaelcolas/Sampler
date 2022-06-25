@@ -125,3 +125,122 @@ Describe 'Invoke_Pester_Tests_v4' {
         }
     }
 }
+
+Describe 'Invoke_Pester_Tests_v5' {
+    BeforeAll {
+        # Dot-source mocks
+        . $PSScriptRoot/../TestHelpers/MockSetSamplerTaskVariable
+
+        $taskAlias = Get-Alias -Name 'Invoke-Pester.pester.build.Sampler.ib.tasks'
+
+        $mockTaskParameters = @{
+            OutputDirectory = Join-Path -Path $TestDrive -ChildPath 'output'
+            ProjectName = 'MyModule'
+            PesterScript = $TestDrive
+            # Mocks testing of passing a Invoke-Pester parameter.
+            PesterTag = 'MyTag'
+        }
+    }
+
+    Context 'When code coverage is disabled' {
+        BeforeAll {
+            $BuildInfo = @{
+                Pester = @{
+                    Configuration = @{
+                        Filter = @{
+                            ExcludeTag = 'MockExcludeTag'
+                        }
+                    }
+                    ExcludeFromCodeCoverage = 'MockExcludePathFromCoverage'
+                }
+            }
+
+            Mock -CommandName Get-Module -MockWith {
+                return @{
+                    Version = '5.3.3'
+                }
+            }
+
+            Mock -CommandName New-Item
+
+            Mock -CommandName Import-Module -ParameterFilter {
+                $Name -eq 'MyModule'
+            }
+
+            Mock -CommandName Invoke-Pester -MockWith {
+                return 'Mock Pester PassThru-object'
+            }
+
+            Mock -CommandName Export-Clixml
+        }
+
+        It 'Should run the build task without throwing' {
+            {
+                Invoke-Build -Task 'Invoke_Pester_Tests_v5' -File $taskAlias.Definition @mockTaskParameters
+            } | Should -Not -Throw
+
+            Should -Invoke -CommandName Invoke-Pester -Exactly -Times 1 -Scope It
+        }
+    }
+
+    Context 'When code coverage is enabled' {
+        BeforeAll {
+            $BuildInfo = @{
+                Pester = @{
+                    Configuration = @{
+                        Filter = @{
+                            ExcludeTag = 'MockExcludeTag'
+                        }
+                        CodeCoverage = @{
+                            CoveragePercentTarget = 70
+                        }
+                    }
+                    ExcludeFromCodeCoverage = 'MockExcludePathFromCoverage'
+                }
+            }
+
+            Mock -CommandName Get-Module -MockWith {
+                return @{
+                    Version = '5.3.3'
+                }
+            }
+
+            Mock -CommandName New-Item
+
+            Mock -CommandName Import-Module -ParameterFilter {
+                $Name -eq 'MyModule'
+            } -MockWith {
+                return @{
+                    ModuleBase = $TestDrive | Join-Path -ChildPath 'MyModule'
+                }
+            }
+
+            Mock -CommandName Get-ChildItem -ParameterFilter {
+                $Path -match 'MyModule'
+            } -MockWith {
+                return @(
+                    @{
+                        FullName = $TestDrive | Join-Path -ChildPath 'MyModule' | Join-Path -ChildPath 'MockExcludePathFromCoverage.ps1'
+                    }
+                    @{
+                        FullName = $TestDrive | Join-Path -ChildPath 'MyModule' | Join-Path -ChildPath 'MyModule.psm1'
+                    }
+                )
+            }
+
+            Mock -CommandName Invoke-Pester -MockWith {
+                return 'Mock Pester PassThru-object'
+            }
+
+            Mock -CommandName Export-Clixml
+        }
+
+        It 'Should run the build task without throwing' {
+            {
+                Invoke-Build -Task 'Invoke_Pester_Tests_v5' -File $taskAlias.Definition @mockTaskParameters
+            } | Should -Not -Throw
+
+            Should -Invoke -CommandName Invoke-Pester -Exactly -Times 1 -Scope It
+        }
+    }
+}
