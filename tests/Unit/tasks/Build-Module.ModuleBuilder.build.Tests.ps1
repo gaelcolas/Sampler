@@ -68,7 +68,7 @@ Describe 'Build_ModuleOutput_ModuleBuilder' {
                 Join-Path -ChildPath 'builtModule' |
                 Join-Path -ChildPath 'MyModule' |
                 Join-Path -ChildPath '2.0.0'
-        )
+        ) | Out-Null
 
         # This is necessary to mock Windows PowerShell
         Mock -CommandName Get-Content -MockWith {
@@ -555,7 +555,7 @@ Describe 'Build_DscResourcesToExport_ModuleBuilder' {
             $mockModuleDSCResourcePath = $TestDrive | Join-Path -ChildPath 'DSCResources'
 6
             # Need to create the folder so mock for Get-ChildItem work.
-            New-Item -Path $mockModuleDSCResourcePath -ItemType Directory -Force
+            New-Item -Path $mockModuleDSCResourcePath -ItemType Directory -Force | Out-Null
 
             Mock -CommandName Get-SamplerAbsolutePath -ParameterFilter {
                 $Path -eq 'DSCResources'

@@ -96,10 +96,10 @@ Describe 'build_guestconfiguration_packages' {
 
 #             $mockGCPackagePath = $TestDrive | Join-Path -ChildPath 'GCPackage1'
 
-#             New-Item -Path $mockGCPackagePath -ItemType Directory -Force
+#             New-Item -Path $mockGCPackagePath -ItemType Directory -Force | Out-Null
 
 #             # Create the mock output folder so configuration can be compiled.
-#             New-Item -Path ($TestDrive | Join-Path -ChildPath 'output/MOFs') -ItemType Directory -Force
+#             New-Item -Path ($TestDrive | Join-Path -ChildPath 'output/MOFs') -ItemType Directory -Force | Out-Null
 
 #             $mockConfigurationScriptFile = @'
 # Configuration GCPackage1

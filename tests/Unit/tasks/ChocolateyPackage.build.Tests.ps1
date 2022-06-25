@@ -234,7 +234,7 @@ Describe 'upate_choco_nuspec_data' {
 </package>
 '@
 
-            New-Item -Path $mockNuspecPath -ItemType 'Directory' -Force
+            New-Item -Path $mockNuspecPath -ItemType 'Directory' -Force | Out-Null
 
             # Need to write the nuspec to file so the task can manipulate the XML.
             $mockNuspecContent | Out-File -FilePath $mockNuspecFilePath -NoClobber -Encoding 'UTF8' -Force | Out-Null

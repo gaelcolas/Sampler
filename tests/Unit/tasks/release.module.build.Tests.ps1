@@ -156,7 +156,7 @@ Describe 'Create_changelog_release_output' {
                     Here we make sure the path exist so that WriteAllLines() works
                     that is called in the task.
                 #>
-                New-Item -Path ($BuiltModuleManifest | Split-Path -Parent) -ItemType Directory -Force
+                New-Item -Path ($BuiltModuleManifest | Split-Path -Parent) -ItemType Directory -Force | Out-Null
 
                 return '# ReleaseNotes ='
             }
@@ -218,7 +218,7 @@ Describe 'Create_changelog_release_output' {
                     Here we make sure the path exist so that WriteAllLines() works
                     that is called in the task.
                 #>
-                New-Item -Path ($BuiltModuleManifest | Split-Path -Parent) -ItemType Directory -Force
+                New-Item -Path ($BuiltModuleManifest | Split-Path -Parent) -ItemType Directory -Force | Out-Null
 
                 return '# ReleaseNotes ='
             }
@@ -318,7 +318,7 @@ Describe 'package_module_nupkg' {
                     Here we make sure the path exist so that WriteAllLines() works
                     that is called in the task.
                 #>
-                New-Item -Path ($BuiltModuleManifest | Split-Path -Parent) -ItemType Directory -Force
+                New-Item -Path ($BuiltModuleManifest | Split-Path -Parent) -ItemType Directory -Force | Out-Null
 
                 return '# ReleaseNotes ='
             }
@@ -364,7 +364,7 @@ Describe 'package_module_nupkg' {
                     Here we make sure the path exist so that WriteAllLines() works
                     that is called in the task.
                 #>
-                New-Item -Path ($BuiltModuleManifest | Split-Path -Parent) -ItemType Directory -Force
+                New-Item -Path ($BuiltModuleManifest | Split-Path -Parent) -ItemType Directory -Force | Out-Null
 
                 return '# ReleaseNotes ='
             }
@@ -441,7 +441,7 @@ Describe 'publish_module_to_gallery' {
                     Here we make sure the path exist so that WriteAllLines() works
                     that is called in the task.
                 #>
-                New-Item -Path ($BuiltModuleManifest | Split-Path -Parent) -ItemType Directory -Force
+                New-Item -Path ($BuiltModuleManifest | Split-Path -Parent) -ItemType Directory -Force | Out-Null
 
                 return '# ReleaseNotes ='
             }
