@@ -253,12 +253,12 @@ task Convert_Pester_Coverage {
 
     $CodeCoverageThreshold = Get-CodeCoverageThreshold @GetCodeCoverageThresholdParameters
 
-    "`tCode Coverage Threshold  = '$CodeCoverageThreshold'"
-
     if (-not $CodeCoverageThreshold)
     {
         $CodeCoverageThreshold = 0
     }
+
+    "`tCode Coverage Threshold  = '$CodeCoverageThreshold'"
 
     $PesterOutputFolder = Get-SamplerAbsolutePath -Path $PesterOutputFolder -RelativeTo $OutputDirectory
     "`tPester Output Folder     = '$PesterOutputFolder'"
@@ -450,7 +450,6 @@ task Convert_Pester_Coverage {
     $originalXml.Load($CodeCoverageOutputFile)
 
     $codeCoverageOutputBackupFile = $CodeCoverageOutputFile -replace '\.xml', '.xml.bak'
-    $newCoverageFilePath = Join-Path -Path $PesterOutputFolder -ChildPath $codeCoverageOutputBackupFile
 
     Write-Build -Color 'DarkGray' -Text "`tWriting a backup of original code coverage file to '$codeCoverageOutputBackupFile'."
 

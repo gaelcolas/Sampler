@@ -31,6 +31,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `Get-MofSchemaName`
   - Correctly throws an error if the schema MOF cannot be parsed.
+- Task `Convert_Pester_Coverage`
+  - Removed one unused line of code.
+  - Moved one line of code so that code coverage threshold value
+    will output correctly in some circumstances.
 
 ## [0.115.0] - 2022-06-09
 
