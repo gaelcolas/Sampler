@@ -54,7 +54,7 @@ Pester:
       StackTraceVerbosity: Full
       CIFormat: Auto
     CodeCoverage:
-      CoveragePercentTarget: 24 # Set to 0 to bypass
+      CoveragePercentTarget: 70 # Set to 0 to bypass
       # Set to specific filename to override the default filename.
       #OutputPath: JaCoCo_coverage.xml
       OutputEncoding: ascii
@@ -67,6 +67,9 @@ Pester:
     - Templates
     - Modules/DscResource.Common
     - Assets
+    # This is deprecated Pester 4 HQRM test, the HQRM test for Pester 5 has been
+    # moved to module DscResource.Test.
+    - tasks/DscResource.Test.build.ps1
 
 ####################################################
 #           Code Coverage Configuration            #

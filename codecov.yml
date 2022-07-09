@@ -27,3 +27,6 @@ coverage:
 fixes:
   - '^\d+\.\d+\.\d+\/tasks::.build/tasks'  # move path "X.Y.Z/tasks" => ".build/tasks"
   - '^Sampler\/tasks::.build/tasks'  # move path "Sampler/tasks" => ".build/tasks"
+
+ignore:
+  - '.build\tasks\DscResource.Test.build.ps1' # Deprecated HQRM tasks
