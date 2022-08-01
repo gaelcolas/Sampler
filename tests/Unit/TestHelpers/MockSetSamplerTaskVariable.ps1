@@ -54,8 +54,32 @@ Mock -CommandName Get-SamplerAbsolutePath -ParameterFilter {
     )
 }
 
+$script:mockGetSamplerBuiltModuleManifestReturnValue =
+
 Mock -CommandName Get-SamplerBuiltModuleManifest -MockWith {
     return (
+        Join-Path -Path $TestDrive -ChildPath 'output' |
+            Join-Path -ChildPath 'builtModule' |
+            Join-Path -ChildPath 'MyModule' |
+            Join-Path -ChildPath '2.0.0' |
+            Join-Path -ChildPath 'MyModule.psd1'
+    )
+}
+
+# This is called after the mock of Get-SamplerBuiltModuleManifest
+Mock -CommandName Get-Item -MockWith {
+    return @{
+        FullName = (
+            Join-Path -Path $TestDrive -ChildPath 'output' |
+                Join-Path -ChildPath 'builtModule' |
+                Join-Path -ChildPath 'MyModule' |
+                Join-Path -ChildPath '2.0.0' |
+                Join-Path -ChildPath 'MyModule.psd1'
+        )
+    }
+} -ParameterFilter {
+    # Must be the same path that the mock for Get-SamplerBuiltModuleManifest returns.
+    $Path -contains (
         Join-Path -Path $TestDrive -ChildPath 'output' |
             Join-Path -ChildPath 'builtModule' |
             Join-Path -ChildPath 'MyModule' |
@@ -73,12 +97,54 @@ Mock -CommandName Get-SamplerBuiltModuleBase -MockWith {
     )
 }
 
+# This is called after the mock of Get-SamplerBuiltModuleBase
+Mock -CommandName Get-Item -MockWith {
+    @{
+        FullName = (
+            Join-Path -Path $TestDrive -ChildPath 'output' |
+                Join-Path -ChildPath 'builtModule' |
+                Join-Path -ChildPath 'MyModule' |
+                Join-Path -ChildPath '2.0.0'
+        )
+    }
+} -ParameterFilter {
+    # Must be the same path that the mock for Get-SamplerBuiltModuleManifest returns.
+    $Path -contains (
+        Join-Path -Path $TestDrive -ChildPath 'output' |
+            Join-Path -ChildPath 'builtModule' |
+            Join-Path -ChildPath 'MyModule' |
+            Join-Path -ChildPath '2.0.0'
+    )
+}
+
 Mock -CommandName Get-BuiltModuleVersion -MockWith {
     return '2.0.0'
 }
 
 Mock -CommandName Get-SamplerModuleRootPath -MockWith {
     return (
+        Join-Path -Path $TestDrive -ChildPath 'output' |
+            Join-Path -ChildPath 'builtModule' |
+            Join-Path -ChildPath 'MyModule' |
+            Join-Path -ChildPath '2.0.0' |
+            Join-Path -ChildPath 'MyModule.psm1'
+    )
+}
+
+# This is called after the mock of Get-SamplerModuleRootPath
+Mock -CommandName Get-Item -MockWith {
+    @{
+        FullName = (
+            Join-Path -Path $TestDrive -ChildPath 'output' |
+                Join-Path -ChildPath 'builtModule' |
+                Join-Path -ChildPath 'MyModule' |
+                Join-Path -ChildPath '2.0.0' |
+                Join-Path -ChildPath 'MyModule.psm1'
+        )
+    }
+} -ParameterFilter {
+    # Must be the same path that the mock for Get-SamplerBuiltModuleManifest returns.
+    $Path -contains (
         Join-Path -Path $TestDrive -ChildPath 'output' |
             Join-Path -ChildPath 'builtModule' |
             Join-Path -ChildPath 'MyModule' |

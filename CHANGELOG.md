@@ -20,10 +20,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Some unnecessary code was removed from the script `Set-SamplerTaskVariable`
-  since the functions `Get-SamplerBuiltModuleManifest`, `Get-SamplerBuiltModuleBase`,
-  and `Get-SamplerModuleRootPath` already handle returning the absolute path.
-  It also simplified mocking the functions for the unit tests.
 - Task `copy_paths_to_choco_staging`
   - Now handle property `Exclude` and `Force` correctly.
 
@@ -35,6 +31,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Removed one unused line of code.
   - Moved one line of code so that code coverage threshold value
     will output correctly in some circumstances.
+- `Set-SamplerTaskVariable`
+  - Reverted code that was removed in pull request #383. The code is
+    necessary because how the commands `Get-BuiltModuleVersion`,
+    `Get-SamplerBuiltModuleManifest`, `Get-SamplerBuiltModuleBase`, and 
+    `Get-SamplerModuleRootPath` are currently built. The code that was
+    reverted handles resolving the wildcard (`*`) in the returned paths
+    from the mentioned commands.
 
 ## [0.115.0] - 2022-06-09
 

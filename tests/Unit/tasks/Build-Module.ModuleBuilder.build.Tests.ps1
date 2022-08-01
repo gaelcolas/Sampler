@@ -415,7 +415,11 @@ Describe 'Build_NestedModules_ModuleBuilder' {
                     It 'Should run the build task without throwing' {
                         {
                             Invoke-Build -Task 'Build_NestedModules_ModuleBuilder' -File $taskAlias.Definition @mockTaskParameters
-                        } | Should -Throw -ExpectedMessage '*Path must point to a .psd1 file*'
+                        } | Should -Not -Throw
+
+                        Should -Invoke -CommandName Update-Metadata -ParameterFilter {
+                            $Value -contains '.{0}{0}Modules{0}DscResource.Common{0}DscResource.Common.psm1' -f $([System.IO.Path]::DirectorySeparatorChar)
+                        } -Exactly -Times 1 -Scope It
                     }
                 }
             }
