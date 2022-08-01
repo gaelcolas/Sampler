@@ -176,10 +176,21 @@ else
 
     $BuiltModuleManifest = Get-SamplerBuiltModuleManifest @GetBuiltModuleManifestParams
 
+    # Resolve path to replace '*' with version number.
+    if ($BuiltModuleManifest)
+    {
+        $BuiltModuleManifest = (Get-Item -Path $BuiltModuleManifest -ErrorAction 'SilentlyContinue').FullName
+    }
+
     "`tBuilt Module Manifest      = '$BuiltModuleManifest'"
 
     $BuiltModuleBase = Get-SamplerBuiltModuleBase @GetBuiltModuleManifestParams
 
+    # Resolve path to replace '*' with version number.
+    if ($BuiltModuleBase)
+    {
+        $BuiltModuleBase = (Get-Item -Path $BuiltModuleBase -ErrorAction 'SilentlyContinue').FullName
+    }
 
     "`tBuilt Module Base          = '$BuiltModuleBase'"
 
@@ -199,6 +210,12 @@ else
     if ($BuiltModuleManifest)
     {
         $BuiltModuleRootScriptPath = Get-SamplerModuleRootPath -ModuleManifestPath $BuiltModuleManifest
+
+        # Resolve path to replace '*' with version number.
+        if ($BuiltModuleRootScriptPath)
+        {
+            $BuiltModuleRootScriptPath = (Get-Item -Path $BuiltModuleRootScriptPath -ErrorAction 'SilentlyContinue').FullName
+        }
     }
 
     "`tBuilt Module Root Script   = '$BuiltModuleRootScriptPath'"
