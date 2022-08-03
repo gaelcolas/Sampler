@@ -43,7 +43,7 @@ function Merge-JaCoCoReport
     # Loop through all existing packages in the document to merge.
     foreach ($mergePackage in $MergeDocument.report.package)
     {
-        Write-Verbose "  Processing package: $($mergePackage.Name)"
+        Write-Verbose -Message "  Processing package: $($mergePackage.Name)"
 
         # Get the package from the original document.
         $originalPackage = $OriginalDocument.report.package |
@@ -65,7 +65,7 @@ function Merge-JaCoCoReport
             #>
             foreach ($mergeClass in $mergePackage.class)
             {
-                Write-Verbose "    Processing class: $($mergeClass.Name)"
+                Write-Verbose -Message "    Processing class: $($mergeClass.Name)"
 
                 $originalClass = $originalPackage.class |
                     Where-Object -FilterScript {
@@ -75,7 +75,7 @@ function Merge-JaCoCoReport
                 # Evaluate if the sourcefile exist in the original document.
                 if ($null -eq $originalClass)
                 {
-                    Write-Verbose "      Adding class: $($mergeClass.name)"
+                    Write-Verbose -Message "      Adding class: $($mergeClass.name)"
 
                     # Add missing sourcefile from merge document to original document.
                     $null = $originalPackage.AppendChild($originalPackage.OwnerDocument.ImportNode($mergeClass, $true))
@@ -96,7 +96,7 @@ function Merge-JaCoCoReport
                         if ($null -eq $originalClassMethod)
                         {
                             # Missed line in origin, covered in merge.
-                            Write-Verbose "      Adding method: $($mergeClassMethod.name)"
+                            Write-Verbose -Message "      Adding method: $($mergeClassMethod.name)"
 
                             $null = $originalClass.AppendChild($originalClass.OwnerDocument.ImportNode($mergeClassMethod, $true))
 
@@ -113,7 +113,7 @@ function Merge-JaCoCoReport
             #>
             foreach ($mergeSourceFile in $mergePackage.sourcefile)
             {
-                Write-Verbose "    Processing sourcefile: $($mergeSourceFile.Name)"
+                Write-Verbose -Message "    Processing sourcefile: $($mergeSourceFile.Name)"
 
                 $originalSourceFile = $originalPackage.sourcefile |
                     Where-Object -FilterScript {
@@ -123,7 +123,7 @@ function Merge-JaCoCoReport
                 # Evaluate if the sourcefile exist in the original document.
                 if ($null -eq $originalSourceFile)
                 {
-                    Write-Verbose "      Adding sourcefile: $($mergeSourceFile.name)"
+                    Write-Verbose -Message "      Adding sourcefile: $($mergeSourceFile.name)"
 
                     # Add missing sourcefile from merge document to original document.
                     $null = $originalPackage.AppendChild($originalPackage.OwnerDocument.ImportNode($mergeSourceFile, $true))
@@ -144,7 +144,7 @@ function Merge-JaCoCoReport
                         if ($null -eq $originalSourceFileLine)
                         {
                             # Missed line in origin, covered in merge.
-                            Write-Verbose "      Adding line: $($mergeSourceFileLine.nr)"
+                            Write-Verbose -Message "      Adding line: $($mergeSourceFileLine.nr)"
 
                             $null = $originalSourceFile.AppendChild($originalSourceFile.OwnerDocument.ImportNode($mergeSourceFileLine, $true))
 
@@ -158,7 +158,7 @@ function Merge-JaCoCoReport
                             {
                                 # Missed line in origin, covered in merge
 
-                                Write-Verbose "      Updating missed line: $($mergeSourceFileLine.nr)"
+                                Write-Verbose -Message "      Updating missed line: $($mergeSourceFileLine.nr)"
 
                                 $originalSourceFileLine.ci = $mergeSourceFileLine.ci
                                 $originalSourceFileLine.mi = $mergeSourceFileLine.mi
@@ -167,7 +167,7 @@ function Merge-JaCoCoReport
                             {
                                 # Missed line in origin, covered in merge
 
-                                Write-Verbose "      Updating line: $($mergeSourceFileLine.nr)"
+                                Write-Verbose -Message "      Updating line: $($mergeSourceFileLine.nr)"
 
                                 <#
                                     There is an open issue tracking if this is the
@@ -189,7 +189,7 @@ function Merge-JaCoCoReport
                 New package, does not exist in origin. Add package.
             #>
 
-            Write-Verbose "    Package '$($mergePackage.Name)' does not exist in original file. Adding..."
+            Write-Verbose -Message "    Package '$($mergePackage.Name)' does not exist in original file. Adding..."
 
             <#
                 Must import the node with child elements first since it belongs
