@@ -29,7 +29,7 @@ AfterAll {
 
 Describe 'Merge-JaCoCoReport' {
     <#
-        This test will add the package
+        This test will add the package <package name="NewPackage">.
     #>
     Context 'When a package is missing in original document' {
         BeforeAll {
