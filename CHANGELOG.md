@@ -22,6 +22,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Task `copy_paths_to_choco_staging`
   - Now handle property `Exclude` and `Force` correctly.
+- `Merge-JaCoCoReport`
+  - Improvements to be able to merge missing elements, like entire element
+    `<class>`, `<sourcefile>`, `<method>`.
 
 ### Fixed
 
@@ -34,7 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Set-SamplerTaskVariable`
   - Reverted code that was removed in pull request #383. The code is
     necessary because how the commands `Get-BuiltModuleVersion`,
-    `Get-SamplerBuiltModuleManifest`, `Get-SamplerBuiltModuleBase`, and 
+    `Get-SamplerBuiltModuleManifest`, `Get-SamplerBuiltModuleBase`, and
     `Get-SamplerModuleRootPath` are currently built. The code that was
     reverted handles resolving the wildcard (`*`) in the returned paths
     from the mentioned commands.
@@ -59,8 +62,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   will no longer fail if the CHANGELOG.md has not been committed but is staged
   or unstaged. This makes it possible to get the QA tests to pass without having
   to first commit changes.
-- `Merge-JaCoCoReport`
-  - Improvements to be able to merge missing elements, like entire source files.
 
 ### Fixed
 
