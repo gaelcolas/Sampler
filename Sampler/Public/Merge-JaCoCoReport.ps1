@@ -170,37 +170,9 @@ function Merge-JaCoCoReport
                                 Write-Verbose "      Updating line: $($mergeSourceFileLine.nr)"
 
                                 <#
-                                    TODO: This overwrite the hit count on original line
-                                          if the original line count is less than the
-                                          merge line count, but shouldn't the hit count
-                                          of merge document be added to the count of the
-                                          original?
-
-                                            Original ci = 1
-                                               Merge ci = 2
-
-                                                  Result: 3
-
-                                        And shouldn't it always add to the hit count, not
-                                        just when original line is less than the merge line?
-
-                                            Original ci = 1
-                                               Merge ci = 1
-
-                                                  Result: 2
-
-                                        This is also true for missed hit count that
-                                        can be more than 1.
-
-                                        Example from the project SqlServerDsc and the
-                                        DSC resource SqlAg (DSC_SqlAg.psm1):
-
-                                        <line nr="300" mi="3" ci="0" mb="0" cb="0" />
-                                        <line nr="301" mi="1" ci="0" mb="0" cb="0" />
-                                        <line nr="303" mi="2" ci="0" mb="0" cb="0" />
-
-                                        Uncertain how hit count should be calculated so
-                                        I leave this comment for future improvement.
+                                    There is an open issue tracking if this is the
+                                    correct way to calculate hit count:
+                                    https://github.com/gaelcolas/Sampler/issues/392
                                 #>
                                 $originalSourceFileLine.ci = $mergeSourceFileLine.ci
                                 $originalSourceFileLine.mi = $mergeSourceFileLine.mi
