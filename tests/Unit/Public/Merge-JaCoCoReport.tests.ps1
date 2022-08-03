@@ -94,7 +94,7 @@ Describe 'Merge-JaCoCoReport' {
 
         It 'Should merge the coverage reports correctly' {
             # TODO: Remove Verbose
-            $result = Merge-JaCoCoReport -OriginalDocument $mockXmlOriginal -MergeDocument $mockXmlToMerge -Verbose
+            $result = Sampler\Merge-JaCoCoReport -OriginalDocument $mockXmlOriginal -MergeDocument $mockXmlToMerge
 
             $result | Should -BeOfType [System.Xml.XmlDocument]
 
@@ -214,7 +214,7 @@ Describe 'Merge-JaCoCoReport' {
 
         It 'Should merge the coverage reports correctly' {
             # TODO: Remove Verbose
-            $result = Merge-JaCoCoReport -OriginalDocument $mockXmlOriginal -MergeDocument $mockXmlToMerge -Verbose
+            $result = Sampler\Merge-JaCoCoReport -OriginalDocument $mockXmlOriginal -MergeDocument $mockXmlToMerge
 
             $result | Should -BeOfType [System.Xml.XmlDocument]
 
@@ -339,7 +339,7 @@ Describe 'Merge-JaCoCoReport' {
 
         It 'Should merge the coverage reports correctly' {
             # TODO: Remove Verbose
-            $result = Merge-JaCoCoReport -OriginalDocument $mockXmlOriginal -MergeDocument $mockXmlToMerge -Verbose
+            $result = Sampler\Merge-JaCoCoReport -OriginalDocument $mockXmlOriginal -MergeDocument $mockXmlToMerge
 
             $result | Should -BeOfType [System.Xml.XmlDocument]
 
@@ -468,7 +468,7 @@ Describe 'Merge-JaCoCoReport' {
 
         It 'Should merge the coverage reports correctly' {
             # TODO: Remove Verbose
-            $result = Merge-JaCoCoReport -OriginalDocument $mockXmlOriginal -MergeDocument $mockXmlToMerge -Verbose
+            $result = Sampler\Merge-JaCoCoReport -OriginalDocument $mockXmlOriginal -MergeDocument $mockXmlToMerge
 
             $result | Should -BeOfType [System.Xml.XmlDocument]
 
@@ -570,7 +570,7 @@ Describe 'Merge-JaCoCoReport' {
         }
 
         It 'Should merge the coverage reports correctly' {
-            $result = Merge-JaCoCoReport -OriginalDocument $mockXmlOriginal -MergeDocument $mockXmlToMerge -Verbose
+            $result = Sampler\Merge-JaCoCoReport -OriginalDocument $mockXmlOriginal -MergeDocument $mockXmlToMerge
 
             $result | Should -BeOfType [System.Xml.XmlDocument]
 
@@ -684,7 +684,7 @@ Describe 'Merge-JaCoCoReport' {
         }
 
         It 'Should merge the coverage reports correctly' {
-            $result = Merge-JaCoCoReport -OriginalDocument $mockXmlOriginal -MergeDocument $mockXmlToMerge -Verbose
+            $result = Sampler\Merge-JaCoCoReport -OriginalDocument $mockXmlOriginal -MergeDocument $mockXmlToMerge
 
             $result | Should -BeOfType [System.Xml.XmlDocument]
 
@@ -811,7 +811,7 @@ Describe 'Merge-JaCoCoReport' {
         }
 
         It 'Should merge the coverage reports correctly' {
-            $result = Sampler\Merge-JaCoCoReport -OriginalDocument $mockXmlOriginal -MergeDocument $mockXmlToMerge -Verbose
+            $result = Sampler\Merge-JaCoCoReport -OriginalDocument $mockXmlOriginal -MergeDocument $mockXmlToMerge
 
             $result | Should -BeOfType [System.Xml.XmlDocument]
 
@@ -898,7 +898,7 @@ Describe 'Merge-JaCoCoReport' {
             }
 
             It 'Should merge the coverage reports correctly' {
-                $result = Sampler\Merge-JaCoCoReport -OriginalDocument $mockXmlOriginal -MergeDocument $mockXmlToMerge -Verbose
+                $result = Sampler\Merge-JaCoCoReport -OriginalDocument $mockXmlOriginal -MergeDocument $mockXmlToMerge
 
                 $result | Should -BeOfType [System.Xml.XmlDocument]
 
@@ -950,7 +950,7 @@ Describe 'Merge-JaCoCoReport' {
             }
 
             It 'Should merge the coverage reports correctly' {
-                $result = Sampler\Merge-JaCoCoReport -OriginalDocument $mockXmlOriginal -MergeDocument $mockXmlToMerge -Verbose
+                $result = Sampler\Merge-JaCoCoReport -OriginalDocument $mockXmlOriginal -MergeDocument $mockXmlToMerge
 
                 $result | Should -BeOfType [System.Xml.XmlDocument]
 
@@ -1002,7 +1002,7 @@ Describe 'Merge-JaCoCoReport' {
             }
 
             It 'Should merge the coverage reports correctly' {
-                $result = Sampler\Merge-JaCoCoReport -OriginalDocument $mockXmlOriginal -MergeDocument $mockXmlToMerge -Verbose
+                $result = Sampler\Merge-JaCoCoReport -OriginalDocument $mockXmlOriginal -MergeDocument $mockXmlToMerge
 
                 $result | Should -BeOfType [System.Xml.XmlDocument]
 
@@ -1054,7 +1054,7 @@ Describe 'Merge-JaCoCoReport' {
             }
 
             It 'Should merge the coverage reports correctly' {
-                $result = Sampler\Merge-JaCoCoReport -OriginalDocument $mockXmlOriginal -MergeDocument $mockXmlToMerge -Verbose
+                $result = Sampler\Merge-JaCoCoReport -OriginalDocument $mockXmlOriginal -MergeDocument $mockXmlToMerge
 
                 $result | Should -BeOfType [System.Xml.XmlDocument]
 
@@ -1110,7 +1110,7 @@ Describe 'Merge-JaCoCoReport' {
             }
 
             It 'Should merge the coverage reports correctly' {
-                $result = Sampler\Merge-JaCoCoReport -OriginalDocument $mockXmlOriginal -MergeDocument $mockXmlToMerge -Verbose
+                $result = Sampler\Merge-JaCoCoReport -OriginalDocument $mockXmlOriginal -MergeDocument $mockXmlToMerge
 
                 $result | Should -BeOfType [System.Xml.XmlDocument]
 
@@ -1164,7 +1164,7 @@ Describe 'Merge-JaCoCoReport' {
             }
 
             It 'Should merge the coverage reports correctly' {
-                $result = Sampler\Merge-JaCoCoReport -OriginalDocument $mockXmlOriginal -MergeDocument $mockXmlToMerge -Verbose
+                $result = Sampler\Merge-JaCoCoReport -OriginalDocument $mockXmlOriginal -MergeDocument $mockXmlToMerge
 
                 $result | Should -BeOfType [System.Xml.XmlDocument]
 
@@ -1327,7 +1327,7 @@ Describe 'Merge-JaCoCoReport' {
         }
 
         It 'Should merge the coverage reports correctly' {
-            $result = Merge-JaCoCoReport -OriginalDocument $mockXmlOriginal -MergeDocument $mockXmlToMerge -Verbose
+            $result = Sampler\Merge-JaCoCoReport -OriginalDocument $mockXmlOriginal -MergeDocument $mockXmlToMerge
 
             $result | Should -BeOfType [System.Xml.XmlDocument]
 
