@@ -226,10 +226,13 @@ function Merge-JaCoCoReport
             $packageElementToMerge = $OriginalDocument.ImportNode($mergePackage, $true)
 
             <#
-                Append the 'package' element to the 'report' element.
-                The second array item in 'report' property is the XmlElement object.
+                Append the 'package' element to the 'report' element, there should
+                only be one report element.
+
+                The second item in the array of the 'report' property is the XmlElement
+                object.
             #>
-            $OriginalDocument.report[1].AppendChild($packageElementToMerge) | Out-Null
+            $null = $OriginalDocument.report[1].AppendChild($packageElementToMerge)
         }
     }
 

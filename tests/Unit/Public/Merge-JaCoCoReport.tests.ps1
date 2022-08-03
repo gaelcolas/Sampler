@@ -29,6 +29,125 @@ AfterAll {
 
 Describe 'Merge-JaCoCoReport' {
     <#
+        This test will add the package
+    #>
+    Context 'When a package is missing in original document' {
+        BeforeAll {
+            $mockXmlOriginal = @"
+<?xml version="1.0" encoding="us-ascii" standalone="no"?>
+<!DOCTYPE report PUBLIC "-//JACOCO//DTD Report 1.1//EN" "report.dtd"[]>
+<report name="Pester (04/01/2021 08:47:03)">
+    <sessioninfo id="this" start="1617266666307" dump="1617266823528" />
+    <package name="3.0.0">
+        <class name="3.0.0\prefix" sourcefilename="prefix.ps1">
+            <method name="&lt;script&gt;" desc="()" line="2">
+                <counter type="INSTRUCTION" missed="0" covered="3" />
+                <counter type="LINE" missed="0" covered="3" />
+                <counter type="METHOD" missed="0" covered="1" />
+            </method>
+            <counter type="INSTRUCTION" missed="0" covered="3" />
+            <counter type="LINE" missed="0" covered="3" />
+            <counter type="METHOD" missed="0" covered="1" />
+            <counter type="CLASS" missed="0" covered="1" />
+        </class>
+        <counter type="INSTRUCTION" missed="0" covered="3" />
+        <counter type="LINE" missed="0" covered="3" />
+        <counter type="METHOD" missed="0" covered="1" />
+        <counter type="CLASS" missed="0" covered="1" />
+    </package>
+    <counter type="INSTRUCTION" missed="0" covered="3" />
+    <counter type="LINE" missed="0" covered="3" />
+    <counter type="METHOD" missed="0" covered="1" />
+    <counter type="CLASS" missed="0" covered="1" />
+</report>
+"@
+
+    $mockXmlToMerge = @"
+<?xml version="1.0" encoding="us-ascii" standalone="no"?>
+<!DOCTYPE report PUBLIC "-//JACOCO//DTD Report 1.1//EN" "report.dtd"[]>
+<report name="Pester (04/01/2021 08:47:03)">
+    <sessioninfo id="this" start="1617266666307" dump="1617266823528" />
+    <package name="NewPackage">
+        <class name="NewPackage\suffix" sourcefilename="suffix.ps1">
+            <method name="&lt;script&gt;" desc="()" line="2">
+                <counter type="INSTRUCTION" missed="0" covered="3" />
+                <counter type="LINE" missed="0" covered="3" />
+                <counter type="METHOD" missed="0" covered="1" />
+            </method>
+            <counter type="INSTRUCTION" missed="0" covered="3" />
+            <counter type="LINE" missed="0" covered="3" />
+            <counter type="METHOD" missed="0" covered="1" />
+            <counter type="CLASS" missed="0" covered="1" />
+        </class>
+        <counter type="INSTRUCTION" missed="0" covered="3" />
+        <counter type="LINE" missed="0" covered="3" />
+        <counter type="METHOD" missed="0" covered="1" />
+        <counter type="CLASS" missed="0" covered="1" />
+    </package>
+    <counter type="INSTRUCTION" missed="0" covered="3" />
+    <counter type="LINE" missed="0" covered="3" />
+    <counter type="METHOD" missed="0" covered="1" />
+    <counter type="CLASS" missed="0" covered="1" />
+</report>
+"@
+        }
+
+        It 'Should merge the coverage reports correctly' {
+            # TODO: Remove Verbose
+            $result = Merge-JaCoCoReport -OriginalDocument $mockXmlOriginal -MergeDocument $mockXmlToMerge -Verbose
+
+            $result | Should -BeOfType [System.Xml.XmlDocument]
+
+            $mockExpectedOuterXml = @'
+<?xml version="1.0" encoding="us-ascii" standalone="no"?><!DOCTYPE report PUBLIC "-//JACOCO//DTD Report 1.1//EN" "report.dtd"[]>
+<report name="Pester (04/01/2021 08:47:03)">
+    <sessioninfo id="this" start="1617266666307" dump="1617266823528" />
+    <package name="3.0.0">
+        <class name="3.0.0\prefix" sourcefilename="prefix.ps1">
+            <method name="&lt;script&gt;" desc="()" line="2">
+                <counter type="INSTRUCTION" missed="0" covered="3" />
+                <counter type="LINE" missed="0" covered="3" />
+                <counter type="METHOD" missed="0" covered="1" />
+            </method>
+            <counter type="INSTRUCTION" missed="0" covered="3" />
+            <counter type="LINE" missed="0" covered="3" />
+            <counter type="METHOD" missed="0" covered="1" />
+            <counter type="CLASS" missed="0" covered="1" />
+        </class>
+        <counter type="INSTRUCTION" missed="0" covered="3" />
+        <counter type="LINE" missed="0" covered="3" />
+        <counter type="METHOD" missed="0" covered="1" />
+        <counter type="CLASS" missed="0" covered="1" />
+    </package>
+    <package name="NewPackage">
+        <class name="NewPackage\suffix" sourcefilename="suffix.ps1">
+            <method name="&lt;script&gt;" desc="()" line="2">
+                <counter type="INSTRUCTION" missed="0" covered="3" />
+                <counter type="LINE" missed="0" covered="3" />
+                <counter type="METHOD" missed="0" covered="1" />
+            </method>
+            <counter type="INSTRUCTION" missed="0" covered="3" />
+            <counter type="LINE" missed="0" covered="3" />
+            <counter type="METHOD" missed="0" covered="1" />
+            <counter type="CLASS" missed="0" covered="1" />
+        </class>
+        <counter type="INSTRUCTION" missed="0" covered="3" />
+        <counter type="LINE" missed="0" covered="3" />
+        <counter type="METHOD" missed="0" covered="1" />
+        <counter type="CLASS" missed="0" covered="1" />
+    </package>
+    <counter type="INSTRUCTION" missed="0" covered="3" />
+    <counter type="LINE" missed="0" covered="3" />
+    <counter type="METHOD" missed="0" covered="1" />
+    <counter type="CLASS" missed="0" covered="1" />
+</report>
+'@
+            $result.OuterXml | Should -Be (($mockExpectedOuterXml -replace '\r?\n')  -replace '>\s*<', '><')
+        }
+    }
+
+
+    <#
         This tests so that the <class name="3.0.0\suffix" sourcefilename="suffix.ps1">
         is added to the same package (<package name="3.0.0">) in the original document.
     #>
