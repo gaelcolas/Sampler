@@ -81,6 +81,11 @@ function Get-MofSchemaName
             $class = [Microsoft.PowerShell.DesiredStateConfiguration.Internal.DscClassCache]::ImportClasses(
                 $tempFilePath, $moduleInfo, $exceptionCollection
             )
+
+            if ($exceptionCollection.Count -gt 0)
+            {
+                throw $exceptionCollection
+            }
         }
         catch
         {

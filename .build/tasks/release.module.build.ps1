@@ -1,6 +1,56 @@
+<#
+    .SYNOPSIS
+        Tasks for releasing modules.
+
+    .PARAMETER OutputDirectory
+        The base directory of all output. Defaults to folder 'output' relative to
+        the $BuildRoot.
+
+    .PARAMETER BuiltModuleSubdirectory
+        The parent path of the module to be built.
+
+    .PARAMETER VersionedOutputDirectory
+        If the module should be built using a version folder, e.g. ./MyModule/1.0.0.
+        Defaults to $true.
+
+    .PARAMETER ChangelogPath
+        The path to and the name of the changelog file. Defaults to 'CHANGELOG.md'.
+
+    .PARAMETER ReleaseNotesPath
+        The path to and the name of the release notes file. Defaults to 'ReleaseNotes.md'.
+
+    .PARAMETER ProjectName
+        The project name.
+
+    .PARAMETER ModuleVersion
+        The module version that was built.
+
+    .PARAMETER GalleryApiToken
+        The module version that was built.
+
+    .PARAMETER NuGetPublishSource
+        The source to publish nuget packages. Defaults to https://www.powershellgallery.com.
+
+    .PARAMETER PSModuleFeed
+        The name of the feed (repository) that is passed to command Publish-Module.
+        Defaults to 'PSGallery'.
+
+    .PARAMETER SkipPublish
+        If publishing should be skipped. Defaults to $false.
+
+    .PARAMETER PublishModuleWhatIf
+        If the publish command will be run with '-WhatIf' to show what will happen
+        during publishing. Defaults to $false.
+
+    .PARAMETER ChocolateyBuildOutput
+        Sub-Folder (or absolute path) of the Chocolatey build output folder (relative
+        to $OutputDirectory). Contain the path to one or more Chocolatey packages.
+        This variable $ChocolateyBuildOutput also used to determine if the repository
+        is building a Chocolatey package. Defaults to 'choco'.
+#>
+
 param
 (
-    # Base directory of all output (default to 'output')
     [Parameter()]
     [string]
     $OutputDirectory = (property OutputDirectory (Join-Path $BuildRoot 'output')),
@@ -46,9 +96,6 @@ param
 
     [Parameter()]
     [string]
-    # Sub-Folder (or absolute path) of the Chocolatey build output folder (relative to $OutputDirectory)
-    # Contain the path to one or more Chocolatey packages.
-    # This variable here is used to determine if the repository is building a Chocolatey package.
     $ChocolateyBuildOutput = (property ChocolateyBuildOutput 'choco')
 )
 
@@ -159,6 +206,7 @@ task Create_changelog_release_output {
     }
 }
 
+# Synopsis: Publish Nuget package to a gallery.
 task publish_nupkg_to_gallery -if ($GalleryApiToken -and (Get-Command -Name 'nuget' -ErrorAction 'SilentlyContinue')) {
     # Get the vales for task variables, see https://github.com/gaelcolas/Sampler#task-variables.
     . Set-SamplerTaskVariable
@@ -272,6 +320,7 @@ task package_module_nupkg {
     $null = Unregister-PSRepository -Name output -ErrorAction SilentlyContinue
 }
 
+# Synopsis: Publish a built PowerShell module to a gallery.
 task publish_module_to_gallery -if ($GalleryApiToken -and (Get-Command -Name 'Publish-Module' -ErrorAction 'SilentlyContinue')) {
     # Get the vales for task variables, see https://github.com/gaelcolas/Sampler#task-variables.
     . Set-SamplerTaskVariable

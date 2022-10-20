@@ -22,7 +22,7 @@
         Merge-JaCoCoReport -OriginalDocument 'C:\src\MyModule\Output\JaCoCoRun_linux.xml' -MergeDocument 'C:\src\MyModule\Output\JaCoCoRun_windows.xml'
 
     .NOTES
-        See also Update-JaCoCoStatistic
+        See also Update-JaCoCoStatistic that will update the counter elements.
         Thanks to Yorick (@ykuijs) for this great feature!
 #>
 function Merge-JaCoCoReport
@@ -40,79 +40,171 @@ function Merge-JaCoCoReport
         $MergeDocument
     )
 
-    foreach ($mPackage in $MergeDocument.report.package)
+    # Loop through all existing packages in the document to merge.
+    foreach ($mergePackage in $MergeDocument.report.package)
     {
-        Write-Verbose "  Processing package: $($mPackage.Name)"
+        Write-Verbose -Message "  Processing package: $($mergePackage.Name)"
 
-        $oPackage = $OriginalDocument.report.package | Where-Object { $_.Name -eq $mPackage.Name }
+        # Get the package from the original document.
+        $originalPackage = $OriginalDocument.report.package |
+            Where-Object -FilterScript {
+                $_.Name -eq $mergePackage.Name
+            }
 
-        <#
-            TODO: This only supports merging whole packages. It should also support
-            merging individual 'class' elements and its accompanied 'sourcefile'
-            element into an already existing package. I think it even possible
-            that it must support merging individual 'method' elements inside a
-            'class' element too.
-        #>
-        if ($null -ne $oPackage)
+        # Evaluate if the package exist in the original document.
+        if ($null -ne $originalPackage)
         {
             <#
-                'package' element already exist, add or update 'line' element for
-                the correct 'sourcefile' element inside the 'package' element.
+                Package already exist, evaluate that the package in original
+                document does not miss anything that the merge document contain.
             #>
-            foreach ($mSourcefile in $mPackage.sourcefile)
+
+            <#
+                Loop through the package's <class> in the merge document and
+                verify that they exist in the original document.
+            #>
+            foreach ($mergeClass in $mergePackage.class)
             {
-                Write-Verbose "    Processing sourcefile: $($mSourcefile.Name)"
+                Write-Verbose -Message "    Processing class: $($mergeClass.Name)"
 
-                foreach ($mPackageLine in $mSourcefile.line)
+                $originalClass = $originalPackage.class |
+                    Where-Object -FilterScript {
+                        $_.name -eq $mergeClass.name
+                    }
+
+                # Evaluate if the sourcefile exist in the original document.
+                if ($null -eq $originalClass)
                 {
-                    $oSourcefile = $oPackage.sourcefile | Where-Object { $_.name -eq $mSourcefile.name }
-                    $oPackageLine = $oSourcefile.line | Where-Object { $_.nr -eq $mPackageLine.nr }
+                    Write-Verbose -Message "      Adding class: $($mergeClass.name)"
 
-                    if ($null -eq $oPackageLine)
+                    # Add missing sourcefile from merge document to original document.
+                    $null = $originalPackage.AppendChild($originalPackage.OwnerDocument.ImportNode($mergeClass, $true))
+                }
+                else
+                {
+                    <#
+                        Loop through the sourcefile's <method> in the merge document and
+                        verify that they exist in the original document.
+                    #>
+                    foreach ($mergeClassMethod in $mergeClass.method)
                     {
-                        # Missed line in origin, covered in merge
-                        Write-Verbose "      Adding line: $($mPackageLine.nr)"
-                        $null = $oPackage.sourcefile.AppendChild($oPackage.sourcefile.OwnerDocument.ImportNode($mPackageLine, $true))
-                        continue
+                        $originalClassMethod = $originalClass.method |
+                            Where-Object -FilterScript {
+                                $_.name -eq $mergeClassMethod.name
+                            }
+
+                        if ($null -eq $originalClassMethod)
+                        {
+                            # Missed line in origin, covered in merge.
+                            Write-Verbose -Message "      Adding method: $($mergeClassMethod.name)"
+
+                            $null = $originalClass.AppendChild($originalClass.OwnerDocument.ImportNode($mergeClassMethod, $true))
+
+                            # Skip to next line.
+                            continue
+                        }
+                    }
+                }
+            }
+
+            <#
+                Loop through the package's <sourcefile> in the merge document and
+                verify that they exist in the original document.
+            #>
+            foreach ($mergeSourceFile in $mergePackage.sourcefile)
+            {
+                Write-Verbose -Message "    Processing sourcefile: $($mergeSourceFile.Name)"
+
+                $originalSourceFile = $originalPackage.sourcefile |
+                    Where-Object -FilterScript {
+                        $_.name -eq $mergeSourceFile.name
                     }
 
-                    if (($oPackageLine.ci -eq 0) -and ($oPackageLine.mi -ne 0) -and `
-                        ($mPackageLine.ci -ne 0) -and ($mPackageLine.mi -eq 0))
-                    {
-                        # Missed line in origin, covered in merge
-                        Write-Verbose "      Updating missed line: $($mPackageLine.nr)"
-                        $oPackageLine.ci = $mPackageLine.ci
-                        $oPackageLine.mi = $mPackageLine.mi
-                        continue
-                    }
+                # Evaluate if the sourcefile exist in the original document.
+                if ($null -eq $originalSourceFile)
+                {
+                    Write-Verbose -Message "      Adding sourcefile: $($mergeSourceFile.name)"
 
-                    if ($oPackageLine.ci -lt $mPackageLine.ci)
+                    # Add missing sourcefile from merge document to original document.
+                    $null = $originalPackage.AppendChild($originalPackage.OwnerDocument.ImportNode($mergeSourceFile, $true))
+                }
+                else
+                {
+                    <#
+                        Loop through the sourcefile's <line> in the merge document and
+                        verify that they exist in the original document.
+                    #>
+                    foreach ($mergeSourceFileLine in $mergeSourceFile.line)
                     {
-                        # Missed line in origin, covered in merge
-                        Write-Verbose "      Updating line: $($mPackageLine.nr)"
-                        $oPackageLine.ci = $mPackageLine.ci
-                        $oPackageLine.mi = $mPackageLine.mi
-                        continue
+                        $originalSourceFileLine = $originalSourceFile.line |
+                            Where-Object -FilterScript {
+                                $_.nr -eq $mergeSourceFileLine.nr
+                            }
+
+                        if ($null -eq $originalSourceFileLine)
+                        {
+                            # Missed line in origin, covered in merge.
+                            Write-Verbose -Message "      Adding line: $($mergeSourceFileLine.nr)"
+
+                            $null = $originalSourceFile.AppendChild($originalSourceFile.OwnerDocument.ImportNode($mergeSourceFileLine, $true))
+
+                            # Skip to next line.
+                            continue
+                        }
+                        else
+                        {
+                            if ($originalSourceFileLine.ci -eq 0 -and $mergeSourceFileLine.ci -ne 0 -and
+                                $originalSourceFileLine.mi -ne 0 -and $mergeSourceFileLine.mi -eq 0)
+                            {
+                                # Missed line in origin, covered in merge
+
+                                Write-Verbose -Message "      Updating missed line: $($mergeSourceFileLine.nr)"
+
+                                $originalSourceFileLine.ci = $mergeSourceFileLine.ci
+                                $originalSourceFileLine.mi = $mergeSourceFileLine.mi
+                            }
+                            elseif ($originalSourceFileLine.ci -lt $mergeSourceFileLine.ci)
+                            {
+                                # Missed line in origin, covered in merge
+
+                                Write-Verbose -Message "      Updating line: $($mergeSourceFileLine.nr)"
+
+                                <#
+                                    There is an open issue tracking if this is the
+                                    correct way to calculate hit count:
+                                    https://github.com/gaelcolas/Sampler/issues/392
+                                #>
+                                $originalSourceFileLine.ci = $mergeSourceFileLine.ci
+                                $originalSourceFileLine.mi = $mergeSourceFileLine.mi
+                            }
+
+                        }
                     }
                 }
             }
         }
         else
         {
-            # New package, does not exist in origin. Add package.
-            Write-Verbose "    Package '$($mPackage.Name)' does not exist in original file. Adding..."
+            <#
+                New package, does not exist in origin. Add package.
+            #>
+
+            Write-Verbose -Message "    Package '$($mergePackage.Name)' does not exist in original file. Adding..."
 
             <#
                 Must import the node with child elements first since it belongs
                 to another XML document.
             #>
-            $packageElementToMerge = $OriginalDocument.ImportNode($mPackage, $true)
+            $packageElementToMerge = $OriginalDocument.ImportNode($mergePackage, $true)
 
             <#
-                Append the 'package' element to the 'report' element.
-                The second array item in 'report' property is the XmlElement object.
+                Append the 'package' element to the 'report' element, there should
+                only be one report element.
+
+                The second item in the array of the 'report' property is the XmlElement
+                object.
             #>
-            $OriginalDocument.report[1].AppendChild($packageElementToMerge) | Out-Null
+            $null = $OriginalDocument.report[1].AppendChild($packageElementToMerge)
         }
     }
 

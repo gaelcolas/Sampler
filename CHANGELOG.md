@@ -7,6 +7,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+
+- Removed the task `Set_Build_Environment_Variables` since it is not used,
+  and build helpers are not in use anymore. Fixes [#376](https://github.com/gaelcolas/Sampler/issues/376)
+
+### Added
+
+- Added more unit tests to raise code coverage.
+  - Deprecated Pester 4 HQRM tests was removed from code coverage. The new
+    Pester 5 HQRM test are in module DscResource.Test and is tested there.
+
+### Changed
+
+- Task `copy_paths_to_choco_staging`
+  - Now handle property `Exclude` and `Force` correctly.
+- `Merge-JaCoCoReport`
+  - Improvements to be able to merge missing elements, like entire element
+    `<class>`, `<sourcefile>`, `<method>`.
+
+### Fixed
+
+- `Get-MofSchemaName`
+  - Correctly throws an error if the schema MOF cannot be parsed.
+- Task `Convert_Pester_Coverage`
+  - Removed one unused line of code.
+  - Moved one line of code so that code coverage threshold value
+    will output correctly in some circumstances.
+- `Set-SamplerTaskVariable`
+  - Reverted code that was removed in pull request #383. The code is
+    necessary because how the commands `Get-BuiltModuleVersion`,
+    `Get-SamplerBuiltModuleManifest`, `Get-SamplerBuiltModuleBase`, and
+    `Get-SamplerModuleRootPath` are currently built. The code that was
+    reverted handles resolving the wildcard (`*`) in the returned paths
+    from the mentioned commands.
+
+## [0.115.0] - 2022-06-09
+
 ### Added
 
 - Supports using a private Nuget repository, e.g. a _Azure DevOps Server_

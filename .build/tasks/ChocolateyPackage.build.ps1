@@ -130,12 +130,12 @@ task copy_paths_to_choco_staging {
                 $packagesToCopyTo = [string[]]$copyItem.packageName
             }
 
-            if ($packageName.exclude)
+            if ($copyItem.Exclude)
             {
                 $CopyFoldersToChocoParams['exclude'] = $copyItem.exclude
             }
 
-            if ($packageName.Force)
+            if ($copyItem.Force)
             {
                 $CopyFoldersToChocoParams['Force'] = $copyItem.Force
             }
