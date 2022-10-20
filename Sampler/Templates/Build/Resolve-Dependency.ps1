@@ -307,6 +307,10 @@ try
             {
                 $installPowerShellGetParameters.Add('Credential', $GalleryCredential)
             }
+            'AllowPrerelease'
+            {
+                $installPowerShellGetParameters.Add('AllowPrerelease', $AllowPrerelease)
+            }
         }
 
         Write-Progress -Activity 'Bootstrap:' -PercentComplete 60 -CurrentOperation 'Installing newer version of PowerShellGet'
