@@ -39,8 +39,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     necessary because how the commands `Get-BuiltModuleVersion`,
     `Get-SamplerBuiltModuleManifest`, `Get-SamplerBuiltModuleBase`, and
     `Get-SamplerModuleRootPath` are currently built. The code that was
-    reverted handles resolving the wildcard (`*`) in the returned paths
-    from the mentioned commands.
+    reverted handles resolving the wil
+- `Resolve-Dependency.ps1`
+  - Fixes #394, `AllowPrerelease` is ignored for bootstrap.
 
 ## [0.115.0] - 2022-06-09
 
