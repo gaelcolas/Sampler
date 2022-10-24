@@ -202,6 +202,11 @@ if (-not $powerShellGetModule -and -not $nuGetProvider)
         {
             $providerBootstrapParameters.Add('Scope', $Scope)
         }
+
+        'AllowPrerelease'
+        {
+            $providerBootstrapParameters.Add('AllowPrerelease', $AllowPrerelease)
+        }
     }
 
     if ($AllowPrerelease)
@@ -307,6 +312,7 @@ try
             {
                 $installPowerShellGetParameters.Add('Credential', $GalleryCredential)
             }
+
             'AllowPrerelease'
             {
                 $installPowerShellGetParameters.Add('AllowPrerelease', $AllowPrerelease)
