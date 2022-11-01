@@ -1,15 +1,15 @@
 BeforeDiscovery {
-    $script:moduleName = 'Sampler'
+    $script:moduleName = $ProjectName
 
-    Remove-Module -Name $script:moduleName -Force -ErrorAction 'SilentlyContinue'
+    Remove-Module -Name $script:moduleName -Force -ErrorAction SilentlyContinue
 
     $mut = Get-Module -Name $script:moduleName -ListAvailable |
         Select-Object -First 1 |
-        Import-Module -Force -ErrorAction 'Stop' -PassThru
+            Import-Module -Force -ErrorAction Stop -PassThru
 }
 
 BeforeAll {
-    $script:moduleName = 'Sampler'
+    $script:moduleName = $ProjectName
 
     # Convert-Path required for PS7 or Join-Path fails
     $projectPath = "$($PSScriptRoot)\..\.." | Convert-Path
@@ -18,10 +18,10 @@ BeforeAll {
         Get-ChildItem -Path $projectPath\*\*.psd1 |
             Where-Object -FilterScript {
                 ($_.Directory.Name -match 'source|src' -or $_.Directory.Name -eq $_.BaseName) `
-                -and $(
+                    -and $(
                     try
                     {
-                        Test-ModuleManifest -Path $_.FullName -ErrorAction 'Stop'
+                        Test-ModuleManifest -Path $_.FullName -ErrorAction Stop
                     }
                     catch
                     {
@@ -32,34 +32,34 @@ BeforeAll {
     ).Directory.FullName
 }
 
-    Describe 'Changelog Management' -Tag 'Changelog' {
-        It 'Changelog has been updated' -skip:(
-            !([bool](Get-Command git -EA SilentlyContinue) -and
-              [bool](&(Get-Process -id $PID).Path -NoProfile -Command 'git rev-parse --is-inside-work-tree 2>$null'))
-        ) {
-            # Get the list of changed files compared with branch main
-            $HeadCommit = &git rev-parse HEAD
-            $defaultBranchCommit = &git rev-parse origin/main
-            $filesChanged = &git @('diff', "$defaultBranchCommit...$HeadCommit", '--name-only')
-            $filesStagedAndUnstaged = &git @('diff', "HEAD", '--name-only')
+Describe 'Changelog Management' -Tag 'Changelog' {
+    It 'Changelog has been updated' -Skip:(
+        -not ([bool](Get-Command git -ErrorAction SilentlyContinue) -and
+            [bool](&(Get-Process -Id $PID).Path -NoProfile -Command 'git rev-parse --is-inside-work-tree 2>$null'))
+    ) {
+        # Get the list of changed files compared with branch main
+        $headCommit = &git rev-parse HEAD
+        $defaultBranchCommit = &git rev-parse origin/main
+        $filesChanged = &git @('diff', "$defaultBranchCommit...$headCommit", '--name-only')
+        $filesStagedAndUnstaged = &git @('diff', 'HEAD', '--name-only')
 
-            $filesChanged += $filesStagedAndUnstaged
+        $filesChanged += $filesStagedAndUnstaged
 
-            # Only check if there are any changed files.
-            if ($filesChanged)
-            {
-                $filesChanged | Should -Contain 'CHANGELOG.md' -Because 'the CHANGELOG.md must be updated with at least one entry in the Unreleased section for each PR'
-            }
-        }
-
-        It 'Changelog format compliant with keepachangelog format' -skip:(![bool](Get-Command git -EA SilentlyContinue)) {
-            { Get-ChangelogData (Join-Path $ProjectPath 'CHANGELOG.md') -ErrorAction Stop } | Should -Not -Throw
-        }
-
-        It 'Changelog should have an Unreleased header' -Skip:$skipTest {
-            (Get-ChangelogData -Path (Join-Path -Path $ProjectPath -ChildPath 'CHANGELOG.md') -ErrorAction 'Stop').Unreleased.RawData | Should -Not -BeNullOrEmpty
+        # Only check if there are any changed files.
+        if ($filesChanged)
+        {
+            $filesChanged | Should -Contain 'CHANGELOG.md' -Because 'the CHANGELOG.md must be updated with at least one entry in the Unreleased section for each PR'
         }
     }
+
+    It 'Changelog format compliant with keepachangelog format' -Skip:(![bool](Get-Command git -EA SilentlyContinue)) {
+        { Get-ChangelogData -Path (Join-Path $ProjectPath 'CHANGELOG.md') -ErrorAction Stop } | Should -Not -Throw
+    }
+
+    It 'Changelog should have an Unreleased header' -Skip:$skipTest {
+            (Get-ChangelogData -Path (Join-Path -Path $ProjectPath -ChildPath 'CHANGELOG.md') -ErrorAction Stop).Unreleased.RawData | Should -Not -BeNullOrEmpty
+    }
+}
 
 Describe 'General module control' -Tags 'FunctionalQuality' {
     It 'Should import without errors' {
@@ -118,7 +118,7 @@ Describe 'Quality for module' -Tags 'TestQuality' {
 
         $pssaResult = (Invoke-ScriptAnalyzer -Path $functionFile.FullName)
         $report = $pssaResult | Format-Table -AutoSize | Out-String -Width 110
-        $pssaResult  | Should -BeNullOrEmpty -Because `
+        $pssaResult | Should -BeNullOrEmpty -Because `
             "some rule triggered.`r`n`r`n $report"
     }
 }
@@ -152,7 +152,7 @@ Describe 'Help for module' -Tags 'helpQuality' {
 
         $astSearchDelegate = { $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] }
 
-        $parsedFunction = $abstractSyntaxTree.FindAll( $astSearchDelegate, $true ) |
+        $parsedFunction = $abstractSyntaxTree.FindAll($astSearchDelegate, $true) |
             Where-Object -FilterScript {
                 $_.Name -eq $Name
             }
