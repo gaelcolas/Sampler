@@ -43,6 +43,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     from the mentioned commands.
 - `RequiredModules.psd1.template`
   - Fixes #397, `ModuleType` Plaster parameter.
+- `Resolve-Dependency.ps1`
+  - Fixes #394, `AllowPrerelease` is ignored for bootstrap.
+- `module.tests.ps1.template`
+  - Fixed code style according to this project's standard.
 
 ## [0.115.0] - 2022-06-09
 
@@ -79,6 +83,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove HQRM rule suppression in source file for `New-SamplerJaCoCoDocument`
   since it no longer required.
 - Fixed QA test that was breaking release.
+- Fixed #384: It not tag is defined, `Create_Release_Git_Tag` throws an error.
 
 ## [0.114.0] - 2022-05-13
 
