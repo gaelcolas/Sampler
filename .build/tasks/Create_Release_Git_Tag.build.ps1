@@ -96,6 +96,9 @@ param
 
 # Synopsis: Creates a git tag for the release that is published to a Gallery
 task Create_Release_Git_Tag {
+
+    $releaseTag = 'v{0}' -f $ModuleVersion
+
     if ($SkipPublish)
     {
         Write-Build Yellow ('Skipping the creating of a tag for module version ''{0}'' since ''$SkipPublish'' was set to ''$true''.' -f $ModuleVersion)
@@ -144,8 +147,6 @@ task Create_Release_Git_Tag {
 
         # Make empty line in output
         ""
-
-        $releaseTag = 'v{0}' -f $ModuleVersion
 
         Write-Build DarkGray ("`tGetting HEAD commit for the default branch '{0}." -f $MainGitBranch)
 

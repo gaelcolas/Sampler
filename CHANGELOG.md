@@ -41,6 +41,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     `Get-SamplerModuleRootPath` are currently built. The code that was
     reverted handles resolving the wildcard (`*`) in the returned paths
     from the mentioned commands.
+- `Create_Release_Git_Tag.build.ps1`
+  - Fixing using a variable before its definition.
 
 ## [0.115.0] - 2022-06-09
 
