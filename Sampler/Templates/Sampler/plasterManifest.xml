@@ -217,23 +217,23 @@
     <!--   UNIT TESTS DSC Resources folder -->
     <file source=''
           destination='${PLASTER_PARAM_ModuleName}/tests/Unit/Modules'
-          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteSample") -or (${PLASTER_PARAM_Features} -Contains "All" -or (${PLASTER_PARAM_Features} -Contains "UnitTests" -and ${PLASTER_PARAM_Features} -contains "DSCResources"))'
+          condition='${PLASTER_PARAM_ModuleType} -in @("") -or (${PLASTER_PARAM_Features} -Contains "All" -or (${PLASTER_PARAM_Features} -Contains "UnitTests" -and ${PLASTER_PARAM_Features} -contains "DSCResources"))'
     />
 
       <!--   UNIT TESTS DSC module sample file -->
     <file source='../MofResource/tests/Unit/Modules/Folder.Common.tests.ps1'
       destination='${PLASTER_PARAM_ModuleName}/tests/Unit/Modules/Folder.Common.tests.ps1'
-      condition='${PLASTER_PARAM_ModuleType} -in @("CompleteSample") -or (${PLASTER_PARAM_Features} -Contains "All" -or (${PLASTER_PARAM_Features} -Contains "UnitTests" -and ${PLASTER_PARAM_Features} -contains "DSCResources"))'
+      condition='${PLASTER_PARAM_ModuleType} -in @("") -or (${PLASTER_PARAM_Features} -Contains "All" -or (${PLASTER_PARAM_Features} -Contains "UnitTests" -and ${PLASTER_PARAM_Features} -contains "DSCResources"))'
     />
 
     <file source=''
           destination='${PLASTER_PARAM_ModuleName}/tests/Unit/DSCResources'
-          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteSample") -or (${PLASTER_PARAM_Features} -Contains "All" -or (${PLASTER_PARAM_Features} -Contains "UnitTests" -and ${PLASTER_PARAM_Features} -contains "DSCResources"))'
+          condition='${PLASTER_PARAM_ModuleType} -in @("") -or (${PLASTER_PARAM_Features} -Contains "All" -or (${PLASTER_PARAM_Features} -Contains "UnitTests" -and ${PLASTER_PARAM_Features} -contains "DSCResources"))'
     />
 
     <templateFile source='../MofResource/tests/Unit/DSCResources/DSC_Folder.tests.ps1.template'
           destination='${PLASTER_PARAM_ModuleName}/tests/Unit/DSCResources/DSC_Folder.tests.ps1'
-          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteSample") -or (${PLASTER_PARAM_Features} -Contains "All" -or (${PLASTER_PARAM_Features} -Contains "UnitTests" -and ${PLASTER_PARAM_Features} -contains "DSCResources"))'
+          condition='${PLASTER_PARAM_ModuleType} -in @("") -or (${PLASTER_PARAM_Features} -Contains "All" -or (${PLASTER_PARAM_Features} -Contains "UnitTests" -and ${PLASTER_PARAM_Features} -contains "DSCResources"))'
     />
 
     <!--   QUALITY TESTS for Module -->
@@ -364,10 +364,9 @@
 
     <!-- DSC RESOURCES files and folders -->
     <!--   DSCResources -->
-
-    <file source=''
+      <file source=''
           destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/DSCResources'
-          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteSample") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("DSCResources")'
+          condition='${PLASTER_PARAM_ModuleType} -in @("") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("DSCResources")'
     />
 
     <!--   Examples -->
@@ -385,67 +384,66 @@
 
     <file source=''
           destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/Modules/Folder.Common'
-          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteSample") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("DSCResources")'
+          condition='${PLASTER_PARAM_ModuleType} -in @("") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("DSCResources")'
     />
 
     <file source='../MofResource/Modules/Folder.Common/Folder.Common.psm1'
           destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/Modules/Folder.Common/Folder.Common.psm1'
-          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteSample") -or ${PLASTER_PARAM_Features} -Contains ("All") -or (${PLASTER_PARAM_Features} -Contains ("DSCResources") -and ${PLASTER_PARAM_Features} -Contains ("SampleScripts"))'
+          condition='${PLASTER_PARAM_ModuleType} -in @("") -or ${PLASTER_PARAM_Features} -Contains ("All") -or (${PLASTER_PARAM_Features} -Contains ("DSCResources") -and ${PLASTER_PARAM_Features} -Contains ("SampleScripts"))'
     />
 
     <!--   DSCResource Sample Files -->
     <file source=''
           destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/DSCResources/DSC_Folder/'
-          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteSample") -or ${PLASTER_PARAM_Features} -Contains ("All") -or (${PLASTER_PARAM_Features} -Contains ("DSCResources") -and ${PLASTER_PARAM_Features} -Contains ("SampleScripts"))'
+          condition='${PLASTER_PARAM_ModuleType} -in @("") -or ${PLASTER_PARAM_Features} -Contains ("All") -or (${PLASTER_PARAM_Features} -Contains ("DSCResources") -and ${PLASTER_PARAM_Features} -Contains ("SampleScripts"))'
     />
 
     <file source='../MofResource/DSC_Folder/DSC_Folder.schema.mof'
           destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/DSCResources/DSC_Folder/DSC_Folder.schema.mof'
-          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteSample") -or ${PLASTER_PARAM_Features} -Contains ("All") -or (${PLASTER_PARAM_Features} -Contains ("DSCResources") -and ${PLASTER_PARAM_Features} -Contains ("SampleScripts"))'
+          condition='${PLASTER_PARAM_ModuleType} -in @("") -or ${PLASTER_PARAM_Features} -Contains ("All") -or (${PLASTER_PARAM_Features} -Contains ("DSCResources") -and ${PLASTER_PARAM_Features} -Contains ("SampleScripts"))'
     />
 
     <file source='../MofResource/DSC_Folder/DSC_Folder.psm1'
           destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/DSCResources/DSC_Folder/DSC_Folder.psm1'
-          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteSample") -or ${PLASTER_PARAM_Features} -Contains ("All") -or (${PLASTER_PARAM_Features} -Contains ("DSCResources") -and ${PLASTER_PARAM_Features} -Contains ("SampleScripts"))'
+          condition='${PLASTER_PARAM_ModuleType} -in @("") -or ${PLASTER_PARAM_Features} -Contains ("All") -or (${PLASTER_PARAM_Features} -Contains ("DSCResources") -and ${PLASTER_PARAM_Features} -Contains ("SampleScripts"))'
     />
 
     <file source=''
           destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/DSCResources/DSC_Folder/en-US'
-          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteSample") -or ${PLASTER_PARAM_Features} -Contains ("All") -or (${PLASTER_PARAM_Features} -Contains ("DSCResources") -and ${PLASTER_PARAM_Features} -Contains ("SampleScripts"))'
+          condition='${PLASTER_PARAM_ModuleType} -in @("") -or ${PLASTER_PARAM_Features} -Contains ("All") -or (${PLASTER_PARAM_Features} -Contains ("DSCResources") -and ${PLASTER_PARAM_Features} -Contains ("SampleScripts"))'
     />
 
     <file source='../MofResource/DSC_Folder/en-US/DSC_Folder.strings.psd1'
           destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/DSCResources/DSC_Folder/en-US/DSC_Folder.strings.psd1'
-          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteSample") -or ${PLASTER_PARAM_Features} -Contains ("All") -or (${PLASTER_PARAM_Features} -Contains ("DSCResources") -and ${PLASTER_PARAM_Features} -Contains ("SampleScripts"))'
+          condition='${PLASTER_PARAM_ModuleType} -in @("") -or ${PLASTER_PARAM_Features} -Contains ("All") -or (${PLASTER_PARAM_Features} -Contains ("DSCResources") -and ${PLASTER_PARAM_Features} -Contains ("SampleScripts"))'
     />
 
     <!--   DSCResource Examples Sample Files -->
-
     <file source=''
           destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/Examples/Resources/'
-          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteSample") -or ${PLASTER_PARAM_Features} -Contains ("All") -or (${PLASTER_PARAM_Features} -Contains ("DSCResources") -and ${PLASTER_PARAM_Features} -Contains ("SampleScripts"))'
+          condition='${PLASTER_PARAM_ModuleType} -in @("") -or ${PLASTER_PARAM_Features} -Contains ("All") -or (${PLASTER_PARAM_Features} -Contains ("DSCResources") -and ${PLASTER_PARAM_Features} -Contains ("SampleScripts"))'
     />
 
     <file source='../Examples/README.md'
           destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/Examples/README.md'
-          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteSample") -or ${PLASTER_PARAM_Features} -Contains ("All") -or (${PLASTER_PARAM_Features} -Contains ("DSCResources") -and ${PLASTER_PARAM_Features} -Contains ("SampleScripts"))'
+          condition='${PLASTER_PARAM_ModuleType} -in @("") -or ${PLASTER_PARAM_Features} -Contains ("All") -or (${PLASTER_PARAM_Features} -Contains ("DSCResources") -and ${PLASTER_PARAM_Features} -Contains ("SampleScripts"))'
     />
 
     <file source=''
           destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/Examples/Resources/Folder/'
-          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteSample") -or ${PLASTER_PARAM_Features} -Contains ("All") -or (${PLASTER_PARAM_Features} -Contains ("DSCResources") -and ${PLASTER_PARAM_Features} -Contains ("SampleScripts"))'
+          condition='${PLASTER_PARAM_ModuleType} -in @("") -or ${PLASTER_PARAM_Features} -Contains ("All") -or (${PLASTER_PARAM_Features} -Contains ("DSCResources") -and ${PLASTER_PARAM_Features} -Contains ("SampleScripts"))'
     />
     <file source='../Examples/Resources/Folder/1-DscResourceTemplate_CreateFolderAsSystemConfig.ps1'
           destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/Examples/Resources/Folder/1-DscResourceTemplate_CreateFolderAsSystemConfig.ps1'
-          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteSample") -or ${PLASTER_PARAM_Features} -Contains ("All") -or (${PLASTER_PARAM_Features} -Contains ("DSCResources") -and ${PLASTER_PARAM_Features} -Contains ("SampleScripts"))'
+          condition='${PLASTER_PARAM_ModuleType} -in @("") -or ${PLASTER_PARAM_Features} -Contains ("All") -or (${PLASTER_PARAM_Features} -Contains ("DSCResources") -and ${PLASTER_PARAM_Features} -Contains ("SampleScripts"))'
     />
     <file source='../Examples/Resources/Folder/2-DscResourceTemplate_CreateFolderAsUserConfig.ps1'
           destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/Examples/Resources/Folder/2-DscResourceTemplate_CreateFolderAsUserConfig.ps1'
-          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteSample") -or ${PLASTER_PARAM_Features} -Contains ("All") -or (${PLASTER_PARAM_Features} -Contains ("DSCResources") -and ${PLASTER_PARAM_Features} -Contains ("SampleScripts"))'
+          condition='${PLASTER_PARAM_ModuleType} -in @("") -or ${PLASTER_PARAM_Features} -Contains ("All") -or (${PLASTER_PARAM_Features} -Contains ("DSCResources") -and ${PLASTER_PARAM_Features} -Contains ("SampleScripts"))'
     />
     <file source='../Examples/Resources/Folder/3-DscResourceTemplate_RemoveFolderConfig.ps1'
           destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/Examples/Resources/Folder/3-DscResourceTemplate_RemoveFolderConfig.ps1'
-          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteSample") -or ${PLASTER_PARAM_Features} -Contains ("All") -or (${PLASTER_PARAM_Features} -Contains ("DSCResources") -and ${PLASTER_PARAM_Features} -Contains ("SampleScripts"))'
+          condition='${PLASTER_PARAM_ModuleType} -in @("") -or ${PLASTER_PARAM_Features} -Contains ("All") -or (${PLASTER_PARAM_Features} -Contains ("DSCResources") -and ${PLASTER_PARAM_Features} -Contains ("SampleScripts"))'
     />
     <!-- END OF DSCResources files and folders -->
 
