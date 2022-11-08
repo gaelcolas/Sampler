@@ -28,11 +28,11 @@ Describe Get-Something {
 <%
     if ($PLASTER_PARAM_PrivateFunctionName)
     {
-%>
+@"
     BeforeAll {
         Mock -CommandName $PLASTER_PARAM_PrivateFunctionName -MockWith { `$PrivateData }`r`n"
     }
-<%
+"@
     }
 %>
     Context 'Return values' {
