@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.116.0] - 2022-11-08
+
 ### Removed
 
 - Removed the task `Set_Build_Environment_Variables` since it is not used,
