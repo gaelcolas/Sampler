@@ -10,7 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 - Removed the task `Set_Build_Environment_Variables` since it is not used,
-  and build helpers are not in use anymore. Fixes [#376](https://github.com/gaelcolas/Sampler/issues/376)
+  and build helpers are not in use anymore. Fixes [#376](https://github.com/gaelcolas/Sampler/issues/376).
+- Removed MOF based DSC resources from the CompleteModule sample.
 
 ### Added
 

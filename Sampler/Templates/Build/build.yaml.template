@@ -15,7 +15,7 @@
 CopyPaths:
   - en-US
 <%
-    if ($PLASTER_PARAM_ModuleType -eq 'dsccommunity' -or $PLASTER_PARAM_ModuleType -match 'complete' -or $PLASTER_PARAM_Features -Contains ("All") -or $PLASTER_PARAM_Features -Contains ("DSCResources")) {
+    if ($PLASTER_PARAM_ModuleType -eq 'dsccommunity' -or $PLASTER_PARAM_Features -Contains ("All") -or $PLASTER_PARAM_Features -Contains ("DSCResources")) {
 "  - DSCResources"
     }
     else {
@@ -56,7 +56,7 @@ NestedModule:
       Exclude: PSGetModuleInfo.xml
 "@
     }
-    elseif ($PLASTER_PARAM_ModuleType -match 'complete' -or $PLASTER_PARAM_Features -Contains ("All") -or $PLASTER_PARAM_Features -Contains ("DSCResources")) {
+    elseif ($PLASTER_PARAM_Features -Contains ("All") -or $PLASTER_PARAM_Features -Contains ("DSCResources")) {
 @"
   DscResource.Common:
     CopyOnly: true
@@ -153,7 +153,7 @@ BuildWorkflow:
   publish:
     - publish_module_to_gallery
 <%
-    if($PLASTER_PARAM_ModuleType -in @('dsccommunity', 'CompleteModule') -or $PLASTER_PARAM_Features -Contains ('All')) {
+    if($PLASTER_PARAM_ModuleType -in @('dsccommunity', 'CompleteSample') -or $PLASTER_PARAM_Features -Contains ('All')) {
 @"
     - Publish_Release_To_GitHub
     - Publish_GitHub_Wiki_Content
@@ -183,7 +183,7 @@ Pester:
     - Modules/DscResource.Common
 "@
     }
-    elseif ($PLASTER_PARAM_ModuleType -match 'complete' -or $PLASTER_PARAM_Features -Contains ("All") -or $PLASTER_PARAM_Features -Contains ("DSCResources"))
+    elseif ($PLASTER_PARAM_Features -Contains ("All") -or $PLASTER_PARAM_Features -Contains ("DSCResources"))
     {
 @"
     - Modules/DscResource.Common
@@ -278,7 +278,7 @@ ModuleBuildTasks:
   Sampler:
     - '*.build.Sampler.ib.tasks'
 <%
-    if($PLASTER_PARAM_ModuleType -in @('dsccommunity', 'CompleteModule', 'SimpleModule') -or $PLASTER_PARAM_Features -Contains ("All") -or $PLASTER_PARAM_Features -Contains ("GitHub")) {
+    if($PLASTER_PARAM_ModuleType -in @('dsccommunity', 'CompleteSample', 'SimpleModule') -or $PLASTER_PARAM_Features -Contains ("All") -or $PLASTER_PARAM_Features -Contains ("GitHub")) {
 @"
   Sampler.GitHubTasks:
     - '*.ib.tasks'
