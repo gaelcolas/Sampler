@@ -12,6 +12,7 @@
 "@
     }
 %>
+BuiltModuleSubdirectory: module
 CopyPaths:
   - en-US
 <%
