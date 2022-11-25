@@ -356,7 +356,7 @@ Task Build_DscResourcesToExport_ModuleBuilder {
 
     if ($builtMofDscFolder = (Get-ChildItem -Path $builtDscResourcesFolder -Directory -ErrorAction SilentlyContinue))
     {
-        if ($mofPath = $builtMofDscFolder | Get-ChildItem -Include '*.schema.mof' -File)
+        if ($mofPath = $builtMofDscFolder | Get-ChildItem -Filter '*.schema.mof' -File)
         {
             try
             {

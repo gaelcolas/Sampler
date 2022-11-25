@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Task `Build_ModuleOutput_ModuleBuilder`
+  - Using parameter `Filter` instead of `Include` to get MOF files.
+
+## [Unreleased]
+
 ### Removed
 
 - Removed the task `Set_Build_Environment_Variables` since it is not used,
