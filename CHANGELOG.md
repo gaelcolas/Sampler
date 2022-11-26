@@ -7,10 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
 - Task `Build_ModuleOutput_ModuleBuilder`
-  - Using parameter `Filter` instead of `Include` to get MOF files.
+  - Fixed #402: Using parameter `Filter` instead of `Include` to get MOF files.
 
-## [Unreleased]
+## [0.116.0] - 2022-11-08
 
 ### Removed
 
