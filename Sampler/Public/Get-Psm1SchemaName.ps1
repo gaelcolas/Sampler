@@ -37,7 +37,7 @@ function Get-Psm1SchemaName
         $ast = [System.Management.Automation.Language.Parser]::ParseInput($rawContent, [ref]$tokens, [ref]$parseErrors)
         $configurations = $ast.FindAll( { $args[0] -is [System.Management.Automation.Language.ConfigurationDefinitionAst] }, $true)
 
-        if ($configurations.Count -gt 1)
+        if ($configurations.Count -ne 1)
         {
             Write-Error "It is expected to find only 1 configuration in the file '$Path' but found $($configurations.Count)"
         }
