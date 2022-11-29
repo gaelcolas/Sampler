@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Task `Build_ModuleOutput_ModuleBuilder`
   - Fixed #402: Using parameter `Filter` instead of `Include` to get MOF files.
 
+### Added
+
+- Task `Build_ModuleOutput_ModuleBuilder`
+  - Proper support for DSC composite resources (*.schema.psm1).
+
 ## [0.116.0] - 2022-11-08
 
 ### Removed
