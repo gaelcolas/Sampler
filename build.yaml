@@ -177,3 +177,10 @@ GitHubConfig:
   GitHubConfigUserName: gaelcolas
   GitHubConfigUserEmail: gaelcolas@synedgy.com
   UpdateChangelogOnPrerelease: false
+
+SetPSModulePath:
+  #PSModulePath: C:\Users\<UserName>\OneDrive\Documents\WindowsPowerShell\Modules;C:\Program Files\WindowsPowerShell\Modules;C:\Windows\system32\WindowsPowerShell\v1.0\Modules;
+  RemovePersonal: true
+  RemoveProgramFiles: true
+  RemoveWindows: false
+  SetSystemDefault: false
