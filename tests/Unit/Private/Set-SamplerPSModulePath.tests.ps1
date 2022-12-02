@@ -367,6 +367,8 @@ Describe 'Set-SamplerPSModulePath' {
             InModuleScope -ScriptBlock {
 
                 $userPSModulePath = Get-UserPSModulePath
+                #Sometimes there are empty path elements in the PSModulePath that can be removed safely
+                $userPSModulePath = $userPSModulePath -replace ';;', ';'
 
                 $param = @{
                     BuiltModuleSubdirectory  = $buildModuleOutput
@@ -382,6 +384,8 @@ Describe 'Set-SamplerPSModulePath' {
             InModuleScope -ScriptBlock {
 
                 $userPSModulePath = Get-UserPSModulePath
+                #Sometimes there are empty path elements in the PSModulePath that can be removed safely
+                $userPSModulePath = $userPSModulePath -replace ';;', ';'
 
                 $param = @{
                     BuiltModuleSubdirectory = $buildModuleOutput
@@ -398,6 +402,8 @@ Describe 'Set-SamplerPSModulePath' {
             InModuleScope -ScriptBlock {
 
                 $userPSModulePath = Get-UserPSModulePath
+                #Sometimes there are empty path elements in the PSModulePath that can be removed safely
+                $userPSModulePath = $userPSModulePath -replace ';;', ';'
 
                 $param = @{
                     RequiredModulesDirectory = $requiredModulesPath
