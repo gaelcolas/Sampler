@@ -1580,3 +1580,75 @@ User name of the user that should push the tag.
 ##### Property UserEmail
 
 E-mail address of the user that should push the tag.
+
+### `Set_PSModulePath`
+
+This task sets the `PSModulePath` according to the configuration in the `build.yml`
+file.
+
+This task can be important when compiling DSC resource modules or
+DSC composite resource modules. When a DSC resource module is available in
+'Program Files' and the Required Modules folder, DSC sees this as a conflict.
+
+> Note: The paths `$BuiltModuleSubdirectory` and `$RequiredModulesDirectory` are
+> always prepended to the `PSModulePath`.
+
+This sequence sets the `PSModulePath` before starting the tests.
+
+```yaml
+  test:
+    - Set_PSModulePath
+    - Pester_Tests_Stop_On_Fail
+    - Pester_If_Code_Coverage_Under_Threshold
+```
+
+#### Task parameters
+
+Some task parameters are vital for the resource to work. See comment based
+help for the description for each available parameter. Below is the most
+important.
+
+#### Task configuration
+
+The build configuration (_build.yaml_) can be used to control the behavior
+of the build task.
+
+```yaml
+####################################################
+#           Setting Sampler PSModulePath           #
+####################################################
+SetPSModulePath:
+  #PSModulePath: C:\Users\Install\OneDrive\Documents\WindowsPowerShell\Modules;C:\Program Files\WindowsPowerShell\Modules;C:\Windows\system32\WindowsPowerShell\v1.0\Modules;c:\Users\Install\.vscode\extensions\ms-vscode.powershell-2022.5.1\modules;
+  RemovePersonal: false
+  RemoveProgramFiles: false
+  RemoveWindows: false
+  SetSystemDefault: false
+```
+
+#### Section SetPSModulePath
+
+##### Property SetPSModulePath
+
+Sets the `PSModulePath` to the specified value.
+
+##### Property RemovePersonal
+
+Removed the personal path from `PSModulePath`, like `C:\Users\Install\Documents\WindowsPowerShell\Modules`.
+
+#### Section RemoveProgramFiles
+
+Removed the 'Program Files' path from `PSModulePath`, like `C:\Program Files\WindowsPowerShell\Modules`.
+
+##### Property RemoveWindows
+
+Removed the Windows path from `PSModulePath`, like `C:\Windows\system32\WindowsPowerShell\v1.0\Modules`.
+
+> **Note: It is not recommended to remove the Windows path from `PSModulePath`.**
+
+##### Property SetSystemDefault
+
+Sets the module path to what is defined for the machine. The machines `PSModulePath` is retrieved with this call:
+
+```powershell
+[System.Environment]::GetEnvironmentVariable('PSModulePath', 'Machine')
+```
