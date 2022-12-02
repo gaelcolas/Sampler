@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added task `Set_PSModulePath`.
+  - Added function `Set-SamplerPSModulePath`.
+  - Added tests for the task and function.
+  - Added task `Set_PSModulePath` to `build.yml` Plaster template for project
+    type `dsccommunity`.
+
 ## [0.116.0] - 2022-11-08
 
 ### Removed
