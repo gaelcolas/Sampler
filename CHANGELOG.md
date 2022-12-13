@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Task `Build_ModuleOutput_ModuleBuilder`
+  - Fixed #402: Using parameter `Filter` instead of `Include` to get MOF files.
+- `Get-MofSchemaName`
+  - Permanently skipped a test that the build worker `ubuntu-latest` were
+    unable to run due to missing shared library 'libmi'.
+
 ### Added
 
 - Task `Build_ModuleOutput_ModuleBuilder`
@@ -16,11 +24,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added tests for the task and function.
   - Added task `Set_PSModulePath` to `build.yml` Plaster template for project
     type `dsccommunity`.
-
-### Fixed
-
-- Task `Build_ModuleOutput_ModuleBuilder`
-  - Fixed #402: Using parameter `Filter` instead of `Include` to get MOF files.
 
 ## [0.116.0] - 2022-11-08
 
