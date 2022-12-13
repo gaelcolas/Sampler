@@ -8,8 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
+
 - Task `Build_ModuleOutput_ModuleBuilder`
   - Fixed #402: Using parameter `Filter` instead of `Include` to get MOF files.
+- `Get-MofSchemaName`
+  - Permanently skipped a test that the build worker `ubuntu-latest` were
+    unable to run due to missing shared library 'libmi'.
 
 ### Added
 
