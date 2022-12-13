@@ -177,7 +177,16 @@ class DSC_MockResourceName : OMI_BaseResource
         }
     }
 
-    Context 'When running in PowerShell on Linux' -Skip:($IsMacOS -or $IsWindows -or $PSVersionTable.PSVersion.Major -eq 5) {
+    <#
+        This test is skipped due to that Linux build worker (ubuntu-latest) are unable
+        to run this test due to error:
+
+        Error Exception calling "ImportClasses" with "3" argument(s): "Unable to load
+        shared library 'libmi' or one of its dependencies. In order to help diagnose
+        loading problems, consider setting the LD_DEBUG environment variable:
+        liblibmi: cannot open shared object file: No such file or directory"
+    #>
+    Context 'When running in PowerShell on Linux' -Skip:$true #($IsMacOS -or $IsWindows -or $PSVersionTable.PSVersion.Major -eq 5) {
         BeforeAll {
             # Mock PowerShell
             Mock -CommandName Test-Path -MockWith {
