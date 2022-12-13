@@ -336,27 +336,27 @@ Task Build_DscResourcesToExport_ModuleBuilder {
 
     $DSCResourcesToAdd = @()
 
-    #Check if there are classes based resource in psm1
+    #Check if there are classes-based resource in psm1
     if ($null -ne $builtModuleRootScriptPath -and (Test-Path -Path $builtModuleRootScriptPath))
     {
-        Write-Build -Color 'Yellow' -Text "Looking in $builtModuleRootScriptPath"
+        Write-Build -Color Yellow -Text "Looking for class-based DSC Resources in in '$builtModuleRootScriptPath'"
 
         $builtClassDscResourcesNames = Get-ClassBasedResourceName -Path $builtModuleRootScriptPath
 
         if ($builtClassDscResourcesNames)
         {
-            Write-Build -Color 'White' -Text "  Adding $($builtClassDscResourcesNames -join ',') to the list of DscResource will be write in module manifest."
+            Write-Build -Color White -Text "  Adding $($builtClassDscResourcesNames -join ',') to the list of DscResource will be write in module manifest."
 
             $DSCResourcesToAdd = $DSCResourcesToAdd + $builtClassDscResourcesNames
         }
     }
 
     #Check if DSCResource Folder has DSCResources
-    Write-Build -Color 'Yellow' -Text "Looking in $builtDscResourcesFolder"
+    Write-Build -Color Yellow -Text "Looking for MOF-based DSC Resources in '$builtDscResourcesFolder'"
 
     if ($builtMofDscFolder = (Get-ChildItem -Path $builtDscResourcesFolder -Directory -ErrorAction SilentlyContinue))
     {
-        if ($mofPath = $builtMofDscFolder | Get-ChildItem -Include '*.schema.mof' -File)
+        if ($mofPath = $builtMofDscFolder | Get-ChildItem -Filter *.schema.mof -File)
         {
             try
             {
@@ -367,23 +367,45 @@ Task Build_DscResourcesToExport_ModuleBuilder {
                     }
                     else
                     {
-                        $_.friendlyName
+                        $_.FriendlyName
                     }
                 }
             }
             catch
             {
-                Write-Warning -Message ('Impossible to extract the name of the Mof based DSCResource, see the error : {0}' -f $_)
+                Write-Build -Color Red -Text "Impossible to extract the name of the Mof based DSCResource, see the error: $_"
+            }
+
+            if ($builtMofDscResourcesNames)
+            {
+                Write-Build -Color White -Text "  Adding '$($builtMofDscResourcesNames -join ', ')' to the list of DscResource will be write in module manifest."
+
+                $DSCResourcesToAdd = $DSCResourcesToAdd + $builtMofDscResourcesNames
             }
         }
         else
         {
-            Write-Warning -Message ('No mof file found in DscResource folder')
+            Write-Build -Color Yellow -Text "No '*.schema.mof' file found in DscResource folder"
+        }
+    }
+
+    #Check if DSCResource Folder has DSCResources
+    Write-Build -Color Yellow -Text "Looking for DSC Composite Resources in '$builtDscResourcesFolder'"
+
+    if ($builtMofDscFolder = (Get-ChildItem -Path $builtDscResourcesFolder -Directory -ErrorAction SilentlyContinue))
+    {
+        if ($mofPath = $builtMofDscFolder | Get-ChildItem -Filter *.schema.psm1 -File)
+        {
+            $builtMofDscResourcesNames = $mofPath.FullName | Get-Psm1SchemaName -ErrorAction Stop
+        }
+        else
+        {
+            Write-Build -Color Yellow -Text "No '*.schema.psm1' file found in DscResource folder"
         }
 
         if ($builtMofDscResourcesNames)
         {
-            Write-Build -Color 'White' -Text "  Adding $($builtMofDscResourcesNames -join ',') to the list of DscResource will be write in module manifest."
+            Write-Build -Color White -Text "  Adding '$($builtMofDscResourcesNames -join ', ')' to the list of DscResource will be write in module manifest."
 
             $DSCResourcesToAdd = $DSCResourcesToAdd + $builtMofDscResourcesNames
         }
@@ -394,7 +416,12 @@ Task Build_DscResourcesToExport_ModuleBuilder {
     # Add to DscResourcesToExport to ModuleManifest
     if ($ModuleInfo.ContainsKey('DscResourcesToExport') -and $DSCResourcesToAdd)
     {
-        Write-Build -Color 'Green' -Text "Updating the Module Manifest's DscResourcesToExport key..."
+        if (-not $ModuleInfo.ContainsKey('DscResourcesToExport'))
+        {
+            Write-Error "Cannot add 'DscResourcesToExport' to the module manifest because the key is not present. Please add it manually to the '*.psd1' file in the source."
+        }
+
+        Write-Build -Color Green -Text "Updating the Module Manifest's DscResourcesToExport key..."
 
         $DSCResourcesToAdd = $ModuleInfo.DscResourcesToExport + $DSCResourcesToAdd | Select-Object -Unique
 
@@ -405,7 +432,7 @@ Task Build_DscResourcesToExport_ModuleBuilder {
             ErrorAction  = 'Stop'
         }
 
-        Write-Build -Color 'Green' -Text "  Adding $($DSCResourcesToAdd -join ', ') to Module Manifest $($updateMetadataParams.Path)"
+        Write-Build -Color Green -Text "  Adding $($DSCResourcesToAdd -join ', ') to Module Manifest $($updateMetadataParams.Path)"
 
         Update-Metadata @updateMetadataParams
     }

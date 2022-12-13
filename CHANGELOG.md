@@ -9,11 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Task `Build_ModuleOutput_ModuleBuilder`
+  - Proper support for DSC composite resources (*.schema.psm1).
 - Added task `Set_PSModulePath`.
   - Added function `Set-SamplerPSModulePath`.
   - Added tests for the task and function.
   - Added task `Set_PSModulePath` to `build.yml` Plaster template for project
     type `dsccommunity`.
+
+### Fixed
+
+- Task `Build_ModuleOutput_ModuleBuilder`
+  - Fixed #402: Using parameter `Filter` instead of `Include` to get MOF files.
 
 ## [0.116.0] - 2022-11-08
 
