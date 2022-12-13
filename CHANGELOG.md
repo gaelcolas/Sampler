@@ -14,11 +14,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Get-MofSchemaName`
   - Permanently skipped a test that the build worker `ubuntu-latest` were
     unable to run due to missing shared library 'libmi'.
+- Now the QA test that verifies that the Unreleased section header is present
+  in the CHANGELOG.md correctly supports ChangelogManagement v3.0.1.
 
 ### Added
 
 - Task `Build_ModuleOutput_ModuleBuilder`
   - Proper support for DSC composite resources (*.schema.psm1).
+
+### Changed
+
+- The QA tests can now be debugged by `Invoke-Pester` directly, before it
+  had to be started by the build script `build.ps1`. This will also help
+  the Pester Tests VS Code extension to be able to run the tests.
 
 ## [0.116.0] - 2022-11-08
 
