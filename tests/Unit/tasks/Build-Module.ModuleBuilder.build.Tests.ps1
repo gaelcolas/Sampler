@@ -554,10 +554,10 @@ Describe 'Build_DscResourcesToExport_ModuleBuilder' {
         }
     }
 
-    Context 'When a module have a MOF-based DSC resource' {
+    Context 'When a module has a MOF-based DSC resource' {
         BeforeAll {
             $mockModuleDSCResourcePath = $TestDrive | Join-Path -ChildPath 'DSCResources'
-6
+
             # Need to create the folder so mock for Get-ChildItem work.
             New-Item -Path $mockModuleDSCResourcePath -ItemType Directory -Force | Out-Null
 
@@ -574,7 +574,7 @@ Describe 'Build_DscResourcesToExport_ModuleBuilder' {
             }
 
             Mock -CommandName Get-ChildItem -ParameterFilter {
-                $Include -eq '*.schema.mof'
+                $Filter -eq '*.schema.mof'
             } -MockWith {
                 return @{
                     FullName = (Join-Path -Path $TestDrive -ChildPath 'DSCResources/MyResource.schema.mof')
@@ -611,6 +611,64 @@ Describe 'Build_DscResourcesToExport_ModuleBuilder' {
             Should -Invoke -CommandName Update-Metadata -ParameterFilter {
                 $PropertyName -eq 'DscResourcesToExport' -and
                 $Value -contains 'MyResourceFriendlyName'
+            } -Exactly -Times 1 -Scope It
+        }
+    }
+
+    Context 'When a module has a DSC composite (*.schema.psm1) resource' {
+        BeforeAll {
+            $mockModuleDSCResourcePath = $TestDrive | Join-Path -ChildPath 'DSCResources'
+
+            # Need to create the folder so mock for Get-ChildItem work.
+            New-Item -Path $mockModuleDSCResourcePath -ItemType Directory -Force | Out-Null
+
+            Mock -CommandName Get-SamplerAbsolutePath -ParameterFilter {
+                $Path -eq 'DSCResources'
+            } -MockWith {
+                return $mockModuleDSCResourcePath
+            }
+
+            Mock -CommandName Get-ChildItem -ParameterFilter {
+                $Path -eq $mockModuleDSCResourcePath
+            } -MockWith {
+                return $TestDrive
+            }
+
+            Mock -CommandName Get-ChildItem -ParameterFilter {
+                $Filter -eq '*.schema.psm1'
+            } -MockWith {
+                return @{
+                    FullName = (Join-Path -Path $TestDrive -ChildPath 'DSCResources/MyResource.schema.psm1')
+                }
+            }
+
+            Mock -CommandName Get-Psm1SchemaName -MockWith {
+                'MyResource'
+            }
+
+            Mock -CommandName Get-SamplerModuleInfo -MockWith {
+                return @{
+                    DscResourcesToExport = @()
+                }
+            } -RemoveParameterValidation 'ModuleManifestPath'
+
+            Mock -CommandName Get-Item -RemoveParameterValidation 'Path' -MockWith {
+                return @{
+                    FullName = 'MyModule.psd1'
+                }
+            }
+
+            Mock -CommandName Update-Metadata
+        }
+
+        It 'Should run the build task without throwing' {
+            {
+                Invoke-Build -Task 'Build_DscResourcesToExport_ModuleBuilder' -File $taskAlias.Definition @mockTaskParameters
+            } | Should -Not -Throw
+
+            Should -Invoke -CommandName Update-Metadata -ParameterFilter {
+                $PropertyName -eq 'DscResourcesToExport' -and
+                $Value -contains 'MyResource'
             } -Exactly -Times 1 -Scope It
         }
     }
