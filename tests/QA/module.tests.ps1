@@ -8,7 +8,7 @@ BeforeDiscovery {
     if (-not $ProjectName)
     {
         # Assuming project folder name is project name.
-        $ProjectName = Split-Path -Path $projectPath -Leaf
+        $ProjectName = Get-SamplerProjectName -BuildRoot $projectPath
     }
 
     $script:moduleName = $ProjectName
@@ -31,7 +31,7 @@ BeforeAll {
     if (-not $ProjectName)
     {
         # Assuming project folder name is project name.
-        $ProjectName = Split-Path -Path $projectPath -Leaf
+        $ProjectName = Get-SamplerProjectName -BuildRoot $projectPath
     }
 
     $script:moduleName = $ProjectName
