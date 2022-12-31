@@ -251,6 +251,7 @@ Describe 'Convert_Pester_Coverage' {
                 return @{
                     Version = '5.3.3'
                     CodeCoverage = @{
+                        # Mocking that same types as Pester uses.
                         CommandsMissed = [System.Collections.ArrayList] @(
                             [PSCustomObject] @{
                                 File = Join-Path -Path $TestDrive -ChildPath 'output/MyModule/1.0.0/MyModule.psm1'
