@@ -354,11 +354,11 @@ task Convert_Pester_Coverage {
     }
 
     # Get all missed commands that are in the main module file.
-    $missedCommands = $originalMissedCommands |
+    $missedCommands = , $originalMissedCommands |
         Where-Object -FilterScript { $_.File -match [RegEx]::Escape($moduleFileName) }
 
     # Get all hit commands that are in the main module file.
-    $hitCommands = $originalHitCommands |
+    $hitCommands = , $originalHitCommands |
         Where-Object -FilterScript { $_.File -match [RegEx]::Escape($moduleFileName) }
 
     <#

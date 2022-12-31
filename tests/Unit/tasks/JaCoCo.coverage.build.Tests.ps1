@@ -250,8 +250,26 @@ Describe 'Convert_Pester_Coverage' {
             Mock -CommandName Import-Clixml -MockWith {
                 return @{
                     Version = '5.3.3'
+                    CodeCoverage = @{
+                        CommandsMissed = [System.Collections.ArrayList] @(
+                            [PSCustomObject] @{
+                                File = Join-Path -Path $TestDrive -ChildPath 'output/MyModule/1.0.0/MyModule.psm1'
+                                Line        = 624
+                                StartLine   = 624
+                                EndLine     = 624
+                                StartColumn = 23
+                                EndColumn   = 144
+                                Class       = $null
+                                Function    = 'Get-MockCommand'
+                                Command     = "Get-Something -MockParameter 'MyMockValue'"
+                                HitCount    = 0
+                            }
+                        )
+                    }
                 }
             }
+
+            Mock -CommandName Convert-LineNumber
 
             Mock -CommandName New-SamplerJaCoCoDocument -MockWith {
                 return [Xml] '<xml></xml>'
