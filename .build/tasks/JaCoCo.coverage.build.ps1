@@ -358,7 +358,7 @@ task Convert_Pester_Coverage {
         to the correct type even if there is just one item so that Convert-LineNumber
         works.
     #>
-    [System.Collections.ArrayList] $missedCommands = $originalMissedCommands |
+    [System.Collections.ArrayList] $missedCommands = , $originalMissedCommands |
         Where-Object -FilterScript { $_.File -match [RegEx]::Escape($moduleFileName) }
 
     <#
@@ -366,7 +366,7 @@ task Convert_Pester_Coverage {
         to the correct type even if there is just one item so that Convert-LineNumber
         works.
     #>
-    [System.Collections.ArrayList] $hitCommands = $originalHitCommands |
+    [System.Collections.ArrayList] $hitCommands = , $originalHitCommands |
         Where-Object -FilterScript { $_.File -match [RegEx]::Escape($moduleFileName) }
 
     <#
