@@ -262,8 +262,23 @@ Describe 'Convert_Pester_Coverage' {
                                 EndColumn   = 144
                                 Class       = $null
                                 Function    = 'Get-MockCommand'
-                                Command     = "Get-Something -MockParameter 'MyMockValue'"
+                                Command     = "Get-Something1 -MockParameter 'MyMockValue'"
                                 HitCount    = 0
+                            }
+                        )
+
+                        CommandsExecuted = [System.Collections.ArrayList] @(
+                            [PSCustomObject] @{
+                                File = Join-Path -Path $TestDrive -ChildPath 'output/MyModule/1.0.0/MyModule.psm1'
+                                Line        = 625
+                                StartLine   = 625
+                                EndLine     = 625
+                                StartColumn = 23
+                                EndColumn   = 144
+                                Class       = $null
+                                Function    = 'Get-MockCommand'
+                                Command     = "Get-Something2 -MockParameter 'MyMockValue'"
+                                HitCount    = 1
                             }
                         )
                     }
