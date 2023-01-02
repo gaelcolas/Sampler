@@ -353,21 +353,25 @@ task Convert_Pester_Coverage {
         $originalHitCommands = $pesterObject.CodeCoverage.HitCommands
     }
 
-    <#
-        Get all missed commands that are in the main module file. Must be cast
-        to the correct type even if there is just one item so that Convert-LineNumber
-        works.
-    #>
-    [System.Collections.ArrayList] $missedCommands = , $originalMissedCommands |
-        Where-Object -FilterScript { $_.File -match [RegEx]::Escape($moduleFileName) }
+    # Get all missed commands that are in the main module file.
+    $missedCommands = $originalMissedCommands |
+            Where-Object -FilterScript { $_.File -match [RegEx]::Escape($moduleFileName) }
 
-    <#
-        Get all hit commands that are in the main module file. Must be cast
-        to the correct type even if there is just one item so that Convert-LineNumber
-        works.
-    #>
-    [System.Collections.ArrayList] $hitCommands = , $originalHitCommands |
-        Where-Object -FilterScript { $_.File -match [RegEx]::Escape($moduleFileName) }
+    if ($null -ne $missedCommands)
+    {
+        # Handle if there is just one item retuned, casting back to array.
+        $missedCommands = @($missedCommands)
+    }
+
+    # Get all hit commands that are in the main module file.
+    $hitCommands = $originalHitCommands |
+            Where-Object -FilterScript { $_.File -match [RegEx]::Escape($moduleFileName) }
+
+    if ($null -ne $hitCommands)
+    {
+        # Handle if there is just one item retuned, casting back to array.
+        $hitCommands = @($hitCommands)
+    }
 
     <#
         The command Convert-LineNumber uses 'PassThru' very strange. It is needed
