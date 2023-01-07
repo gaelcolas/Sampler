@@ -1,4 +1,16 @@
 BeforeDiscovery {
+    $projectPath = "$($PSScriptRoot)\..\.." | Convert-Path
+
+    <#
+        If the QA tests are run outside of the build script (e.g with Invoke-Pester)
+        the parent scope has not set the variable $ProjectName.
+    #>
+    if (-not $ProjectName)
+    {
+        # Assuming project folder name is project name.
+        $ProjectName = Get-SamplerProjectName -BuildRoot $projectPath
+    }
+
     $script:moduleName = $ProjectName
 
     Remove-Module -Name $script:moduleName -Force -ErrorAction SilentlyContinue
@@ -9,10 +21,20 @@ BeforeDiscovery {
 }
 
 BeforeAll {
-    $script:moduleName = $ProjectName
-
     # Convert-Path required for PS7 or Join-Path fails
     $projectPath = "$($PSScriptRoot)\..\.." | Convert-Path
+
+    <#
+        If the QA tests are run outside of the build script (e.g with Invoke-Pester)
+        the parent scope has not set the variable $ProjectName.
+    #>
+    if (-not $ProjectName)
+    {
+        # Assuming project folder name is project name.
+        $ProjectName = Get-SamplerProjectName -BuildRoot $projectPath
+    }
+
+    $script:moduleName = $ProjectName
 
     $sourcePath = (
         Get-ChildItem -Path $projectPath\*\*.psd1 |
@@ -57,7 +79,7 @@ Describe 'Changelog Management' -Tag 'Changelog' {
     }
 
     It 'Changelog should have an Unreleased header' -Skip:$skipTest {
-            (Get-ChangelogData -Path (Join-Path -Path $ProjectPath -ChildPath 'CHANGELOG.md') -ErrorAction Stop).Unreleased.RawData | Should -Not -BeNullOrEmpty
+            (Get-ChangelogData -Path (Join-Path -Path $ProjectPath -ChildPath 'CHANGELOG.md') -ErrorAction Stop).Unreleased | Should -Not -BeNullOrEmpty
     }
 }
 
