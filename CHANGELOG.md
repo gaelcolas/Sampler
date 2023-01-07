@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Get-MofSchemaName`
   - Permanently skipped a test that the build worker `ubuntu-latest` were
     unable to run due to missing shared library 'libmi'.
+- Task `Convert_Pester_Coverage`
+  - No longer throws an exception when there was just one missed command
+    for a test suite. Fixes [#407](https://github.com/gaelcolas/Sampler/issues/407).
 
 ### Added
 
