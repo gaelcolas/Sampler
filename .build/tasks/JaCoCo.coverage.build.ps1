@@ -357,9 +357,21 @@ task Convert_Pester_Coverage {
     $missedCommands = $originalMissedCommands |
         Where-Object -FilterScript { $_.File -match [RegEx]::Escape($moduleFileName) }
 
+    if ($null -ne $missedCommands)
+    {
+        # Handle if there is just one item retuned, casting back to array.
+        $missedCommands = @($missedCommands)
+    }
+
     # Get all hit commands that are in the main module file.
     $hitCommands = $originalHitCommands |
         Where-Object -FilterScript { $_.File -match [RegEx]::Escape($moduleFileName) }
+
+    if ($null -ne $hitCommands)
+    {
+        # Handle if there is just one item retuned, casting back to array.
+        $hitCommands = @($hitCommands)
+    }
 
     <#
         The command Convert-LineNumber uses 'PassThru' very strange. It is needed

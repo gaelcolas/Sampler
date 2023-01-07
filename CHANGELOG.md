@@ -16,6 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     unable to run due to missing shared library 'libmi'.
 - Now the QA test that verifies that the Unreleased section header is present
   in the CHANGELOG.md correctly supports ChangelogManagement v3.0.1.
+- Task `Convert_Pester_Coverage`
+  - No longer throws an exception when there was just one missed command
+    for a test suite. Fixes [#407](https://github.com/gaelcolas/Sampler/issues/407).
 
 ### Added
 
