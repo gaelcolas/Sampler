@@ -217,107 +217,214 @@ Describe 'Convert_Pester_Coverage' {
         }
     }
 
-    Context 'When converting built modules code coverage to match source files' {
-        BeforeAll {
-            Mock -CommandName Get-CodeCoverageThreshold -MockWith {
-                return 70
-            }
+    Context 'When using Pester 4' {
+        Context 'When converting built modules code coverage to match source files' {
+            BeforeAll {
+                Mock -CommandName Get-CodeCoverageThreshold -MockWith {
+                    return 70
+                }
 
-            Mock -CommandName Get-SamplerAbsolutePath -ParameterFilter {
-                $Path -match 'testResults'
-            } -MockWith {
-                return $TestDrive | Join-Path -ChildPath 'testResults'
-            }
+                Mock -CommandName Get-SamplerAbsolutePath -ParameterFilter {
+                    $Path -match 'testResults'
+                } -MockWith {
+                    return $TestDrive | Join-Path -ChildPath 'testResults'
+                }
 
-            Mock -CommandName Get-PesterOutputFileFileName -MockWith {
-                return 'MyModuleCoverage.xml'
-            }
+                Mock -CommandName Get-PesterOutputFileFileName -MockWith {
+                    return 'MyModuleCoverage.xml'
+                }
 
-            Mock -CommandName Get-SamplerCodeCoverageOutputFile -MockWith {
-                # Create the folder structure in the test drive.
-                New-Item -Path $PesterOutputFolder -ItemType Directory -Force | Out-Null
+                Mock -CommandName Get-SamplerCodeCoverageOutputFile -MockWith {
+                    # Create the folder structure in the test drive.
+                    New-Item -Path $PesterOutputFolder -ItemType Directory -Force | Out-Null
 
-                # Write a dummy XML file that can be read back by the task later on.
-                '<xml></xml>' | Out-File -FilePath (Join-Path -Path $PesterOutputFolder -ChildPath 'CodeCov_MyModuleCoverage.xml') -Encoding UTF8 -Force
-            }
+                    # Write a dummy XML file that can be read back by the task later on.
+                    '<xml></xml>' | Out-File -FilePath (Join-Path -Path $PesterOutputFolder -ChildPath 'CodeCov_MyModuleCoverage.xml') -Encoding UTF8 -Force
+                }
 
-            Mock -CommandName Test-Path -ParameterFilter {
-                $Path -match 'PesterObject_'
-            } -MockWith {
-                return $true
-            }
+                Mock -CommandName Test-Path -ParameterFilter {
+                    $Path -match 'PesterObject_'
+                } -MockWith {
+                    return $true
+                }
 
-            Mock -CommandName Import-Clixml -MockWith {
-                return @{
-                    Version = '5.3.3'
-                    CodeCoverage = @{
-                        # Mocking that same types as Pester uses.
-                        CommandsMissed = [System.Collections.ArrayList] @(
-                            [PSCustomObject] @{
-                                File = Join-Path -Path $TestDrive -ChildPath 'output/MyModule/1.0.0/MyModule.psm1'
-                                Line        = 624
-                                StartLine   = 624
-                                EndLine     = 624
-                                StartColumn = 23
-                                EndColumn   = 144
-                                Class       = $null
-                                Function    = 'Get-MockCommand'
-                                Command     = "Get-Something1 -MockParameter 'MyMockValue'"
-                                HitCount    = 0
-                            }
-                        )
+                Mock -CommandName Import-Clixml -MockWith {
+                    return @{
+                        CodeCoverage = @{
+                            # Mocking that same types as Pester uses.
+                            MissedCommands = [System.Collections.ArrayList] @(
+                                [PSCustomObject] @{
+                                    File = Join-Path -Path $TestDrive -ChildPath 'output/MyModule/1.0.0/MyModule.psm1'
+                                    Line        = 624
+                                    StartLine   = 624
+                                    EndLine     = 624
+                                    StartColumn = 23
+                                    EndColumn   = 144
+                                    Class       = $null
+                                    Function    = 'Get-MockCommand'
+                                    Command     = "Get-Something1 -MockParameter 'MyMockValue'"
+                                    HitCount    = 0
+                                }
+                            )
 
-                        CommandsExecuted = [System.Collections.ArrayList] @(
-                            [PSCustomObject] @{
-                                File = Join-Path -Path $TestDrive -ChildPath 'output/MyModule/1.0.0/MyModule.psm1'
-                                Line        = 625
-                                StartLine   = 625
-                                EndLine     = 625
-                                StartColumn = 23
-                                EndColumn   = 144
-                                Class       = $null
-                                Function    = 'Get-MockCommand'
-                                Command     = "Get-Something2 -MockParameter 'MyMockValue'"
-                                HitCount    = 1
-                            }
-                        )
+                            HitCommands = [System.Collections.ArrayList] @(
+                                [PSCustomObject] @{
+                                    File = Join-Path -Path $TestDrive -ChildPath 'output/MyModule/1.0.0/MyModule.psm1'
+                                    Line        = 625
+                                    StartLine   = 625
+                                    EndLine     = 625
+                                    StartColumn = 23
+                                    EndColumn   = 144
+                                    Class       = $null
+                                    Function    = 'Get-MockCommand'
+                                    Command     = "Get-Something2 -MockParameter 'MyMockValue'"
+                                    HitCount    = 1
+                                }
+                            )
+                        }
                     }
+                }
+
+                Mock -CommandName Convert-LineNumber
+
+                Mock -CommandName New-SamplerJaCoCoDocument -MockWith {
+                    return [Xml] '<xml></xml>'
+                }
+
+                Mock -CommandName Out-SamplerXml -ParameterFilter {
+                    $Path -match 'source_coverage\.xml'
+                }
+
+                Mock -CommandName Out-SamplerXml -ParameterFilter {
+                    $Path -match '\.xml\.bak'
+                }
+
+                Mock -CommandName Merge-JaCoCoReport -MockWith {
+                    return [Xml] '<xml></xml>'
+                }
+
+                Mock -CommandName Update-JaCoCoStatistic -MockWith {
+                    return [Xml] '<xml></xml>'
+                }
+
+                Mock -CommandName Out-SamplerXml -ParameterFilter {
+                    $Path -match 'CodeCov_MyModuleCoverage\.xml'
                 }
             }
 
-            Mock -CommandName Convert-LineNumber
+            It 'Should run the build task without throwing' {
+                {
+                    Invoke-Build -Task 'Convert_Pester_Coverage' -File $taskAlias.Definition @mockTaskParameters
+                } | Should -Not -Throw
 
-            Mock -CommandName New-SamplerJaCoCoDocument -MockWith {
-                return [Xml] '<xml></xml>'
-            }
-
-            Mock -CommandName Out-SamplerXml -ParameterFilter {
-                $Path -match 'source_coverage\.xml'
-            }
-
-            Mock -CommandName Out-SamplerXml -ParameterFilter {
-                $Path -match '\.xml\.bak'
-            }
-
-            Mock -CommandName Merge-JaCoCoReport -MockWith {
-                return [Xml] '<xml></xml>'
-            }
-
-            Mock -CommandName Update-JaCoCoStatistic -MockWith {
-                return [Xml] '<xml></xml>'
-            }
-
-            Mock -CommandName Out-SamplerXml -ParameterFilter {
-                $Path -match 'CodeCov_MyModuleCoverage\.xml'
+                Should -Invoke -CommandName New-SamplerJaCoCoDocument -Exactly -Times 1 -Scope It
             }
         }
+    }
 
-        It 'Should run the build task without throwing' {
-            {
-                Invoke-Build -Task 'Convert_Pester_Coverage' -File $taskAlias.Definition @mockTaskParameters
-            } | Should -Not -Throw
+    Context 'When using Pester 5' {
+        Context 'When converting built modules code coverage to match source files' {
+            BeforeAll {
+                Mock -CommandName Get-CodeCoverageThreshold -MockWith {
+                    return 70
+                }
 
-            Should -Invoke -CommandName New-SamplerJaCoCoDocument -Exactly -Times 1 -Scope It
+                Mock -CommandName Get-SamplerAbsolutePath -ParameterFilter {
+                    $Path -match 'testResults'
+                } -MockWith {
+                    return $TestDrive | Join-Path -ChildPath 'testResults'
+                }
+
+                Mock -CommandName Get-PesterOutputFileFileName -MockWith {
+                    return 'MyModuleCoverage.xml'
+                }
+
+                Mock -CommandName Get-SamplerCodeCoverageOutputFile -MockWith {
+                    # Create the folder structure in the test drive.
+                    New-Item -Path $PesterOutputFolder -ItemType Directory -Force | Out-Null
+
+                    # Write a dummy XML file that can be read back by the task later on.
+                    '<xml></xml>' | Out-File -FilePath (Join-Path -Path $PesterOutputFolder -ChildPath 'CodeCov_MyModuleCoverage.xml') -Encoding UTF8 -Force
+                }
+
+                Mock -CommandName Test-Path -ParameterFilter {
+                    $Path -match 'PesterObject_'
+                } -MockWith {
+                    return $true
+                }
+
+                Mock -CommandName Import-Clixml -MockWith {
+                    return @{
+                        Version = '5.3.3'
+                        CodeCoverage = @{
+                            # Mocking that same types as Pester uses.
+                            CommandsMissed = [System.Collections.ArrayList] @(
+                                [PSCustomObject] @{
+                                    File = Join-Path -Path $TestDrive -ChildPath 'output/MyModule/1.0.0/MyModule.psm1'
+                                    Line        = 624
+                                    StartLine   = 624
+                                    EndLine     = 624
+                                    StartColumn = 23
+                                    EndColumn   = 144
+                                    Class       = $null
+                                    Function    = 'Get-MockCommand'
+                                    Command     = "Get-Something1 -MockParameter 'MyMockValue'"
+                                    HitCount    = 0
+                                }
+                            )
+
+                            CommandsExecuted = [System.Collections.ArrayList] @(
+                                [PSCustomObject] @{
+                                    File = Join-Path -Path $TestDrive -ChildPath 'output/MyModule/1.0.0/MyModule.psm1'
+                                    Line        = 625
+                                    StartLine   = 625
+                                    EndLine     = 625
+                                    StartColumn = 23
+                                    EndColumn   = 144
+                                    Class       = $null
+                                    Function    = 'Get-MockCommand'
+                                    Command     = "Get-Something2 -MockParameter 'MyMockValue'"
+                                    HitCount    = 1
+                                }
+                            )
+                        }
+                    }
+                }
+
+                Mock -CommandName Convert-LineNumber
+
+                Mock -CommandName New-SamplerJaCoCoDocument -MockWith {
+                    return [Xml] '<xml></xml>'
+                }
+
+                Mock -CommandName Out-SamplerXml -ParameterFilter {
+                    $Path -match 'source_coverage\.xml'
+                }
+
+                Mock -CommandName Out-SamplerXml -ParameterFilter {
+                    $Path -match '\.xml\.bak'
+                }
+
+                Mock -CommandName Merge-JaCoCoReport -MockWith {
+                    return [Xml] '<xml></xml>'
+                }
+
+                Mock -CommandName Update-JaCoCoStatistic -MockWith {
+                    return [Xml] '<xml></xml>'
+                }
+
+                Mock -CommandName Out-SamplerXml -ParameterFilter {
+                    $Path -match 'CodeCov_MyModuleCoverage\.xml'
+                }
+            }
+
+            It 'Should run the build task without throwing' {
+                {
+                    Invoke-Build -Task 'Convert_Pester_Coverage' -File $taskAlias.Definition @mockTaskParameters
+                } | Should -Not -Throw
+
+                Should -Invoke -CommandName New-SamplerJaCoCoDocument -Exactly -Times 1 -Scope It
+            }
         }
     }
 }
