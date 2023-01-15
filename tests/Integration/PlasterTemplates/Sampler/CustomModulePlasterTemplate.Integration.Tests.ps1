@@ -113,6 +113,10 @@ Describe 'Custom Module Plaster Template' {
             )
         }
 
+        AfterAll {
+            Remove-Item -Path $TestDrive -Recurse -Force
+        }
+
         It 'Should create a new module without throwing' {
             $invokePlasterParameters = @{
                 TemplatePath         = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
@@ -134,8 +138,12 @@ Describe 'Custom Module Plaster Template' {
                 License              = 'false'
                 Features             = 'All'
                 GitHubOwner          = 'AccountName'
+                UseGit               = $true
                 UseGitVersion        = $true
                 UseCodeCovIo         = $true
+                UseGitHub            = $true
+                UseAzurePipelines    = $true
+                UseVSCode            = $true
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw
@@ -262,6 +270,10 @@ Describe 'Custom Module Plaster Template' {
             )
         }
 
+        AfterAll {
+            Remove-Item -Path $TestDrive -Recurse -Force
+        }
+
         It 'Should create a new module without throwing' {
             $invokePlasterParameters = @{
                 TemplatePath         = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
@@ -284,8 +296,12 @@ Describe 'Custom Module Plaster Template' {
                 LicenseType          = 'MIT'
                 Features             = 'All'
                 GitHubOwner          = 'AccountName'
+                UseGit               = $true
                 UseGitVersion        = $true
                 UseCodeCovIo         = $true
+                UseGitHub            = $true
+                UseAzurePipelines    = $true
+                UseVSCode            = $true
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw
@@ -412,6 +428,10 @@ Describe 'Custom Module Plaster Template' {
             )
         }
 
+        AfterAll {
+            Remove-Item -Path $TestDrive -Recurse -Force
+        }
+
         It 'Should create a new module without throwing' {
             $invokePlasterParameters = @{
                 TemplatePath         = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
@@ -434,8 +454,12 @@ Describe 'Custom Module Plaster Template' {
                 LicenseType          = 'Apache'
                 Features             = 'All'
                 GitHubOwner          = 'AccountName'
+                UseGit               = $true
                 UseGitVersion        = $true
                 UseCodeCovIo         = $true
+                UseGitHub            = $true
+                UseAzurePipelines    = $true
+                UseVSCode            = $true
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw
@@ -563,6 +587,10 @@ Describe 'Custom Module Plaster Template' {
             )
         }
 
+        AfterAll {
+            Remove-Item -Path $TestDrive -Recurse -Force
+        }
+
         It 'Should create a new module without throwing' {
             $invokePlasterParameters = @{
                 TemplatePath         = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
@@ -585,8 +613,12 @@ Describe 'Custom Module Plaster Template' {
                 LicenseType          = 'Apache'
                 Features             = 'All'
                 GitHubOwner          = 'AccountName'
+                UseGit               = $true
                 UseGitVersion        = $true
                 UseCodeCovIo         = $true
+                UseGitHub            = $true
+                UseAzurePipelines    = $true
+                UseVSCode            = $true
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw
@@ -645,6 +677,10 @@ Describe 'Custom Module Plaster Template' {
             )
         }
 
+        AfterAll {
+            Remove-Item -Path $TestDrive -Recurse -Force
+        }
+
         It 'Should create a new module without throwing' {
             $invokePlasterParameters = @{
                 TemplatePath         = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
@@ -666,8 +702,10 @@ Describe 'Custom Module Plaster Template' {
                 License              = 'false'
                 Features             = 'Enum'
                 GitHubOwner          = 'AccountName'
-                UseGitVersion        = $true
-                UseCodeCovIo         = $true
+                UseGit               = $false
+                UseGitHub            = $false
+                UseAzurePipelines    = $false
+                UseVSCode            = $false
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw
@@ -726,6 +764,10 @@ Describe 'Custom Module Plaster Template' {
             )
         }
 
+        AfterAll {
+            Remove-Item -Path $TestDrive -Recurse -Force
+        }
+
         It 'Should create a new module without throwing' {
             $invokePlasterParameters = @{
                 TemplatePath         = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
@@ -747,8 +789,10 @@ Describe 'Custom Module Plaster Template' {
                 License              = 'false'
                 Features             = 'Classes' # All,Enum,Classes,DSCResources,SampleScripts,git,Gherkin,UnitTests,ModuleQuality,Build,AppVeyor,TestKitchen
                 GitHubOwner          = 'AccountName'
-                UseGitVersion        = $true
-                UseCodeCovIo         = $true
+                UseGit               = $false
+                UseGitHub            = $false
+                UseAzurePipelines    = $false
+                UseVSCode            = $false
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw
@@ -810,6 +854,10 @@ Describe 'Custom Module Plaster Template' {
             )
         }
 
+        AfterAll {
+            Remove-Item -Path $TestDrive -Recurse -Force
+        }
+
         It 'Should create a new module without throwing' {
             $invokePlasterParameters = @{
                 TemplatePath         = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
@@ -831,8 +879,10 @@ Describe 'Custom Module Plaster Template' {
                 License              = 'false'
                 Features             = 'DSCResources' # All,Enum,Classes,DSCResources,SampleScripts,git,Gherkin,UnitTests,ModuleQuality,Build,AppVeyor,TestKitchen
                 GitHubOwner          = 'AccountName'
-                UseGitVersion        = $true
-                UseCodeCovIo         = $true
+                UseGit               = $false
+                UseGitHub            = $false
+                UseAzurePipelines    = $false
+                UseVSCode            = $false
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw
@@ -892,6 +942,10 @@ Describe 'Custom Module Plaster Template' {
             )
         }
 
+        AfterAll {
+            Remove-Item -Path $TestDrive -Recurse -Force
+        }
+
         It 'Should create a new module without throwing' {
             $invokePlasterParameters = @{
                 TemplatePath         = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
@@ -913,8 +967,10 @@ Describe 'Custom Module Plaster Template' {
                 License              = 'false'
                 Features             = 'SampleScripts' # All,Enum,Classes,DSCResources,SampleScripts,git,Gherkin,UnitTests,ModuleQuality,Build,AppVeyor,TestKitchen
                 GitHubOwner          = 'AccountName'
-                UseGitVersion        = $true
-                UseCodeCovIo         = $true
+                UseGit               = $false
+                UseGitHub            = $false
+                UseAzurePipelines    = $false
+                UseVSCode            = $false
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw
@@ -978,6 +1034,10 @@ Describe 'Custom Module Plaster Template' {
             )
         }
 
+        AfterAll {
+            Remove-Item -Path $TestDrive -Recurse -Force
+        }
+
         It 'Should create a new module without throwing' {
             $invokePlasterParameters = @{
                 TemplatePath         = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
@@ -999,8 +1059,12 @@ Describe 'Custom Module Plaster Template' {
                 License              = 'false'
                 Features             = 'git' # All,Enum,Classes,DSCResources,SampleScripts,git,Gherkin,UnitTests,ModuleQuality,Build,AppVeyor,TestKitchen
                 GitHubOwner          = 'AccountName'
+                UseGit               = $true
                 UseGitVersion        = $true
                 UseCodeCovIo         = $true
+                UseGitHub            = $true
+                UseAzurePipelines    = $false
+                UseVSCode            = $false
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw
@@ -1059,6 +1123,10 @@ Describe 'Custom Module Plaster Template' {
             )
         }
 
+        AfterAll {
+            Remove-Item -Path $TestDrive -Recurse -Force
+        }
+
         It 'Should create a new module without throwing' {
             $invokePlasterParameters = @{
                 TemplatePath         = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
@@ -1080,8 +1148,10 @@ Describe 'Custom Module Plaster Template' {
                 License              = 'false'
                 Features             = 'UnitTests' # All,Enum,Classes,DSCResources,SampleScripts,git,Gherkin,UnitTests,ModuleQuality,Build,AppVeyor,TestKitchen
                 GitHubOwner          = 'AccountName'
-                UseGitVersion        = $true
-                UseCodeCovIo         = $true
+                UseGit               = $false
+                UseGitHub            = $false
+                UseAzurePipelines    = $false
+                UseVSCode            = $false
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw
@@ -1142,6 +1212,10 @@ Describe 'Custom Module Plaster Template' {
             )
         }
 
+        AfterAll {
+            Remove-Item -Path $TestDrive -Recurse -Force
+        }
+
         It 'Should create a new module without throwing' {
             $invokePlasterParameters = @{
                 TemplatePath         = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
@@ -1163,8 +1237,10 @@ Describe 'Custom Module Plaster Template' {
                 License              = 'false'
                 Features             = 'ModuleQuality' # All,Enum,Classes,DSCResources,SampleScripts,git,Gherkin,UnitTests,ModuleQuality,Build,AppVeyor,TestKitchen
                 GitHubOwner          = 'AccountName'
-                UseGitVersion        = $true
-                UseCodeCovIo         = $true
+                UseGit               = $false
+                UseGitHub            = $false
+                UseAzurePipelines    = $false
+                UseVSCode            = $false
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw
@@ -1227,6 +1303,10 @@ Describe 'Custom Module Plaster Template' {
             )
         }
 
+        AfterAll {
+            Remove-Item -Path $TestDrive -Recurse -Force
+        }
+
         It 'Should create a new module without throwing' {
             $invokePlasterParameters = @{
                 TemplatePath         = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
@@ -1248,8 +1328,10 @@ Describe 'Custom Module Plaster Template' {
                 License              = 'false'
                 Features             = 'Build' # All,Enum,Classes,DSCResources,SampleScripts,git,Gherkin,UnitTests,ModuleQuality,Build,AppVeyor,TestKitchen
                 GitHubOwner          = 'AccountName'
-                UseGitVersion        = $true
-                UseCodeCovIo         = $true
+                UseGit               = $false
+                UseGitHub            = $false
+                UseAzurePipelines    = $false
+                UseVSCode            = $false
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw
@@ -1307,6 +1389,10 @@ Describe 'Custom Module Plaster Template' {
             )
         }
 
+        AfterAll {
+            Remove-Item -Path $TestDrive -Recurse -Force
+        }
+
         It 'Should create a new module without throwing' {
             $invokePlasterParameters = @{
                 TemplatePath         = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
@@ -1328,8 +1414,10 @@ Describe 'Custom Module Plaster Template' {
                 License              = 'false'
                 Features             = 'AppVeyor' # All,Enum,Classes,DSCResources,SampleScripts,git,Gherkin,UnitTests,ModuleQuality,Build,AppVeyor,TestKitchen
                 GitHubOwner          = 'AccountName'
-                UseGitVersion        = $true
-                UseCodeCovIo         = $true
+                UseGit               = $false
+                UseGitHub            = $false
+                UseAzurePipelines    = $false
+                UseVSCode            = $false
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw
@@ -1389,6 +1477,10 @@ Describe 'Custom Module Plaster Template' {
             )
         }
 
+        AfterAll {
+            Remove-Item -Path $TestDrive -Recurse -Force
+        }
+
         It 'Should create a new module without throwing' {
             $invokePlasterParameters = @{
                 TemplatePath         = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
@@ -1410,8 +1502,10 @@ Describe 'Custom Module Plaster Template' {
                 License              = 'false'
                 Features             = 'TestKitchen' # All,Enum,Classes,DSCResources,SampleScripts,git,Gherkin,UnitTests,ModuleQuality,Build,AppVeyor,TestKitchen
                 GitHubOwner          = 'AccountName'
-                UseGitVersion        = $true
-                UseCodeCovIo         = $true
+                UseGit               = $false
+                UseGitHub            = $false
+                UseAzurePipelines    = $false
+                UseVSCode            = $false
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw

@@ -55,6 +55,10 @@ BeforeAll {
 }
 
 Describe 'Changelog Management' -Tag 'Changelog' {
+<%
+if ($PLASTER_PARAM_UseGit -eq 'true')
+{
+@'
     It 'Changelog has been updated' -Skip:(
         -not ([bool](Get-Command git -ErrorAction SilentlyContinue) -and
             [bool](&(Get-Process -Id $PID).Path -NoProfile -Command 'git rev-parse --is-inside-work-tree 2>$null'))
@@ -74,6 +78,9 @@ Describe 'Changelog Management' -Tag 'Changelog' {
         }
     }
 
+'@
+}
+%>
     It 'Changelog format compliant with keepachangelog format' -Skip:(![bool](Get-Command git -EA SilentlyContinue)) {
         { Get-ChangelogData -Path (Join-Path $ProjectPath 'CHANGELOG.md') -ErrorAction Stop } | Should -Not -Throw
     }

@@ -162,7 +162,7 @@ BuildWorkflow:
     }
 %>
 <%
-    if($PLASTER_PARAM_ModuleType -in @('SimpleModule') -or $PLASTER_PARAM_Features -Contains ('All') -or $PLASTER_PARAM_Features -Contains ('GitHub')) {
+    if($PLASTER_PARAM_UseGitHub -eq 'true' -or $PLASTER_PARAM_Features -Contains ('All') -or $PLASTER_PARAM_Features -Contains ('GitHub')) {
 @"
     - Publish_Release_To_GitHub
 "@
@@ -226,22 +226,25 @@ Pester:
 "@
     }
     else {
-@"
+@'
   #CodeCoverageOutputFile: JaCoCo_$OsShortName.xml
   #CodeCoverageOutputFileEncoding: ascii
-"@
+'@
     }
 %>
   # Use this if code coverage should be merged from several pipeline test jobs.
-  # Any existing keys above should be replaced.
-  # CodeCoverageOutputFile - the file that is created for each pipeline test job.
-  # CodeCoverageFilePattern - the pattern used to search all pipeline test job artifacts
-  # after the file specified in CodeCoverageOutputFile.
-  # CodeCoverageMergedOutputFile - the file that is created by the merge build task and
-  # is the file that should be uploaded to code coverage services.
+  # Any existing keys above should be replaced. See also CodeCoverage below.
+  # CodeCoverageOutputFile is the file that is created for each pipeline test job.
   #CodeCoverageOutputFile: JaCoCo_Merge.xml
-  #CodeCoverageMergedOutputFile: JaCoCo_coverage.xml
-  #CodeCoverageFilePattern: JaCoCo_Merge.xml
+
+# Use this to merged code coverage from several pipeline test jobs.
+# CodeCoverageFilePattern      - the pattern used to search all pipeline test job artifacts
+#                                after the file specified in CodeCoverageOutputFile.
+# CodeCoverageMergedOutputFile - the file that is created by the merge build task and
+#                                is the file that should be uploaded to code coverage services.
+#CodeCoverage:
+  #CodeCoverageFilePattern: JaCoCo_Merge.xml # the pattern used to search all pipeline test job artifacts
+  #CodeCoverageMergedOutputFile: JaCoCo_coverage.xml # the file that is created for the merged code coverage
 <%
     if ($PLASTER_PARAM_ModuleType -eq 'dsccommunity' -or $PLASTER_PARAM_ModuleType -match 'complete' -or $PLASTER_PARAM_Features -Contains ("All") -or $PLASTER_PARAM_Features -Contains ("DSCResources"))
     {
@@ -279,7 +282,7 @@ ModuleBuildTasks:
   Sampler:
     - '*.build.Sampler.ib.tasks'
 <%
-    if($PLASTER_PARAM_ModuleType -in @('dsccommunity', 'CompleteSample', 'SimpleModule') -or $PLASTER_PARAM_Features -Contains ("All") -or $PLASTER_PARAM_Features -Contains ("GitHub")) {
+    if($PLASTER_PARAM_ModuleType -in @('dsccommunity', 'CompleteSample') -or $PLASTER_PARAM_UseGitHub -eq 'true' -or $PLASTER_PARAM_Features -Contains ("All") -or $PLASTER_PARAM_Features -Contains ("GitHub")) {
 @"
   Sampler.GitHubTasks:
     - '*.ib.tasks'

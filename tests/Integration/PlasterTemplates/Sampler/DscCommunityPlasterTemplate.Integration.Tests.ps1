@@ -76,6 +76,10 @@ Describe 'DSC Community Plaster Template' {
             )
         }
 
+        AfterAll {
+            Remove-Item -Path $TestDrive -Recurse -Force
+        }
+
         It 'Should create a new module without throwing' {
             $invokePlasterParameters = @{
                 TemplatePath         = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
