@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.116.1] - 2023-01-09
+
 ### Fixed
 
 - Task `Build_ModuleOutput_ModuleBuilder`
@@ -14,6 +16,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Get-MofSchemaName`
   - Permanently skipped a test that the build worker `ubuntu-latest` were
     unable to run due to missing shared library 'libmi'.
+- Now the QA test that verifies that the Unreleased section header is present
+  in the CHANGELOG.md correctly supports ChangelogManagement v3.0.1.
+- Task `Convert_Pester_Coverage`
+  - No longer throws an exception when there was just one missed command
+    for a test suite. Fixes [#407](https://github.com/gaelcolas/Sampler/issues/407).
 
 ### Added
 
@@ -24,6 +31,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added tests for the task and function.
   - Added task `Set_PSModulePath` to `build.yml` Plaster template for project
     type `dsccommunity`.
+
+### Changed
+
+- The QA tests can now be debugged by `Invoke-Pester` directly, before it
+  had to be started by the build script `build.ps1`. This will also help
+  the Pester Tests VS Code extension to be able to run the tests.
 
 ## [0.116.0] - 2022-11-08
 
