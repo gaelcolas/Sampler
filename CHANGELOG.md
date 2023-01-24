@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Script `Set-SamplerTaskVariable.ps1`
+  - Added debug output of PSModulePath
+
+
 ## [0.116.1] - 2023-01-09
 
 ### Fixed
