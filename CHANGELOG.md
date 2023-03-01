@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.116.2] - 2023-03-01
+
 ### Added
 
 - Script `Set-SamplerTaskVariable.ps1`
