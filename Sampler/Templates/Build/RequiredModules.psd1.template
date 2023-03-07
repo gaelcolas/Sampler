@@ -18,14 +18,19 @@
     InvokeBuild                 = 'latest'
     PSScriptAnalyzer            = 'latest'
     Pester                      = 'latest'
-    Plaster                     = 'latest'
     ModuleBuilder               = 'latest'
     ChangelogManagement         = 'latest'
     Sampler                     = 'latest'
 <%
-    If ($PLASTER_PARAM_ModuleType -in @('dsccommunity','CompleteSample','CompleteModule') -or $PLASTER_PARAM_Features -Contains ('All') -or $PLASTER_PARAM_Features -Contains ('DSCResources')) {
+    If ($PLASTER_PARAM_ModuleType -in @('dsccommunity','CompleteSample','CompleteModule') -or $PLASTER_PARAM_UseGitHub -eq 'true'  -or $PLASTER_PARAM_Features -Contains ('All') -or $PLASTER_PARAM_Features -Contains ('DSCResources')) {
 @"
     'Sampler.GitHubTasks'       = 'latest'
+"@
+    }
+%>
+<%
+    If ($PLASTER_PARAM_ModuleType -in @('dsccommunity','CompleteSample','CompleteModule') -or $PLASTER_PARAM_Features -Contains ('All') -or $PLASTER_PARAM_Features -Contains ('DSCResources')) {
+@"
     MarkdownLinkCheck           = 'latest'
 "@
     }

@@ -34,19 +34,40 @@
     </parameter>
     <parameter store="text" name="ModuleAuthor" type="text" prompt="Author's name" default="$Env:Username" />
     <parameter store="text" name="ModuleName" type="text" prompt="Name of your module" />
-    <parameter store="text" name="MainGitBranch" type="text" prompt="Name of your default branch" default="main" />
     <parameter name="ModuleDescription" type="text" prompt="Description of this module" />
     <parameter name="CustomRepo" default="PSGallery" type="text" prompt="Do you pull from default repository (PSGallery) or a custom repository?" />
     <parameter name="ModuleVersion" type="text" prompt="Module version"  default="0.0.1" />
-    <parameter name="GitHubOwner" default="MyOrgName" type="text" prompt="What is the name of the GitHub owner (personal or organization account) that will publish the module?" condition="$PLASTER_PARAM_ModuleType -notin @('dsccommunity', 'SimpleModule_NoBuild')" />
-    <parameter name="GitHubOwnerDscCommunity" default="dsccommunity" type="text" prompt="What is the name of the GitHub owner (personal or organization account) that will publish the module?" condition="$PLASTER_PARAM_ModuleType -in @('dsccommunity')" />
 
-    <parameter name="UseGitVersion" type="choice" prompt="Do you want to add configuration for GitVersion to handle automatic versioning for your project?" default="0" condition="$PLASTER_PARAM_ModuleType -notin @('SimpleModule_NoBuild', 'CustomModule')" >
+    <parameter name="UseGit" type="choice" prompt="Will you use Git for source control?" default="1" condition="$PLASTER_PARAM_ModuleType -notin @('SimpleModule_NoBuild', 'dsccommunity', 'CompleteSample')" >
       <choice label='&amp;Yes' value='true' />
       <choice label='&amp;No' value='false' />
     </parameter>
 
-    <parameter name="UseCodeCovIo" type="choice" prompt="Do you want to use the service CodeCov.io for code coverage reporting?" default="1" condition="$PLASTER_PARAM_ModuleType -notin @('SimpleModule_NoBuild', 'CustomModule')" >
+    <parameter store="text" name="MainGitBranch" type="text" prompt="Name of your default branch" default="main" condition="$PLASTER_PARAM_UseGit -eq 'true' -or $PLASTER_PARAM_ModuleType -in @('CompleteSample')"/>
+    <parameter name="UseGitVersion" type="choice" prompt="Do you want to add configuration for GitVersion to handle automatic versioning for your project?" default="0" condition="$PLASTER_PARAM_UseGit -eq 'true'" >
+      <choice label='&amp;Yes' value='true' />
+      <choice label='&amp;No' value='false' />
+    </parameter>
+
+    <parameter name="UseCodeCovIo" type="choice" prompt="Do you want to use the service CodeCov.io for code coverage reporting?" default="1" condition="$PLASTER_PARAM_UseGit -eq 'true' -and $PLASTER_PARAM_ModuleType -notin @('CustomModule')" >
+      <choice label='&amp;Yes' value='true' />
+      <choice label='&amp;No' value='false' />
+    </parameter>
+
+    <parameter name="UseGitHub" type="choice" prompt="Will you use GitHub.com as the collaboration platform for the project?" default="1" condition="$PLASTER_PARAM_UseGit -eq 'true' -and $PLASTER_PARAM_ModuleType -notin @('SimpleModule_NoBuild', 'dsccommunity')" >
+      <choice label='&amp;Yes' value='true' />
+      <choice label='&amp;No' value='false' />
+    </parameter>
+
+    <parameter name="UseAzurePipelines" type="choice" prompt="Do you want to use Azure Pipelines to run the the build, test and or deploy pipeline?" default="1" condition="$PLASTER_PARAM_ModuleType -notin @('SimpleModule_NoBuild', 'dsccommunity', 'CompleteSample')" >
+      <choice label='&amp;Yes' value='true' />
+      <choice label='&amp;No' value='false' />
+    </parameter>
+
+    <parameter name="GitHubOwner" default="MyOrgName" type="text" prompt="What is the name of the GitHub owner (personal or organization account) that will publish the module?" condition="($PLASTER_PARAM_UseGitHub -eq 'true' -and $PLASTER_PARAM_ModuleType -notin @('dsccommunity', 'SimpleModule_NoBuild')) -or $PLASTER_PARAM_ModuleType -in @('CompleteSample')" />
+    <parameter name="GitHubOwnerDscCommunity" default="dsccommunity" type="text" prompt="What is the name of the GitHub owner (personal or organization account) that will publish the module?" condition="$PLASTER_PARAM_ModuleType -in @('dsccommunity')" />
+
+    <parameter name="UseVSCode" type="choice" prompt="Will you use Visual Studio Code as the code editor for the project?" default="1" condition="$PLASTER_PARAM_ModuleType -notin @('CompleteSample', 'SimpleModule_NoBuild', 'dsccommunity')" >
       <choice label='&amp;Yes' value='true' />
       <choice label='&amp;No' value='false' />
     </parameter>
@@ -298,13 +319,13 @@
     <!--   GITIGNORE -->
     <file source='../Git/gitignore'
           destination='${PLASTER_PARAM_ModuleName}/.gitignore'
-          condition='${PLASTER_PARAM_Features} -Contains "All" -or ${PLASTER_PARAM_Features} -Contains "git" -or ${PLASTER_PARAM_ModuleType} -in @("dsccommunity","SimpleModule","CompleteSample","SimpleModule_NoBuild","SharedDscConfig")'
+          condition='${PLASTER_PARAM_Features} -Contains "All" -or $PLASTER_PARAM_UseGit -eq "true" -or ${PLASTER_PARAM_Features} -Contains "git" -or ${PLASTER_PARAM_ModuleType} -in @("dsccommunity","CompleteSample","SharedDscConfig")'
     />
 
     <!--   GITATTRIBUTES -->
     <file source='../Git/gitattributes'
           destination='${PLASTER_PARAM_ModuleName}/.gitattributes'
-          condition='${PLASTER_PARAM_Features} -Contains "All" -or ${PLASTER_PARAM_Features} -Contains "git" -or ${PLASTER_PARAM_ModuleType} -in @("dsccommunity","SimpleModule","CompleteSample","SimpleModule_NoBuild","SharedDscConfig")'
+          condition='${PLASTER_PARAM_Features} -Contains "All" -or $PLASTER_PARAM_UseGit -eq "true" -or ${PLASTER_PARAM_Features} -Contains "git" -or ${PLASTER_PARAM_ModuleType} -in @("dsccommunity","CompleteSample","SharedDscConfig")'
     />
 
     <!--   KITCHEN YAML Sample -->
@@ -353,7 +374,7 @@
     <!--   AZURE PIPELINES -->
     <templateFile source='azure-pipelines.yml.template'
           destination='${PLASTER_PARAM_ModuleName}/azure-pipelines.yml'
-          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteSample", "SimpleModule") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("Azure-Pipelines")'
+          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteSample") -or $PLASTER_PARAM_UseAzurePipelines -eq "true" -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("Azure-Pipelines")'
     />
 
     <templateFile source='azure-pipelines_dsccommunity.yml.template'
@@ -451,11 +472,13 @@
     <newModuleManifest destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/${PLASTER_PARAM_ModuleName}.psd1'
         moduleVersion='$PLASTER_PARAM_ModuleVersion'
         author='$PLASTER_PARAM_ModuleAuthor'
+        companyName='$PLASTER_PARAM_ModuleAuthor'
         description='$PLASTER_PARAM_ModuleDescription'
         rootModule='$PLASTER_PARAM_ModuleName.psm1'
         condition='-not (Test-Path "${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/${PLASTER_PARAM_ModuleName}.psd1")'
     />
 
+    <!-- Add Prerelease property if it does not exist -->
     <modify path='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/${PLASTER_PARAM_ModuleName}.psd1'
         condition='(Test-Path "${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/${PLASTER_PARAM_ModuleName}.psd1")'>
             <replace condition="$PLASTER_FileContent -notmatch '\n\s*Prerelease\s\=\s'">
@@ -464,7 +487,97 @@
             </replace>
     </modify>
 
-     <templateFile
+     <!-- Make sure Prerelease property is not commented -->
+    <modify path='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/${PLASTER_PARAM_ModuleName}.psd1'
+        condition='(Test-Path "${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/${PLASTER_PARAM_ModuleName}.psd1")'>
+            <replace condition="$PLASTER_FileContent -match '#\s*Prerelease\s*=\s*'">
+                  <original><![CDATA[#\s*Prerelease\s*=\s*]]></original>
+                  <substitute>Prerelease = </substitute>
+            </replace>
+    </modify>
+
+     <!-- Make sure ReleaseNotes property is not commented -->
+    <modify path='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/${PLASTER_PARAM_ModuleName}.psd1'
+        condition='(Test-Path "${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/${PLASTER_PARAM_ModuleName}.psd1")'>
+            <replace condition="$PLASTER_FileContent -match '#\s*ReleaseNotes\s*=\s*'">
+                  <original><![CDATA[#\s*ReleaseNotes\s*=\s*]]></original>
+                  <substitute>ReleaseNotes = </substitute>
+            </replace>
+    </modify>
+
+    <!-- Set FunctionsToExport property to recommended value -->
+    <modify path='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/${PLASTER_PARAM_ModuleName}.psd1'
+        condition='(Test-Path "${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/${PLASTER_PARAM_ModuleName}.psd1")'>
+            <replace condition="$PLASTER_FileContent -match 'FunctionsToExport\s*=\s*''\*'''">
+                  <original><![CDATA[FunctionsToExport\s*=\s*'\*']]></original>
+                  <substitute>FunctionsToExport = @()</substitute>
+            </replace>
+    </modify>
+
+    <!-- Set CmdletsToExport property to recommended value -->
+    <modify path='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/${PLASTER_PARAM_ModuleName}.psd1'
+        condition='(Test-Path "${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/${PLASTER_PARAM_ModuleName}.psd1")'>
+            <replace condition="$PLASTER_FileContent -match 'CmdletsToExport\s*=\s*''\*'''">
+                  <original><![CDATA[CmdletsToExport\s*=\s*'\*']]></original>
+                  <substitute>CmdletsToExport = @()</substitute>
+            </replace>
+    </modify>
+
+    <!-- Set VariablesToExport property to recommended value -->
+    <modify path='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/${PLASTER_PARAM_ModuleName}.psd1'
+        condition='(Test-Path "${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/${PLASTER_PARAM_ModuleName}.psd1")'>
+            <replace condition="$PLASTER_FileContent -match 'VariablesToExport\s*=\s*''\*'''">
+                  <original><![CDATA[VariablesToExport\s*=\s*'\*']]></original>
+                  <substitute>VariablesToExport = @()</substitute>
+            </replace>
+    </modify>
+
+    <!-- Set AliasesToExport property to recommended value -->
+    <modify path='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/${PLASTER_PARAM_ModuleName}.psd1'
+        condition='(Test-Path "${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/${PLASTER_PARAM_ModuleName}.psd1")'>
+            <replace condition="$PLASTER_FileContent -match 'AliasesToExport\s*=\s*''\*'''">
+                  <original><![CDATA[AliasesToExport\s*=\s*'\*']]></original>
+                  <substitute>AliasesToExport = @()</substitute>
+            </replace>
+    </modify>
+
+    <!-- Set DscResourcesToExport property to recommended value -->
+    <modify path='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/${PLASTER_PARAM_ModuleName}.psd1'
+        condition='(Test-Path "${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/${PLASTER_PARAM_ModuleName}.psd1")'>
+            <replace condition="$PLASTER_FileContent -match '#\s*DscResourcesToExport\s*=\s*@\(\s*\)'">
+                  <original><![CDATA[#\s*DscResourcesToExport\s*=\s*@\(\s*\)]]></original>
+                  <substitute>DscResourcesToExport = @()</substitute>
+            </replace>
+    </modify>
+
+    <!-- Set PowerShellVersion property to 5.0 -->
+    <modify path='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/${PLASTER_PARAM_ModuleName}.psd1'
+        condition='(Test-Path "${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/${PLASTER_PARAM_ModuleName}.psd1")'>
+            <replace condition="$PLASTER_FileContent -match '#\s*PowerShellVersion\s*=\s*'''''">
+                  <original><![CDATA[#\s*PowerShellVersion\s*=\s*'']]></original>
+                  <substitute>PowerShellVersion = '5.0'</substitute>
+            </replace>
+    </modify>
+
+    <!-- Set RequiredModules property to recommended value -->
+    <modify path='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/${PLASTER_PARAM_ModuleName}.psd1'
+        condition='(Test-Path "${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/${PLASTER_PARAM_ModuleName}.psd1")'>
+            <replace condition="$PLASTER_FileContent -match '#\s*RequiredModules\s*=\s*@\(\s*\)'">
+                  <original><![CDATA[#\s*RequiredModules\s*=\s*@\(\s*\)]]></original>
+                  <substitute>RequiredModules = @()</substitute>
+            </replace>
+    </modify>
+
+    <!-- Remove blank lines from end of module manifest (seems to be a bug using <modify> that generates additional blank lines at end of file) -->
+    <modify path='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/${PLASTER_PARAM_ModuleName}.psd1'
+        condition='(Test-Path "${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/${PLASTER_PARAM_ModuleName}.psd1")'>
+            <replace>
+                  <original><![CDATA[}\n*$]]></original>
+                  <substitute>}</substitute>
+            </replace>
+    </modify>
+
+    <templateFile
         source='module.template'
         destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/${PLASTER_PARAM_ModuleName}.psm1'
         condition='-not (Test-Path "${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/${PLASTER_PARAM_ModuleName}.psm1")'
@@ -533,7 +646,7 @@
    <!-- GITVERSION CONFIG YAML -->
    <templateFile source='../Git/GitVersion.yml.template'
           destination='${PLASTER_PARAM_ModuleName}/GitVersion.yml'
-          condition='(${PLASTER_PARAM_UseGitVersion} -eq $true -and ${PLASTER_PARAM_ModuleType} -in @("dsccommunity","CompleteSample","SimpleModule")) -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("git")'
+          condition='(${PLASTER_PARAM_UseGitVersion} -eq $true -or ${PLASTER_PARAM_ModuleType} -in @("dsccommunity","CompleteSample")) -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("git")'
     />
 
    <!-- MARKDOWN LINT -->
@@ -557,7 +670,7 @@
     <!-- VSCODE SETTINGS -->
     <file source='../VscodeConfig/tasks.json'
           destination='${PLASTER_PARAM_ModuleName}/.vscode/tasks.json'
-          condition='${PLASTER_PARAM_ModuleType} -in @("dsccommunity","CompleteSample","SimpleModule") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("vscode")'
+          condition='${PLASTER_PARAM_UseVSCode} -eq $true -or ${PLASTER_PARAM_ModuleType} -in @("dsccommunity","CompleteSample") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("vscode")'
     />
 
    <!-- GITHUB TEMPLATES -->
@@ -609,7 +722,7 @@
    <!-- Codecov.io -->
     <templateFile source='codecov.yml.template'
           destination='${PLASTER_PARAM_ModuleName}/codecov.yml'
-          condition='(${PLASTER_PARAM_UseCodeCovIo} -eq $true -and ${PLASTER_PARAM_ModuleType} -in @("dsccommunity", "CompleteSample", "SimpleModule")) -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("codecov")'
+          condition='(${PLASTER_PARAM_UseCodeCovIo} -eq $true -or ${PLASTER_PARAM_ModuleType} -in @("dsccommunity", "CompleteSample")) -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("codecov")'
     />
   </content>
 </plasterManifest>

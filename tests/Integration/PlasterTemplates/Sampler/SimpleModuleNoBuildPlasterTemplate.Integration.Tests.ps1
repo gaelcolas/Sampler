@@ -38,14 +38,16 @@ Describe 'Simple Module No Build Plaster Template' {
 
                 # Files (relative to module root)
 
-                '.gitattributes'
-                '.gitignore'
                 'README.md'
                 'source/ModuleDsc.psd1'
                 'source/ModuleDsc.psm1'
                 'source/en-US/about_ModuleDsc.help.txt'
                 'tests/QA/module.tests.ps1'
             )
+        }
+
+        AfterAll {
+            Remove-Item -Path $TestDrive -Recurse -Force
         }
 
         It 'Should create a new module without throwing' {

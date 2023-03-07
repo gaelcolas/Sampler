@@ -61,6 +61,10 @@ Describe 'Simple Module Plaster Template' {
             )
         }
 
+        AfterAll {
+            Remove-Item -Path $TestDrive -Recurse -Force
+        }
+
         It 'Should create a new module without throwing' {
             $invokePlasterParameters = @{
                 TemplatePath         = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
@@ -80,8 +84,12 @@ Describe 'Simple Module Plaster Template' {
                 CustomRepo           = 'PSGallery'
                 MainGitBranch        = 'main'
                 GitHubOwner          = 'AccountName'
+                UseGit               = $true
                 UseGitVersion        = $true
                 UseCodeCovIo         = $true
+                UseGitHub            = $true
+                UseAzurePipelines    = $true
+                UseVSCode            = $true
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw
@@ -154,6 +162,10 @@ Describe 'Simple Module Plaster Template' {
             )
         }
 
+        AfterAll {
+            Remove-Item -Path $TestDrive -Recurse -Force
+        }
+
         It 'Should create a new module without throwing' {
             $invokePlasterParameters = @{
                 TemplatePath         = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
@@ -173,8 +185,12 @@ Describe 'Simple Module Plaster Template' {
                 CustomRepo           = 'PSGallery'
                 MainGitBranch        = 'main'
                 GitHubOwner          = 'AccountName'
+                UseGit               = $true
                 UseGitVersion        = $false
                 UseCodeCovIo         = $true
+                UseGitHub            = $true
+                UseAzurePipelines    = $true
+                UseVSCode            = $true
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw
@@ -247,6 +263,10 @@ Describe 'Simple Module Plaster Template' {
             )
         }
 
+        AfterAll {
+            Remove-Item -Path $TestDrive -Recurse -Force
+        }
+
         It 'Should create a new module without throwing' {
             $invokePlasterParameters = @{
                 TemplatePath         = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
@@ -266,8 +286,12 @@ Describe 'Simple Module Plaster Template' {
                 CustomRepo           = 'PSGallery'
                 MainGitBranch        = 'main'
                 GitHubOwner          = 'AccountName'
+                UseGit               = $true
                 UseGitVersion        = $true
                 UseCodeCovIo         = $false
+                UseGitHub            = $true
+                UseAzurePipelines    = $true
+                UseVSCode            = $true
             }
 
             { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw

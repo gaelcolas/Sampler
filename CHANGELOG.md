@@ -7,6 +7,59 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Template `SimpleModule`
+  - The template has been changed to create a module with the minimum scaffolding
+    when using default values for the template questions. The minimum scaffolding
+    enable the building and testing of the module, but default there is no pipeline
+    so it possible to use any platform to run the pipeline.
+  - Additional template parameters have been added which will add additional
+    functionality to the module.
+    - `UseGit` - This parameter enables project files that helps with the use
+      of Git for the project. The template will ask if Git should be used, default
+      is No.
+    - `UseGitVersion` - This parameter adds project files that helps with
+      the use of GitVersion for the project. GitVersion is dependent on Git
+      being used for the project. The template will ask if GitVersion should
+      be used if the use of Git was chosen, default is No.
+    - `UseCodeCovIo` - This parameter adds project files that helps with
+      the use of CodeCov.io for the project. CodeCov.io is dependent on Git
+      being used for the project. The template will ask if CodeCov.io should
+      be used if the use of Git was chosen, default is No.
+    - `UseGitHub` - This parameter adds project files that helps with
+      the use of GitHb.com for the project. GitHub.com is dependent on Git
+      being used for the project. The template will ask if GitHub.com should
+      be used if the use of Git was chosen, default is No.
+    - `UseAzurePipelines` - This parameter adds project files that enables
+      the project to run the pipeline in Azure Pipelines (in Azure DevOps).
+      The template will ask if Azure Pipelines should be used, default is No.
+    - `UseVSCode` - This parameter adds project files that helps when using
+      Visual Studio Code as the project code editor. The template will ask
+      if  Visual Studio Code should be used, default is No.
+  - The file `build.yaml` will only contain tasks from `Sampler.GitHubTasks`
+    if template parameter `UseGitHub` is set to true (the answer to the
+    template question is Yes).
+  - The file `RequiredModules.psd1` will only contain the module `Sampler.GitHubTasks`
+    if template parameter `UseGitHub` is set to true (the answer to the
+    template question is Yes).
+  - If Git is not used (`UseGit` is false) the QA test that uses Git is
+    removed for the generated file `module.tests.ps1`.
+- Removed module Plaster from the template file `RequiredModules.psd1.template`
+  since it is not direct requirement for any project. _It will still be saved_
+  _to `output/RequiredModules` for a project as it is defined as a required_
+  _module in Sampler's module manifest, and Sampler is still a required modul._
+
+### Fixed
+
+- Removed duplicate header in template file `README.md.template`.
+- Fix typo in the file `about_ModuleName.help.template` and in `module.template`.
+- Integration tests clean up the test drive after each test.
+- Update generated module manifest to have recommended values for properties.
+  Fixes [#326](https://github.com/gaelcolas/Sampler/issues/326).
+- Now correctly uses the key `CodeCoverage` in the file `build.yaml.template`.
+  Fixes [#359](https://github.com/gaelcolas/Sampler/issues/359).
+
 ## [0.116.2] - 2023-03-01
 
 ### Added
