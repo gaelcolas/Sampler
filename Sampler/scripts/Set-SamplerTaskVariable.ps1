@@ -221,5 +221,8 @@ else
     "`tBuilt Module Root Script   = '$BuiltModuleRootScriptPath'"
 }
 
+# Dump PSModulePath to support debugging
+"`tPSModulePath               = '$($s=''; foreach ($p1 in $env:PSModulePath.Split([System.IO.Path]::PathSeparator)) { $s += "$p1;`n`t$(' '*30)" }; $s.Trim())'"
+
 # Blank row in output.
 ""

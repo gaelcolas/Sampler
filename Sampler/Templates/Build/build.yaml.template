@@ -140,6 +140,8 @@ BuildWorkflow:
 
   # Defining test task to be run when invoking `./build.ps1 -Tasks test`
   test:
+    # Uncomment to modify the PSModulePath in the test pipeline (also requires the build configuration section SetPSModulePath).
+    #- Set_PSModulePath
     - Pester_Tests_Stop_On_Fail
     # Use this task if pipeline uses code coverage and the module is using the
     # pattern of Public, Private, Enum, Classes.
@@ -351,6 +353,22 @@ DscResource.DocGenerator:
       - '_(.+?)_' # Match Italic (underscore)
       - '\*\*(.+?)\*\*' # Match bold
       - '\*(.+?)\*' # Match Italic (asterisk)
+"@
+    }
+%>
+
+<%
+    if ($PLASTER_PARAM_ModuleType -eq 'dsccommunity' -or $PLASTER_PARAM_Features -Contains ("All")) {
+@"
+####################################################
+#           Setting Sampler PSModulePath           #
+####################################################
+#SetPSModulePath:
+  #PSModulePath: C:\Users\Install\OneDrive\Documents\WindowsPowerShell\Modules;C:\Program Files\WindowsPowerShell\Modules;C:\Windows\system32\WindowsPowerShell\v1.0\Modules;c:\Users\Install\.vscode\extensions\ms-vscode.powershell-2022.5.1\modules;
+  #RemovePersonal: false
+  #RemoveProgramFiles: false
+  #RemoveWindows: false
+  #SetSystemDefault: false
 "@
     }
 %>

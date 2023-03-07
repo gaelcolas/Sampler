@@ -60,6 +60,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Now correctly uses the key `CodeCoverage` in the file `build.yaml.template`.
   Fixes [#359](https://github.com/gaelcolas/Sampler/issues/359).
 
+## [0.116.2] - 2023-03-01
+
+### Added
+
+- Script `Set-SamplerTaskVariable.ps1`
+  - Added debug output of PSModulePath
+
+
 ## [0.116.1] - 2023-01-09
 
 ### Fixed
@@ -79,6 +87,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Task `Build_ModuleOutput_ModuleBuilder`
   - Proper support for DSC composite resources (*.schema.psm1).
+- Added task `Set_PSModulePath`.
+  - Added function `Set-SamplerPSModulePath`.
+  - Added tests for the task and function.
+  - Added task `Set_PSModulePath` to `build.yml` Plaster template for project
+    type `dsccommunity`.
 
 ### Changed
 
