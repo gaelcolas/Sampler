@@ -85,6 +85,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     module version.
   - Fix message on `Write-Progress` statement.
   - Small style cleanups.
+- Fixed aliases in `prefix.ps1` to support ModuleBuild v3.0.0. The fix
+  makes ModuleBuilder not seeing the aliases (using AST) so that the module
+  manifest is not changed during build, instead they are exported during
+  module import. In the future we could add a separate public file that
+  defines the aliases to export so the module manifest is updated during
+  build.
 
 ## [0.116.2] - 2023-03-01
 
