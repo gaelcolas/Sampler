@@ -333,7 +333,6 @@ try
 
             $saveModuleParameters = @{
                 Name           = 'PowerShellGet'
-                MaximumVersion = '2.99.99'
                 Repository     = $Gallery
                 Path           = $PSDependTarget
                 Force          = $true
