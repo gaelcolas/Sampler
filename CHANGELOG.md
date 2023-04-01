@@ -49,6 +49,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   since it is not direct requirement for any project. _It will still be saved_
   _to `output/RequiredModules` for a project as it is defined as a required_
   _module in Sampler's module manifest, and Sampler is still a required modul._
+- Pipeline script for resolving dependencies improved.
+  - Evaluating PowerShellGet version now supports parameter `AllowOldPowerShellGetModule`
+    (still not recommended to use this parameter).
+  - Now defaults to save the modules PowerShellGet and PackageManagement
+    to the folder `output/RequiredModules` (same logic as for module PSDepend)
+    to not make permanent changes to the contributors machine. If parameter
+    `PSDependTarget` is either set to `CurrentUser` or `AllUsers` the modules
+    are installed.
 
 ### Fixed
 
@@ -59,6 +67,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Fixes [#326](https://github.com/gaelcolas/Sampler/issues/326).
 - Now correctly uses the key `CodeCoverage` in the file `build.yaml.template`.
   Fixes [#359](https://github.com/gaelcolas/Sampler/issues/359).
+- Pipeline script for resolving dependencies improved.
+  - `Get-PackageProvider` no longer throws an exception when NuGet provider
+    is missing (in Windows PowerShell in a clean Windows install).
+  - `Install-PackageProvider` now defaults to installing in the current
+    user scope to avoid requiring an elevated prompt. This is the only
+    change that is permanent on the contributors machine. It is not possible
+    to avoid this as long at the module PowerShellGet requires the NuGet
+    package provider.
+  - Remove duplicate code that set `AllowPrerelease` when installing package
+    provider.
+  - Fixed wrong splatting variable that prevented `Install-PackageProvider`
+    to run.
+  - Removing all existing PowerShellGet and PackageManagement module that
+    is loaded into the session to load the newly saved or installed.
+  - Handle parameter `AllowOldPowerShellGetModule` when loading PowerShellGet
+    module version.
+  - Fix message on `Write-Progress` statement.
+  - Small style cleanups.
+- Fixed aliases in `prefix.ps1` to support ModuleBuild v3.0.0. The fix
+  makes ModuleBuilder not seeing the aliases (using AST) so that the module
+  manifest is not changed during build, instead they are exported during
+  module import. In the future we could add a separate public file that
+  defines the aliases to export so the module manifest is updated during
+  build.
 
 ## [0.116.2] - 2023-03-01
 

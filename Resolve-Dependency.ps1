@@ -155,7 +155,7 @@ try
 
                 $PSBoundParameters.Add($parameterName, $variableValue)
 
-                Set-Variable -Name $parameterName -value $variableValue -Force -ErrorAction 'SilentlyContinue'
+                Set-Variable -Name $parameterName -Value $variableValue -Force -ErrorAction 'SilentlyContinue'
             }
             catch
             {
@@ -171,19 +171,32 @@ catch
 
 Write-Progress -Activity 'Bootstrap:' -PercentComplete 0 -CurrentOperation 'NuGet Bootstrap'
 
-# TODO: This should handle the parameter $AllowOldPowerShellGetModule.
-$powerShellGetModule = Import-Module -Name 'PowerShellGet' -MinimumVersion '2.0' -ErrorAction 'SilentlyContinue' -PassThru
+$importModuleParameters = @{
+    Name           = 'PowerShellGet'
+    MinimumVersion = '2.0'
+    ErrorAction    = 'SilentlyContinue'
+    PassThru       = $true
+}
+
+if ($AllowOldPowerShellGetModule)
+{
+    $importModuleParameters.Remove('MinimumVersion')
+}
+
+$powerShellGetModule = Import-Module @importModuleParameters
 
 # Install the package provider if it is not available.
-$nuGetProvider = Get-PackageProvider -Name 'NuGet' -ListAvailable | Select-Object -First 1
+$nuGetProvider = Get-PackageProvider -Name 'NuGet' -ListAvailable -ErrorAction 'SilentlyContinue' |
+    Select-Object -First 1
 
 if (-not $powerShellGetModule -and -not $nuGetProvider)
 {
     $providerBootstrapParameters = @{
-        Name           = 'nuget'
+        Name           = 'NuGet'
         Force          = $true
         ForceBootstrap = $true
         ErrorAction    = 'Stop'
+        Scope          = $Scope
     }
 
     switch ($PSBoundParameters.Keys)
@@ -198,26 +211,15 @@ if (-not $powerShellGetModule -and -not $nuGetProvider)
             $providerBootstrapParameters.Add('ProxyCredential', $ProxyCredential)
         }
 
-        'Scope'
-        {
-            $providerBootstrapParameters.Add('Scope', $Scope)
-        }
-
         'AllowPrerelease'
         {
             $providerBootstrapParameters.Add('AllowPrerelease', $AllowPrerelease)
         }
     }
 
-    if ($AllowPrerelease)
-    {
-        $providerBootstrapParameters.Add('AllowPrerelease', $true)
-    }
-
     Write-Information -MessageData 'Bootstrap: Installing NuGet Package Provider from the web (Make sure Microsoft addresses/ranges are allowed).'
 
-    # TODO: This does not handle a private Gallery yet.
-    $null = Install-PackageProvider @providerBootstrapParams
+    $null = Install-PackageProvider @providerBootstrapParameters
 
     $nuGetProvider = Get-PackageProvider -Name 'NuGet' -ListAvailable | Select-Object -First 1
 
@@ -285,48 +287,81 @@ try
     # Versions below 2.0 are considered old, unreliable & not recommended
     if (-not $powerShellGetVersion -or ($powerShellGetVersion -lt [System.Version] '2.0' -and -not $AllowOldPowerShellGetModule))
     {
-        Write-Progress -Activity 'Bootstrap:' -PercentComplete 40 -CurrentOperation 'Installing newer version of PowerShellGet'
+        Write-Progress -Activity 'Bootstrap:' -PercentComplete 40 -CurrentOperation 'Fetching newer version of PowerShellGet'
 
-        $installPowerShellGetParameters = @{
-            Name               = 'PowerShellGet'
-            Force              = $True
-            SkipPublisherCheck = $true
-            AllowClobber       = $true
-            Scope              = $Scope
-            Repository         = $Gallery
-        }
-
-        switch ($PSBoundParameters.Keys)
+        # PowerShellGet module not found, installing or saving it.
+        if ($PSDependTarget -in 'CurrentUser', 'AllUsers')
         {
-            'Proxy'
-            {
-                $installPowerShellGetParameters.Add('Proxy', $Proxy)
+            Write-Debug -Message "PowerShellGet module not found. Attempting to install from Gallery $Gallery."
+
+            Write-Warning -Message "Installing PowerShellGet in $PSDependTarget Scope."
+
+            $installPowerShellGetParameters = @{
+                Name               = 'PowerShellGet'
+                Force              = $true
+                SkipPublisherCheck = $true
+                AllowClobber       = $true
+                Scope              = $Scope
+                Repository         = $Gallery
             }
 
-            'ProxyCredential'
+            switch ($PSBoundParameters.Keys)
             {
-                $installPowerShellGetParameters.Add('ProxyCredential', $ProxyCredential)
+                'Proxy'
+                {
+                    $installPowerShellGetParameters.Add('Proxy', $Proxy)
+                }
+
+                'ProxyCredential'
+                {
+                    $installPowerShellGetParameters.Add('ProxyCredential', $ProxyCredential)
+                }
+
+                'GalleryCredential'
+                {
+                    $installPowerShellGetParameters.Add('Credential', $GalleryCredential)
+                }
             }
 
-            'GalleryCredential'
-            {
-                $installPowerShellGetParameters.Add('Credential', $GalleryCredential)
+            Write-Progress -Activity 'Bootstrap:' -PercentComplete 60 -CurrentOperation 'Installing newer version of PowerShellGet'
+
+            Install-Module @installPowerShellGetParameters
+        }
+        else
+        {
+            Write-Debug -Message "PowerShellGet module not found. Attempting to Save from Gallery $Gallery to $PSDependTarget"
+
+            $saveModuleParameters = @{
+                Name           = 'PowerShellGet'
+                Repository     = $Gallery
+                Path           = $PSDependTarget
+                Force          = $true
             }
 
-            'AllowPrerelease'
-            {
-                $installPowerShellGetParameters.Add('AllowPrerelease', $AllowPrerelease)
-            }
+            Write-Progress -Activity 'Bootstrap:' -PercentComplete 60 -CurrentOperation "Saving PowerShellGet from $Gallery to $Scope"
+
+            Save-Module @saveModuleParameters
         }
 
-        Write-Progress -Activity 'Bootstrap:' -PercentComplete 60 -CurrentOperation 'Installing newer version of PowerShellGet'
+        Write-Debug -Message 'Removing previous versions of PowerShellGet and PackageManagement from session'
 
-        Install-Module @installPowerShellGetParameters
+        Get-Module -Name 'PowerShellGet' -All | Remove-Module -Force -ErrorAction 'SilentlyContinue'
+        Get-Module -Name 'PackageManagement' -All | Remove-Module -Force
 
-        Remove-Module -Name 'PowerShellGet' -Force -ErrorAction 'SilentlyContinue'
-        Remove-Module -Name 'PackageManagement' -Force
+        Write-Progress -Activity 'Bootstrap:' -PercentComplete 65 -CurrentOperation 'Loading latest version of PowerShellGet'
 
-        $powerShellGetModule = Import-Module PowerShellGet -Force -PassThru
+        Write-Debug -Message 'Importing latest PowerShellGet and PackageManagement versions into session'
+
+        if ($AllowOldPowerShellGetModule)
+        {
+            $powerShellGetModule = Import-Module -Name 'PowerShellGet' -Force -PassThru
+        }
+        else
+        {
+            Import-Module -Name 'PackageManagement' -MinimumVersion '1.4.8.1' -Force
+
+            $powerShellGetModule = Import-Module -Name 'PowerShellGet' -MinimumVersion '2.2.5' -Force -PassThru
+        }
 
         $powerShellGetVersion = $powerShellGetModule.Version.ToString()
 
@@ -396,7 +431,7 @@ try
                 $saveModuleParameters.add('MinimumVersion', $MinimumPSDependVersion)
             }
 
-            Write-Progress -Activity 'Bootstrap:' -PercentComplete 75 -CurrentOperation "Saving & Importing PSDepend from $Gallery to $Scope"
+            Write-Progress -Activity 'Bootstrap:' -PercentComplete 75 -CurrentOperation "Saving PSDepend from $Gallery to $Scope"
 
             Save-Module @saveModuleParameters
         }
@@ -439,13 +474,17 @@ try
         }
         else
         {
-            Write-Verbose "PowerShell-Yaml is already available"
+            Write-Verbose -Message 'PowerShell-Yaml is already available'
         }
+
+        Write-Progress -Activity 'Bootstrap:' -PercentComplete 88 -CurrentOperation 'Importing PowerShell module PowerShell-Yaml'
+
+        Import-Module -Name 'PowerShell-Yaml' -ErrorAction 'Stop'
     }
 
     Write-Progress -Activity 'Bootstrap:' -PercentComplete 90 -CurrentOperation 'Invoke PSDepend'
 
-    Write-Progress -Activity "PSDepend:" -PercentComplete 0 -CurrentOperation "Restoring Build Dependencies"
+    Write-Progress -Activity 'PSDepend:' -PercentComplete 0 -CurrentOperation 'Restoring Build Dependencies'
 
     if (Test-Path -Path $DependencyFile)
     {
@@ -458,9 +497,9 @@ try
         Invoke-PSDepend @psDependParameters
     }
 
-    Write-Progress -Activity "PSDepend:" -PercentComplete 100 -CurrentOperation "Dependencies restored" -Completed
+    Write-Progress -Activity 'PSDepend:' -PercentComplete 100 -CurrentOperation 'Dependencies restored' -Completed
 
-    Write-Progress -Activity 'Bootstrap:' -PercentComplete 100 -CurrentOperation "Bootstrap complete" -Completed
+    Write-Progress -Activity 'Bootstrap:' -PercentComplete 100 -CurrentOperation 'Bootstrap complete' -Completed
 }
 finally
 {
@@ -475,7 +514,7 @@ finally
         Write-Verbose -Message "Reverting private package repository '$Gallery' to previous location URI:s."
 
         $registerPSRepositoryParameters = @{
-            Name = $previousRegisteredRepository.Name
+            Name               = $previousRegisteredRepository.Name
             InstallationPolicy = $previousRegisteredRepository.InstallationPolicy
         }
 
@@ -512,5 +551,5 @@ finally
         }
     }
 
-    Write-Verbose -Message "Project Bootstrapped, returning to Invoke-Build"
+    Write-Verbose -Message 'Project Bootstrapped, returning to Invoke-Build.'
 }

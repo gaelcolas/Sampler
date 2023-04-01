@@ -7,4 +7,6 @@ Get-ChildItem -Path (Join-Path -Path $PSScriptRoot -ChildPath 'tasks\*') -Includ
         Set-Alias -Name $taskFileAliasName -Value $_.FullName
     }
 
-Set-Alias -Name 'Set-SamplerTaskVariable' -Value "$PSScriptRoot/scripts/Set-SamplerTaskVariable.ps1"
+$SetSamplerTaskVariableAliasName = 'Set-SamplerTaskVariable'
+$SetSamplerTaskVariableAliasValue = "$PSScriptRoot/scripts/Set-SamplerTaskVariable.ps1"
+Set-Alias -Name $SetSamplerTaskVariableAliasName -Value $SetSamplerTaskVariableAliasValue
