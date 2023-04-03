@@ -133,7 +133,7 @@ BuildWorkflow:
     if($PLASTER_PARAM_ModuleType -in @('dsccommunity')) {
 @"
   hqrmtest:
-    - DscResource_Tests_Stop_On_Fail
+    - Invoke_HQRM_Tests_Stop_On_Fail
 "@
     }
 %>
@@ -288,6 +288,8 @@ ModuleBuildTasks:
 @"
   Sampler.GitHubTasks:
     - '*.ib.tasks'
+  DscResource.Test:
+    - 'Task.*'
 "@
     }
 %>
