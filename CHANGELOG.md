@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix a bug that prevented downloading of dependent modules that has a
+  dependency on the module _PowerShell-Yaml_. Fixes [#421](https://github.com/gaelcolas/Sampler/issues/421).
+
 ## [0.116.3] - 2023-04-01
 
 ### Changed
