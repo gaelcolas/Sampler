@@ -16,6 +16,7 @@ variables:
   buildArtifactName: output
   testResultFolderName: testResults
   defaultBranch: main
+  Agent.Source.Git.ShallowFetchDepth: 0 # override ShallowFetchDepth
 
 stages:
   - stage: Build
