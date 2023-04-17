@@ -18,6 +18,7 @@ variables:
   testArtifactName: testResults
   sourceFolderName: source
   defaultBranch: <%= ${PLASTER_PARAM_MainGitBranch} %>
+  Agent.Source.Git.ShallowFetchDepth: 0 # override ShallowFetchDepth
 
 stages:
   - stage: Build
