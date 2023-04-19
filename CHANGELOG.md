@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.116.5] - 2023-04-19
+
 - Fix Azure Pipeline bug to resolve errors and delays during the build process. Shallow fetch has been disabled to ensure complete repository cloning. Fixes [#424](https://github.com/gaelcolas/Sampler/issues/424)
 
 ## [0.116.4] - 2023-04-06
