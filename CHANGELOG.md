@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Deprecate the use of the task `DscResource_Tests_Stop_On_Fail` and warn the user to use `Invoke_HQRM_Tests_Stop_On_Fail` instead.
+- Updated the choco and build templates to use `Invoke_HQRM_Tests_Stop_On_Fail` by default.
+
 ## [0.116.5] - 2023-04-19
 
 - Fix Azure Pipeline bug to resolve errors and delays during the build process. Shallow fetch has been disabled to ensure complete repository cloning. Fixes [#424](https://github.com/gaelcolas/Sampler/issues/424)
