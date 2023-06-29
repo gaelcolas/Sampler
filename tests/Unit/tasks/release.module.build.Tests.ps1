@@ -280,6 +280,37 @@ Describe 'publish_nupkg_to_gallery' {
             Should -Invoke -CommandName nuget -Exactly -Times 1 -Scope It
         }
     }
+
+    Context 'When publish Nuget package with .NET SDK' {
+        BeforeAll {
+            # Stub for executable dotnet
+            function dotnet {}
+
+            Mock -CommandName dotnet -MockWith {
+                return '0'
+            }
+
+            Mock -CommandName Get-Command -ParameterFilter {
+                $Name -eq 'nuget' -and  $ErrorAction -eq 'SilentlyContinue'
+            } -MockWith {
+                $null
+            }
+
+            Mock -CommandName Get-ChildItem -ParameterFilter {
+                $Path -match '\.nupkg'
+            } -MockWith {
+                return $TestDrive
+            }
+        }
+
+        It 'Should run the build task without throwing' {
+            {
+                Invoke-Build -Task 'publish_nupkg_to_gallery' -File $taskAlias.Definition @mockTaskParameters
+            } | Should -Not -Throw
+
+            Should -Invoke -CommandName dotnet -Exactly -Times 1 -Scope It
+        }
+    }
 }
 
 Describe 'package_module_nupkg' {
