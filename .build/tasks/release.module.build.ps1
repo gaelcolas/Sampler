@@ -207,7 +207,7 @@ task Create_changelog_release_output {
 }
 
 # Synopsis: Publish Nuget package to a gallery.
-task publish_nupkg_to_gallery -if ($GalleryApiToken -and (Get-Command -Name 'nuget' -ErrorAction 'SilentlyContinue')) {
+task publish_nupkg_to_gallery -if ($GalleryApiToken -and ((Get-Command -Name 'nuget' -ErrorAction 'SilentlyContinue') -or (Get-Command -Name 'dotnet' -ErrorAction 'SilentlyContinue'))) {
     # Get the vales for task variables, see https://github.com/gaelcolas/Sampler#task-variables.
     . Set-SamplerTaskVariable
 
@@ -223,7 +223,20 @@ task publish_nupkg_to_gallery -if ($GalleryApiToken -and (Get-Command -Name 'nug
     Write-Build DarkGray "About to release $PackageToRelease"
     if (-not $SkipPublish)
     {
-        $response = &nuget push $PackageToRelease -source $nugetPublishSource -ApiKey $GalleryApiToken
+        # Determine whether to use nuget or .NET SDK nuget
+        if (Get-Command -Name 'nuget' -ErrorAction 'SilentlyContinue')
+        {
+            Write-Build DarkGray 'Publishing package with nuget'
+            $command = 'nuget'
+            $nugetArgs = @('push', $PackageToRelease, '-Source', $nugetPublishSource, '-ApiKey', $GalleryApiToken)
+        }
+        else
+        {
+            Write-Build DarkGray 'Publishing package with .NET SDK nuget'
+            $command = 'dotnet'
+            $nugetArgs = @('nuget', 'push', $PackageToRelease, '--source', $nugetPublishSource, '--api-key', $GalleryApiToken)
+        }
+        $response = & $command $nugetArgs
     }
 
     Write-Build Green "Response = " + $response

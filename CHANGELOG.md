@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Task `publish_nupkg_to_gallery`
+  - Add support for publishing a NuGet package to a gallery using the .NET SDK in addition to using nuget.exe. Fixes [#433](https://github.com/gaelcolas/Sampler/issues/433)
+
 ### Fixed
 
 - Fix unit tests that was wrongly written and failed on Pester 5.5.
@@ -117,7 +122,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Script `Set-SamplerTaskVariable.ps1`
   - Added debug output of PSModulePath
-
 
 ## [0.116.1] - 2023-01-09
 
