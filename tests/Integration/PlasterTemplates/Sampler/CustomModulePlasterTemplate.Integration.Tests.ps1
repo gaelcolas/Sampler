@@ -113,10 +113,6 @@ Describe 'Custom Module Plaster Template' {
             )
         }
 
-        AfterAll {
-            Remove-Item -Path $TestDrive -Recurse -Force
-        }
-
         It 'Should create a new module without throwing' {
             $invokePlasterParameters = @{
                 TemplatePath         = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
@@ -268,10 +264,6 @@ Describe 'Custom Module Plaster Template' {
                 'tests/Unit/Private/Get-PrivateFunction.tests.ps1'
                 'tests/Unit/Public/Get-Something.tests.ps1'
             )
-        }
-
-        AfterAll {
-            Remove-Item -Path $TestDrive -Recurse -Force
         }
 
         It 'Should create a new module without throwing' {
@@ -426,10 +418,6 @@ Describe 'Custom Module Plaster Template' {
                 'tests/Unit/Private/Get-PrivateFunction.tests.ps1'
                 'tests/Unit/Public/Get-Something.tests.ps1'
             )
-        }
-
-        AfterAll {
-            Remove-Item -Path $TestDrive -Recurse -Force
         }
 
         It 'Should create a new module without throwing' {
@@ -587,10 +575,6 @@ Describe 'Custom Module Plaster Template' {
             )
         }
 
-        AfterAll {
-            Remove-Item -Path $TestDrive -Recurse -Force
-        }
-
         It 'Should create a new module without throwing' {
             $invokePlasterParameters = @{
                 TemplatePath         = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
@@ -677,10 +661,6 @@ Describe 'Custom Module Plaster Template' {
             )
         }
 
-        AfterAll {
-            Remove-Item -Path $TestDrive -Recurse -Force
-        }
-
         It 'Should create a new module without throwing' {
             $invokePlasterParameters = @{
                 TemplatePath         = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
@@ -762,10 +742,6 @@ Describe 'Custom Module Plaster Template' {
             'source/en-US/about_ModuleDsc.help.txt'
 
             )
-        }
-
-        AfterAll {
-            Remove-Item -Path $TestDrive -Recurse -Force
         }
 
         It 'Should create a new module without throwing' {
@@ -854,10 +830,6 @@ Describe 'Custom Module Plaster Template' {
             )
         }
 
-        AfterAll {
-            Remove-Item -Path $TestDrive -Recurse -Force
-        }
-
         It 'Should create a new module without throwing' {
             $invokePlasterParameters = @{
                 TemplatePath         = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
@@ -940,10 +912,6 @@ Describe 'Custom Module Plaster Template' {
                 'source/Public/Get-Something.ps1'
 
             )
-        }
-
-        AfterAll {
-            Remove-Item -Path $TestDrive -Recurse -Force
         }
 
         It 'Should create a new module without throwing' {
@@ -1034,10 +1002,6 @@ Describe 'Custom Module Plaster Template' {
             )
         }
 
-        AfterAll {
-            Remove-Item -Path $TestDrive -Recurse -Force
-        }
-
         It 'Should create a new module without throwing' {
             $invokePlasterParameters = @{
                 TemplatePath         = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
@@ -1123,10 +1087,6 @@ Describe 'Custom Module Plaster Template' {
             )
         }
 
-        AfterAll {
-            Remove-Item -Path $TestDrive -Recurse -Force
-        }
-
         It 'Should create a new module without throwing' {
             $invokePlasterParameters = @{
                 TemplatePath         = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
@@ -1210,10 +1170,6 @@ Describe 'Custom Module Plaster Template' {
             'tests/QA/module.tests.ps1'
 
             )
-        }
-
-        AfterAll {
-            Remove-Item -Path $TestDrive -Recurse -Force
         }
 
         It 'Should create a new module without throwing' {
@@ -1303,10 +1259,6 @@ Describe 'Custom Module Plaster Template' {
             )
         }
 
-        AfterAll {
-            Remove-Item -Path $TestDrive -Recurse -Force
-        }
-
         It 'Should create a new module without throwing' {
             $invokePlasterParameters = @{
                 TemplatePath         = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
@@ -1387,10 +1339,6 @@ Describe 'Custom Module Plaster Template' {
             'source/en-US/about_ModuleDsc.help.txt'
 
             )
-        }
-
-        AfterAll {
-            Remove-Item -Path $TestDrive -Recurse -Force
         }
 
         It 'Should create a new module without throwing' {
@@ -1475,10 +1423,6 @@ Describe 'Custom Module Plaster Template' {
             'source/en-US/about_ModuleDsc.help.txt'
 
             )
-        }
-
-        AfterAll {
-            Remove-Item -Path $TestDrive -Recurse -Force
         }
 
         It 'Should create a new module without throwing' {

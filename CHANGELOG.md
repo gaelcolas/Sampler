@@ -7,7 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix unit tests that was wrongly written and failed on Pester 5.5.
+
 ## [0.116.5] - 2023-04-19
+
+### Fixed
 
 - Fix Azure Pipeline bug to resolve errors and delays during the build process. Shallow fetch has been disabled to ensure complete repository cloning. Fixes [#424](https://github.com/gaelcolas/Sampler/issues/424)
 
