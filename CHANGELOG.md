@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Support [ModuleFast](https://github.com/JustinGrote/ModuleFast) when
+  restoring dependencies by adding the parameter `UseModuleFast` to the
+  `build.ps1`, e.g. `./build.ps1 -Tasks noop -ResolveDependency -UseModuleFast`.
+  Using ModuleFast will resolve dependencies much faster.
+
 ### Changed
 
 - Task `publish_nupkg_to_gallery`

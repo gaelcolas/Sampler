@@ -1,6 +1,6 @@
 <#
     .DESCRIPTION
-        Bootstrap and build script for PowerShell module pipeline
+        Bootstrap and build script for PowerShell module CI/CD pipeline.
 
     .PARAMETER Tasks
         The task or tasks to run. The default value is '.' (runs the default task).
@@ -56,6 +56,10 @@
 
     .PARAMETER AutoRestore
         Not yet written.
+
+    .PARAMETER UseModuleFast
+        Specifies to use ModuleFast instead of PowerShellGet to resolve dependencies
+        faster.
 #>
 [CmdletBinding()]
 param
@@ -121,7 +125,11 @@ param
 
     [Parameter()]
     [System.Management.Automation.SwitchParameter]
-    $AutoRestore
+    $AutoRestore,
+
+    [Parameter()]
+    [System.Management.Automation.SwitchParameter]
+    $UseModuleFast
 )
 
 <#
@@ -132,7 +140,6 @@ param
 
 process
 {
-
     if ($MyInvocation.ScriptName -notLike '*Invoke-Build.ps1')
     {
         # Only run the process block through InvokeBuild (look at the Begin block at the bottom of this script).
@@ -445,13 +452,25 @@ begin
             }
         }
 
-        # Tell Resolve-Dependency to use $requiredModulesPath as -PSDependTarget if not overridden in Build.psd1.
-        $PSDependTarget = $requiredModulesPath
+        <#
+            The variable $PSDependTarget will be used below when building the splatting
+            variable before calling Resolve-Dependency.ps1, unless overridden in the
+            file Resolve-Dependency.psd1.
+        #>
+          $PSDependTarget = $requiredModulesPath
     }
 
     if ($ResolveDependency)
     {
-        Write-Host -Object "[pre-build] Resolving dependencies." -ForegroundColor Green
+        if ($UseModuleFast.IsPresent)
+        {
+            Write-Host -Object "[pre-build] Resolving dependencies using ModuleFast." -ForegroundColor Green
+        }
+        else
+        {
+            Write-Host -Object "[pre-build] Resolving dependencies using PowerShellGet." -ForegroundColor Green
+        }
+
         $resolveDependencyParams = @{ }
 
         # If BuildConfig is a Yaml file, bootstrap powershell-yaml via ResolveDependency.

@@ -206,12 +206,20 @@ the build process so that anyone doing a git clone can 're-hydrate' the
 project and start testing and producing the build artefact locally with
 minimal environmental dependencies.
 
-The following command will resolve dependencies:
+The following command will resolve dependencies using PowerShellGet:
 
 ```powershell
 cd C:\source\MySimpleModule
 
 ./build.ps1 -ResolveDependency -Tasks noop
+```
+
+The following command will resolve dependencies using [ModuleFast](https://github.com/JustinGrote/ModuleFast):
+
+```powershell
+cd C:\source\MySimpleModule
+
+./build.ps1 -ResolveDependency -Tasks noop -UseModuleFast
 ```
 
 The dependencies will be downloaded (or updated) from the PowerShell Gallery (unless
