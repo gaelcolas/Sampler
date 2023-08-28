@@ -17,6 +17,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   or by enabling it in the configuration file Resolve-Dependency.psd1.
   Using ModuleFast will resolve dependencies much faster, but requires
   PowerShell 7.2.
+- Support for [PSResourceGet (beta release)](https://github.com/PowerShell/PSResourceGet).
+  If the modules PSResourceGet and CompatPowerShellGet can be bootstrapped
+  they will be used. If PSResourceGet cannot be bootstrapped then it will
+  revert to using PowerShellGet. If user requests or configures to use
+  ModuleFast then that will override PSResourceGet and PowerShellGet.
+  It is also possible to use PSResourceGet by adding the parameter
+  `UsePSResourceGet` to the `build.ps1`, e.g.
+  `./build.ps1 -Tasks noop -ResolveDependency -UseModuleFast`.
 
 ### Changed
 
