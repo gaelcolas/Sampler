@@ -201,6 +201,66 @@ if ($UseModuleFast)
 
 if (-not $UseModuleFast)
 {
+    $psResourceGetDownloaded = $false
+
+    try
+    {
+        $invokeWebRequestParameters = @{
+            # TODO: This should be hardcoded to a stable release in the future.
+            Uri         = 'https://www.powershellgallery.com/api/v2/package/Microsoft.PowerShell.PSResourceGet/0.5.24-beta24'
+            OutFile     = "$PSDependTarget/Microsoft.PowerShell.PSResourceGet.nupkg" # cSpell: ignore nupkg
+            ErrorAction = 'Stop'
+        }
+
+        $previousProgressPreference = $ProgressPreference
+        $ProgressPreference = 'SilentlyContinue'
+
+        # Bootstrapping Microsoft.PowerShell.PSResourceGet.
+        Invoke-WebRequest @invokeWebRequestParameters
+
+        $ProgressPreference = $previousProgressPreference
+
+        $psResourceGetDownloaded = $true
+    }
+    catch
+    {
+        Write-Warning -Message ('PSResourceGet could not be bootstrapped. Reverting to PowerShellGet. Error: {0}' -f $_.Exception.Message)
+    }
+
+    $usePSResourceGet = $false
+
+    if ($psResourceGetDownloaded)
+    {
+        $expandArchiveParameters = @{
+            Path            = $invokeWebRequestParameters.OutFile
+            DestinationPath = "$PSDependTarget/Microsoft.PowerShell.PSResourceGet"
+            Force           = $true
+        }
+
+        Expand-Archive @expandArchiveParameters
+
+        Remove-Item -Path $invokeWebRequestParameters.OutFile
+
+        Import-Module -Name $expandArchiveParameters.DestinationPath -Force
+
+        $savePSResourceParameters = @{
+            Name            = 'CompatPowerShellGet' #cSpell: ignore compat
+            Path            = $PSDependTarget
+            Repository      = 'PSGallery'
+            TrustRepository = $true
+        }
+
+        Save-PSResource @savePSResourceParameters
+
+        Import-Module -Name "$PSDependTarget/CompatPowerShellGet"
+
+        # Successfully bootstrapped PSResourceGet and CompatPowerShellGet, so let's use it.
+        $usePSResourceGet = $true
+    }
+}
+
+if (-not ($UseModuleFast.IsPresent -or $usePSResourceGet))
+{
     if ($PSVersionTable.PSVersion.Major -le 5)
     {
         <#
@@ -309,13 +369,16 @@ if (-not $UseModuleFast)
             Register-PSRepository @RegisterGallery
         }
     }
+}
 
+if (-not $UseModuleFast.IsPresent)
+{
     Write-Progress -Activity 'Bootstrap:' -PercentComplete 10 -CurrentOperation "Ensuring Gallery $Gallery is trusted"
 
     # Fail if the given PSGallery is not registered.
-    $previousGalleryInstallationPolicy = (Get-PSRepository -Name $Gallery -ErrorAction 'Stop').InstallationPolicy
+    $previousGalleryInstallationPolicy = (Get-PSRepository -Name $Gallery -ErrorAction 'Stop').Trusted
 
-    if ($previousGalleryInstallationPolicy -ne 'Trusted')
+    if ($previousGalleryInstallationPolicy -ne $true)
     {
         # Only change policy if the repository is not trusted
         Set-PSRepository -Name $Gallery -InstallationPolicy 'Trusted' -ErrorAction 'Ignore'
@@ -324,7 +387,7 @@ if (-not $UseModuleFast)
 
 try
 {
-    if (-not $UseModuleFast)
+    if (-not ($UseModuleFast -or $usePSResourceGet))
     {
         Write-Progress -Activity 'Bootstrap:' -PercentComplete 25 -CurrentOperation 'Checking PowerShellGet'
 
@@ -536,12 +599,8 @@ try
 
     if (Test-Path -Path $DependencyFile)
     {
-        if ($UseModuleFast)
+        if ($UseModuleFast -or $usePSResourceGet)
         {
-            Write-Progress -Activity 'Bootstrap:' -PercentComplete 90 -CurrentOperation 'Invoking ModuleFast'
-
-            Write-Progress -Activity 'ModuleFast:' -PercentComplete 0 -CurrentOperation 'Restoring Build Dependencies'
-
             $requiredModules = Import-PowerShellDataFile -Path $DependencyFile
 
             $requiredModules = $requiredModules.GetEnumerator() |
@@ -571,30 +630,74 @@ try
                 $modulesToSave += 'PowerShell-Yaml'
             }
 
-            $moduleFastPlan = $modulesToSave | Get-ModuleFastPlan
-
-            if ($moduleFastPlan)
+            if ($UseModuleFast.IsPresent)
             {
-                # Clear all modules in plan from the current session so they can be fetched again.
-                $moduleFastPlan.Name | Get-Module | Remove-Module -Force
+                Write-Progress -Activity 'Bootstrap:' -PercentComplete 90 -CurrentOperation 'Invoking ModuleFast'
 
-                $installModuleFastParameters = @{
-                    ModulesToInstall     = $moduleFastPlan
-                    Destination          = $PSDependTarget
-                    NoPSModulePathUpdate = $true
-                    NoProfileUpdate      = $true
-                    Update               = $true
-                    Confirm              = $false
+                Write-Progress -Activity 'ModuleFast:' -PercentComplete 0 -CurrentOperation 'Restoring Build Dependencies'
+
+                $moduleFastPlan = $modulesToSave | Get-ModuleFastPlan
+
+                if ($moduleFastPlan)
+                {
+                    # Clear all modules in plan from the current session so they can be fetched again.
+                    $moduleFastPlan.Name | Get-Module | Remove-Module -Force
+
+                    $installModuleFastParameters = @{
+                        ModulesToInstall     = $moduleFastPlan
+                        Destination          = $PSDependTarget
+                        NoPSModulePathUpdate = $true
+                        NoProfileUpdate      = $true
+                        Update               = $true
+                        Confirm              = $false
+                    }
+
+                    Install-ModuleFast @installModuleFastParameters
+                }
+                else
+                {
+                    Write-Verbose -Message 'All modules were already up to date'
                 }
 
-                Install-ModuleFast @installModuleFastParameters
-            }
-            else
-            {
-                Write-Verbose -Message 'All modules were already up to date'
+                Write-Progress -Activity 'ModuleFast:' -PercentComplete 100 -CurrentOperation 'Dependencies restored' -Completed
             }
 
-            Write-Progress -Activity 'ModuleFast:' -PercentComplete 100 -CurrentOperation 'Dependencies restored' -Completed
+            if ($usePSResourceGet)
+            {
+                Write-Progress -Activity 'Bootstrap:' -PercentComplete 90 -CurrentOperation 'Invoking PSResourceGet'
+
+                $progressPercentage = 0
+
+                Write-Progress -Activity 'PSResourceGet:' -PercentComplete $progressPercentage -CurrentOperation 'Restoring Build Dependencies'
+
+                $percentagePerModule = [Math]::Floor(100 / $modulesToSave.Length)
+
+                foreach ($currentModule in $modulesToSave)
+                {
+                    Write-Progress -Activity 'PSResourceGet:' -PercentComplete $progressPercentage -CurrentOperation 'Restoring Build Dependencies' -Status ('Installing module {0}' -f $savePSResourceParameters.Name)
+
+                    $savePSResourceParameters = @{
+                        Path    = $PSDependTarget
+                        Confirm = $false
+                    }
+
+                    if ($currentModule -is [System.Collections.Hashtable])
+                    {
+                        $savePSResourceParameters.Name = $currentModule.Name
+                        $savePSResourceParameters.Version = $currentModule.RequiredVersion
+                    }
+                    else
+                    {
+                        $savePSResourceParameters.Name = $currentModule
+                    }
+
+                    Save-PSResource @savePSResourceParameters
+
+                    $progressPercentage += $percentagePerModule
+                }
+
+                Write-Progress -Activity 'PSResourceGet:' -PercentComplete 100 -CurrentOperation 'Dependencies restored' -Completed
+            }
         }
         else
         {
@@ -659,10 +762,10 @@ finally
     # Only try to revert installation policy if the repository exist
     if ((Get-PSRepository -Name $Gallery -ErrorAction 'SilentlyContinue'))
     {
-        if ($previousGalleryInstallationPolicy -and $previousGalleryInstallationPolicy -ne 'Trusted')
+        if ($previousGalleryInstallationPolicy -ne $true)
         {
             # Reverting the Installation Policy for the given gallery if it was not already trusted
-            Set-PSRepository -Name $Gallery -InstallationPolicy $previousGalleryInstallationPolicy
+            Set-PSRepository -Name $Gallery -InstallationPolicy 'Untrusted'
         }
     }
 
