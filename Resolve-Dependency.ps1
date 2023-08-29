@@ -166,7 +166,6 @@ catch
     Write-Warning -Message "Error attempting to import Bootstrap's default parameters from '$resolveDependencyConfigPath': $($_.Exception.Message)."
 }
 
-
 if ($UseModuleFast)
 {
     try
