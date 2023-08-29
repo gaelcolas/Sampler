@@ -1,4 +1,9 @@
-@{ # Defaults Parameter value to be loaded by the Resolve-Dependency command (unless set in Bound Parameters)
+@{
+    <#
+        Default parameter values to be loaded by the Resolve-Dependency.ps1 script (unless set in bound parameters
+        when calling the script).
+    #>
+
     #PSDependTarget  = './output/modules'
     #Proxy = ''
     #ProxyCredential = '$MyCredentialVariable' #TODO: find a way to support credentials in build (resolve variable)
@@ -22,7 +27,12 @@
     #}
 
     #AllowOldPowerShellGetModule = $true
+
+    # Only works when using PowerShellGet, not with ModuleFast.
     #MinimumPSDependVersion = '0.3.0'
+
     AllowPrerelease = $false
     WithYAML        = $true # Will also bootstrap PowerShell-Yaml to read other config files
+
+    UseModuleFast   = $true
 }
