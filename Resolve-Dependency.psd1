@@ -39,4 +39,9 @@
     # If this is not configured or set to $false then PowerShellGet and PackageManagement
     # will be used to resolve dependencies.
     #UseModuleFast   = $true
+
+    # Enable PSResourceGet to resolve dependencies. Requires PowerShell 7.2 or higher.
+    # If this is not configured or set to $false then PowerShellGet and PackageManagement
+    # will be used to resolve dependencies.
+    #UsePSResourceGet = $true
 }
