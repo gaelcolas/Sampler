@@ -59,7 +59,7 @@
 
     .PARAMETER UseModuleFast
         Specifies to use ModuleFast instead of PowerShellGet to resolve dependencies
-        faster.
+        faster. This can also be configured in Resolve-Dependency.psd1.
 #>
 [CmdletBinding()]
 param
@@ -148,6 +148,15 @@ process
 
     # Execute the Build process from the .build.ps1 path.
     Push-Location -Path $PSScriptRoot -StackName 'BeforeBuild'
+
+    if (Test-Path -Path 'Sampler')
+    {
+        # We are in the Sampler project, load functions instead of Sampler module.
+        Get-ChildItem -Path "Sampler/P*/*.ps1" |
+            ForEach-Object -Process {
+                . $_.FullName
+            }
+    }
 
     try
     {
@@ -383,11 +392,7 @@ begin
         # Installing modules instead of saving them.
         Write-Host -Object "[pre-build] Required Modules will be installed to the PowerShell module path that is used for $RequiredModulesDirectory." -ForegroundColor Green
 
-        <#
-            The variable $PSDependTarget will be used below when building the splatting
-            variable before calling Resolve-Dependency.ps1, unless overridden in the
-            file Resolve-Dependency.psd1.
-        #>
+        # Tell Resolve-Dependency to use provided scope as the -PSDependTarget if not overridden in Build.psd1.
         $PSDependTarget = $RequiredModulesDirectory
     }
     else
@@ -452,19 +457,12 @@ begin
             variable before calling Resolve-Dependency.ps1, unless overridden in the
             file Resolve-Dependency.psd1.
         #>
-        $PSDependTarget = $requiredModulesPath
+          $PSDependTarget = $requiredModulesPath
     }
 
     if ($ResolveDependency)
     {
-        if ($UseModuleFast.IsPresent)
-        {
-            Write-Host -Object "[pre-build] Resolving dependencies using ModuleFast." -ForegroundColor Green
-        }
-        else
-        {
-            Write-Host -Object "[pre-build] Resolving dependencies using PowerShellGet." -ForegroundColor Green
-        }
+        Write-Host -Object "[pre-build] Resolving dependencies using preferred method." -ForegroundColor Green
 
         $resolveDependencyParams = @{ }
 
@@ -525,4 +523,6 @@ begin
 
         return
     }
+
+    Set-Alias -Name 'Set-SamplerTaskVariable' -Value "$PSScriptRoot/Sampler/scripts/Set-SamplerTaskVariable.ps1"
 }

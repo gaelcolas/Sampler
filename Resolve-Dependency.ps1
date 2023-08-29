@@ -166,11 +166,17 @@ catch
     Write-Warning -Message "Error attempting to import Bootstrap's default parameters from '$resolveDependencyConfigPath': $($_.Exception.Message)."
 }
 
-try
+
+if ($UseModuleFast)
 {
-    if ($UseModuleFast)
+    try
     {
-        $moduleFastBootstrapScript = Invoke-WebRequest -Uri 'bit.ly/modulefast' # cSpell: disable-line
+        $invokeWebRequestParameters = @{
+            Uri = 'bit.ly/modulefast' # cSpell: disable-line
+            ErrorAction = 'Stop'
+        }
+
+        $moduleFastBootstrapScript = Invoke-WebRequest @invokeWebRequestParameters
 
         <#
             Using this method instead of the one mentioned in the instructions from
@@ -185,12 +191,12 @@ try
         #>
         $moduleFastBootstrapScriptBlock.Invoke()
     }
-}
-catch
-{
-    Write-Warning -Message ('ModuleFast could not be bootstrapped. Reverting to PowerShellGet. Error: {0}' -f $_.Exception.Message)
+    catch
+    {
+        Write-Warning -Message ('ModuleFast could not be bootstrapped. Reverting to PowerShellGet. Error: {0}' -f $_.Exception.Message)
 
-    $UseModuleFast = $false
+        $UseModuleFast = $false
+    }
 }
 
 if (-not $UseModuleFast.IsPresent)

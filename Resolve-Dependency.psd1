@@ -34,6 +34,8 @@
     AllowPrerelease = $false
     WithYAML        = $true # Will also bootstrap PowerShell-Yaml to read other config files
 
-    # Enable this to use ModuleFast to resolve dependencies. Requires PowerShell 7.2 or higher.
+    # Enable ModuleFast to resolve dependencies. Requires PowerShell 7.2 or higher.
+    # If this is not configured or set to $false then PowerShellGet and PackageManagement
+    # will be used to resolve dependencies.
     #UseModuleFast   = $true
 }

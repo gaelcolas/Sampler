@@ -59,7 +59,7 @@
 
     .PARAMETER UseModuleFast
         Specifies to use ModuleFast instead of PowerShellGet to resolve dependencies
-        faster.
+        faster. This can also be configured in Resolve-Dependency.psd1.
 #>
 [CmdletBinding()]
 param
