@@ -50,6 +50,10 @@
         Specifies to use ModuleFast instead of PowerShellGet to resolve dependencies
         faster.
 
+    .PARAMETER PSResourceGet
+        Specifies to use ModuleFast instead of PowerShellGet to resolve dependencies
+        faster.
+
     .NOTES
         Load defaults for parameters values from Resolve-Dependency.psd1 if not
         provided as parameter.
@@ -108,7 +112,11 @@ param
 
     [Parameter()]
     [System.Management.Automation.SwitchParameter]
-    $UseModuleFast
+    $UseModuleFast,
+
+    [Parameter()]
+    [System.Management.Automation.SwitchParameter]
+    $UsePSResourceGet
 )
 
 try
@@ -166,6 +174,25 @@ catch
     Write-Warning -Message "Error attempting to import Bootstrap's default parameters from '$resolveDependencyConfigPath': $($_.Exception.Message)."
 }
 
+# Handles when both ModuleFast and PSResourceGet is configured or/and passed as parameter.
+if ($UseModuleFast -and $UsePSResourceGet)
+{
+    Write-Information -MessageData 'Both ModuleFast and PSResourceGet is configured or/and passed as parameter.' -InformationAction 'Continue'
+
+    if ($PSVersionTable.PSVersion -ge '7.2')
+    {
+        $UsePSResourceGet = $false
+
+        Write-Information -MessageData 'PowerShell 7.2 or higher being used, prefer ModuleFast over PSResourceGet.' -InformationAction 'Continue'
+    }
+    else
+    {
+        $UseModuleFast = $false
+
+        Write-Information -MessageData 'Older PowerShell or Windows PowerShell being used, prefer PSResourceGet since ModuleFast is not supported on this version of PowerShell.' -InformationAction 'Continue'
+    }
+}
+
 if ($UseModuleFast)
 {
     try
@@ -198,7 +225,7 @@ if ($UseModuleFast)
     }
 }
 
-if (-not $UseModuleFast)
+if ($UsePSResourceGet)
 {
     $psResourceGetDownloaded = $false
 
@@ -206,6 +233,7 @@ if (-not $UseModuleFast)
     {
         $invokeWebRequestParameters = @{
             # TODO: This should be hardcoded to a stable release in the future.
+            # TODO: Should support proxy parameters passed to the script.
             Uri         = 'https://www.powershellgallery.com/api/v2/package/Microsoft.PowerShell.PSResourceGet/0.5.24-beta24'
             OutFile     = "$PSDependTarget/Microsoft.PowerShell.PSResourceGet.nupkg" # cSpell: ignore nupkg
             ErrorAction = 'Stop'
@@ -673,7 +701,7 @@ try
 
                 foreach ($currentModule in $modulesToSave)
                 {
-                    Write-Progress -Activity 'PSResourceGet:' -PercentComplete $progressPercentage -CurrentOperation 'Restoring Build Dependencies' -Status ('Installing module {0}' -f $savePSResourceParameters.Name)
+                    Write-Progress -Activity 'PSResourceGet:' -PercentComplete $progressPercentage -CurrentOperation 'Restoring Build Dependencies' -Status ('Saving module {0}' -f $savePSResourceParameters.Name)
 
                     $savePSResourceParameters = @{
                         Path    = $PSDependTarget
