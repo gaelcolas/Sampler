@@ -113,39 +113,12 @@ param
 
 try
 {
-    if ($UseModuleFast.IsPresent)
-    {
-        # Uses instructions from https://github.com/JustinGrote/ModuleFast.
-        Invoke-WebRequest -Uri 'bit.ly/modulefast' |
-            Invoke-Expression
-    }
-}
-catch
-{
-    Write-Warning -Message 'ModuleFast could not be bootstrapped. Reverting to PowerShellGet'.
-
-    $UseModuleFast = $false
-}
-
-try
-{
     if ($PSVersionTable.PSVersion.Major -le 5)
     {
         if (-not (Get-Command -Name 'Import-PowerShellDataFile' -ErrorAction 'SilentlyContinue'))
         {
             Import-Module -Name Microsoft.PowerShell.Utility -RequiredVersion '3.1.0.0'
         }
-
-        <#
-            Making sure the imported PackageManagement module is not from PS7 module
-            path. The VSCode PS extension is changing the $env:PSModulePath and
-            prioritize the PS7 path. This is an issue with PowerShellGet because
-            it loads an old version if available (or fail to load latest).
-        #>
-        Get-Module -ListAvailable PackageManagement |
-            Where-Object -Property 'ModuleBase' -NotMatch 'powershell.7' |
-            Select-Object -First 1 |
-            Import-Module -Force
     }
 
     Write-Verbose -Message 'Importing Bootstrap default parameters from ''$PSScriptRoot/Resolve-Dependency.psd1''.'
@@ -193,8 +166,49 @@ catch
     Write-Warning -Message "Error attempting to import Bootstrap's default parameters from '$resolveDependencyConfigPath': $($_.Exception.Message)."
 }
 
+try
+{
+    if ($UseModuleFast)
+    {
+        $moduleFastBootstrapScript = Invoke-WebRequest -Uri 'bit.ly/modulefast' # cSpell: disable-line
+
+        <#
+            Using this method instead of the one mentioned in the instructions from
+            https://github.com/JustinGrote/ModuleFast to avoid the PSScriptAnalyzer
+            rule PSAvoidUsingInvokeExpression.
+        #>
+        $moduleFastBootstrapScriptBlock = [ScriptBlock]::Create($moduleFastBootstrapScript)
+
+        <#
+            We could pass parameters to the bootstrap script when calling Invoke().
+            But currently the default parameter values works just fine.
+        #>
+        $moduleFastBootstrapScriptBlock.Invoke()
+    }
+}
+catch
+{
+    Write-Warning -Message ('ModuleFast could not be bootstrapped. Reverting to PowerShellGet. Error: {0}' -f $_.Exception.Message)
+
+    $UseModuleFast = $false
+}
+
 if (-not $UseModuleFast.IsPresent)
 {
+    if ($PSVersionTable.PSVersion.Major -le 5)
+    {
+        <#
+            Making sure the imported PackageManagement module is not from PS7 module
+            path. The VSCode PS extension is changing the $env:PSModulePath and
+            prioritize the PS7 path. This is an issue with PowerShellGet because
+            it loads an old version if available (or fail to load latest).
+        #>
+        Get-Module -ListAvailable PackageManagement |
+            Where-Object -Property 'ModuleBase' -NotMatch 'powershell.7' |
+            Select-Object -First 1 |
+            Import-Module -Force
+    }
+
     Write-Progress -Activity 'Bootstrap:' -PercentComplete 0 -CurrentOperation 'NuGet Bootstrap'
 
     $importModuleParameters = @{

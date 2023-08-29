@@ -462,14 +462,7 @@ begin
 
     if ($ResolveDependency)
     {
-        if ($UseModuleFast.IsPresent)
-        {
-            Write-Host -Object "[pre-build] Resolving dependencies using ModuleFast." -ForegroundColor Green
-        }
-        else
-        {
-            Write-Host -Object "[pre-build] Resolving dependencies using PowerShellGet." -ForegroundColor Green
-        }
+        Write-Host -Object "[pre-build] Resolving dependencies using preferred method." -ForegroundColor Green
 
         $resolveDependencyParams = @{ }
 
