@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Task `publish_nupkg_to_gallery`
   - Add support for publishing a NuGet package to a gallery using the .NET SDK in addition to using nuget.exe. Fixes [#433](https://github.com/gaelcolas/Sampler/issues/433)
+- Sampler's build.ps1 and the template build.ps1 was aligned.
 
 ### Fixed
 
