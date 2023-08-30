@@ -512,9 +512,9 @@ try
 
             if (-not (Get-Module -ListAvailable -Name 'PowerShell-Yaml'))
             {
-                Write-Progress -Activity 'Bootstrap:' -PercentComplete 85 -CurrentOperation 'PowerShell-Yaml module not found. Installing PowerShell module PowerShell-Yaml'
+                Write-Progress -Activity 'Bootstrap:' -PercentComplete 85 -CurrentOperation 'Installing PowerShell module PowerShell-Yaml'
 
-                Write-Verbose -Message "Attempting to Save from Gallery '$Gallery' to '$PSDependTarget'."
+                Write-Verbose -Message "PowerShell-Yaml module not found. Attempting to Save from Gallery '$Gallery' to '$PSDependTarget'."
 
                 $SaveModuleParam = @{
                     Name       = 'PowerShell-Yaml'
