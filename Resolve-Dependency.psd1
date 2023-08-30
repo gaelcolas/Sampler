@@ -17,6 +17,7 @@
     # with. If repository is registered already but with different URL:s the repository will be re-registered and reverted
     # after dependencies has been resolved. Currently only Windows integrated security works with private Nuget v2 feeds
     # (or if it is a public feed with no security), it is not possible yet to securely provide other credentials for the feed.
+    # Private repositories will currently only work using PowerShellGet.
     #RegisterGallery = @{
     #    #Name = 'MyPrivateFeedName'
     #    GallerySourceLocation = 'https://azdoserver.company.local/<org_name>/<project_name>/_packaging/<feed_name>/nuget/v2'
