@@ -392,7 +392,11 @@ begin
         # Installing modules instead of saving them.
         Write-Host -Object "[pre-build] Required Modules will be installed to the PowerShell module path that is used for $RequiredModulesDirectory." -ForegroundColor Green
 
-        # Tell Resolve-Dependency to use provided scope as the -PSDependTarget if not overridden in Build.psd1.
+        <#
+            The variable $PSDependTarget will be used below when building the splatting
+            variable before calling Resolve-Dependency.ps1, unless overridden in the
+            file Resolve-Dependency.psd1.
+        #>
         $PSDependTarget = $RequiredModulesDirectory
     }
     else
