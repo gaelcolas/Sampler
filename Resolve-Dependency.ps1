@@ -199,7 +199,7 @@ if ($UseModuleFast)
     }
 }
 
-if (-not $UseModuleFast.IsPresent)
+if (-not $UseModuleFast)
 {
     if ($PSVersionTable.PSVersion.Major -le 5)
     {
@@ -324,7 +324,7 @@ if (-not $UseModuleFast.IsPresent)
 
 try
 {
-    if (-not $UseModuleFast.IsPresent)
+    if (-not $UseModuleFast)
     {
         Write-Progress -Activity 'Bootstrap:' -PercentComplete 25 -CurrentOperation 'Checking PowerShellGet'
 
@@ -536,7 +536,7 @@ try
 
     if (Test-Path -Path $DependencyFile)
     {
-        if ($UseModuleFast.IsPresent)
+        if ($UseModuleFast)
         {
             Write-Progress -Activity 'Bootstrap:' -PercentComplete 90 -CurrentOperation 'Invoking ModuleFast'
 

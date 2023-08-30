@@ -199,7 +199,7 @@ if ($UseModuleFast)
     }
 }
 
-if (-not $UseModuleFast.IsPresent)
+if (-not $UseModuleFast)
 {
     if ($PSVersionTable.PSVersion.Major -le 5)
     {
@@ -324,7 +324,7 @@ if (-not $UseModuleFast.IsPresent)
 
 try
 {
-    if (-not $UseModuleFast.IsPresent)
+    if (-not $UseModuleFast)
     {
         Write-Progress -Activity 'Bootstrap:' -PercentComplete 25 -CurrentOperation 'Checking PowerShellGet'
 
@@ -512,9 +512,9 @@ try
 
             if (-not (Get-Module -ListAvailable -Name 'PowerShell-Yaml'))
             {
-                Write-Progress -Activity 'Bootstrap:' -PercentComplete 85 -CurrentOperation 'PowerShell-Yaml module not found. Installing PowerShell module PowerShell-Yaml'
+                Write-Progress -Activity 'Bootstrap:' -PercentComplete 85 -CurrentOperation 'Installing PowerShell module PowerShell-Yaml'
 
-                Write-Verbose -Message "Attempting to Save from Gallery '$Gallery' to '$PSDependTarget'."
+                Write-Verbose -Message "PowerShell-Yaml module not found. Attempting to Save from Gallery '$Gallery' to '$PSDependTarget'."
 
                 $SaveModuleParam = @{
                     Name       = 'PowerShell-Yaml'
@@ -536,7 +536,7 @@ try
 
     if (Test-Path -Path $DependencyFile)
     {
-        if ($UseModuleFast.IsPresent)
+        if ($UseModuleFast)
         {
             Write-Progress -Activity 'Bootstrap:' -PercentComplete 90 -CurrentOperation 'Invoking ModuleFast'
 
