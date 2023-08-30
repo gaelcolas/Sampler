@@ -416,10 +416,7 @@ try
 
             Write-Information -MessageData "Bootstrap: PowerShellGet version loaded is $powerShellGetVersion"
         }
-    }
 
-    if (-not $UseModuleFast.IsPresent)
-    {
         # Try to import the PSDepend module from the available modules.
         $getModuleParameters = @{
             Name          = 'PSDepend'
@@ -508,10 +505,7 @@ try
         $null = Import-Module @importModulePSDependParameters
 
         Write-Progress -Activity 'Bootstrap:' -PercentComplete 81 -CurrentOperation 'Invoke PSDepend'
-    }
 
-    if (-not $UseModuleFast.IsPresent)
-    {
         if ($WithYAML)
         {
             Write-Progress -Activity 'Bootstrap:' -PercentComplete 82 -CurrentOperation 'Verifying PowerShell module PowerShell-Yaml'
