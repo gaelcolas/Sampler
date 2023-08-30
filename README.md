@@ -41,8 +41,7 @@ Check the video for a quick intro:
 Because we resolve dependencies from a nuget feed, whether the public
 PowerShellGallery or your private repository, a working version of PowerShellGet
 is required. Using PowerShellGet is the default if no other configuration
-is done. We recommend the latest version of PowerShellGet v2. PSResourceGet
-v3 will be supported when it is released.
+is done. We recommend the latest version of PowerShellGet v2.
 
 #### ModuleFast
 
@@ -54,6 +53,17 @@ It is also possible to allow the repository to use PowerShellGet as the
 default and choose to use ModuleFast from the command line by passing
 the parameter `UseModuleFast` to the build script `build.ps1`, e.g.
 `.\build.ps1 -ResolveDependency -Tasks noop -UseModuleFast`
+
+#### PSResourceGet
+
+It is possible to use [PSResourceGet](https://github.com/PowerShell/PSResourceGet)
+to resolve dependencies. PSResourceGet works with WIndows PowerShell and
+PowerShell (some restrictions on versions exist). To use PSResourceGet as
+a replacement for PowerShellGet it is possible to enable it in the configuration
+file `Resolve-Dependency.psd1`. It is also possible to allow the repository
+to use PowerShellGet as the default and choose to use PSResourceGet from the
+command line by passing the parameter `UsePSResourceGet` to the build script
+`build.ps1`, e.g. `.\build.ps1 -ResolveDependency -Tasks noop -UseModuleFast`
 
 ### Managing the Module versions (optional)
 
@@ -220,6 +230,11 @@ the build process so that anyone doing a git clone can 're-hydrate' the
 project and start testing and producing the build artefact locally with
 minimal environmental dependencies.
 
+>[!NOTE]
+>Try to avoid mixing these different methods in the same session. When
+>switching to use a different method, open a new PowerShell session so
+>none of the modules dependencies are loaded into the session.
+
 The following command will resolve dependencies using PowerShellGet:
 
 ```powershell
@@ -234,6 +249,14 @@ The following command will resolve dependencies using [ModuleFast](https://githu
 cd C:\source\MySimpleModule
 
 ./build.ps1 -ResolveDependency -Tasks noop -UseModuleFast
+```
+
+The following command will resolve dependencies using [PSResourceGet](https://github.com/PowerShell/PSResourceGet):
+
+```powershell
+cd C:\source\MySimpleModule
+
+./build.ps1 -ResolveDependency -Tasks noop -UsePSResourceGet
 ```
 
 The dependencies will be downloaded (or updated) from the PowerShell Gallery (unless
