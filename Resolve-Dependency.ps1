@@ -198,7 +198,7 @@ if ($UseModuleFast)
     try
     {
         $invokeWebRequestParameters = @{
-            Uri = 'bit.ly/modulefast' # cSpell: disable-line
+            Uri         = 'bit.ly/modulefast' # cSpell: disable-line
             ErrorAction = 'Stop'
         }
 
@@ -227,49 +227,65 @@ if ($UseModuleFast)
 
 if ($UsePSResourceGet)
 {
-    $psResourceGetDownloaded = $false
-
-    try
+    # Check if it is already imported (then we can't download it again because of locked files)
+    if ((Get-Module -Name 'Microsoft.PowerShell.PSResourceGet'))
     {
-        $invokeWebRequestParameters = @{
-            # TODO: This should be hardcoded to a stable release in the future.
-            # TODO: Should support proxy parameters passed to the script.
-            Uri         = 'https://www.powershellgallery.com/api/v2/package/Microsoft.PowerShell.PSResourceGet/0.5.24-beta24'
-            OutFile     = "$PSDependTarget/Microsoft.PowerShell.PSResourceGet.nupkg" # cSpell: ignore nupkg
-            ErrorAction = 'Stop'
+        Write-Debug -Message 'Microsoft.PowerShell.PSResourceGet already exist in the session.'
+    }
+    else
+    {
+        Write-Debug -Message 'Microsoft.PowerShell.PSResourceGet no in session, save the module to RequiredModules.'
+
+        $psResourceGetDownloaded = $false
+
+        try
+        {
+            $invokeWebRequestParameters = @{
+                # TODO: This should be hardcoded to a stable release in the future.
+                # TODO: Should support proxy parameters passed to the script.
+                Uri         = 'https://www.powershellgallery.com/api/v2/package/Microsoft.PowerShell.PSResourceGet/0.5.24-beta24'
+                OutFile     = "$PSDependTarget/Microsoft.PowerShell.PSResourceGet.nupkg" # cSpell: ignore nupkg
+                ErrorAction = 'Stop'
+            }
+
+            $previousProgressPreference = $ProgressPreference
+            $ProgressPreference = 'SilentlyContinue'
+
+            # Bootstrapping Microsoft.PowerShell.PSResourceGet.
+            Invoke-WebRequest @invokeWebRequestParameters
+
+            $ProgressPreference = $previousProgressPreference
+
+            $psResourceGetDownloaded = $true
+        }
+        catch
+        {
+            Write-Warning -Message ('PSResourceGet could not be bootstrapped. Reverting to PowerShellGet. Error: {0}' -f $_.Exception.Message)
         }
 
-        $previousProgressPreference = $ProgressPreference
-        $ProgressPreference = 'SilentlyContinue'
+        $UsePSResourceGet = $false
 
-        # Bootstrapping Microsoft.PowerShell.PSResourceGet.
-        Invoke-WebRequest @invokeWebRequestParameters
+        if ($psResourceGetDownloaded)
+        {
+            $expandArchiveParameters = @{
+                Path            = $invokeWebRequestParameters.OutFile
+                DestinationPath = "$PSDependTarget/Microsoft.PowerShell.PSResourceGet"
+                Force           = $true
+            }
 
-        $ProgressPreference = $previousProgressPreference
+            Expand-Archive @expandArchiveParameters
 
-        $psResourceGetDownloaded = $true
-    }
-    catch
-    {
-        Write-Warning -Message ('PSResourceGet could not be bootstrapped. Reverting to PowerShellGet. Error: {0}' -f $_.Exception.Message)
-    }
+            Remove-Item -Path $invokeWebRequestParameters.OutFile
 
-    $usePSResourceGet = $false
+            Import-Module -Name $expandArchiveParameters.DestinationPath -Force
 
-    if ($psResourceGetDownloaded)
-    {
-        $expandArchiveParameters = @{
-            Path            = $invokeWebRequestParameters.OutFile
-            DestinationPath = "$PSDependTarget/Microsoft.PowerShell.PSResourceGet"
-            Force           = $true
+            # Successfully bootstrapped PSResourceGet and CompatPowerShellGet, so let's use it.
+            $UsePSResourceGet = $true
         }
+    }
 
-        Expand-Archive @expandArchiveParameters
-
-        Remove-Item -Path $invokeWebRequestParameters.OutFile
-
-        Import-Module -Name $expandArchiveParameters.DestinationPath -Force
-
+    if ($UsePSResourceGet)
+    {
         $savePSResourceParameters = @{
             Name            = 'CompatPowerShellGet' #cSpell: ignore compat
             Path            = $PSDependTarget
@@ -280,13 +296,10 @@ if ($UsePSResourceGet)
         Save-PSResource @savePSResourceParameters
 
         Import-Module -Name "$PSDependTarget/CompatPowerShellGet"
-
-        # Successfully bootstrapped PSResourceGet and CompatPowerShellGet, so let's use it.
-        $usePSResourceGet = $true
     }
 }
 
-if (-not ($UseModuleFast.IsPresent -or $usePSResourceGet))
+if (-not ($UseModuleFast -or $UsePSResourceGet))
 {
     if ($PSVersionTable.PSVersion.Major -le 5)
     {
@@ -396,10 +409,7 @@ if (-not ($UseModuleFast.IsPresent -or $usePSResourceGet))
             Register-PSRepository @RegisterGallery
         }
     }
-}
 
-if (-not $UseModuleFast.IsPresent)
-{
     Write-Progress -Activity 'Bootstrap:' -PercentComplete 10 -CurrentOperation "Ensuring Gallery $Gallery is trusted"
 
     # Fail if the given PSGallery is not registered.
@@ -414,7 +424,7 @@ if (-not $UseModuleFast.IsPresent)
 
 try
 {
-    if (-not ($UseModuleFast -or $usePSResourceGet))
+    if (-not ($UseModuleFast -or $UsePSResourceGet))
     {
         Write-Progress -Activity 'Bootstrap:' -PercentComplete 25 -CurrentOperation 'Checking PowerShellGet'
 
@@ -626,7 +636,7 @@ try
 
     if (Test-Path -Path $DependencyFile)
     {
-        if ($UseModuleFast -or $usePSResourceGet)
+        if ($UseModuleFast -or $UsePSResourceGet)
         {
             $requiredModules = Import-PowerShellDataFile -Path $DependencyFile
 
@@ -689,7 +699,7 @@ try
                 Write-Progress -Activity 'ModuleFast:' -PercentComplete 100 -CurrentOperation 'Dependencies restored' -Completed
             }
 
-            if ($usePSResourceGet)
+            if ($UsePSResourceGet)
             {
                 Write-Progress -Activity 'Bootstrap:' -PercentComplete 90 -CurrentOperation 'Invoking PSResourceGet'
 
@@ -697,15 +707,16 @@ try
 
                 Write-Progress -Activity 'PSResourceGet:' -PercentComplete $progressPercentage -CurrentOperation 'Restoring Build Dependencies'
 
-                $percentagePerModule = [Math]::Floor(100 / $modulesToSave.Length)
+                $percentagePerModule = [System.Math]::Floor(100 / $modulesToSave.Length)
 
                 foreach ($currentModule in $modulesToSave)
                 {
                     Write-Progress -Activity 'PSResourceGet:' -PercentComplete $progressPercentage -CurrentOperation 'Restoring Build Dependencies' -Status ('Saving module {0}' -f $savePSResourceParameters.Name)
 
                     $savePSResourceParameters = @{
-                        Path    = $PSDependTarget
-                        Confirm = $false
+                        Path            = $PSDependTarget
+                        TrustRepository = $true
+                        Confirm         = $false
                     }
 
                     if ($currentModule -is [System.Collections.Hashtable])
@@ -718,7 +729,12 @@ try
                         $savePSResourceParameters.Name = $currentModule
                     }
 
-                    Save-PSResource @savePSResourceParameters
+                    Save-PSResource @savePSResourceParameters -ErrorVariable 'savePSResourceError'
+
+                    if ($savePSResourceError)
+                    {
+                        Write-Warning -Message 'Save-PSResource could not save (replace) one or more dependencies. This can be due to the module is loaded into the session (and referencing assemblies). Close the current session and open a new session and try again.'
+                    }
 
                     $progressPercentage += $percentagePerModule
                 }
