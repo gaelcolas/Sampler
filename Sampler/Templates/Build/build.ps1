@@ -461,7 +461,7 @@ begin
             variable before calling Resolve-Dependency.ps1, unless overridden in the
             file Resolve-Dependency.psd1.
         #>
-          $PSDependTarget = $requiredModulesPath
+        $PSDependTarget = $requiredModulesPath
     }
 
     if ($ResolveDependency)
