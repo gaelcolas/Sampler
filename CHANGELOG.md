@@ -11,8 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support [ModuleFast](https://github.com/JustinGrote/ModuleFast) when
   restoring dependencies by adding the parameter `UseModuleFast` to the
-  `build.ps1`, e.g. `./build.ps1 -Tasks noop -ResolveDependency -UseModuleFast`.
-  Using ModuleFast will resolve dependencies much faster.
+  `build.ps1`, e.g. `./build.ps1 -Tasks noop -ResolveDependency -UseModuleFast`
+  or by enabling it in the configuration file Resolve-Dependency.psd1.
+  Using ModuleFast will resolve dependencies much faster, but requires
+  PowerShell 7.2.
 
 ### Changed
 
