@@ -28,7 +28,7 @@ Check the video for a quick intro:
 
 > _Note: The video was made when Sampler was in early stages. Since that time_
 > _there have been a lot of improvements and changes, so please read the_
-> _ documentation below._
+> _documentation below._
 
 [![Sampler demo video](https://img.youtube.com/vi/bbpFBsl8K9k/0.jpg)](https://www.youtube.com/watch?v=bbpFBsl8K9k&ab_channel=DSCCommunity)
 
@@ -234,6 +234,22 @@ minimal environmental dependencies.
 >Try to avoid mixing these different methods in the same session. When
 >switching to use a different method, open a new PowerShell session so
 >none of the modules dependencies are loaded into the session.
+
+```mermaid
+graph LR
+
+RD[Resolve dependencies] --> Method{Method?}
+Method{Method?} -->|"(Default)"| PowerShellGet(["PowerShellGet"])
+Method -->|"parameter
+-UseModuleFast"| ModuleFast(["ModuleFast"])
+Method -->|"parameter
+-UsePSResourceGet"| PSResourceGet(["PSResourceGet"])
+PowerShellGet -->|"Invoke-PSDepend"| InvokeRD
+ModuleFast -->|"Install-ModuleFast"| InvokeRD
+PSResourceGet -->|"Save-PSResource"| InvokeRD
+InvokeRD[Use preferred method]  <--> PSGallery["PowerShell Gallery"]
+InvokeRD ---> Save[["Save to RequiredModules"]]
+```
 
 The following command will resolve dependencies using PowerShellGet:
 
@@ -591,7 +607,6 @@ _Guest Configuration_. This process will be replaced with a Plaster template.
    ```
 
 1. Now resolve dependencies and run the task `gcpack`:
-
    ```powershell
    build.ps1 -task gcpack -ResolveDependency
    ```
@@ -1307,6 +1322,7 @@ running tests.
 > **Note:** Running the command `Get-Help -Name 'Set-SamplerTaskVariable'` will
 > only return help for the alias. To see the comment-based help for the script,
 > run:
+>
 > ```powershell
 > Import-Module -Name Sampler
 >
