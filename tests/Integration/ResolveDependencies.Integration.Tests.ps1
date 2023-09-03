@@ -30,7 +30,8 @@ Describe 'Resolve dependencies' {
         }
     }
 
-    Context 'When using ModuleFast' {
+    # Skip this test on Windows PowerShell as the method is unsupported.
+    Context 'When using ModuleFast' -Skip:($PSVersionTable.PSEdition -eq 'Desktop') {
         BeforeAll {
             $testTargetPath = Join-Path -Path $TestDrive -ChildPath 'ModuleFast'
 
