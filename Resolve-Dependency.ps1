@@ -227,14 +227,13 @@ if ($UseModuleFast)
 
 if ($UsePSResourceGet)
 {
-    # Check if it is already imported (then we can't download it again because of locked files)
-    if ((Get-Module -Name 'Microsoft.PowerShell.PSResourceGet'))
+    if ((Get-Module -Name 'Microsoft.PowerShell.PSResourceGet' -ListAvailable))
     {
-        Write-Debug -Message 'Microsoft.PowerShell.PSResourceGet already exist in the session.'
+        Write-Debug -Message 'Microsoft.PowerShell.PSResourceGet already exist, skip saving to RequiredModules.'
     }
     else
     {
-        Write-Debug -Message 'Microsoft.PowerShell.PSResourceGet not in session, save the module to RequiredModules.'
+        Write-Debug -Message 'Microsoft.PowerShell.PSResourceGet do not exist, save the module to RequiredModules.'
 
         $psResourceGetDownloaded = $false
 
