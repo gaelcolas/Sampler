@@ -234,7 +234,7 @@ if ($UsePSResourceGet)
     }
     else
     {
-        Write-Debug -Message 'Microsoft.PowerShell.PSResourceGet no in session, save the module to RequiredModules.'
+        Write-Debug -Message 'Microsoft.PowerShell.PSResourceGet not in session, save the module to RequiredModules.'
 
         $psResourceGetDownloaded = $false
 
@@ -667,7 +667,7 @@ try
                 $modulesToSave += 'PowerShell-Yaml'
             }
 
-            if ($UseModuleFast.IsPresent)
+            if ($UseModuleFast)
             {
                 Write-Progress -Activity 'Bootstrap:' -PercentComplete 90 -CurrentOperation 'Invoking ModuleFast'
 
