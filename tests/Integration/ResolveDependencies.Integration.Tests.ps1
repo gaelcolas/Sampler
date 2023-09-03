@@ -3,6 +3,10 @@ Describe 'Resolve dependencies' {
         $repositoryPath =  Join-Path -Path $PSScriptRoot -ChildPath '../../'
     }
 
+    AfterAll {
+        Set-Location -Path $repositoryPath
+    }
+
     Context 'When using PowerShellGet' {
         BeforeAll {
             $testTargetPath = Join-Path -Path $TestDrive -ChildPath 'PowerShellGet'
