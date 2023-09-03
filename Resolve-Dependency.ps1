@@ -266,15 +266,28 @@ if ($UsePSResourceGet)
 
         if ($psResourceGetDownloaded)
         {
+            # On Windows PowerShell the command Expand-Archive do not like .nupkg as a zip archive extension.
+            $zipFileName = ((Split-Path -Path $invokeWebRequestParameters.OutFile -Leaf) -replace 'nupkg', 'zip')
+
+            $renameItemParameters = @{
+                Path    = $invokeWebRequestParameters.OutFile
+                NewName = $zipFileName
+                Force   = $true
+            }
+
+            Rename-Item @renameItemParameters
+
+            $psResourceGetZipArchivePath = Join-Path -Path (Split-Path -Path $invokeWebRequestParameters.OutFile -Parent) -ChildPath $zipFileName
+
             $expandArchiveParameters = @{
-                Path            = $invokeWebRequestParameters.OutFile
+                Path            = $psResourceGetZipArchivePath
                 DestinationPath = "$PSDependTarget/Microsoft.PowerShell.PSResourceGet"
                 Force           = $true
             }
 
             Expand-Archive @expandArchiveParameters
 
-            Remove-Item -Path $invokeWebRequestParameters.OutFile
+            Remove-Item -Path $psResourceGetZipArchivePath
 
             Import-Module -Name $expandArchiveParameters.DestinationPath -Force
 
@@ -728,11 +741,26 @@ try
                         $savePSResourceParameters.Name = $currentModule
                     }
 
-                    Save-PSResource @savePSResourceParameters -ErrorVariable 'savePSResourceError'
+                    # Modules that Sampler depend on that cannot be refreshed without a new session.
+                    $skipModule = @('powershell-yaml')
 
-                    if ($savePSResourceError)
+                    if ($savePSResourceParameters.Name -in $skipModule -and (Get-Module -Name 'powershell-yaml'))
                     {
-                        Write-Warning -Message 'Save-PSResource could not save (replace) one or more dependencies. This can be due to the module is loaded into the session (and referencing assemblies). Close the current session and open a new session and try again.'
+                        Write-Progress -Activity 'PSResourceGet:' -PercentComplete $progressPercentage -CurrentOperation 'Restoring Build Dependencies' -Status ('Skipping module {0}' -f $savePSResourceParameters.Name)
+
+                        Write-Information -MessageData ('Skipping the module {0} since it cannot be refresh while loaded into the session. To refresh the module open a new session and resolve dependencies again.' -f $savePSResourceParameters.Name) -InformationAction 'Continue'
+                    }
+                    else
+                    {
+                        # Clear all module from the current session so any new version fetched will be re-imported.
+                        Get-Module -Name $savePSResourceParameters.Name | Remove-Module -Force
+
+                        Save-PSResource @savePSResourceParameters -ErrorVariable 'savePSResourceError'
+
+                        if ($savePSResourceError)
+                        {
+                            Write-Warning -Message 'Save-PSResource could not save (replace) one or more dependencies. This can be due to the module is loaded into the session (and referencing assemblies). Close the current session and open a new session and try again.'
+                        }
                     }
 
                     $progressPercentage += $percentagePerModule
