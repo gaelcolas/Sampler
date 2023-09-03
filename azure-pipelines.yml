@@ -190,6 +190,47 @@ stages:
               artifactName: 'CodeCoverageMacOS_$(System.JobAttempt)'
               parallel: true
 
+      - job: Test_Integration
+        displayName: 'Integration'
+        strategy:
+          matrix:
+            WINDOWS_PWSH7:
+              JOB_VMIMAGE: 'windows-latest'
+              PWSH: true
+            WINDOWS_PWSH5:
+              JOB_VMIMAGE: 'windows-latest'
+              PWSH: false
+            UBUNTU_PWSH7:
+              JOB_VMIMAGE: 'ubuntu-latest'
+              PWSH: true
+            MACOS_PWSH7:
+              JOB_VMIMAGE: 'macos-latest'
+              PWSH: true
+        pool:
+          vmImage: $(JOB_VMIMAGE)
+        timeoutInMinutes: 0
+        steps:
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download Build Artifact'
+            inputs:
+              buildType: 'current'
+              artifactName: $(buildArtifactName)
+              targetPath: '$(Build.SourcesDirectory)/$(buildFolderName)'
+          - task: PowerShell@2
+            name: test
+            displayName: 'Run Integration Test'
+            inputs:
+              filePath: './build.ps1'
+              arguments: "-Tasks test -CodeCoverageThreshold 0 -PesterPath 'tests/Integration'"
+              pwsh: $(PWSH)
+          - task: PublishTestResults@2
+            displayName: 'Publish Test Results'
+            condition: succeededOrFailed()
+            inputs:
+              testResultsFormat: 'NUnit'
+              testResultsFiles: '$(buildFolderName)/$(testResultFolderName)/NUnit*.xml'
+              testRunTitle: 'Integration ($(Agent.JobName))'
+
       - job: Code_Coverage
         displayName: 'Publish Code Coverage'
         dependsOn:
