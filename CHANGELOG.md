@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Task `publish_nupkg_to_gallery`
   - Add support for publishing a NuGet package to a gallery using the .NET SDK in addition to using nuget.exe. Fixes [#433](https://github.com/gaelcolas/Sampler/issues/433)
+- Split up unit tests and integration tests in separate pipeline jobs since
+  integration tests could change state on a developers machine, and in the
+  current PowerShell session. Integration tests no longer run when running
+  `./build.ps1 -Tasks test`. To run integration tests pass the parameter
+  `PesterPath`, e.g. `./build.ps1 -Tasks test -PesterPath 'tests/Integration'`.
 
 ### Fixed
 
