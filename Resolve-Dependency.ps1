@@ -227,9 +227,10 @@ if ($UseModuleFast)
 
 if ($UsePSResourceGet)
 {
-    if ((Get-Module -Name 'Microsoft.PowerShell.PSResourceGet' -ListAvailable))
+    # If PSResourceGet was used prior it will be locked and we can't replace it.
+    if ((Test-Path -Path "$PSDependTarget/Microsoft.PowerShell.PSResourceGet" -PathType 'Container') -and (Get-Module -Name 'Microsoft.PowerShell.PSResourceGet'))
     {
-        Write-Debug -Message 'Microsoft.PowerShell.PSResourceGet already exist, skip saving to RequiredModules.'
+        Write-Information -MessageData 'Microsoft.PowerShell.PSResourceGet is already save and loaded into the session, skip saving to RequiredModules. To refresh the module open a new session and resolve dependencies again.' -InformationAction 'Continue'
     }
     else
     {
