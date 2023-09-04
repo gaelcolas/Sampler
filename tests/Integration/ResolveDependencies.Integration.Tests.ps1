@@ -138,14 +138,16 @@ Describe 'Resolve dependencies' {
 }
 '@
 
-                    $mockRequiredModulesDataFile | Out-File -Path '.\RequiredModules.psd1' -Encoding UTF8 -NoClobber -NoNewline
+                    $mockRequiredModulesDataFile | Out-File -FilePath '.\RequiredModules.psd1' -Encoding UTF8 -NoClobber -NoNewline
 
                     ./build.ps1 -ResolveDependency -Tasks 'noop' -UsePSResourceGet 4>&1 5>&1 6>&1 > $null
                 } |
                     Receive-Job -Wait -AutoRemoveJob -ErrorVariable buildError
 
                 $buildError | Should -BeNullOrEmpty
+            }
 
+            It 'Should have resolve the correct pre-release version' {
                 $pesterModuleManifest = Import-PowerShellDataFile -Path '.\output\RequiredModules\Pester\**\Pester.psd1'
 
                 $pesterModuleManifest.ModuleVersion | Should -Be '5.5.0'
