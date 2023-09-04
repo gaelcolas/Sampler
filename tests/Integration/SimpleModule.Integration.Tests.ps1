@@ -65,6 +65,7 @@ Describe 'SimpleModule' {
         Start-Job -ScriptBlock {
             Set-Location $using:PWD
 
+            git config --global core.autocrlf true
             git config --global user.name "SamplerIntegrationTester"
             git config --global user.email "SamplerIntegrationTester@company.local"
 
