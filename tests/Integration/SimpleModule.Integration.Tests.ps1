@@ -19,8 +19,7 @@ AfterAll {
 Describe 'SimpleModule' {
     BeforeAll {
         $mockModuleName = 'MySimpleModule'
-        #$mockModuleRootPath = Join-Path -Path $TestDrive -ChildPath $mockModuleName
-        $mockModuleRootPath = Join-Path -Path 'C:\Temp' -ChildPath $mockModuleName
+        $mockModuleRootPath = Join-Path -Path $TestDrive -ChildPath $mockModuleName
     }
 
     AfterAll {
@@ -31,7 +30,7 @@ Describe 'SimpleModule' {
     It 'Should create MySimpleModule without throwing' {
         $invokePlasterParameters = @{
             TemplatePath         = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
-            DestinationPath      = 'C:\Temp' #$TestDrive
+            DestinationPath      = $TestDrive
             SourceDirectory      = 'source'
             NoLogo               = $true
             Force                = $true
@@ -69,9 +68,8 @@ Describe 'SimpleModule' {
             git init --initial-branch=main
             git add *
             git commit --message=first
-            git status > c:\temp\log.txt
 
-            ./build.ps1 -ResolveDependency -Tasks 'build' #4>&1 5>&1 6>&1 > $null
+            ./build.ps1 -ResolveDependency -Tasks 'build' 4>&1 5>&1 6>&1 > $null
         } |
             Receive-Job -Wait -AutoRemoveJob -ErrorVariable buildError
 
