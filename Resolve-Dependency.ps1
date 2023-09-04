@@ -662,15 +662,41 @@ try
 
             foreach ($requiredModule in $requiredModules)
             {
-                if ($requiredModule.Value -eq 'latest')
+                # If the RequiredModules.psd1 entry is an Hashtable then special handling is needed.
+                if ($requiredModule.Value -is [System.Collections.Hashtable])
                 {
-                    $modulesToSave += $requiredModule.Name
+                    $saveModuleHashtable = @{
+                        ModuleName      = $requiredModule.Name
+                    }
+
+                    if ($requiredModule.Value.Version -and $requiredModule.Value.Version -ne 'latest')
+                    {
+                        $saveModuleHashtable.RequiredVersion = $requiredModule.Value.Version
+                    }
+
+                    # ModuleFast does no support preview releases yet.
+                    if ($UsePSResourceGet)
+                    {
+                        if ($requiredModule.Value.Parameters.AllowPrerelease -eq $true)
+                        {
+                            $saveModuleHashtable.Prerelease = $true
+                        }
+                    }
+
+                    $modulesToSave += $saveModuleHashtable
                 }
                 else
                 {
-                    $modulesToSave += @{
-                        ModuleName      = $requiredModule.Name
-                        RequiredVersion = $requiredModule.Value
+                    if ($requiredModule.Value -eq 'latest')
+                    {
+                        $modulesToSave += $requiredModule.Name
+                    }
+                    else
+                    {
+                        $modulesToSave += @{
+                            ModuleName      = $requiredModule.Name
+                            RequiredVersion = $requiredModule.Value
+                        }
                     }
                 }
             }
@@ -734,8 +760,17 @@ try
 
                     if ($currentModule -is [System.Collections.Hashtable])
                     {
-                        $savePSResourceParameters.Name = $currentModule.Name
-                        $savePSResourceParameters.Version = $currentModule.RequiredVersion
+                        $savePSResourceParameters.Name = $currentModule.ModuleName
+
+                        if ($currentModule.RequiredVersion)
+                        {
+                            $savePSResourceParameters.Version = $currentModule.RequiredVersion
+                        }
+
+                        if ($currentModule.Prerelease)
+                        {
+                            $savePSResourceParameters.Prerelease = $currentModule.Prerelease
+                        }
                     }
                     else
                     {
