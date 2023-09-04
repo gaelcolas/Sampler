@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Integration tests to build and import a module created using the Plaster
+  template _SimpleModule_.
+
 ### Changed
 
 - Task `publish_nupkg_to_gallery`
@@ -20,6 +25,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fix unit tests that was wrongly written and failed on Pester 5.5.
+- There was different behavior on PowerShell and Windows PowerShell when
+  creating the module manifest. So when the `modify` section that was meant
+  to reuse the already present but commented `Prerelease` key it also ran
+  the `modify` statement that adds a `Prerelease` key that is needed for
+  a module manifest that is created under Windows PowerShell. This resulted
+  in two `Prerelease` keys when creating a module under PowerShell 7.x.
+  Now it will add a commented `Perelease` key and then next `modify` statement
+  will remove the comment, making it work on all version of PowerShell.
+  Fixes [#436](https://github.com/gaelcolas/Sampler/issues/436).
 
 ## [0.116.5] - 2023-04-19
 
