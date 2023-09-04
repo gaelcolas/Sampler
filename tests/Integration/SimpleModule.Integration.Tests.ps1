@@ -65,7 +65,20 @@ Describe 'SimpleModule' {
         Start-Job -ScriptBlock {
             Set-Location $using:PWD
 
-            git config --global core.autocrlf true
+            <#
+                Avoids "LF will be replaced by CRLF the next time Git touches it" or
+                "CRLF will be replaced by LF the next time Git touches it" reported
+                by git.
+            #>
+            if ($IsLinux -or $IsMacOS)
+            {
+                git config --global core.autocrlf false
+            }
+            else
+            {
+                git config --global core.autocrlf true
+            }
+
             git config --global user.name "SamplerIntegrationTester"
             git config --global user.email "SamplerIntegrationTester@company.local"
 
