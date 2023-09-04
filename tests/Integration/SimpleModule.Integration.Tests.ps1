@@ -65,8 +65,11 @@ Describe 'SimpleModule' {
         Start-Job -ScriptBlock {
             Set-Location $using:PWD
 
+            git config --global user.name "SamplerIntegrationTester"
+            git config --global user.email "SamplerIntegrationTester@company.local"
+
             git init --initial-branch=main
-            git add *
+            git add --force *
             git commit --message=first
 
             ./build.ps1 -ResolveDependency -Tasks 'build' 4>&1 5>&1 6>&1 > $null
