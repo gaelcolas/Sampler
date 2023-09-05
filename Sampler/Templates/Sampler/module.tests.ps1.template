@@ -76,7 +76,7 @@ if ($PLASTER_PARAM_UseGit -eq 'true')
             $filesChanged = &git @('diff', "$defaultBranchCommit...$headCommit", '--name-only')
         }
 
-        $filesStagedAndUnstaged = &git @('diff', 'HEAD', '--name-only')
+        $filesStagedAndUnstaged = &git @('diff', 'HEAD', '--name-only') 2>&1
 
         $filesChanged += $filesStagedAndUnstaged
 
