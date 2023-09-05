@@ -72,8 +72,7 @@ Describe 'SimpleModule' {
 
             <#
                 Use 2>&1 to avoid the warning messages
-                "LF will be replaced by CRLF the next time Git touches it" and
-                "CRLF will be replaced by LF the next time Git touches it"
+                "LF will be replaced by CRLF the next time Git touches it"
                 reported by git to be sent to stderr and fail the test.
             #>
             git add --force . 2>&1
