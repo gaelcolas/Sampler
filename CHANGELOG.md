@@ -23,7 +23,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `PesterPath`, e.g. `./build.ps1 -Tasks test -PesterPath 'tests/Integration'`.
 - Added sample private function and public function samples to Plaster template
   _SimpleModule_ so that it is possible to run task `test` without it failing.
-  
+- Sample Private function tests updated to Pester 5.
+- Sample Public function tests updated to Pester 5.
+
 ### Fixed
 
 - Fix unit tests that was wrongly written and failed on Pester 5.5.

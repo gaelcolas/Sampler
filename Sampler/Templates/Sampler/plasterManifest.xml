@@ -224,13 +224,13 @@
     />
 
     <!--   UNIT TESTS Private Functions Sample Files -->
-    <file source='Get-PrivateFunction.tests.ps1'
+    <templateFile source='Get-PrivateFunction.tests.ps1.template'
           destination='${PLASTER_PARAM_ModuleName}/tests/Unit/Private/Get-PrivateFunction.tests.ps1'
           condition='${PLASTER_PARAM_ModuleType} -in @("CompleteSample","SimpleModule") -or (${PLASTER_PARAM_Features} -Contains "All" -or (${PLASTER_PARAM_Features} -Contains "UnitTests" -and ${PLASTER_PARAM_Features} -contains "SampleScripts"))'
     />
 
     <!--   UNIT TESTS Public Functions Sample Files -->
-    <file source='Get-Something.tests.ps1'
+    <templateFile source='Get-Something.tests.ps1.template'
           destination='${PLASTER_PARAM_ModuleName}/tests/Unit/Public/Get-Something.tests.ps1'
           condition='${PLASTER_PARAM_ModuleType} -in @("CompleteSample","SimpleModule") -or (${PLASTER_PARAM_Features} -Contains "All" -or (${PLASTER_PARAM_Features} -Contains "UnitTests" -and ${PLASTER_PARAM_Features} -contains "SampleScripts"))'
     />

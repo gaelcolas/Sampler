@@ -100,18 +100,22 @@ Describe 'SimpleModule' {
         $buildError | Should -BeNullOrEmpty
     }
 
-    # It 'Should pass all sample tests' {
-    #     # Must be set so $Using:PWD works.
-    #     Set-Location -Path $mockModuleRootPath
+    It 'Should pass all sample tests' {
+        # Must be set so $Using:PWD works.
+        Set-Location -Path $mockModuleRootPath
 
-    #     # Running in separate job so that we do not mess up the current session.
-    #     Start-Job -ScriptBlock {
-    #         Set-Location $using:PWD
+        # Running in separate job so that we do not mess up the current session.
+        Start-Job -ScriptBlock {
+            Set-Location $using:PWD
 
-    #         ./build.ps1 -ResolveDependency -Tasks 'test' #4>&1 5>&1 6>&1 > $null
-    #     } |
-    #         Receive-Job -Wait -AutoRemoveJob -ErrorVariable buildError
+            Import-Module -Name 'ChangelogManagement'
 
-    #     $buildError | Should -BeNullOrEmpty
-    # }
+            Add-ChangelogData -Path './CHANGELOG.md' -Type 'Fixed' -Data 'Entry for testing'
+
+            ./build.ps1 -Tasks 'test' #4>&1 5>&1 6>&1 > $null
+        } |
+            Receive-Job -Wait -AutoRemoveJob -ErrorVariable buildError
+
+        $buildError | Should -BeNullOrEmpty
+    }
 }
