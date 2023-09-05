@@ -31,7 +31,6 @@ Describe 'SimpleModule' {
         $invokePlasterParameters = @{
             TemplatePath         = Join-Path -Path $importedModule.ModuleBase -ChildPath 'Templates/Sampler'
             DestinationPath      = $TestDrive
-            SourceDirectory      = 'source'
             NoLogo               = $true
             Force                = $true
 
@@ -40,6 +39,7 @@ Describe 'SimpleModule' {
 
             # Template properties
             ModuleName           = $mockModuleName
+            SourceDirectory      = 'source'
             ModuleAuthor         = 'SamplerTestUser'
             ModuleDescription    = 'Module description'
             ModuleVersion        = '1.0.0'
@@ -65,25 +65,18 @@ Describe 'SimpleModule' {
         Start-Job -ScriptBlock {
             Set-Location $using:PWD
 
-            <#
-                Avoids "LF will be replaced by CRLF the next time Git touches it" or
-                "CRLF will be replaced by LF the next time Git touches it" reported
-                by git.
-            #>
-            if ($IsLinux -or $IsMacOS)
-            {
-                git config --global core.autocrlf false
-            }
-            else
-            {
-                git config --global core.autocrlf true
-            }
-
-            git config --global user.name "SamplerIntegrationTester"
-            git config --global user.email "SamplerIntegrationTester@company.local"
-
             git init --initial-branch=main
-            git add --force *
+
+            git config --local user.name "SamplerIntegrationTester"
+            git config --local user.email "SamplerIntegrationTester@company.local"
+
+            <#
+                Use 2>&1 to avoid the warning messages
+                "LF will be replaced by CRLF the next time Git touches it" and
+                "CRLF will be replaced by LF the next time Git touches it"
+                reported by git to be sent to stderr and fail the test.
+            #>
+            git add --force . 2>&1
             git commit --message=first
 
             ./build.ps1 -ResolveDependency -Tasks 'build' 4>&1 5>&1 6>&1 > $null
