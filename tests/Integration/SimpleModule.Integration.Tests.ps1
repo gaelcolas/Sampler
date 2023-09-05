@@ -100,7 +100,13 @@ Describe 'SimpleModule' {
         $buildError | Should -BeNullOrEmpty
     }
 
-    It 'Should pass all sample tests' {
+    <#
+        Skipping on Windows PowerShell since it throws with the error:
+        "ScriptCallDepthException: The script failed due to call depth overflow".
+        This is probably due to running Invoke-Build task that runs Invoke-Pester
+        that then again runs Invoke-Build that again runs Invoke-Pester.
+    #>
+    It 'Should pass all sample tests' -Skip:($PSVersionTable.PSEdition -eq 'Desktop') {
         # Must be set so $Using:PWD works.
         Set-Location -Path $mockModuleRootPath
 
