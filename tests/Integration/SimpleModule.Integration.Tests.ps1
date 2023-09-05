@@ -75,7 +75,7 @@ Describe 'SimpleModule' {
                 "LF will be replaced by CRLF the next time Git touches it"
                 reported by git to be sent to stderr and fail the test.
             #>
-            git add --force . 2>&1
+            git add . 2>&1
             git commit --message=first
 
             ./build.ps1 -ResolveDependency -Tasks 'build' 4>&1 5>&1 6>&1 > $null
@@ -99,4 +99,19 @@ Describe 'SimpleModule' {
 
         $buildError | Should -BeNullOrEmpty
     }
+
+    # It 'Should pass all sample tests' {
+    #     # Must be set so $Using:PWD works.
+    #     Set-Location -Path $mockModuleRootPath
+
+    #     # Running in separate job so that we do not mess up the current session.
+    #     Start-Job -ScriptBlock {
+    #         Set-Location $using:PWD
+
+    #         ./build.ps1 -ResolveDependency -Tasks 'test' #4>&1 5>&1 6>&1 > $null
+    #     } |
+    #         Receive-Job -Wait -AutoRemoveJob -ErrorVariable buildError
+
+    #     $buildError | Should -BeNullOrEmpty
+    # }
 }

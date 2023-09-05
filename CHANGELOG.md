@@ -21,7 +21,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   current PowerShell session. Integration tests no longer run when running
   `./build.ps1 -Tasks test`. To run integration tests pass the parameter
   `PesterPath`, e.g. `./build.ps1 -Tasks test -PesterPath 'tests/Integration'`.
-
+- Added sample private function and public function samples to Plaster template
+  _SimpleModule_ so that it is possible to run task `test` without it failing.
+  
 ### Fixed
 
 - Fix unit tests that was wrongly written and failed on Pester 5.5.
@@ -34,6 +36,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Now it will add a commented `Perelease` key and then next `modify` statement
   will remove the comment, making it work on all version of PowerShell.
   Fixes [#436](https://github.com/gaelcolas/Sampler/issues/436).
+- The QA test template was updated so that it is possible to run the tests
+  without the need to add a git remote (remote `origin`).
 
 ## [0.116.5] - 2023-04-19
 

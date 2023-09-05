@@ -63,10 +63,19 @@ if ($PLASTER_PARAM_UseGit -eq 'true')
         -not ([bool](Get-Command git -ErrorAction SilentlyContinue) -and
             [bool](&(Get-Process -Id $PID).Path -NoProfile -Command 'git rev-parse --is-inside-work-tree 2>$null'))
     ) {
-        # Get the list of changed files compared with branch main
-        $headCommit = &git rev-parse HEAD
-        $defaultBranchCommit = &git rev-parse origin/main
-        $filesChanged = &git @('diff', "$defaultBranchCommit...$headCommit", '--name-only')
+        <#
+            Get the list of changed files compared with branch main to verify
+            that required files are changed.
+        #>
+
+        # Only run if there is a remote called origin
+        if (((git remote) -match 'origin'))
+        {
+            $headCommit = &git rev-parse HEAD
+            $defaultBranchCommit = &git rev-parse origin/main
+            $filesChanged = &git @('diff', "$defaultBranchCommit...$headCommit", '--name-only')
+        }
+
         $filesStagedAndUnstaged = &git @('diff', 'HEAD', '--name-only')
 
         $filesChanged += $filesStagedAndUnstaged
