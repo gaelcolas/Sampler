@@ -243,7 +243,7 @@ if ($UsePSResourceGet)
             $invokeWebRequestParameters = @{
                 # TODO: This should be hardcoded to a stable release in the future.
                 # TODO: Should support proxy parameters passed to the script.
-                Uri         = 'https://www.powershellgallery.com/api/v2/package/Microsoft.PowerShell.PSResourceGet/0.5.24-beta24'
+                Uri         = 'https://www.powershellgallery.com/api/v2/package/Microsoft.PowerShell.PSResourceGet/0.9.0-rc1'
                 OutFile     = "$PSDependTarget/Microsoft.PowerShell.PSResourceGet.nupkg" # cSpell: ignore nupkg
                 ErrorAction = 'Stop'
             }
