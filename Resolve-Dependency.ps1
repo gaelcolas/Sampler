@@ -292,7 +292,14 @@ if ($UsePSResourceGet)
 
             $psResourceGetModule = Import-Module -Name $expandArchiveParameters.DestinationPath -Force -PassThru
 
-            Write-Information -MessageData ('Using Microsoft.PowerShell.PSResourceGet v{0}-{1}' -f $psResourceGetModule.Version.ToString(),$psResourceGetModule.PrivateData.PSData.Prerelease) -InformationAction 'Continue'
+            $psResourceGetModuleVersion = $psResourceGetModule.Version.ToString()
+
+            if ($psResourceGetModule.PrivateData.PSData.Prerelease)
+            {
+                $psResourceGetModuleVersion += '-{0}' -f $psResourceGetModule.PrivateData.PSData.Prerelease
+            }
+
+            Write-Information -MessageData ('Using Microsoft.PowerShell.PSResourceGet v{0}.' -f $psResourceGetModuleVersion) -InformationAction 'Continue'
 
             # Successfully bootstrapped PSResourceGet and CompatPowerShellGet, so let's use it.
             $UsePSResourceGet = $true
