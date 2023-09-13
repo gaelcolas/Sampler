@@ -116,7 +116,11 @@ param
 
     [Parameter()]
     [System.Management.Automation.SwitchParameter]
-    $UsePSResourceGet
+    $UsePSResourceGet,
+
+    [Parameter()]
+    [System.String]
+    $PSResourceGetVersion
 )
 
 try
@@ -227,24 +231,32 @@ if ($UseModuleFast)
 
 if ($UsePSResourceGet)
 {
+    $psResourceGetModuleName = 'Microsoft.PowerShell.PSResourceGet'
+
     # If PSResourceGet was used prior it will be locked and we can't replace it.
-    if ((Test-Path -Path "$PSDependTarget/Microsoft.PowerShell.PSResourceGet" -PathType 'Container') -and (Get-Module -Name 'Microsoft.PowerShell.PSResourceGet'))
+    if ((Test-Path -Path "$PSDependTarget/$psResourceGetModuleName" -PathType 'Container') -and (Get-Module -Name $psResourceGetModuleName))
     {
-        Write-Information -MessageData 'Microsoft.PowerShell.PSResourceGet is already save and loaded into the session, skip saving to RequiredModules. To refresh the module open a new session and resolve dependencies again.' -InformationAction 'Continue'
+        Write-Information -MessageData ('{0} is already saved and loaded into the session. To refresh the module open a new session and resolve dependencies again.' -f $psResourceGetModuleName) -InformationAction 'Continue'
     }
     else
     {
-        Write-Debug -Message 'Microsoft.PowerShell.PSResourceGet do not exist, save the module to RequiredModules.'
+        Write-Debug -Message ('{0} do not exist, saving the module to RequiredModules.' -f $psResourceGetModuleName)
 
         $psResourceGetDownloaded = $false
 
         try
         {
+            if (-not $PSResourceGetVersion)
+            {
+                # Default version to use if non is specified in parameter or in configuration.
+                $PSResourceGetVersion = '0.9.0-rc1'
+            }
+
             $invokeWebRequestParameters = @{
                 # TODO: This should be hardcoded to a stable release in the future.
                 # TODO: Should support proxy parameters passed to the script.
-                Uri         = 'https://www.powershellgallery.com/api/v2/package/Microsoft.PowerShell.PSResourceGet/0.9.0-rc1'
-                OutFile     = "$PSDependTarget/Microsoft.PowerShell.PSResourceGet.nupkg" # cSpell: ignore nupkg
+                Uri         = "https://www.powershellgallery.com/api/v2/package/$psResourceGetModuleName/$PSResourceGetVersion"
+                OutFile     = "$PSDependTarget/$psResourceGetModuleName.nupkg" # cSpell: ignore nupkg
                 ErrorAction = 'Stop'
             }
 
@@ -260,7 +272,7 @@ if ($UsePSResourceGet)
         }
         catch
         {
-            Write-Warning -Message ('PSResourceGet could not be bootstrapped. Reverting to PowerShellGet. Error: {0}' -f $_.Exception.Message)
+            Write-Warning -Message ('{0} could not be bootstrapped. Reverting to PowerShellGet. Error: {1}' -f $psResourceGetModuleName, $_.Exception.Message)
         }
 
         $UsePSResourceGet = $false
@@ -282,7 +294,7 @@ if ($UsePSResourceGet)
 
             $expandArchiveParameters = @{
                 Path            = $psResourceGetZipArchivePath
-                DestinationPath = "$PSDependTarget/Microsoft.PowerShell.PSResourceGet"
+                DestinationPath = "$PSDependTarget/$psResourceGetModuleName"
                 Force           = $true
             }
 
@@ -290,16 +302,7 @@ if ($UsePSResourceGet)
 
             Remove-Item -Path $psResourceGetZipArchivePath
 
-            $psResourceGetModule = Import-Module -Name $expandArchiveParameters.DestinationPath -Force -PassThru
-
-            $psResourceGetModuleVersion = $psResourceGetModule.Version.ToString()
-
-            if ($psResourceGetModule.PrivateData.PSData.Prerelease)
-            {
-                $psResourceGetModuleVersion += '-{0}' -f $psResourceGetModule.PrivateData.PSData.Prerelease
-            }
-
-            Write-Information -MessageData ('Using Microsoft.PowerShell.PSResourceGet v{0}.' -f $psResourceGetModuleVersion) -InformationAction 'Continue'
+            Import-Module -Name $expandArchiveParameters.DestinationPath -Force
 
             # Successfully bootstrapped PSResourceGet and CompatPowerShellGet, so let's use it.
             $UsePSResourceGet = $true
@@ -308,6 +311,17 @@ if ($UsePSResourceGet)
 
     if ($UsePSResourceGet)
     {
+        $psResourceGetModule = Get-Module -Name $psResourceGetModuleName
+
+        $psResourceGetModuleVersion = $psResourceGetModule.Version.ToString()
+
+        if ($psResourceGetModule.PrivateData.PSData.Prerelease)
+        {
+            $psResourceGetModuleVersion += '-{0}' -f $psResourceGetModule.PrivateData.PSData.Prerelease
+        }
+
+        Write-Information -MessageData ('Using {0} v{1}.' -f $psResourceGetModuleName, $psResourceGetModuleVersion) -InformationAction 'Continue'
+
         $savePSResourceParameters = @{
             Name            = 'CompatPowerShellGet' #cSpell: ignore compat
             Path            = $PSDependTarget

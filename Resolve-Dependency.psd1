@@ -44,4 +44,5 @@
     # If this is not configured or set to $false then PowerShellGet and PackageManagement
     # will be used to resolve dependencies.
     #UsePSResourceGet = $true
+    #PSResourceGetVersion = '1.0.0'
 }
