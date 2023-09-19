@@ -243,7 +243,7 @@ if ($UsePSResourceGet)
             $invokeWebRequestParameters = @{
                 # TODO: This should be hardcoded to a stable release in the future.
                 # TODO: Should support proxy parameters passed to the script.
-                Uri         = 'https://www.powershellgallery.com/api/v2/package/Microsoft.PowerShell.PSResourceGet/0.5.24-beta24'
+                Uri         = 'https://www.powershellgallery.com/api/v2/package/Microsoft.PowerShell.PSResourceGet/0.9.0-rc1'
                 OutFile     = "$PSDependTarget/Microsoft.PowerShell.PSResourceGet.nupkg" # cSpell: ignore nupkg
                 ErrorAction = 'Stop'
             }
@@ -290,9 +290,11 @@ if ($UsePSResourceGet)
 
             Remove-Item -Path $psResourceGetZipArchivePath
 
-            Import-Module -Name $expandArchiveParameters.DestinationPath -Force
+            $psResourceGetModule = Import-Module -Name $expandArchiveParameters.DestinationPath -Force -PassThru
 
-            # Successfully bootstrapped PSResourceGet and CompatPowerShellGet, so let's use it.
+            Write-Information -MessageData ('Using Microsoft.PowerShell.PSResourceGet v{0}-{1}' -f $psResourceGetModule.Version.ToString(),$psResourceGetModule.PrivateData.PSData.Prerelease) -InformationAction 'Continue'
+
+            # Successfully bootstrapped PSResourceGet, so let's use it.
             $UsePSResourceGet = $true
         }
     }
@@ -300,7 +302,9 @@ if ($UsePSResourceGet)
     if ($UsePSResourceGet)
     {
         $savePSResourceParameters = @{
-            Name            = 'CompatPowerShellGet' #cSpell: ignore compat
+            Name            = 'PowerShellGet'
+            Version         = '2.9.0-preview'
+            Prerelease      = $true
             Path            = $PSDependTarget
             Repository      = 'PSGallery'
             TrustRepository = $true
@@ -308,7 +312,7 @@ if ($UsePSResourceGet)
 
         Save-PSResource @savePSResourceParameters
 
-        Import-Module -Name "$PSDependTarget/CompatPowerShellGet"
+        Import-Module -Name "$PSDependTarget/PowerShellGet"
     }
 }
 
@@ -333,6 +337,7 @@ if (-not ($UseModuleFast -or $UsePSResourceGet))
     $importModuleParameters = @{
         Name           = 'PowerShellGet'
         MinimumVersion = '2.0'
+        MaximumVersion = '2.8.999'
         ErrorAction    = 'SilentlyContinue'
         PassThru       = $true
     }
@@ -465,6 +470,7 @@ try
                     AllowClobber       = $true
                     Scope              = $Scope
                     Repository         = $Gallery
+                    MaximumVersion     = '2.8.999'
                 }
 
                 switch ($PSBoundParameters.Keys)
@@ -494,10 +500,11 @@ try
                 Write-Debug -Message "PowerShellGet module not found. Attempting to Save from Gallery $Gallery to $PSDependTarget"
 
                 $saveModuleParameters = @{
-                    Name       = 'PowerShellGet'
-                    Repository = $Gallery
-                    Path       = $PSDependTarget
-                    Force      = $true
+                    Name           = 'PowerShellGet'
+                    Repository     = $Gallery
+                    Path           = $PSDependTarget
+                    Force          = $true
+                    MaximumVersion = '2.8.999'
                 }
 
                 Write-Progress -Activity 'Bootstrap:' -PercentComplete 60 -CurrentOperation "Saving PowerShellGet from $Gallery to $Scope"
@@ -662,15 +669,41 @@ try
 
             foreach ($requiredModule in $requiredModules)
             {
-                if ($requiredModule.Value -eq 'latest')
+                # If the RequiredModules.psd1 entry is an Hashtable then special handling is needed.
+                if ($requiredModule.Value -is [System.Collections.Hashtable])
                 {
-                    $modulesToSave += $requiredModule.Name
+                    $saveModuleHashtable = @{
+                        ModuleName      = $requiredModule.Name
+                    }
+
+                    if ($requiredModule.Value.Version -and $requiredModule.Value.Version -ne 'latest')
+                    {
+                        $saveModuleHashtable.RequiredVersion = $requiredModule.Value.Version
+                    }
+
+                    # ModuleFast does no support preview releases yet.
+                    if ($UsePSResourceGet)
+                    {
+                        if ($requiredModule.Value.Parameters.AllowPrerelease -eq $true)
+                        {
+                            $saveModuleHashtable.Prerelease = $true
+                        }
+                    }
+
+                    $modulesToSave += $saveModuleHashtable
                 }
                 else
                 {
-                    $modulesToSave += @{
-                        ModuleName      = $requiredModule.Name
-                        RequiredVersion = $requiredModule.Value
+                    if ($requiredModule.Value -eq 'latest')
+                    {
+                        $modulesToSave += $requiredModule.Name
+                    }
+                    else
+                    {
+                        $modulesToSave += @{
+                            ModuleName      = $requiredModule.Name
+                            RequiredVersion = $requiredModule.Value
+                        }
                     }
                 }
             }
@@ -734,8 +767,17 @@ try
 
                     if ($currentModule -is [System.Collections.Hashtable])
                     {
-                        $savePSResourceParameters.Name = $currentModule.Name
-                        $savePSResourceParameters.Version = $currentModule.RequiredVersion
+                        $savePSResourceParameters.Name = $currentModule.ModuleName
+
+                        if ($currentModule.RequiredVersion)
+                        {
+                            $savePSResourceParameters.Version = $currentModule.RequiredVersion
+                        }
+
+                        if ($currentModule.Prerelease)
+                        {
+                            $savePSResourceParameters.Prerelease = $currentModule.Prerelease
+                        }
                     }
                     else
                     {

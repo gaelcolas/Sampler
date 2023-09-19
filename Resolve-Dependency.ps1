@@ -304,7 +304,7 @@ if ($UsePSResourceGet)
 
             Import-Module -Name $expandArchiveParameters.DestinationPath -Force
 
-            # Successfully bootstrapped PSResourceGet and CompatPowerShellGet, so let's use it.
+            # Successfully bootstrapped PSResourceGet, so let's use it.
             $UsePSResourceGet = $true
         }
     }
@@ -323,7 +323,9 @@ if ($UsePSResourceGet)
         Write-Information -MessageData ('Using {0} v{1}.' -f $psResourceGetModuleName, $psResourceGetModuleVersion) -InformationAction 'Continue'
 
         $savePSResourceParameters = @{
-            Name            = 'CompatPowerShellGet' #cSpell: ignore compat
+            Name            = 'PowerShellGet'
+            Version         = '2.9.0-preview'
+            Prerelease      = $true
             Path            = $PSDependTarget
             Repository      = 'PSGallery'
             TrustRepository = $true
@@ -331,7 +333,7 @@ if ($UsePSResourceGet)
 
         Save-PSResource @savePSResourceParameters
 
-        Import-Module -Name "$PSDependTarget/CompatPowerShellGet"
+        Import-Module -Name "$PSDependTarget/PowerShellGet"
     }
 }
 
@@ -356,6 +358,7 @@ if (-not ($UseModuleFast -or $UsePSResourceGet))
     $importModuleParameters = @{
         Name           = 'PowerShellGet'
         MinimumVersion = '2.0'
+        MaximumVersion = '2.8.999'
         ErrorAction    = 'SilentlyContinue'
         PassThru       = $true
     }
@@ -488,6 +491,7 @@ try
                     AllowClobber       = $true
                     Scope              = $Scope
                     Repository         = $Gallery
+                    MaximumVersion     = '2.8.999'
                 }
 
                 switch ($PSBoundParameters.Keys)
@@ -517,10 +521,11 @@ try
                 Write-Debug -Message "PowerShellGet module not found. Attempting to Save from Gallery $Gallery to $PSDependTarget"
 
                 $saveModuleParameters = @{
-                    Name       = 'PowerShellGet'
-                    Repository = $Gallery
-                    Path       = $PSDependTarget
-                    Force      = $true
+                    Name           = 'PowerShellGet'
+                    Repository     = $Gallery
+                    Path           = $PSDependTarget
+                    Force          = $true
+                    MaximumVersion = '2.8.999'
                 }
 
                 Write-Progress -Activity 'Bootstrap:' -PercentComplete 60 -CurrentOperation "Saving PowerShellGet from $Gallery to $Scope"
