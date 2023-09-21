@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Integration tests to build and import a module created using the Plaster
   template _SimpleModule_.
+- Support [ModuleFast](https://github.com/JustinGrote/ModuleFast) when
+  restoring dependencies by adding the parameter `UseModuleFast` to the
+  `build.ps1`, e.g. `./build.ps1 -Tasks noop -ResolveDependency -UseModuleFast`
+  or by enabling it in the configuration file Resolve-Dependency.psd1.
+  Using ModuleFast will resolve dependencies much faster, but requires
+  PowerShell 7.2.
 
 ### Changed
 
@@ -25,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   _SimpleModule_ so that it is possible to run task `test` without it failing.
 - Sample Private function tests updated to Pester 5.
 - Sample Public function tests updated to Pester 5.
+- Sampler's build.ps1 and the template build.ps1 was aligned.
 
 ### Fixed
 

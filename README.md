@@ -34,12 +34,26 @@ Check the video for a quick intro:
 
 ## Prerequisites
 
-### PowerShellGet
+### Resolving dependencies
+
+#### PowerShellGet (default)
 
 Because we resolve dependencies from a nuget feed, whether the public
-PowerShellGallery or your private repository, a working version of
-PowerShellGet is required. We recommend the latest version of PowerShellGet v2
-(PowerShellGet v3 will be supported when it is released).
+PowerShellGallery or your private repository, a working version of PowerShellGet
+is required. Using PowerShellGet is the default if no other configuration
+is done. We recommend the latest version of PowerShellGet v2. PSResourceGet
+v3 will be supported when it is released.
+
+#### ModuleFast
+
+It is possible to use [ModuleFast](https://github.com/JustinGrote/ModuleFast)
+to resolve dependencies. ModuleFast only works with PowerShell 7.2 or higher.
+To use ModuleFast as a replacement for PowerShellGet it is possible to
+enable it in the configuration file `Resolve-Dependency.psd1`.
+It is also possible to allow the repository to use PowerShellGet as the
+default and choose to use ModuleFast from the command line by passing
+the parameter `UseModuleFast` to the build script `build.ps1`, e.g.
+`.\build.ps1 -ResolveDependency -Tasks noop -UseModuleFast`
 
 ### Managing the Module versions (optional)
 
@@ -206,12 +220,20 @@ the build process so that anyone doing a git clone can 're-hydrate' the
 project and start testing and producing the build artefact locally with
 minimal environmental dependencies.
 
-The following command will resolve dependencies:
+The following command will resolve dependencies using PowerShellGet:
 
 ```powershell
 cd C:\source\MySimpleModule
 
 ./build.ps1 -ResolveDependency -Tasks noop
+```
+
+The following command will resolve dependencies using [ModuleFast](https://github.com/JustinGrote/ModuleFast):
+
+```powershell
+cd C:\source\MySimpleModule
+
+./build.ps1 -ResolveDependency -Tasks noop -UseModuleFast
 ```
 
 The dependencies will be downloaded (or updated) from the PowerShell Gallery (unless
@@ -268,7 +290,7 @@ is no code that executes in the `noop` task).
 ```
 
 >**Note:** For the built-in `noop` task to work, the dependencies must first
-have been resolved.
+>have been resolved.
 
 ### How to run tests
 

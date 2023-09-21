@@ -46,6 +46,10 @@
     .PARAMETER WithYAML
         Not yet written.
 
+    .PARAMETER UseModuleFast
+        Specifies to use ModuleFast instead of PowerShellGet to resolve dependencies
+        faster.
+
     .NOTES
         Load defaults for parameters values from Resolve-Dependency.psd1 if not
         provided as parameter.
@@ -100,7 +104,11 @@ param
 
     [Parameter()]
     [System.Collections.Hashtable]
-    $RegisterGallery
+    $RegisterGallery,
+
+    [Parameter()]
+    [System.Management.Automation.SwitchParameter]
+    $UseModuleFast
 )
 
 try
@@ -111,17 +119,6 @@ try
         {
             Import-Module -Name Microsoft.PowerShell.Utility -RequiredVersion '3.1.0.0'
         }
-
-        <#
-            Making sure the imported PackageManagement module is not from PS7 module
-            path. The VSCode PS extension is changing the $env:PSModulePath and
-            prioritize the PS7 path. This is an issue with PowerShellGet because
-            it loads an old version if available (or fail to load latest).
-        #>
-        Get-Module -ListAvailable PackageManagement |
-            Where-Object -Property 'ModuleBase' -NotMatch 'powershell.7' |
-            Select-Object -First 1 |
-            Import-Module -Force
     }
 
     Write-Verbose -Message 'Importing Bootstrap default parameters from ''$PSScriptRoot/Resolve-Dependency.psd1''.'
@@ -169,333 +166,453 @@ catch
     Write-Warning -Message "Error attempting to import Bootstrap's default parameters from '$resolveDependencyConfigPath': $($_.Exception.Message)."
 }
 
-Write-Progress -Activity 'Bootstrap:' -PercentComplete 0 -CurrentOperation 'NuGet Bootstrap'
 
-$importModuleParameters = @{
-    Name           = 'PowerShellGet'
-    MinimumVersion = '2.0'
-    ErrorAction    = 'SilentlyContinue'
-    PassThru       = $true
-}
-
-if ($AllowOldPowerShellGetModule)
+if ($UseModuleFast)
 {
-    $importModuleParameters.Remove('MinimumVersion')
-}
-
-$powerShellGetModule = Import-Module @importModuleParameters
-
-# Install the package provider if it is not available.
-$nuGetProvider = Get-PackageProvider -Name 'NuGet' -ListAvailable -ErrorAction 'SilentlyContinue' |
-    Select-Object -First 1
-
-if (-not $powerShellGetModule -and -not $nuGetProvider)
-{
-    $providerBootstrapParameters = @{
-        Name           = 'NuGet'
-        Force          = $true
-        ForceBootstrap = $true
-        ErrorAction    = 'Stop'
-        Scope          = $Scope
-    }
-
-    switch ($PSBoundParameters.Keys)
+    try
     {
-        'Proxy'
-        {
-            $providerBootstrapParameters.Add('Proxy', $Proxy)
+        $invokeWebRequestParameters = @{
+            Uri = 'bit.ly/modulefast' # cSpell: disable-line
+            ErrorAction = 'Stop'
         }
 
-        'ProxyCredential'
-        {
-            $providerBootstrapParameters.Add('ProxyCredential', $ProxyCredential)
-        }
+        $moduleFastBootstrapScript = Invoke-WebRequest @invokeWebRequestParameters
 
-        'AllowPrerelease'
-        {
-            $providerBootstrapParameters.Add('AllowPrerelease', $AllowPrerelease)
-        }
+        <#
+            Using this method instead of the one mentioned in the instructions from
+            https://github.com/JustinGrote/ModuleFast to avoid the PSScriptAnalyzer
+            rule PSAvoidUsingInvokeExpression.
+        #>
+        $moduleFastBootstrapScriptBlock = [ScriptBlock]::Create($moduleFastBootstrapScript)
+
+        <#
+            We could pass parameters to the bootstrap script when calling Invoke().
+            But currently the default parameter values works just fine.
+        #>
+        $moduleFastBootstrapScriptBlock.Invoke()
     }
+    catch
+    {
+        Write-Warning -Message ('ModuleFast could not be bootstrapped. Reverting to PowerShellGet. Error: {0}' -f $_.Exception.Message)
 
-    Write-Information -MessageData 'Bootstrap: Installing NuGet Package Provider from the web (Make sure Microsoft addresses/ranges are allowed).'
-
-    $null = Install-PackageProvider @providerBootstrapParameters
-
-    $nuGetProvider = Get-PackageProvider -Name 'NuGet' -ListAvailable | Select-Object -First 1
-
-    $nuGetProviderVersion = $nuGetProvider.Version.ToString()
-
-    Write-Information -MessageData "Bootstrap: Importing NuGet Package Provider version $nuGetProviderVersion to current session."
-
-    $Null = Import-PackageProvider -Name 'NuGet' -RequiredVersion $nuGetProviderVersion -Force
+        $UseModuleFast = $false
+    }
 }
 
-if ($RegisterGallery)
+if (-not $UseModuleFast)
 {
-    if ($RegisterGallery.ContainsKey('Name') -and -not [System.String]::IsNullOrEmpty($RegisterGallery.Name))
+    if ($PSVersionTable.PSVersion.Major -le 5)
     {
-        $Gallery = $RegisterGallery.Name
+        <#
+            Making sure the imported PackageManagement module is not from PS7 module
+            path. The VSCode PS extension is changing the $env:PSModulePath and
+            prioritize the PS7 path. This is an issue with PowerShellGet because
+            it loads an old version if available (or fail to load latest).
+        #>
+        Get-Module -ListAvailable PackageManagement |
+            Where-Object -Property 'ModuleBase' -NotMatch 'powershell.7' |
+            Select-Object -First 1 |
+            Import-Module -Force
     }
-    else
-    {
-        $RegisterGallery.Name = $Gallery
+
+    Write-Progress -Activity 'Bootstrap:' -PercentComplete 0 -CurrentOperation 'NuGet Bootstrap'
+
+    $importModuleParameters = @{
+        Name           = 'PowerShellGet'
+        MinimumVersion = '2.0'
+        ErrorAction    = 'SilentlyContinue'
+        PassThru       = $true
     }
 
-    Write-Progress -Activity 'Bootstrap:' -PercentComplete 7 -CurrentOperation "Verifying private package repository '$Gallery'" -Completed
-
-    $previousRegisteredRepository = Get-PSRepository -Name $Gallery -ErrorAction 'SilentlyContinue'
-
-    if ($previousRegisteredRepository.SourceLocation -ne $RegisterGallery.SourceLocation)
+    if ($AllowOldPowerShellGetModule)
     {
-        if ($previousRegisteredRepository)
+        $importModuleParameters.Remove('MinimumVersion')
+    }
+
+    $powerShellGetModule = Import-Module @importModuleParameters
+
+    # Install the package provider if it is not available.
+    $nuGetProvider = Get-PackageProvider -Name 'NuGet' -ListAvailable -ErrorAction 'SilentlyContinue' |
+        Select-Object -First 1
+
+    if (-not $powerShellGetModule -and -not $nuGetProvider)
+    {
+        $providerBootstrapParameters = @{
+            Name           = 'NuGet'
+            Force          = $true
+            ForceBootstrap = $true
+            ErrorAction    = 'Stop'
+            Scope          = $Scope
+        }
+
+        switch ($PSBoundParameters.Keys)
         {
-            Write-Progress -Activity 'Bootstrap:' -PercentComplete 9 -CurrentOperation "Re-registrering private package repository '$Gallery'" -Completed
+            'Proxy'
+            {
+                $providerBootstrapParameters.Add('Proxy', $Proxy)
+            }
 
-            Unregister-PSRepository -Name $Gallery
+            'ProxyCredential'
+            {
+                $providerBootstrapParameters.Add('ProxyCredential', $ProxyCredential)
+            }
 
-            $unregisteredPreviousRepository = $true
+            'AllowPrerelease'
+            {
+                $providerBootstrapParameters.Add('AllowPrerelease', $AllowPrerelease)
+            }
+        }
+
+        Write-Information -MessageData 'Bootstrap: Installing NuGet Package Provider from the web (Make sure Microsoft addresses/ranges are allowed).'
+
+        $null = Install-PackageProvider @providerBootstrapParameters
+
+        $nuGetProvider = Get-PackageProvider -Name 'NuGet' -ListAvailable | Select-Object -First 1
+
+        $nuGetProviderVersion = $nuGetProvider.Version.ToString()
+
+        Write-Information -MessageData "Bootstrap: Importing NuGet Package Provider version $nuGetProviderVersion to current session."
+
+        $Null = Import-PackageProvider -Name 'NuGet' -RequiredVersion $nuGetProviderVersion -Force
+    }
+
+    if ($RegisterGallery)
+    {
+        if ($RegisterGallery.ContainsKey('Name') -and -not [System.String]::IsNullOrEmpty($RegisterGallery.Name))
+        {
+            $Gallery = $RegisterGallery.Name
         }
         else
         {
-            Write-Progress -Activity 'Bootstrap:' -PercentComplete 9 -CurrentOperation "Registering private package repository '$Gallery'" -Completed
+            $RegisterGallery.Name = $Gallery
         }
 
-        Register-PSRepository @RegisterGallery
+        Write-Progress -Activity 'Bootstrap:' -PercentComplete 7 -CurrentOperation "Verifying private package repository '$Gallery'" -Completed
+
+        $previousRegisteredRepository = Get-PSRepository -Name $Gallery -ErrorAction 'SilentlyContinue'
+
+        if ($previousRegisteredRepository.SourceLocation -ne $RegisterGallery.SourceLocation)
+        {
+            if ($previousRegisteredRepository)
+            {
+                Write-Progress -Activity 'Bootstrap:' -PercentComplete 9 -CurrentOperation "Re-registrering private package repository '$Gallery'" -Completed
+
+                Unregister-PSRepository -Name $Gallery
+
+                $unregisteredPreviousRepository = $true
+            }
+            else
+            {
+                Write-Progress -Activity 'Bootstrap:' -PercentComplete 9 -CurrentOperation "Registering private package repository '$Gallery'" -Completed
+            }
+
+            Register-PSRepository @RegisterGallery
+        }
     }
-}
 
-Write-Progress -Activity 'Bootstrap:' -PercentComplete 10 -CurrentOperation "Ensuring Gallery $Gallery is trusted"
+    Write-Progress -Activity 'Bootstrap:' -PercentComplete 10 -CurrentOperation "Ensuring Gallery $Gallery is trusted"
 
-# Fail if the given PSGallery is not registered.
-$previousGalleryInstallationPolicy = (Get-PSRepository -Name $Gallery -ErrorAction 'Stop').InstallationPolicy
+    # Fail if the given PSGallery is not registered.
+    $previousGalleryInstallationPolicy = (Get-PSRepository -Name $Gallery -ErrorAction 'Stop').InstallationPolicy
 
-if ($previousGalleryInstallationPolicy -ne 'Trusted')
-{
-    # Only change policy if the repository is not trusted
-    Set-PSRepository -Name $Gallery -InstallationPolicy 'Trusted' -ErrorAction 'Ignore'
+    if ($previousGalleryInstallationPolicy -ne 'Trusted')
+    {
+        # Only change policy if the repository is not trusted
+        Set-PSRepository -Name $Gallery -InstallationPolicy 'Trusted' -ErrorAction 'Ignore'
+    }
 }
 
 try
 {
-    Write-Progress -Activity 'Bootstrap:' -PercentComplete 25 -CurrentOperation 'Checking PowerShellGet'
-
-    # Ensure the module is loaded and retrieve the version you have.
-    $powerShellGetVersion = (Import-Module -Name 'PowerShellGet' -PassThru -ErrorAction 'SilentlyContinue').Version
-
-    Write-Verbose -Message "Bootstrap: The PowerShellGet version is $powerShellGetVersion"
-
-    # Versions below 2.0 are considered old, unreliable & not recommended
-    if (-not $powerShellGetVersion -or ($powerShellGetVersion -lt [System.Version] '2.0' -and -not $AllowOldPowerShellGetModule))
+    if (-not $UseModuleFast)
     {
-        Write-Progress -Activity 'Bootstrap:' -PercentComplete 40 -CurrentOperation 'Fetching newer version of PowerShellGet'
+        Write-Progress -Activity 'Bootstrap:' -PercentComplete 25 -CurrentOperation 'Checking PowerShellGet'
 
-        # PowerShellGet module not found, installing or saving it.
-        if ($PSDependTarget -in 'CurrentUser', 'AllUsers')
+        # Ensure the module is loaded and retrieve the version you have.
+        $powerShellGetVersion = (Import-Module -Name 'PowerShellGet' -PassThru -ErrorAction 'SilentlyContinue').Version
+
+        Write-Verbose -Message "Bootstrap: The PowerShellGet version is $powerShellGetVersion"
+
+        # Versions below 2.0 are considered old, unreliable & not recommended
+        if (-not $powerShellGetVersion -or ($powerShellGetVersion -lt [System.Version] '2.0' -and -not $AllowOldPowerShellGetModule))
         {
-            Write-Debug -Message "PowerShellGet module not found. Attempting to install from Gallery $Gallery."
+            Write-Progress -Activity 'Bootstrap:' -PercentComplete 40 -CurrentOperation 'Fetching newer version of PowerShellGet'
 
-            Write-Warning -Message "Installing PowerShellGet in $PSDependTarget Scope."
-
-            $installPowerShellGetParameters = @{
-                Name               = 'PowerShellGet'
-                Force              = $true
-                SkipPublisherCheck = $true
-                AllowClobber       = $true
-                Scope              = $Scope
-                Repository         = $Gallery
-            }
-
-            switch ($PSBoundParameters.Keys)
+            # PowerShellGet module not found, installing or saving it.
+            if ($PSDependTarget -in 'CurrentUser', 'AllUsers')
             {
-                'Proxy'
-                {
-                    $installPowerShellGetParameters.Add('Proxy', $Proxy)
+                Write-Debug -Message "PowerShellGet module not found. Attempting to install from Gallery $Gallery."
+
+                Write-Warning -Message "Installing PowerShellGet in $PSDependTarget Scope."
+
+                $installPowerShellGetParameters = @{
+                    Name               = 'PowerShellGet'
+                    Force              = $true
+                    SkipPublisherCheck = $true
+                    AllowClobber       = $true
+                    Scope              = $Scope
+                    Repository         = $Gallery
                 }
 
-                'ProxyCredential'
+                switch ($PSBoundParameters.Keys)
                 {
-                    $installPowerShellGetParameters.Add('ProxyCredential', $ProxyCredential)
+                    'Proxy'
+                    {
+                        $installPowerShellGetParameters.Add('Proxy', $Proxy)
+                    }
+
+                    'ProxyCredential'
+                    {
+                        $installPowerShellGetParameters.Add('ProxyCredential', $ProxyCredential)
+                    }
+
+                    'GalleryCredential'
+                    {
+                        $installPowerShellGetParameters.Add('Credential', $GalleryCredential)
+                    }
                 }
 
-                'GalleryCredential'
-                {
-                    $installPowerShellGetParameters.Add('Credential', $GalleryCredential)
+                Write-Progress -Activity 'Bootstrap:' -PercentComplete 60 -CurrentOperation 'Installing newer version of PowerShellGet'
+
+                Install-Module @installPowerShellGetParameters
+            }
+            else
+            {
+                Write-Debug -Message "PowerShellGet module not found. Attempting to Save from Gallery $Gallery to $PSDependTarget"
+
+                $saveModuleParameters = @{
+                    Name       = 'PowerShellGet'
+                    Repository = $Gallery
+                    Path       = $PSDependTarget
+                    Force      = $true
                 }
+
+                Write-Progress -Activity 'Bootstrap:' -PercentComplete 60 -CurrentOperation "Saving PowerShellGet from $Gallery to $Scope"
+
+                Save-Module @saveModuleParameters
             }
 
-            Write-Progress -Activity 'Bootstrap:' -PercentComplete 60 -CurrentOperation 'Installing newer version of PowerShellGet'
+            Write-Debug -Message 'Removing previous versions of PowerShellGet and PackageManagement from session'
 
-            Install-Module @installPowerShellGetParameters
-        }
-        else
-        {
-            Write-Debug -Message "PowerShellGet module not found. Attempting to Save from Gallery $Gallery to $PSDependTarget"
+            Get-Module -Name 'PowerShellGet' -All | Remove-Module -Force -ErrorAction 'SilentlyContinue'
+            Get-Module -Name 'PackageManagement' -All | Remove-Module -Force
 
-            $saveModuleParameters = @{
-                Name           = 'PowerShellGet'
-                Repository     = $Gallery
-                Path           = $PSDependTarget
-                Force          = $true
-            }
+            Write-Progress -Activity 'Bootstrap:' -PercentComplete 65 -CurrentOperation 'Loading latest version of PowerShellGet'
 
-            Write-Progress -Activity 'Bootstrap:' -PercentComplete 60 -CurrentOperation "Saving PowerShellGet from $Gallery to $Scope"
+            Write-Debug -Message 'Importing latest PowerShellGet and PackageManagement versions into session'
 
-            Save-Module @saveModuleParameters
-        }
-
-        Write-Debug -Message 'Removing previous versions of PowerShellGet and PackageManagement from session'
-
-        Get-Module -Name 'PowerShellGet' -All | Remove-Module -Force -ErrorAction 'SilentlyContinue'
-        Get-Module -Name 'PackageManagement' -All | Remove-Module -Force
-
-        Write-Progress -Activity 'Bootstrap:' -PercentComplete 65 -CurrentOperation 'Loading latest version of PowerShellGet'
-
-        Write-Debug -Message 'Importing latest PowerShellGet and PackageManagement versions into session'
-
-        if ($AllowOldPowerShellGetModule)
-        {
-            $powerShellGetModule = Import-Module -Name 'PowerShellGet' -Force -PassThru
-        }
-        else
-        {
-            Import-Module -Name 'PackageManagement' -MinimumVersion '1.4.8.1' -Force
-
-            $powerShellGetModule = Import-Module -Name 'PowerShellGet' -MinimumVersion '2.2.5' -Force -PassThru
-        }
-
-        $powerShellGetVersion = $powerShellGetModule.Version.ToString()
-
-        Write-Information -MessageData "Bootstrap: PowerShellGet version loaded is $powerShellGetVersion"
-    }
-
-    # Try to import the PSDepend module from the available modules.
-    $getModuleParameters = @{
-        Name          = 'PSDepend'
-        ListAvailable = $true
-    }
-
-    $psDependModule = Get-Module @getModuleParameters
-
-    if ($PSBoundParameters.ContainsKey('MinimumPSDependVersion'))
-    {
-        try
-        {
-            $psDependModule = $psDependModule | Where-Object -FilterScript { $_.Version -ge $MinimumPSDependVersion }
-        }
-        catch
-        {
-            throw ('There was a problem finding the minimum version of PSDepend. Error: {0}' -f $_)
-        }
-    }
-
-    if (-not $psDependModule)
-    {
-        # PSDepend module not found, installing or saving it.
-        if ($PSDependTarget -in 'CurrentUser', 'AllUsers')
-        {
-            Write-Debug -Message "PSDepend module not found. Attempting to install from Gallery '$Gallery'."
-
-            Write-Warning -Message "Installing PSDepend in $PSDependTarget Scope."
-
-            $installPSDependParameters = @{
-                Name               = 'PSDepend'
-                Repository         = $Gallery
-                Force              = $true
-                Scope              = $PSDependTarget
-                SkipPublisherCheck = $true
-                AllowClobber       = $true
-            }
-
-            if ($MinimumPSDependVersion)
+            if ($AllowOldPowerShellGetModule)
             {
-                $installPSDependParameters.Add('MinimumVersion', $MinimumPSDependVersion)
+                $powerShellGetModule = Import-Module -Name 'PowerShellGet' -Force -PassThru
             }
-
-            Write-Progress -Activity 'Bootstrap:' -PercentComplete 75 -CurrentOperation "Installing PSDepend from $Gallery"
-
-            Install-Module @installPSDependParameters
-        }
-        else
-        {
-            Write-Debug -Message "PSDepend module not found. Attempting to Save from Gallery $Gallery to $PSDependTarget"
-
-            $saveModuleParameters = @{
-                Name       = 'PSDepend'
-                Repository = $Gallery
-                Path       = $PSDependTarget
-                Force      = $true
-            }
-
-            if ($MinimumPSDependVersion)
+            else
             {
-                $saveModuleParameters.add('MinimumVersion', $MinimumPSDependVersion)
+                Import-Module -Name 'PackageManagement' -MinimumVersion '1.4.8.1' -Force
+
+                $powerShellGetModule = Import-Module -Name 'PowerShellGet' -MinimumVersion '2.2.5' -Force -PassThru
             }
 
-            Write-Progress -Activity 'Bootstrap:' -PercentComplete 75 -CurrentOperation "Saving PSDepend from $Gallery to $Scope"
+            $powerShellGetVersion = $powerShellGetModule.Version.ToString()
 
-            Save-Module @saveModuleParameters
+            Write-Information -MessageData "Bootstrap: PowerShellGet version loaded is $powerShellGetVersion"
         }
-    }
 
-    Write-Progress -Activity 'Bootstrap:' -PercentComplete 80 -CurrentOperation 'Loading PSDepend'
+        # Try to import the PSDepend module from the available modules.
+        $getModuleParameters = @{
+            Name          = 'PSDepend'
+            ListAvailable = $true
+        }
 
-    $importModulePSDependParameters = @{
-        Name        = 'PSDepend'
-        ErrorAction = 'Stop'
-        Force       = $true
-    }
+        $psDependModule = Get-Module @getModuleParameters
 
-    if ($PSBoundParameters.ContainsKey('MinimumPSDependVersion'))
-    {
-        $importModulePSDependParameters.Add('MinimumVersion', $MinimumPSDependVersion)
-    }
-
-    # We should have successfully bootstrapped PSDepend. Fail if not available.
-    $null = Import-Module @importModulePSDependParameters
-
-    if ($WithYAML)
-    {
-        Write-Progress -Activity 'Bootstrap:' -PercentComplete 82 -CurrentOperation 'Verifying PowerShell module PowerShell-Yaml'
-
-        if (-not (Get-Module -ListAvailable -Name 'PowerShell-Yaml'))
+        if ($PSBoundParameters.ContainsKey('MinimumPSDependVersion'))
         {
-            Write-Progress -Activity 'Bootstrap:' -PercentComplete 85 -CurrentOperation 'Installing PowerShell module PowerShell-Yaml'
+            try
+            {
+                $psDependModule = $psDependModule | Where-Object -FilterScript { $_.Version -ge $MinimumPSDependVersion }
+            }
+            catch
+            {
+                throw ('There was a problem finding the minimum version of PSDepend. Error: {0}' -f $_)
+            }
+        }
 
-            Write-Verbose -Message "PowerShell-Yaml module not found. Attempting to Save from Gallery '$Gallery' to '$PSDependTarget'."
+        if (-not $psDependModule)
+        {
+            Write-Debug -Message 'PSDepend module not found.'
 
-            $SaveModuleParam = @{
-                Name       = 'PowerShell-Yaml'
-                Repository = $Gallery
-                Path       = $PSDependTarget
-                Force      = $true
+            # PSDepend module not found, installing or saving it.
+            if ($PSDependTarget -in 'CurrentUser', 'AllUsers')
+            {
+                Write-Debug -Message "Attempting to install from Gallery '$Gallery'."
+
+                Write-Warning -Message "Installing PSDepend in $PSDependTarget Scope."
+
+                $installPSDependParameters = @{
+                    Name               = 'PSDepend'
+                    Repository         = $Gallery
+                    Force              = $true
+                    Scope              = $PSDependTarget
+                    SkipPublisherCheck = $true
+                    AllowClobber       = $true
+                }
+
+                if ($MinimumPSDependVersion)
+                {
+                    $installPSDependParameters.Add('MinimumVersion', $MinimumPSDependVersion)
+                }
+
+                Write-Progress -Activity 'Bootstrap:' -PercentComplete 75 -CurrentOperation "Installing PSDepend from $Gallery"
+
+                Install-Module @installPSDependParameters
+            }
+            else
+            {
+                Write-Debug -Message "Attempting to Save from Gallery $Gallery to $PSDependTarget"
+
+                $saveModuleParameters = @{
+                    Name       = 'PSDepend'
+                    Repository = $Gallery
+                    Path       = $PSDependTarget
+                    Force      = $true
+                }
+
+                if ($MinimumPSDependVersion)
+                {
+                    $saveModuleParameters.add('MinimumVersion', $MinimumPSDependVersion)
+                }
+
+                Write-Progress -Activity 'Bootstrap:' -PercentComplete 75 -CurrentOperation "Saving PSDepend from $Gallery to $PSDependTarget"
+
+                Save-Module @saveModuleParameters
+            }
+        }
+
+        Write-Progress -Activity 'Bootstrap:' -PercentComplete 80 -CurrentOperation 'Importing PSDepend'
+
+        $importModulePSDependParameters = @{
+            Name        = 'PSDepend'
+            ErrorAction = 'Stop'
+            Force       = $true
+        }
+
+        if ($PSBoundParameters.ContainsKey('MinimumPSDependVersion'))
+        {
+            $importModulePSDependParameters.Add('MinimumVersion', $MinimumPSDependVersion)
+        }
+
+        # We should have successfully bootstrapped PSDepend. Fail if not available.
+        $null = Import-Module @importModulePSDependParameters
+
+        Write-Progress -Activity 'Bootstrap:' -PercentComplete 81 -CurrentOperation 'Invoke PSDepend'
+
+        if ($WithYAML)
+        {
+            Write-Progress -Activity 'Bootstrap:' -PercentComplete 82 -CurrentOperation 'Verifying PowerShell module PowerShell-Yaml'
+
+            if (-not (Get-Module -ListAvailable -Name 'PowerShell-Yaml'))
+            {
+                Write-Progress -Activity 'Bootstrap:' -PercentComplete 85 -CurrentOperation 'Installing PowerShell module PowerShell-Yaml'
+
+                Write-Verbose -Message "PowerShell-Yaml module not found. Attempting to Save from Gallery '$Gallery' to '$PSDependTarget'."
+
+                $SaveModuleParam = @{
+                    Name       = 'PowerShell-Yaml'
+                    Repository = $Gallery
+                    Path       = $PSDependTarget
+                    Force      = $true
+                }
+
+                Save-Module @SaveModuleParam
+            }
+            else
+            {
+                Write-Verbose -Message 'PowerShell-Yaml is already available'
             }
 
-            Save-Module @SaveModuleParam
+            Write-Progress -Activity 'Bootstrap:' -PercentComplete 88 -CurrentOperation 'Importing PowerShell module PowerShell-Yaml'
         }
-        else
-        {
-            Write-Verbose -Message 'PowerShell-Yaml is already available'
-        }
-
-        Write-Progress -Activity 'Bootstrap:' -PercentComplete 88 -CurrentOperation 'Importing PowerShell module PowerShell-Yaml'
     }
-
-    Write-Progress -Activity 'Bootstrap:' -PercentComplete 90 -CurrentOperation 'Invoke PSDepend'
-
-    Write-Progress -Activity 'PSDepend:' -PercentComplete 0 -CurrentOperation 'Restoring Build Dependencies'
 
     if (Test-Path -Path $DependencyFile)
     {
-        $psDependParameters = @{
-            Force = $true
-            Path  = $DependencyFile
+        if ($UseModuleFast)
+        {
+            Write-Progress -Activity 'Bootstrap:' -PercentComplete 90 -CurrentOperation 'Invoking ModuleFast'
+
+            Write-Progress -Activity 'ModuleFast:' -PercentComplete 0 -CurrentOperation 'Restoring Build Dependencies'
+
+            $requiredModules = Import-PowerShellDataFile -Path $DependencyFile
+
+            $requiredModules = $requiredModules.GetEnumerator() |
+                Where-Object -FilterScript { $_.Name -ne 'PSDependOptions' }
+
+            $modulesToSave = @(
+                'PSDepend' # Always include PSDepend for backward compatibility.
+            )
+
+            foreach ($requiredModule in $requiredModules)
+            {
+                if ($requiredModule.Value -eq 'latest')
+                {
+                    $modulesToSave += $requiredModule.Name
+                }
+                else
+                {
+                    $modulesToSave += @{
+                        ModuleName      = $requiredModule.Name
+                        RequiredVersion = $requiredModule.Value
+                    }
+                }
+            }
+
+            if ($WithYAML)
+            {
+                $modulesToSave += 'PowerShell-Yaml'
+            }
+
+            $moduleFastPlan = $modulesToSave | Get-ModuleFastPlan
+
+            if ($moduleFastPlan)
+            {
+                # Clear all modules in plan from the current session so they can be fetched again.
+                $moduleFastPlan.Name | Get-Module | Remove-Module -Force
+
+                $installModuleFastParameters = @{
+                    ModulesToInstall     = $moduleFastPlan
+                    Destination          = $PSDependTarget
+                    NoPSModulePathUpdate = $true
+                    NoProfileUpdate      = $true
+                    Update               = $true
+                    Confirm              = $false
+                }
+
+                Install-ModuleFast @installModuleFastParameters
+            }
+            else
+            {
+                Write-Verbose -Message 'All modules were already up to date'
+            }
+
+            Write-Progress -Activity 'ModuleFast:' -PercentComplete 100 -CurrentOperation 'Dependencies restored' -Completed
         }
+        else
+        {
+            Write-Progress -Activity 'Bootstrap:' -PercentComplete 90 -CurrentOperation 'Invoking PSDepend'
 
-        # TODO: Handle when the Dependency file is in YAML, and -WithYAML is specified.
-        Invoke-PSDepend @psDependParameters
+            Write-Progress -Activity 'PSDepend:' -PercentComplete 0 -CurrentOperation 'Restoring Build Dependencies'
+
+            $psDependParameters = @{
+                Force = $true
+                Path  = $DependencyFile
+            }
+
+            # TODO: Handle when the Dependency file is in YAML, and -WithYAML is specified.
+            Invoke-PSDepend @psDependParameters
+
+            Write-Progress -Activity 'PSDepend:' -PercentComplete 100 -CurrentOperation 'Dependencies restored' -Completed
+        }
     }
-
-    Write-Progress -Activity 'PSDepend:' -PercentComplete 100 -CurrentOperation 'Dependencies restored' -Completed
 
     Write-Progress -Activity 'Bootstrap:' -PercentComplete 100 -CurrentOperation 'Bootstrap complete' -Completed
 }
