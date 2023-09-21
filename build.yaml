@@ -44,10 +44,10 @@ Pester:
       # Default is to use the tests folder in the project folder or source folder (if present)
       # can use it to prioritize: tests/QA, tests/Unit, tests/Integration
       Path:
+        - tests/QA
+        - tests/Unit
         #- tests/Unit/Public/Add-Sample.tests.ps1
         #- tests/Unit/Public/New-SampleModule.tests.ps1
-        #- tests/QA
-        #- tests/Unit
         #- tests/Integration
     Output:
       Verbosity: Detailed

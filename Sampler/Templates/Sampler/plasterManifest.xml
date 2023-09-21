@@ -196,13 +196,13 @@
     <!--   UNIT TESTS Private Functions folder -->
     <file source=''
           destination='${PLASTER_PARAM_ModuleName}/tests/Unit/Private'
-          condition='${PLASTER_PARAM_ModuleType} -in @("dsccommunity","CompleteSample") -or (${PLASTER_PARAM_Features} -Contains "All" -or (${PLASTER_PARAM_Features} -Contains "UnitTests" -and ${PLASTER_PARAM_Features} -contains "SampleScripts"))'
+          condition='${PLASTER_PARAM_ModuleType} -in @("dsccommunity","CompleteSample","SimpleModule") -or (${PLASTER_PARAM_Features} -Contains "All" -or (${PLASTER_PARAM_Features} -Contains "UnitTests" -and ${PLASTER_PARAM_Features} -contains "SampleScripts"))'
     />
 
     <!--   UNIT TESTS Public folder -->
     <file source=''
           destination='${PLASTER_PARAM_ModuleName}/tests/Unit/Public'
-          condition='${PLASTER_PARAM_ModuleType} -in @("dsccommunity","CompleteSample") -or (${PLASTER_PARAM_Features} -Contains "All" -or (${PLASTER_PARAM_Features} -Contains "UnitTests" -and ${PLASTER_PARAM_Features} -contains "SampleScripts"))'
+          condition='${PLASTER_PARAM_ModuleType} -in @("dsccommunity","CompleteSample","SimpleModule") -or (${PLASTER_PARAM_Features} -Contains "All" -or (${PLASTER_PARAM_Features} -Contains "UnitTests" -and ${PLASTER_PARAM_Features} -contains "SampleScripts"))'
     />
 
     <!--   UNIT TESTS Classes Sample Files -->
@@ -224,15 +224,15 @@
     />
 
     <!--   UNIT TESTS Private Functions Sample Files -->
-    <file source='Get-PrivateFunction.tests.ps1'
+    <templateFile source='Get-PrivateFunction.tests.ps1.template'
           destination='${PLASTER_PARAM_ModuleName}/tests/Unit/Private/Get-PrivateFunction.tests.ps1'
-          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteSample") -or (${PLASTER_PARAM_Features} -Contains "All" -or (${PLASTER_PARAM_Features} -Contains "UnitTests" -and ${PLASTER_PARAM_Features} -contains "SampleScripts"))'
+          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteSample","SimpleModule") -or (${PLASTER_PARAM_Features} -Contains "All" -or (${PLASTER_PARAM_Features} -Contains "UnitTests" -and ${PLASTER_PARAM_Features} -contains "SampleScripts"))'
     />
 
     <!--   UNIT TESTS Public Functions Sample Files -->
-    <file source='Get-Something.tests.ps1'
+    <templateFile source='Get-Something.tests.ps1.template'
           destination='${PLASTER_PARAM_ModuleName}/tests/Unit/Public/Get-Something.tests.ps1'
-          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteSample") -or (${PLASTER_PARAM_Features} -Contains "All" -or (${PLASTER_PARAM_Features} -Contains "UnitTests" -and ${PLASTER_PARAM_Features} -contains "SampleScripts"))'
+          condition='${PLASTER_PARAM_ModuleType} -in @("CompleteSample","SimpleModule") -or (${PLASTER_PARAM_Features} -Contains "All" -or (${PLASTER_PARAM_Features} -Contains "UnitTests" -and ${PLASTER_PARAM_Features} -contains "SampleScripts"))'
     />
 
     <!--   UNIT TESTS DSC Resources folder -->
@@ -266,13 +266,13 @@
     <!--   PUBLIC FUNCTION Sample -->
     <file source='Get-Something.ps1'
           destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/Public/Get-Something.ps1'
-          condition='${PLASTER_PARAM_ModuleType} -ne "SharedDscConfig" -and (${PLASTER_PARAM_ModuleType} -in @("CompleteSample") -or ${PLASTER_PARAM_Features} -Contains "All" -or ${PLASTER_PARAM_Features} -Contains "SampleScripts")'
+          condition='${PLASTER_PARAM_ModuleType} -ne "SharedDscConfig" -and (${PLASTER_PARAM_ModuleType} -in @("CompleteSample","SimpleModule") -or ${PLASTER_PARAM_Features} -Contains "All" -or ${PLASTER_PARAM_Features} -Contains "SampleScripts")'
     />
 
     <!--   PRIVATE FUNCTION Sample -->
     <file source='Get-PrivateFunction.ps1'
           destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/Private/Get-PrivateFunction.ps1'
-          condition='${PLASTER_PARAM_ModuleType} -ne "SharedDscConfig" -and (${PLASTER_PARAM_ModuleType} -in @("CompleteSample") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("SampleScripts"))'
+          condition='${PLASTER_PARAM_ModuleType} -ne "SharedDscConfig" -and (${PLASTER_PARAM_ModuleType} -in @("CompleteSample","SimpleModule") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("SampleScripts"))'
     />
 
     <!--   CLASSES Samples Folder -->
@@ -481,17 +481,17 @@
     <!-- Add Prerelease property if it does not exist -->
     <modify path='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/${PLASTER_PARAM_ModuleName}.psd1'
         condition='(Test-Path "${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/${PLASTER_PARAM_ModuleName}.psd1")'>
-            <replace condition="$PLASTER_FileContent -notmatch '\n\s*Prerelease\s\=\s'">
+            <replace condition="$PLASTER_FileContent -notmatch 'Prerelease\s*='">
                   <original><![CDATA[(?mi)^(?<psdata>(?<newline>\s*)PSData \= @\{\r\n)(?<end>.*)]]></original>
-                  <substitute>${psdata}${newline}    Prerelease = ''${end}</substitute>
+                  <substitute>${psdata}${newline}    # Prerelease = ''${end}</substitute>
             </replace>
     </modify>
 
-     <!-- Make sure Prerelease property is not commented -->
+    <!-- Make sure Prerelease property is not commented -->
     <modify path='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/${PLASTER_PARAM_ModuleName}.psd1'
         condition='(Test-Path "${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/${PLASTER_PARAM_ModuleName}.psd1")'>
-            <replace condition="$PLASTER_FileContent -match '#\s*Prerelease\s*=\s*'">
-                  <original><![CDATA[#\s*Prerelease\s*=\s*]]></original>
+            <replace condition="$PLASTER_FileContent -match '\#\s*Prerelease\s='">
+                  <original><![CDATA[\#\s*Prerelease\s=]]></original>
                   <substitute>Prerelease = </substitute>
             </replace>
     </modify>

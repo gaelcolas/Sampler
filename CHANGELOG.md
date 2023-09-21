@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Integration tests to build and import a module created using the Plaster
+  template _SimpleModule_.
 - Support [ModuleFast](https://github.com/JustinGrote/ModuleFast) when
   restoring dependencies by adding the parameter `UseModuleFast` to the
   `build.ps1`, e.g. `./build.ps1 -Tasks noop -ResolveDependency -UseModuleFast`
@@ -20,11 +22,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Task `publish_nupkg_to_gallery`
   - Add support for publishing a NuGet package to a gallery using the .NET SDK in addition to using nuget.exe. Fixes [#433](https://github.com/gaelcolas/Sampler/issues/433)
+- Split up unit tests and integration tests in separate pipeline jobs since
+  integration tests could change state on a developers machine, and in the
+  current PowerShell session. Integration tests no longer run when running
+  `./build.ps1 -Tasks test`. To run integration tests pass the parameter
+  `PesterPath`, e.g. `./build.ps1 -Tasks test -PesterPath 'tests/Integration'`.
+- Added sample private function and public function samples to Plaster template
+  _SimpleModule_ so that it is possible to run task `test` without it failing.
+- Sample Private function tests updated to Pester 5.
+- Sample Public function tests updated to Pester 5.
 - Sampler's build.ps1 and the template build.ps1 was aligned.
 
 ### Fixed
 
 - Fix unit tests that was wrongly written and failed on Pester 5.5.
+- There was different behavior on PowerShell and Windows PowerShell when
+  creating the module manifest. So when the `modify` section that was meant
+  to reuse the already present but commented `Prerelease` key it also ran
+  the `modify` statement that adds a `Prerelease` key that is needed for
+  a module manifest that is created under Windows PowerShell. This resulted
+  in two `Prerelease` keys when creating a module under PowerShell 7.x.
+  Now it will add a commented `Perelease` key and then next `modify` statement
+  will remove the comment, making it work on all version of PowerShell.
+  Fixes [#436](https://github.com/gaelcolas/Sampler/issues/436).
+- The QA test template was updated so that it is possible to run the tests
+  without the need to add a git remote (remote `origin`).
 
 ## [0.116.5] - 2023-04-19
 

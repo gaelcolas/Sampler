@@ -36,6 +36,9 @@ Describe 'Simple Module Plaster Template' {
                 'source/Public'
                 'tests'
                 'tests/QA'
+                'tests/Unit'
+                'tests/Unit/Private'
+                'tests/Unit/Public'
                 'output'
                 'output/RequiredModules'
 
@@ -57,7 +60,11 @@ Describe 'Simple Module Plaster Template' {
                 'source/ModuleDsc.psd1'
                 'source/ModuleDsc.psm1'
                 'source/en-US/about_ModuleDsc.help.txt'
+                'source/Private/Get-PrivateFunction.ps1'
+                'source/Public/Get-Something.ps1'
                 'tests/QA/module.tests.ps1'
+                'tests/Unit/Private/Get-PrivateFunction.tests.ps1'
+                'tests/Unit/Public/Get-Something.tests.ps1'
             )
         }
 
@@ -134,6 +141,9 @@ Describe 'Simple Module Plaster Template' {
                 'source/Public'
                 'tests'
                 'tests/QA'
+                'tests/Unit'
+                'tests/Unit/Private'
+                'tests/Unit/Public'
                 'output'
                 'output/RequiredModules'
 
@@ -153,8 +163,12 @@ Describe 'Simple Module Plaster Template' {
                 '.vscode/tasks.json'
                 'source/ModuleDsc.psd1'
                 'source/ModuleDsc.psm1'
+                'source/Private/Get-PrivateFunction.ps1'
+                'source/Public/Get-Something.ps1'
                 'source/en-US/about_ModuleDsc.help.txt'
                 'tests/QA/module.tests.ps1'
+                'tests/Unit/Private/Get-PrivateFunction.tests.ps1'
+                'tests/Unit/Public/Get-Something.tests.ps1'
             )
         }
 
@@ -231,6 +245,9 @@ Describe 'Simple Module Plaster Template' {
                 'source/Public'
                 'tests'
                 'tests/QA'
+                'tests/Unit'
+                'tests/Unit/Private'
+                'tests/Unit/Public'
                 'output'
                 'output/RequiredModules'
 
@@ -251,7 +268,11 @@ Describe 'Simple Module Plaster Template' {
                 'source/ModuleDsc.psd1'
                 'source/ModuleDsc.psm1'
                 'source/en-US/about_ModuleDsc.help.txt'
+                'source/Private/Get-PrivateFunction.ps1'
+                'source/Public/Get-Something.ps1'
                 'tests/QA/module.tests.ps1'
+                'tests/Unit/Private/Get-PrivateFunction.tests.ps1'
+                'tests/Unit/Public/Get-Something.tests.ps1'
             )
         }
 

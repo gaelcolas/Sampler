@@ -294,16 +294,52 @@ is no code that executes in the `noop` task).
 
 ### How to run tests
 
-> **NOTE:** Which tests are run is determined by the paths configured
+<!-- markdownlint-disable MD028 - empty line in block quote -->
+> [!NOTE]
+> Which tests are run is determined by the paths configured
 > by a key in the _Pester_ configuration in the file `build.yml`. The key
 > differs depending on the version of _Pester_ being used. The key is `Script`
 > when using _Pester v4_, and `Path` when using _Pester v5_.
 
-If running (or debugging) tests in Visual Studio Code you should first make sure
-the session environment is set correctly. This is normally done when you build
-the project. But if there is no need to rebuild the project it is faster to run
-the [built-in task `noop`](#how-to-set-up-the-build-environment-in-the-current-powershell-session)
-in the _PowerShell Integrated Console_.
+> [!IMPORTANT]
+>If running (or debugging) tests in Visual Studio Code you should first make sure
+>the session environment is set correctly. This is normally done when you build
+>the project. But if there is no need to rebuild the project it is faster to run
+>the [built-in task `noop`](#how-to-set-up-the-build-environment-in-the-current-powershell-session)
+>in the _PowerShell Integrated Console_.
+<!-- markdownlint-enable MD028 - empty line in block quote -->
+
+Running all the unit tests, the quality tests and show code coverage can
+be achieved by running the command:
+
+```powershell
+`./build.ps1 -Tasks test`
+```
+
+Integration tests are not run by default when using the build task `test`.
+To run the integration test use the following command:
+
+```powershell
+`./build.ps1 -Tasks test -PesterPath 'tests/Integration' -CodeCoverageThreshold 0`
+```
+
+To run all tests in a specific folder use the parameter `PesterPath` and
+optionally `CodeCoverageThreshold` set to `0` to turn off code coverage.
+This runs all the quality tests:
+
+```powershell
+`./build.ps1 -Tasks test -PesterPath 'tests/QA' -CodeCoverageThreshold 0`
+```
+
+To run a specific test file, again use the parameter `PesterPath` and
+optionally `CodeCoverageThreshold` set to `0` to turn off code coverage.
+This runs just the specific test file `New-SamplerXmlJaCoCoCounter.tests.ps1`:
+
+<!-- markdownlint-disable MD013 - Line length -->
+```powershell
+./build.ps1 -Tasks test -PesterPath ./tests/Unit/Private/New-SamplerXmlJaCoCoCounter.tests.ps1 -CodeCoverageThreshold 0
+```
+<!-- markdownlint-enable MD013 - Line length -->
 
 ### How to run the default workflow
 
