@@ -26,7 +26,7 @@ Describe 'Resolve dependencies' {
             Start-Job -ScriptBlock {
                 Set-Location $using:PWD
 
-                ./build.ps1 -ResolveDependency -Tasks 'noop' #4>&1 5>&1 6>&1 > $null
+                ./build.ps1 -ResolveDependency -Tasks 'noop' 4>&1 5>&1 6>&1 > $null
             } |
                 Receive-Job -Wait -AutoRemoveJob -ErrorVariable buildError
 
@@ -66,7 +66,7 @@ Describe 'Resolve dependencies' {
                         }
                 ) -join [System.IO.Path]::PathSeparator
 
-                ./build.ps1 -ResolveDependency -Tasks 'noop' -UseModuleFast #4>&1 5>&1 6>&1 > $null
+                ./build.ps1 -ResolveDependency -Tasks 'noop' -UseModuleFast 4>&1 5>&1 6>&1 > $null
             } |
                 Receive-Job -Wait -AutoRemoveJob -ErrorVariable buildError
 
@@ -93,7 +93,7 @@ Describe 'Resolve dependencies' {
             Start-Job -ScriptBlock {
                 Set-Location $using:PWD
 
-                ./build.ps1 -ResolveDependency -Tasks 'noop' -UsePSResourceGet -Verbose -Debug #4>&1 5>&1 6>&1 > $null
+                ./build.ps1 -ResolveDependency -Tasks 'noop' -UsePSResourceGet 4>&1 5>&1 6>&1 > $null
             } |
                 Receive-Job -Wait -AutoRemoveJob -ErrorVariable buildError
 
@@ -140,7 +140,7 @@ Describe 'Resolve dependencies' {
 
                     $mockRequiredModulesDataFile | Out-File -FilePath '.\RequiredModules.psd1' -Encoding UTF8 -NoClobber -NoNewline
 
-                    ./build.ps1 -ResolveDependency -Tasks 'noop' -UsePSResourceGet #4>&1 5>&1 6>&1 > $null
+                    ./build.ps1 -ResolveDependency -Tasks 'noop' -UsePSResourceGet 4>&1 5>&1 6>&1 > $null
                 } |
                     Receive-Job -Wait -AutoRemoveJob -ErrorVariable buildError
 
