@@ -40,11 +40,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Sample Private function tests updated to Pester 5.
 - Sample Public function tests updated to Pester 5.
 - Sampler's build.ps1 and the template build.ps1 was aligned.
-- Split up unit tests and integration tests in separate pipeline jobs since
-  integration tests could change state on a developers machine, and in the
-  current PowerShell session. Integration tests no longer run when running
-  `./build.ps1 -Tasks test`. To run integration tests pass the parameter
-  `PesterPath`, e.g. `./build.ps1 -Tasks test -PesterPath 'tests/Integration'`.
 - PowerShell Team will release the PSResourceGet compatibility module
   (previously known as CompatPowerShellGet) as PowerShellGet v2.9.0 (or
   higher). The resolve dependency script, when PowerShellGet is used, will
