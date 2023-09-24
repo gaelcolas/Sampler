@@ -45,6 +45,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   higher). The resolve dependency script, when PowerShellGet is used, will
   use `MaximumVersion` set to `2.8.999` to make sure the expected
   PowerShellGet version is installed, today that it is v2.2.5.
+  _The 2.9.0-preview has since then been unlisted, the compatibility_
+  _module will now be released as PowerShellGet v3.0.0._
 
 ### Fixed
 
