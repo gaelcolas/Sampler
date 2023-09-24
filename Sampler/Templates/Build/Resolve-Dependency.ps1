@@ -322,16 +322,24 @@ if ($UsePSResourceGet)
 
         Write-Information -MessageData ('Using {0} v{1}.' -f $psResourceGetModuleName, $psResourceGetModuleVersion) -InformationAction 'Continue'
 
-        $savePSResourceParameters = @{
-            Name            = 'PowerShellGet'
-            Version         = '2.9.0-preview'
-            Prerelease      = $true
-            Path            = $PSDependTarget
-            Repository      = 'PSGallery'
-            TrustRepository = $true
-        }
+        if ($UsePowerShellGetCompatibilityModuleVersion)
+        {
+            $savePowerShellGetParameters = @{
+                Name            = 'PowerShellGet'
+                Version         = $UsePowerShellGetCompatibilityModuleVersion
+                Path            = $PSDependTarget
+                Repository      = 'PSGallery'
+                TrustRepository = $true
+            }
 
-        Save-PSResource @savePSResourceParameters
+            # Check if the version is a prerelease.
+            if ($UsePowerShellGetCompatibilityModuleVersion -match '\d+\.\d+\.\d+-.*')
+            {
+                $savePowerShellGetParameters.Prerelease = $true
+            }
+
+            Save-PSResource @savePowerShellGetParameters
+        }
 
         Import-Module -Name "$PSDependTarget/PowerShellGet"
     }
