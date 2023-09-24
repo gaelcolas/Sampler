@@ -18,13 +18,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Using ModuleFast will resolve dependencies much faster, but requires
   PowerShell 7.2.
 - Support for [PSResourceGet (beta release)](https://github.com/PowerShell/PSResourceGet).
-  If the modules PSResourceGet and PowerShellGet v2.9.0 (previous _CompatPowerShellGet_)
-  can be bootstrapped they will be used. If PSResourceGet cannot be
-  bootstrapped then it will revert to using PowerShellGet v2.2.5. If the
-  user requests or configures to use ModuleFast then that will override
-  both PSResourceGet and PowerShellGet. It is also possible to use
-  PSResourceGet by adding the parameter `UsePSResourceGet` to the `build.ps1`,
-  e.g. `./build.ps1 -Tasks noop -ResolveDependency -UseModuleFast`.
+  If the modules PSResourceGet can be bootstrapped they will be used. If
+  PSResourceGet cannot be bootstrapped then it will revert to using
+  PowerShellGet v2.2.5. If the user requests or configures to use ModuleFast
+  then that will override both PSResourceGet and PowerShellGet. The method
+  PSResourceGet can be enabled in the configuration file Resolve-Dependency.psd1.
+  It is also possible to use PSResourceGet by adding the parameter `UsePSResourceGet`
+  to the `build.ps1`, e.g. `./build.ps1 -Tasks noop -ResolveDependency -UsePSResourceGet`.
+- When using PSResourceGet to resolve dependencies it also possible to
+  use PowerShellGet v2.9.0 (previous _CompatPowerShellGet_). To use the
+  compatibility module it can be enabled in the configuration file Resolve-Dependency.psd1.
+  It is also possible to use it by adding the parameter `UsePowerShellGetCompatibilityModule`
+  to the `build.ps1`, e.g. `./build.ps1 -Tasks noop -ResolveDependency -UsePSResourceGet -UsePowerShellGetCompatibilityModule`.
+  _The 2.9.0-preview has since then been unlisted, the compatibility_
+  _module will now be released as PowerShellGet v3.0.0._
 
 ### Changed
 

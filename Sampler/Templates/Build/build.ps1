@@ -64,6 +64,11 @@
     .PARAMETER UsePSResourceGet
         Specifies to use PSResourceGet instead of PowerShellGet to resolve dependencies
         faster. This can also be configured in Resolve-Dependency.psd1.
+
+    .PARAMETER UsePowerShellGetCompatibilityModule
+        Specifies to use the compatibility module PowerShellGet. This parameter
+        only works then the method of downloading dependencies is PSResourceGet.
+        This can also be configured in Resolve-Dependency.psd1.
 #>
 [CmdletBinding()]
 param
@@ -137,7 +142,11 @@ param
 
     [Parameter()]
     [System.Management.Automation.SwitchParameter]
-    $UsePSResourceGet
+    $UsePSResourceGet,
+
+    [Parameter()]
+    [System.Management.Automation.SwitchParameter]
+    $UsePowerShellGetCompatibilityModule
 )
 
 <#
