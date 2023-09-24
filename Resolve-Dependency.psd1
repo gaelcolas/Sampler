@@ -45,5 +45,6 @@
     # will be used to resolve dependencies.
     #UsePSResourceGet = $true
     #PSResourceGetVersion = '1.0.0'
+    #UsePowerShellGetCompatibilityModule = $true
     #UsePowerShellGetCompatibilityModuleVersion = '3.0.22-beta22'
 }
