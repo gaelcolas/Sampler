@@ -339,9 +339,9 @@ if ($UsePSResourceGet)
             }
 
             Save-PSResource @savePowerShellGetParameters
-        }
 
-        Import-Module -Name "$PSDependTarget/PowerShellGet"
+            Import-Module -Name "$PSDependTarget/PowerShellGet"
+        }
     }
 }
 
