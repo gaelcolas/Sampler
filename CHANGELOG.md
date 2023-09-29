@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.117.0] - 2023-09-29
+
 ### Added
 
 - Integration tests to build and import a module created using the Plaster
