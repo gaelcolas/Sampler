@@ -50,9 +50,12 @@
         Specifies to use ModuleFast instead of PowerShellGet to resolve dependencies
         faster.
 
-    .PARAMETER PSResourceGet
-        Specifies to use ModuleFast instead of PowerShellGet to resolve dependencies
-        faster.
+    .PARAMETER UsePSResourceGet
+        Specifies to use the new PSResourceGet module instead of the (now legacy) PowerShellGet module.
+
+    .PARAMETER PSResourceGetVersion
+        (Optional) String specifying the module version for PSResourceGet if the `UsePSResourceGet` switch is utilized.
+        Defaults to version '1.0.1' if not specified.
 
     .NOTES
         Load defaults for parameters values from Resolve-Dependency.psd1 if not
@@ -120,7 +123,7 @@ param
 
     [Parameter()]
     [System.String]
-    $PSResourceGetVersion
+    $PSResourceGetVersion = '1.0.1'
 )
 
 try
