@@ -19,6 +19,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   point to the single version.
 - Correct description of the parameter `GalleryApiToken` in the build task
   script release.module.build.ps1. Fixes [#442](https://github.com/gaelcolas/Sampler/issues/442)
+- ModuleFast now supports resolving individual pre-release dependencies
+  that is part of _RequiredModules.psd1_. This only works when setting the
+  parameter value `ModuleFastBleedingEdge` to `$true` in the configuration
+  file _Resolve-Dependencies.psd1_. When `ModuleFastBleedingEdge` is enabled
+  it is also possible to specify [NuGet version ranges](https://learn.microsoft.com/en-us/nuget/concepts/package-versioning#version-ranges)
+  in _RequiredModules.psd1_, although then the file is not compatible with
+  PSResourceGet or PSDepend (so no fallback can happen).
 
 ## [0.117.0] - 2023-09-29
 

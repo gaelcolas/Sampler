@@ -35,10 +35,19 @@
     AllowPrerelease = $false
     WithYAML        = $true # Will also bootstrap PowerShell-Yaml to read other config files
 
-    # Enable ModuleFast to resolve dependencies. Requires PowerShell 7.2 or higher.
-    # If this is not configured or set to $false then PowerShellGet and PackageManagement
-    # will be used to resolve dependencies.
+    <#
+        Enable ModuleFast to resolve dependencies. Requires PowerShell 7.2 or higher.
+        If this is not configured or set to $false then PowerShellGet and PackageManagement
+        will be used to resolve dependencies.
+
+        By enabling ModuleFastBleedingEdge the pipeline can encounter breaking changes or
+        problems by code that is merged in the ModuleFast repository, this could affect the
+        pipeline negatively. Make sure to use a clean PowerShell session after changing
+        the value of ModuleFastBleedingEdge so that ModuleFast uses the correct bootstrap
+        script and correct parameter values.
+    #>
     #UseModuleFast   = $true
+    #ModuleFastBleedingEdge = $true
 
     # Enable PSResourceGet to resolve dependencies. Requires PowerShell 7.2 or higher.
     # If this is not configured or set to $false then PowerShellGet and PackageManagement
