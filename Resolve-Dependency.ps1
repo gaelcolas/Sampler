@@ -206,7 +206,7 @@ if ($UseModuleFast -and $UsePSResourceGet)
     }
 }
 
-if ($UseModuleFast)
+if ($UseModuleFast -and -not (Get-Module -Name 'ModuleFast'))
 {
     try
     {
@@ -214,14 +214,12 @@ if ($UseModuleFast)
 
         if ($ModuleFastBleedingEdge)
         {
-            $moduleFastBootstrapUri = 'bit.ly/modulefastmain' # cSpell: disable-line
+            Write-Information -MessageData 'ModuleFast is configured to use Bleeding Edge (directly from ModuleFast''s main branch).' -InformationAction 'Continue'
 
             $moduleFastBootstrapScriptBlockParameters.UseMain = $true
         }
-        else
-        {
-            $moduleFastBootstrapUri = 'bit.ly/modulefast' # cSpell: disable-line
-        }
+
+        $moduleFastBootstrapUri = 'bit.ly/modulefastmain' # cSpell: disable-line
 
         Write-Debug -Message ('Using bootstrap script at {0}' -f $moduleFastBootstrapUri)
 
@@ -810,7 +808,7 @@ try
                             }
                             else
                             {
-                                $modulesToSave += ('{0}[{1}]' -f $requiredModule.Name, $requiredModuleVersion)
+                                $modulesToSave += ('{0}:[{1}]' -f $requiredModule.Name, $requiredModuleVersion)
                             }
                         }
                         else
@@ -829,7 +827,7 @@ try
                                 else
                                 {
                                     # Assuming the version is a fixed version.
-                                    $modulesToSave += ('{0}[{1}]' -f $requiredModule.Name, $requiredModule.Value)
+                                    $modulesToSave += ('{0}:[{1}]' -f $requiredModule.Name, $requiredModule.Value)
                                 }
                             }
                         }
