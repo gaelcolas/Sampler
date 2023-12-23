@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Update template for SECURITY.md and add it to Sampler repository as well.
+- Built module is now built in a separate folder. This is to split the paths
+  for the built module and all required modules, to avoid returning duplicate
+  modules when using `Get-Module -ListAvailable`.
 
 ### Fixed
 
