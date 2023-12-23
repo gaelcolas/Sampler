@@ -44,7 +44,10 @@
         problems by code that is merged in the ModuleFast repository, this could affect the
         pipeline negatively. Make sure to use a clean PowerShell session after changing
         the value of ModuleFastBleedingEdge so that ModuleFast uses the correct bootstrap
-        script and correct parameter values.
+        script and correct parameter values. ModuleFastBleedingEdge is disabled by default
+        when using parameter `-UseModuleFast` in the Resolve-Dependency.ps1 or build.ps1
+        script. It can be enabled here so that parameter `-UseModuleFast` use the absolute
+        latest changes in ModuleFast repository.
     #>
     #UseModuleFast   = $true
     #ModuleFastBleedingEdge = $true
