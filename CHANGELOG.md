@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Now the tasks work when using `Set-SamplerTaskVariable` with tasks that
+  do not have the parameter `ChocolateyBuildOutput`.
+
 ## [0.117.0] - 2023-09-29
 
 ### Added
