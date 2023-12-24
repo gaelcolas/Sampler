@@ -91,7 +91,7 @@ $ReleaseNotesPath = Get-SamplerAbsolutePath -Path $ReleaseNotesPath -RelativeTo 
     2 . If it set in build.yaml we use it
     3 . If it set nowhere, we used an empty value
 #>
-if (-not [string]::IsNullOrEmpty($BuiltModuleSubDirectory))
+if (-not [System.String]::IsNullOrEmpty($BuiltModuleSubDirectory))
 {
     $BuiltModuleSubdirectory = Get-SamplerAbsolutePath -Path $BuiltModuleSubDirectory -RelativeTo $OutputDirectory
 }
@@ -106,10 +106,15 @@ else {
 
 "`tBuilt Module Subdirectory  = '$BuiltModuleSubdirectory'"
 
-$ChocolateyBuildOutput = Get-SamplerAbsolutePath -Path $ChocolateyBuildOutput -RelativeTo $OutputDirectory
+$isChocolateyPackage = $false
 
-# If this returns $true then the task Build_Chocolatey_Package created the folder
-$isChocolateyPackage = Test-Path -Path $ChocolateyBuildOutput
+if (-not [System.String]::IsNullOrEmpty($ChocolateyBuildOutput))
+{
+    $ChocolateyBuildOutput = Get-SamplerAbsolutePath -Path $ChocolateyBuildOutput -RelativeTo $OutputDirectory
+
+    # If this returns $true then the task Build_Chocolatey_Package created the folder
+    $isChocolateyPackage = Test-Path -Path $ChocolateyBuildOutput
+}
 
 if ($isChocolateyPackage)
 {
