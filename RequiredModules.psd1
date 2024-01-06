@@ -39,6 +39,7 @@
     # PSPKI                          = '3.7.2'
     # LoopbackAdapter                = 'latest'
 
+
     # Below Nuget formats are supported for ModuleFast and only when ModuleFastBleedingEdge is set to $true.
 
     # Must be exactly 9.1.0-preview0002
