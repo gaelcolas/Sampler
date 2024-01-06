@@ -36,27 +36,40 @@
     WithYAML        = $true # Will also bootstrap PowerShell-Yaml to read other config files
 
     <#
-        Enable ModuleFast to resolve dependencies. Requires PowerShell 7.2 or higher.
-        If this is not configured or set to $false then PowerShellGet and PackageManagement
-        will be used to resolve dependencies.
+        Enable ModuleFast to be the default method of resolving dependencies by setting
+        UseModuleFast to the value $true. ModuleFast requires PowerShell 7.3 or higher.
+        If UseModuleFast is not configured or set to $false then PowerShellGet (or
+        PSResourceGet if enabled) will be used to as the default method of resolving
+        dependencies. You can always use the parameter `-UseModuleFast` of the
+        Resolve-Dependency.ps1 or build.ps1 script even when this is not configured
+        or set to $false.
 
+        You can use ModuleFastVersion to specify a specific version of ModuleFast to use.
+        This will also affect the use of parameter `-UseModuleFast` of the Resolve-Dependency.ps1
+        or build.ps1 script. If ModuleFastVersion is not configured then the latest
+        (non-preview) released version is used.
+
+        ModuleFastBleedingEdge will override ModuleFastVersion and use the absolute latest
+        code from the ModuleFast repository. This is useful if you want to test the absolute
+        latest changes in ModuleFast repository. This is not recommended for production use.
         By enabling ModuleFastBleedingEdge the pipeline can encounter breaking changes or
         problems by code that is merged in the ModuleFast repository, this could affect the
         pipeline negatively. Make sure to use a clean PowerShell session after changing
         the value of ModuleFastBleedingEdge so that ModuleFast uses the correct bootstrap
-        script and correct parameter values. ModuleFastBleedingEdge is disabled by default
-        when using parameter `-UseModuleFast` in the Resolve-Dependency.ps1 or build.ps1
-        script. It can be enabled here so that parameter `-UseModuleFast` use the absolute
-        latest changes in ModuleFast repository.
+        script and correct parameter values. This will also affect the use of parameter
+        `-UseModuleFast` of the Resolve-Dependency.ps1 or build.ps1 script.
     #>
-    #UseModuleFast   = $true
+    #UseModuleFast = $true
+    #ModuleFastVersion = 'v0.1.0-rc1'
     #ModuleFastBleedingEdge = $true
 
-    # Enable PSResourceGet to resolve dependencies. Requires PowerShell 7.2 or higher.
-    # If this is not configured or set to $false then PowerShellGet and PackageManagement
-    # will be used to resolve dependencies.
-    #UsePSResourceGet = $true
-    #PSResourceGetVersion = '1.0.0'
+    <#
+        Enable PSResourceGet to be the default method of resolving dependencies by setting
+        UsePSResourceGet to the value $true. If UsePSResourceGet is not configured or
+        set to $false then PowerShellGet will be used to resolve dependencies.
+    #>
+    UsePSResourceGet = $true
+    PSResourceGetVersion = '1.0.1'
     #UsePowerShellGetCompatibilityModule = $true
     #UsePowerShellGetCompatibilityModuleVersion = '3.0.22-beta22'
 }

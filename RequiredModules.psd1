@@ -30,12 +30,12 @@
 
     # PSDepend format is also supported. Must be exactly 9.1.0-preview0002
 
-    #'ComputerManagementDsc'                         = @{
-    #    Version    = '9.1.0-preview0002'
-    #    Parameters = @{
-    #        AllowPrerelease = $true
-    #    }
-    #}
+    'ComputerManagementDsc'                         = @{
+       Version    = '9.1.0-preview0002'
+       Parameters = @{
+           AllowPrerelease = $true
+       }
+    }
     # PSPKI                          = '3.7.2'
     # LoopbackAdapter                = 'latest'
 

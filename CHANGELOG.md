@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Built module is now built in a separate folder. This is to split the paths
   for the built module and all required modules, to avoid returning duplicate
   modules when using `Get-Module -ListAvailable`.
+- Update PSResourceGet to default to v1.0.1 if no version is passes in parameter
+  or specific version is configured.
 
 ### Fixed
 
