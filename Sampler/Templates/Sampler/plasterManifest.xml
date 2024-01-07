@@ -626,7 +626,7 @@
     />
 
    <!-- SECURITY MD DSC COMMUNITY -->
-   <file source='./Build/SECURITY.dsccommunity.md'
+   <file source='../Build/SECURITY.dsccommunity.md'
           destination='${PLASTER_PARAM_ModuleName}/SECURITY.md'
           condition='${PLASTER_PARAM_ModuleType} -in @("dsccommunity")'
     />
