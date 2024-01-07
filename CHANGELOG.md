@@ -7,11 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Update template for SECURITY.md and add it to Sampler repository as well.
+
 ### Fixed
 
 - Now the tasks work when using `Set-SamplerTaskVariable` with tasks that
   do not have the parameter `ChocolateyBuildOutput`.
-- Update template for SECURITY.md and add it to Sampler repository as well.
 
 ## [0.117.0] - 2023-09-29
 
