@@ -8,13 +8,15 @@ repository, please report it to us as described below.
 
 ## Reporting Security Issues
 
-> [!CAUTION]
-> Please do not report security vulnerabilities through a **public** GitHub issues.
-
 If the repository has enabled the ability to report a security vulnerability
 through GitHub new issue (separate button called "Report a vulnerability")
 then use that. See [Privately reporting a security vulnerability](https://docs.github.com/en/code-security/security-advisories/guidance-on-reporting-and-writing-information-about-vulnerabilities/privately-reporting-a-security-vulnerability)
-for more information. If the repository does not have that option then please
+for more information.
+
+> [!CAUTION]
+> Please do not report security vulnerabilities through a **public** GitHub issues.
+
+If the repository does not have that option then please
 report the security issue privately to one or several maintainers of the
 repository. The easiest way to do so is to send us a direct message via
 Twitter (X), Slack, Discord, or find us  on some other social platform.
