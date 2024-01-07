@@ -7,10 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Update template for SECURITY.md and add it to Sampler repository as well.
+
 ### Fixed
 
 - Now the tasks work when using `Set-SamplerTaskVariable` with tasks that
   do not have the parameter `ChocolateyBuildOutput`.
+- Remove duplicate SECURITY.md template files, and fix templates to
+  point to the single version.
 - Correct description of the parameter `GalleryApiToken` in the build task
   script release.module.build.ps1. Fixes [#442](https://github.com/gaelcolas/Sampler/issues/442)
 
