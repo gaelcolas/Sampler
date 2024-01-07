@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   do not have the parameter `ChocolateyBuildOutput`.
 - Remove duplicate SECURITY.md template files, and fix templates to
   point to the single version.
+- Correct description of the parameter `GalleryApiToken` in the build task
+  script release.module.build.ps1. Fixes [#442](https://github.com/gaelcolas/Sampler/issues/442)
 
 ## [0.117.0] - 2023-09-29
 
