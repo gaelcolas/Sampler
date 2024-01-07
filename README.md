@@ -36,23 +36,56 @@ Check the video for a quick intro:
 
 ### Resolving dependencies
 
-#### PowerShellGet (default)
+The Sampler templates is configured to use PSResourceGet as the method of
+resolving dependencies. The property `UsePSResourceGet` is default configured
+to `$true` in the file Resolve-Dependency.psd1. If that configuration is
+removed or disabled (set to `$false`) then resolving dependencies will
+revert to PowerShellGet & PSDepend.
 
-Because we resolve dependencies from a nuget feed, whether the public
-PowerShellGallery or your private repository, a working version of PowerShellGet
-is required. Using PowerShellGet is the default if no other configuration
-is done. We recommend the latest version of PowerShellGet v2.
+The specification syntax of the file RequiredModules.psd1 works with all
+three methods of resolving dependencies.
 
-#### ModuleFast
+```powershell
+@{
+   # Gives latest release
+   Pester = 'latest'
 
-It is possible to use [ModuleFast](https://github.com/JustinGrote/ModuleFast)
-to resolve dependencies. ModuleFast only works with PowerShell 7.2 or higher.
-To use ModuleFast as a replacement for PowerShellGet it is possible to
-enable it in the configuration file `Resolve-Dependency.psd1`.
-It is also possible to allow the repository to use PowerShellGet as the
-default and choose to use ModuleFast from the command line by passing
-the parameter `UseModuleFast` to the build script `build.ps1`, e.g.
-`.\build.ps1 -ResolveDependency -Tasks noop -UseModuleFast`
+   # Gives specific release (also known as pinning version)
+   Pester = '4.10.1'
+
+   # Gives latest preview release
+   'ComputerManagementDsc' = @{
+      Version    = 'latest'
+      Parameters = @{
+         AllowPrerelease = $true
+      }
+   }
+
+   # Gives specific preview release (also known as pinning version)
+   'ComputerManagementDsc' = @{
+      Version    = '9.1.0-preview0002'
+      Parameters = @{
+         AllowPrerelease = $true
+      }
+   }
+}
+```
+
+When using the method _PowerShellGet & PSDepend_ this configuration should
+also be added to the file RequiredModules.psd1 to control the behavior
+of PSDepend. This is only required if you need to use _PowerShellGet & PSDepend_.
+It is not required for PSResourceGet or ModuleFast.
+
+```powershell
+@{
+   PSDependOptions = @{
+      AddToPath  = $true
+      Target     = 'output\RequiredModules'
+      Parameters = @{
+         Repository = 'PSGallery'
+      }
+   }
+```
 
 #### PSResourceGet
 
@@ -64,6 +97,83 @@ file `Resolve-Dependency.psd1`. It is also possible to allow the repository
 to use PowerShellGet as the default and choose to use PSResourceGet from the
 command line by passing the parameter `UsePSResourceGet` to the build script
 `build.ps1`, e.g. `.\build.ps1 -ResolveDependency -Tasks noop -UseModuleFast`
+
+If both PSResourceGet and ModuleFast is enabled then PSResource will be
+preferred on Windows PowerShell and PowerShell 7.2 or lower. ModuleFast
+will be preferred on PowerShell 7.3 or higher.
+
+#### ModuleFast
+
+It is possible to use [ModuleFast](https://github.com/JustinGrote/ModuleFast)
+to resolve dependencies. ModuleFast only works with PowerShell 7.3 or higher.
+To use ModuleFast as a replacement for PowerShellGet it is possible to
+enable it in the configuration file `Resolve-Dependency.psd1`.
+It is also possible to allow the repository to use PowerShellGet as the
+default and choose to use ModuleFast from the command line by passing
+the parameter `UseModuleFast` to the build script `build.ps1`, e.g.
+`.\build.ps1 -ResolveDependency -Tasks noop -UseModuleFast`.
+
+If both PSResourceGet and ModuleFast is enabled then ModuleFast will be
+preferred on PowerShell 7.3 or higher. PSResource will be preferred
+on Windows PowerShell and PowerShell 7.2 or lower.
+
+When using ModuleFast as the only method there is more options to specify
+modules in the file RequiredModules.psd1. This syntax will limit resolving
+dependencies to just ModuleFast (and PowerShell 7.3 or higher) as they are
+not supported by the other methods. See the comment-based help of the command
+[`Install-ModuleFast`](https://github.com/JustinGrote/ModuleFast/blob/main/ModuleFast.psm1)
+for more information of the available syntax.
+
+```powershell
+@{
+   # Gives the latest release
+   'ComputerManagementDsc' =  'latest'
+
+   # Gives the specific release
+   'ComputerManagementDsc' =  '9.0.0'
+   
+   # Gives the latest patch release for v9.0
+   'ComputerManagementDsc' =  ':9.0.*'
+
+   # Gives the latest preview release
+   'ComputerManagementDsc' =  '!'
+
+   # Gives the latest release (including previews) that is higher that v9.0.0
+   'ComputerManagementDsc' =  '!>9.0.0'
+
+   # Must be exactly 9.1.0-preview0002
+   'ComputerManagementDsc' =  '9.1.0-preview0002'
+   'ComputerManagementDsc' =  '@9.1.0-preview0002'
+   'ComputerManagementDsc' =  ':9.1.0-preview0002'
+   'ComputerManagementDsc' =  ':[9.1.0-preview0002]'
+
+   # Must be greater than 9.1.0-preview0002
+   'ComputerManagementDsc' =  '>9.1.0-preview0002'
+
+   # Must be less than 9.1.0-preview0002
+   'ComputerManagementDsc' =  '<9.1.0-preview0002'
+
+   # Must be less than or equal to 9.1.0-preview0002
+   'ComputerManagementDsc' =  '<=9.1.0-preview0002'
+
+   # Must be greater than or equal to 9.1.0-preview0002
+   'ComputerManagementDsc' =  '>=9.1.0-preview0002'
+
+   # Must be greater than 9.1.0-preview0002
+   'ComputerManagementDsc' =  ':9.1.0-preview0002'
+
+   # Must be less than 9.1.0-preview0002
+   'ComputerManagementDsc' =  ':(,9.1.0-preview0002)'
+}
+
+```
+
+#### PowerShellGet & PSDepend
+
+Because we resolve dependencies from a nuget feed, whether the public
+PowerShell Gallery or your private repository, a working version of PowerShellGet
+is required. Using PowerShellGet is the default if no other configuration
+is done. We recommend the latest version of PowerShellGet v2.
 
 ### Managing the Module versions (optional)
 

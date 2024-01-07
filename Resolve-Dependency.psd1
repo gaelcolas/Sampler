@@ -2,6 +2,10 @@
     <#
         Default parameter values to be loaded by the Resolve-Dependency.ps1 script (unless set in bound parameters
         when calling the script).
+
+        NOTE: To revert to the method PowerShellGet & PSDepend either remove the properties 'UsePSResourceGet' and
+        'UseModuleFast' or set them to $false. Also, in the file RequiredModules.psd1 uncomment the property
+        'PSDependOptions' which is required for PSDepend.
     #>
 
     #PSDependTarget  = './output/modules'

@@ -786,7 +786,7 @@ try
                         else
                         {
                             # Handle different nuget version operators already present.
-                            if ($requiredModule.Value -match '[:|[|(|,|>|<|=]')
+                            if ($requiredModule.Value -match '[!|:|[|(|,|>|<|=]')
                             {
                                 $modulesToSave += ('{0}{1}' -f $requiredModule.Name, $requiredModule.Value)
                             }
