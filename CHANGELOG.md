@@ -16,6 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   this configuration.
 - Update PSResourceGet to default to v1.0.1 if no version is passes in parameter
   or specific version is configured.
+- Templates was changed to use PSResourceGet as the default method
+  of resolving dependencies. It is possible to change to the method
+  PowerShellGet & PSDepend by changing the configuration.
 
 ### Fixed
 
