@@ -26,7 +26,7 @@
         The module version that was built.
 
     .PARAMETER GalleryApiToken
-        The module version that was built.
+        The API token that gives permission to publish to the gallery.
 
     .PARAMETER NuGetPublishSource
         The source to publish nuget packages. Defaults to https://www.powershellgallery.com.

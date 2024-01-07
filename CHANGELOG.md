@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Now the tasks work when using `Set-SamplerTaskVariable` with tasks that
   do not have the parameter `ChocolateyBuildOutput`.
+- Correct description of the parameter `GalleryApiToken` in the build task
+  script release.module.build.ps1. Fixes [#442](https://github.com/gaelcolas/Sampler/issues/442)
 
 ## [0.117.0] - 2023-09-29
 
