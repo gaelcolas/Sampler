@@ -96,7 +96,7 @@ a replacement for PowerShellGet it is possible to enable it in the configuration
 file `Resolve-Dependency.psd1`. It is also possible to allow the repository
 to use PowerShellGet as the default and choose to use PSResourceGet from the
 command line by passing the parameter `UsePSResourceGet` to the build script
-`build.ps1`, e.g. `.\build.ps1 -ResolveDependency -Tasks noop -UseModuleFast`
+`build.ps1`, e.g. `.\build.ps1 -ResolveDependency -Tasks noop -UsePSResourceGet`
 
 If both PSResourceGet and ModuleFast is enabled then PSResource will be
 preferred on Windows PowerShell and PowerShell 7.2 or lower. ModuleFast
