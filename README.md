@@ -367,7 +367,7 @@ InvokeRD[Use preferred method]  <--> PSGallery["PowerShell Gallery"]
 InvokeRD ---> Save[["Save to RequiredModules"]]
 ```
 
-The following command will resolve dependencies using PowerShellGet:
+The following command will resolve dependencies using PSResourceGet:
 
 ```powershell
 cd C:\source\MySimpleModule
@@ -549,9 +549,10 @@ environment like so:
    dependencies available in your session for module discovery and auto-loading,
    and also make it possible to use one or more of those modules as part of your built
    module.
-1. Making sure you have a compatible version of the modules _PowerShellGet_ and
+1. (Optional) Making sure you have a compatible version of the modules _PowerShellGet_ and
    _PackageManagement_ (`version -gt 1.6`). If not, these will be installed from the
-   configured repository.
+   configured repository. Only required if you plan to use legacy PowerShellGet, default
+   PSResourceGet is used.
 1. Download or install the `PowerShell-yaml` and `PSDepend` modules needed
    for further dependency management.
 1. Read the `build.yaml` configuration.
