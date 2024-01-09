@@ -90,7 +90,7 @@ It is not required for PSResourceGet or ModuleFast.
 #### PSResourceGet
 
 It is possible to use [PSResourceGet](https://github.com/PowerShell/PSResourceGet)
-to resolve dependencies. PSResourceGet works with WIndows PowerShell and
+to resolve dependencies. PSResourceGet works with Windows PowerShell and
 PowerShell (some restrictions on versions exist). To use PSResourceGet as
 a replacement for PowerShellGet it is possible to enable it in the configuration
 file `Resolve-Dependency.psd1`. It is also possible to allow the repository
@@ -147,23 +147,26 @@ for more information of the available syntax.
    'ComputerManagementDsc' =  ':9.1.0-preview0002'
    'ComputerManagementDsc' =  ':[9.1.0-preview0002]'
 
-   # Must be greater than 9.1.0-preview0002
+   # Must be a higher version than 9.1.0-preview0002
    'ComputerManagementDsc' =  '>9.1.0-preview0002'
 
-   # Must be less than 9.1.0-preview0002
+   # Must be a lower version than 9.1.0-preview0002
    'ComputerManagementDsc' =  '<9.1.0-preview0002'
 
-   # Must be less than or equal to 9.1.0-preview0002
+   # Must be a lower version than or equal to 9.1.0-preview0002
    'ComputerManagementDsc' =  '<=9.1.0-preview0002'
 
-   # Must be greater than or equal to 9.1.0-preview0002
+   # Must be a higher version than or equal to 9.1.0-preview0002
    'ComputerManagementDsc' =  '>=9.1.0-preview0002'
 
-   # Must be greater than 9.1.0-preview0002
-   'ComputerManagementDsc' =  ':9.1.0-preview0002'
+   # Exact range, exclusive. Must be lower version than 9.2.0. 9.2.0 is not allowed.
+   'ComputerManagementDsc' =  ':(,9.2.0)'
 
-   # Must be less than 9.1.0-preview0002
-   'ComputerManagementDsc' =  ':(,9.1.0-preview0002)'
+   # Exact range, exclusive. Must be higher version than 9.0.0. 9.0.0 is not allowed.
+   'ComputerManagementDsc' =  ':(9.0.0,)'
+
+   # Exact range, inclusive. Must be version than 9.0.0 or higher up to or equal to 9.2.0.
+   'ComputerManagementDsc' =  ':[9.0.0,9.2.0]'
 }
 
 ```
@@ -349,10 +352,13 @@ minimal environmental dependencies.
 graph LR
 
 RD[Resolve dependencies] --> Method{Method?}
-Method{Method?} -->|"(Default)"| PowerShellGet(["PowerShellGet"])
+Method{Method?} -->|"(Legacy, to use,
+disable other
+methods)"| PowerShellGet(["PowerShellGet"])
 Method -->|"parameter
 -UseModuleFast"| ModuleFast(["ModuleFast"])
-Method -->|"parameter
+Method -->|"(Default),
+parameter
 -UsePSResourceGet"| PSResourceGet(["PSResourceGet"])
 PowerShellGet -->|"Invoke-PSDepend"| InvokeRD
 ModuleFast -->|"Install-ModuleFast"| InvokeRD

@@ -11,10 +11,10 @@
 <%
     if (-not [System.String]::IsNullOrEmpty($PLASTER_PARAM_CustomRepo)) {
                     # Pull Modules from Custom Repository Name
-"   #         Repository = '$PLASTER_PARAM_CustomRepo'"
+"    #        Repository = '$PLASTER_PARAM_CustomRepo'"
     }
     else {
-"   #         Repository = 'PSGallery'"
+"    #        Repository = 'PSGallery'"
     }
 %>
     #    }

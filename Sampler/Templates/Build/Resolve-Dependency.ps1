@@ -735,7 +735,7 @@ try
                 Write-Progress -Activity 'ModuleFast:' -PercentComplete 0 -CurrentOperation 'Restoring Build Dependencies'
 
                 $modulesToSave = @(
-                    'PSDepend'  # Always include PSDepend for backward compatibility.
+                    'PSDepend' # Always include PSDepend for backward compatibility.
                 )
 
                 if ($WithYAML)
@@ -873,7 +873,7 @@ try
                         if ($requiredModule.Value -eq 'latest')
                         {
                             $modulesToSave += @{
-                                Name    = $requiredModule.Name
+                                Name = $requiredModule.Name
                             }
                         }
                         else

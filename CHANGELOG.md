@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   for the built module and all required modules, to avoid returning duplicate
   modules when using `Get-Module -ListAvailable`. The templates already has
   this configuration.
-- Update PSResourceGet to default to v1.0.1 if no version is passes in parameter
+- Update PSResourceGet to default to v1.0.1 if no version is passed in parameter
   or specific version is configured.
 - Templates was changed to use PSResourceGet as the default method
   of resolving dependencies. It is possible to change to the method
