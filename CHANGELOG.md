@@ -10,6 +10,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Update template for SECURITY.md and add it to Sampler repository as well.
+- Built module is now built in a separate folder. This is to split the paths
+  for the built module and all required modules, to avoid returning duplicate
+  modules when using `Get-Module -ListAvailable`. The templates already has
+  this configuration.
+- Update PSResourceGet to default to v1.0.1 if no version is passed in parameter
+  or specific version is configured.
+- Templates was changed to use PSResourceGet as the default method
+  of resolving dependencies. It is possible to change to the method
+  PowerShellGet & PSDepend by changing the configuration.
 
 ### Fixed
 
@@ -19,6 +28,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   point to the single version.
 - Correct description of the parameter `GalleryApiToken` in the build task
   script release.module.build.ps1. Fixes [#442](https://github.com/gaelcolas/Sampler/issues/442)
+- ModuleFast now supports resolving individual pre-release dependencies
+  that is part of _RequiredModules.psd1_. It is also possible to specify
+  [NuGet version ranges](https://learn.microsoft.com/en-us/nuget/concepts/package-versioning#version-ranges)
+  in _RequiredModules.psd1_, although then the file is not compatible with
+  PSResourceGet or PSDepend (so no fallback can happen).
 
 ## [0.117.0] - 2023-09-29
 
