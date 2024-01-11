@@ -18,7 +18,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   or specific version is configured.
 - Templates was changed to use PSResourceGet as the default method
   of resolving dependencies. It is possible to change to the method
-  PowerShellGet & PSDepend by changing the configuration.
+  PowerShellGet & PSDepend by changing the configuration. Also default to
+  using PowerShellGet v3 which is a compatibility module that is a wrapper
+  for the equivalent command in PSResourceGet.
 
 ### Fixed
 
