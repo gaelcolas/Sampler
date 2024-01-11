@@ -35,6 +35,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [NuGet version ranges](https://learn.microsoft.com/en-us/nuget/concepts/package-versioning#version-ranges)
   in _RequiredModules.psd1_, although then the file is not compatible with
   PSResourceGet or PSDepend (so no fallback can happen).
+- Now it won't import legacy PowerShellGet and PackageManagement when
+  PSResourceGet or ModuleFast is used.
 
 ## [0.117.0] - 2023-09-29
 
