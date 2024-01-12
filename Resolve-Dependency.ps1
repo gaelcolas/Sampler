@@ -287,13 +287,17 @@ if ($UsePSResourceGet)
         {
             if (-not $PSResourceGetVersion)
             {
-                # Default version to use if none is passed in parameter or specified in configuration.
-                $PSResourceGetVersion = '1.0.1'
+                # Default to latest version if no version is passed in parameter or specified in configuration.
+                $psResourceGetUri = "https://www.powershellgallery.com/api/v2/package/$psResourceGetModuleName"
+            }
+            else
+            {
+                $psResourceGetUri = "https://www.powershellgallery.com/api/v2/package/$psResourceGetModuleName/$PSResourceGetVersion"
             }
 
             $invokeWebRequestParameters = @{
                 # TODO: Should support proxy parameters passed to the script.
-                Uri         = "https://www.powershellgallery.com/api/v2/package/$psResourceGetModuleName/$PSResourceGetVersion"
+                Uri         = $psResourceGetUri
                 OutFile     = "$PSDependTarget/$psResourceGetModuleName.nupkg" # cSpell: ignore nupkg
                 ErrorAction = 'Stop'
             }
@@ -759,13 +763,27 @@ try
                 {
                     Write-Debug -Message 'PowerShellGet compatibility module is configured to be used.'
 
-                    if ($UsePowerShellGetCompatibilityModuleVersion)
+                    # This is needed to ensure that the PowerShellGet compatibility module works.
+                    $psResourceGetModuleName = 'Microsoft.PowerShell.PSResourceGet'
+
+                    if ($PSResourceGetVersion)
                     {
-                        $modulesToSave += ('{0}:[{1}]' -f 'PowerShellGet', $UsePowerShellGetCompatibilityModuleVersion)
+                        $modulesToSave += ('{0}:[{1}]' -f $powerShellGetCompatibilityModuleName, $PSResourceGetVersion)
                     }
                     else
                     {
-                        $modulesToSave += 'PowerShellGet'
+                        $modulesToSave += $powerShellGetCompatibilityModuleName
+                    }
+
+                    $powerShellGetCompatibilityModuleName = 'PowerShellGet'
+
+                    if ($UsePowerShellGetCompatibilityModuleVersion)
+                    {
+                        $modulesToSave += ('{0}:[{1}]' -f $powerShellGetCompatibilityModuleName, $UsePowerShellGetCompatibilityModuleVersion)
+                    }
+                    else
+                    {
+                        $modulesToSave += $powerShellGetCompatibilityModuleName
                     }
                 }
 
