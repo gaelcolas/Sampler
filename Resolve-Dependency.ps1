@@ -235,6 +235,11 @@ if ($UseModuleFast -and -not (Get-Module -Name 'ModuleFast'))
         }
         elseif($ModuleFastVersion)
         {
+            if ($ModuleFastVersion -notmatch 'v')
+            {
+                $ModuleFastVersion = 'v{0}' -f $ModuleFastVersion
+            }
+
             Write-Information -MessageData ('ModuleFast is configured to use version {0}.' -f $ModuleFastVersion) -InformationAction 'Continue'
 
             $moduleFastBootstrapScriptBlockParameters.Release = $ModuleFastVersion

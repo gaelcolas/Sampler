@@ -66,7 +66,7 @@
         `-UseModuleFast` of the Resolve-Dependency.ps1 or build.ps1 script.
     #>
     #UseModuleFast = $true
-    #ModuleFastVersion = 'v0.1.0-rc1'
+    #ModuleFastVersion = '0.1.0'
     #ModuleFastBleedingEdge = $true
 
     <#
