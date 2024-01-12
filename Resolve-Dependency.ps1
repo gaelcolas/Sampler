@@ -768,11 +768,11 @@ try
 
                     if ($PSResourceGetVersion)
                     {
-                        $modulesToSave += ('{0}:[{1}]' -f $powerShellGetCompatibilityModuleName, $PSResourceGetVersion)
+                        $modulesToSave += ('{0}:[{1}]' -f $psResourceGetModuleName, $PSResourceGetVersion)
                     }
                     else
                     {
-                        $modulesToSave += $powerShellGetCompatibilityModuleName
+                        $modulesToSave += $psResourceGetModuleName
                     }
 
                     $powerShellGetCompatibilityModuleName = 'PowerShellGet'
