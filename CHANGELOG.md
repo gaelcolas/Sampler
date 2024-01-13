@@ -14,11 +14,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   for the built module and all required modules, to avoid returning duplicate
   modules when using `Get-Module -ListAvailable`. The templates already has
   this configuration.
-- Update PSResourceGet to default to v1.0.1 if no version is passed in parameter
-  or specific version is configured.
+- Now PSResourceGet always default to the latest released version if no
+  specific version is configured or passed as parameter.
 - Templates was changed to use PSResourceGet as the default method
   of resolving dependencies. It is possible to change to the method
-  PowerShellGet & PSDepend by changing the configuration.
+  PowerShellGet & PSDepend by changing the configuration. Also default to
+  using PowerShellGet v3 which is a compatibility module that is a wrapper
+  for the equivalent command in PSResourceGet.
 
 ### Fixed
 
@@ -33,6 +35,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [NuGet version ranges](https://learn.microsoft.com/en-us/nuget/concepts/package-versioning#version-ranges)
   in _RequiredModules.psd1_, although then the file is not compatible with
   PSResourceGet or PSDepend (so no fallback can happen).
+- Now it won't import legacy PowerShellGet and PackageManagement when
+  PSResourceGet or ModuleFast is used.
+- Now it works saving PowerShellGet compatibility module when configured.
+- Now if both ModuleFast and PowerShellGet compatibility module is configured
+  PSResourceGet is automatically added as a dependency. This is for example
+  needed for publishing built module to the gallery.
 
 ## [0.117.0] - 2023-09-29
 

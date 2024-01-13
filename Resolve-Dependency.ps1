@@ -135,7 +135,15 @@ param
 
     [Parameter()]
     [System.String]
-    $PSResourceGetVersion
+    $PSResourceGetVersion,
+
+    [Parameter()]
+    [System.Management.Automation.SwitchParameter]
+    $UsePowerShellGetCompatibilityModule,
+
+    [Parameter()]
+    [System.String]
+    $UsePowerShellGetCompatibilityModuleVersion
 )
 
 try
@@ -198,21 +206,21 @@ if ($UseModuleFast -and $UsePSResourceGet)
 {
     Write-Information -MessageData 'Both ModuleFast and PSResourceGet is configured or/and passed as parameter.' -InformationAction 'Continue'
 
-    if ($PSVersionTable.PSVersion -ge '7.3')
+    if ($PSVersionTable.PSVersion -ge '7.2')
     {
         $UsePSResourceGet = $false
 
-        Write-Information -MessageData 'PowerShell 7.3 or higher being used, prefer ModuleFast over PSResourceGet.' -InformationAction 'Continue'
+        Write-Information -MessageData 'PowerShell 7.2 or higher being used, prefer ModuleFast over PSResourceGet.' -InformationAction 'Continue'
     }
     else
     {
         $UseModuleFast = $false
 
-        Write-Information -MessageData 'Windows PowerShell or PowerShell <=7.2 is being used, prefer PSResourceGet since ModuleFast is not supported on this version of PowerShell.' -InformationAction 'Continue'
+        Write-Information -MessageData 'Windows PowerShell or PowerShell <=7.1 is being used, prefer PSResourceGet since ModuleFast is not supported on this version of PowerShell.' -InformationAction 'Continue'
     }
 }
 
-# Only bootstrao ModuleFast if it is not already imported.
+# Only bootstrap ModuleFast if it is not already imported.
 if ($UseModuleFast -and -not (Get-Module -Name 'ModuleFast'))
 {
     try
@@ -227,6 +235,11 @@ if ($UseModuleFast -and -not (Get-Module -Name 'ModuleFast'))
         }
         elseif($ModuleFastVersion)
         {
+            if ($ModuleFastVersion -notmatch 'v')
+            {
+                $ModuleFastVersion = 'v{0}' -f $ModuleFastVersion
+            }
+
             Write-Information -MessageData ('ModuleFast is configured to use version {0}.' -f $ModuleFastVersion) -InformationAction 'Continue'
 
             $moduleFastBootstrapScriptBlockParameters.Release = $ModuleFastVersion
@@ -279,13 +292,17 @@ if ($UsePSResourceGet)
         {
             if (-not $PSResourceGetVersion)
             {
-                # Default version to use if none is passed in parameter or specified in configuration.
-                $PSResourceGetVersion = '1.0.1'
+                # Default to latest version if no version is passed in parameter or specified in configuration.
+                $psResourceGetUri = "https://www.powershellgallery.com/api/v2/package/$psResourceGetModuleName"
+            }
+            else
+            {
+                $psResourceGetUri = "https://www.powershellgallery.com/api/v2/package/$psResourceGetModuleName/$PSResourceGetVersion"
             }
 
             $invokeWebRequestParameters = @{
                 # TODO: Should support proxy parameters passed to the script.
-                Uri         = "https://www.powershellgallery.com/api/v2/package/$psResourceGetModuleName/$PSResourceGetVersion"
+                Uri         = $psResourceGetUri
                 OutFile     = "$PSDependTarget/$psResourceGetModuleName.nupkg" # cSpell: ignore nupkg
                 ErrorAction = 'Stop'
             }
@@ -497,8 +514,12 @@ if (-not ($UseModuleFast -or $UsePSResourceGet))
     # Fail if the given PSGallery is not registered.
     $previousGalleryInstallationPolicy = (Get-PSRepository -Name $Gallery -ErrorAction 'Stop').Trusted
 
+    $updatedGalleryInstallationPolicy = $false
+
     if ($previousGalleryInstallationPolicy -ne $true)
     {
+        $updatedGalleryInstallationPolicy = $true
+
         # Only change policy if the repository is not trusted
         Set-PSRepository -Name $Gallery -InstallationPolicy 'Trusted' -ErrorAction 'Ignore'
     }
@@ -741,6 +762,34 @@ try
                 if ($WithYAML)
                 {
                     $modulesToSave += 'PowerShell-Yaml'
+                }
+
+                if ($UsePowerShellGetCompatibilityModule)
+                {
+                    Write-Debug -Message 'PowerShellGet compatibility module is configured to be used.'
+
+                    # This is needed to ensure that the PowerShellGet compatibility module works.
+                    $psResourceGetModuleName = 'Microsoft.PowerShell.PSResourceGet'
+
+                    if ($PSResourceGetVersion)
+                    {
+                        $modulesToSave += ('{0}:[{1}]' -f $psResourceGetModuleName, $PSResourceGetVersion)
+                    }
+                    else
+                    {
+                        $modulesToSave += $psResourceGetModuleName
+                    }
+
+                    $powerShellGetCompatibilityModuleName = 'PowerShellGet'
+
+                    if ($UsePowerShellGetCompatibilityModuleVersion)
+                    {
+                        $modulesToSave += ('{0}:[{1}]' -f $powerShellGetCompatibilityModuleName, $UsePowerShellGetCompatibilityModuleVersion)
+                    }
+                    else
+                    {
+                        $modulesToSave += $powerShellGetCompatibilityModuleName
+                    }
                 }
 
                 foreach ($requiredModule in $requiredModules)
@@ -997,10 +1046,10 @@ finally
         Register-PSRepository @registerPSRepositoryParameters
     }
 
-    # Only try to revert installation policy if the repository exist
-    if ((Get-PSRepository -Name $Gallery -ErrorAction 'SilentlyContinue'))
+    if ($updatedGalleryInstallationPolicy -eq $true -and $previousGalleryInstallationPolicy -ne $true)
     {
-        if ($previousGalleryInstallationPolicy -ne $true)
+        # Only try to revert installation policy if the repository exist
+        if ((Get-PSRepository -Name $Gallery -ErrorAction 'SilentlyContinue'))
         {
             # Reverting the Installation Policy for the given gallery if it was not already trusted
             Set-PSRepository -Name $Gallery -InstallationPolicy 'Untrusted'

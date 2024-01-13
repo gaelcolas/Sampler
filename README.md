@@ -99,13 +99,13 @@ command line by passing the parameter `UsePSResourceGet` to the build script
 `build.ps1`, e.g. `.\build.ps1 -ResolveDependency -Tasks noop -UsePSResourceGet`
 
 If both PSResourceGet and ModuleFast is enabled then PSResource will be
-preferred on Windows PowerShell and PowerShell 7.2 or lower. ModuleFast
-will be preferred on PowerShell 7.3 or higher.
+preferred on Windows PowerShell and PowerShell 7.1 or lower. ModuleFast
+will be preferred on PowerShell 7.2 or higher.
 
 #### ModuleFast
 
 It is possible to use [ModuleFast](https://github.com/JustinGrote/ModuleFast)
-to resolve dependencies. ModuleFast only works with PowerShell 7.3 or higher.
+to resolve dependencies. ModuleFast only works with PowerShell 7.2 or higher.
 To use ModuleFast as a replacement for PowerShellGet it is possible to
 enable it in the configuration file `Resolve-Dependency.psd1`.
 It is also possible to allow the repository to use PowerShellGet as the
@@ -114,12 +114,12 @@ the parameter `UseModuleFast` to the build script `build.ps1`, e.g.
 `.\build.ps1 -ResolveDependency -Tasks noop -UseModuleFast`.
 
 If both PSResourceGet and ModuleFast is enabled then ModuleFast will be
-preferred on PowerShell 7.3 or higher. PSResource will be preferred
-on Windows PowerShell and PowerShell 7.2 or lower.
+preferred on PowerShell 7.2 or higher. PSResource will be preferred
+on Windows PowerShell and PowerShell 7.1 or lower.
 
 When using ModuleFast as the only method there is more options to specify
 modules in the file RequiredModules.psd1. This syntax will limit resolving
-dependencies to just ModuleFast (and PowerShell 7.3 or higher) as they are
+dependencies to just ModuleFast (and PowerShell 7.2 or higher) as they are
 not supported by the other methods. See the comment-based help of the command
 [`Install-ModuleFast`](https://github.com/JustinGrote/ModuleFast/blob/main/ModuleFast.psm1)
 for more information of the available syntax.
