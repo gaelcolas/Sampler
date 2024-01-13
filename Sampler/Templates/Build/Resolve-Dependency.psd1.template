@@ -43,7 +43,7 @@
 
     <#
         Enable ModuleFast to be the default method of resolving dependencies by setting
-        UseModuleFast to the value $true. ModuleFast requires PowerShell 7.3 or higher.
+        UseModuleFast to the value $true. ModuleFast requires PowerShell 7.2 or higher.
         If UseModuleFast is not configured or set to $false then PowerShellGet (or
         PSResourceGet if enabled) will be used to as the default method of resolving
         dependencies. You can always use the parameter `-UseModuleFast` of the
@@ -66,7 +66,7 @@
         `-UseModuleFast` of the Resolve-Dependency.ps1 or build.ps1 script.
     #>
     #UseModuleFast = $true
-    #ModuleFastVersion = '0.1.0'
+    #ModuleFastVersion = '0.1.2'
     #ModuleFastBleedingEdge = $true
 
     <#
