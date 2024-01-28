@@ -984,8 +984,6 @@ try
                             Write-Warning -Message 'Save-PSResource could not save (replace) one or more dependencies. This can be due to the module is loaded into the session (and referencing assemblies). Close the current session and open a new session and try again.'
                         }
                     }
-
-                    #$syncProgressCopy.progressPercentage += $using:percentagePerModule
                 }
 
                 Write-Progress -Activity 'PSResourceGet:' -PercentComplete 100 -CurrentOperation 'Restoring Build Dependencies' -Completed
