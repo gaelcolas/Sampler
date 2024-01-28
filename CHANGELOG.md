@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   PowerShellGet & PSDepend by changing the configuration. Also default to
   using PowerShellGet v3 which is a compatibility module that is a wrapper
   for the equivalent command in PSResourceGet.
+- When resolving dependencies using PSResourceGet, it now uses parallelization
+  to more quickly get the dependencies downloaded.
 
 ### Fixed
 
