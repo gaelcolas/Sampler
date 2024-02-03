@@ -61,6 +61,10 @@
     .PARAMETER PSResourceGetVersion
         String specifying the module version for PSResourceGet if the `UsePSResourceGet` switch is utilized.
 
+    .PARAMETER PSResourceGetThrottleLimit
+        Specifies the maximum number of concurrent requests to the PowerShell Gallery
+        when using PSResourceGet.
+
     .NOTES
         Load defaults for parameters values from Resolve-Dependency.psd1 if not
         provided as parameter.
@@ -136,6 +140,10 @@ param
     [Parameter()]
     [System.String]
     $PSResourceGetVersion,
+
+    [Parameter()]
+    [System.UInt16]
+    $PSResourceGetThrottleLimit,
 
     [Parameter()]
     [System.Management.Automation.SwitchParameter]
@@ -937,6 +945,7 @@ try
 
                 $percentagePerModule = [System.Math]::Floor(100 / $modulesToSave.Length)
 
+                # TODO: This is not necessary unless -Parallell can be used (which isn't the case in older PowerShell versions).
                 # Inspired from https://stackoverflow.com/questions/67114770/are-non-concurrent-collections-safe-inside-concurrent-collections
                 $syncProgress  = [System.Collections.Concurrent.ConcurrentDictionary[string, int]]::new()
 
@@ -945,12 +954,10 @@ try
 
                 Write-Progress -Activity 'PSResourceGet:' -PercentComplete $progressPercent -CurrentOperation 'Restoring Build Dependencies'
 
-                $modulesToSave | ForEach-Object -ThrottleLimit 5 -Parallel {
+                # This scriptblock is used by ForEach-Object below.
+                # TODO: The scriptblock cannot use the $using: scope to access variables when passes to parameter -Process
+                $forEachObjectScriptBlock = {
                     $currentModule = $_
-
-                    $syncProgressCopy = $using:syncProgress
-
-                    $progressPercent = $syncProgressCopy.AddOrUpdate('ProgressPercentage', { param($key) return 0 }, { param($key, $value) return $value + $using:percentagePerModule })
 
                     $savePSResourceParameters = @{
                         Path            = $using:PSDependTarget
@@ -964,6 +971,8 @@ try
                     # Modules that Sampler depend on that cannot be refreshed without a new session.
                     $skipModule = @('PowerShell-Yaml')
 
+                    $savedModule = $false
+
                     if ($savePSResourceParameters.Name -in $skipModule -and (Get-Module -Name $savePSResourceParameters.Name))
                     {
                         Write-Progress -Activity 'PSResourceGet:' -PercentComplete $progressPercent -CurrentOperation 'Restoring Build Dependencies' -Status ('Skipping module {0}' -f $savePSResourceParameters.Name)
@@ -972,8 +981,6 @@ try
                     }
                     else
                     {
-                        Write-Progress -Activity 'PSResourceGet:' -PercentComplete $progressPercent -CurrentOperation 'Restoring Build Dependencies' -Status ('Saving module {0}' -f $savePSResourceParameters.Name)
-
                         # Clear all module from the current session so any new version fetched will be re-imported.
                         Get-Module -Name $savePSResourceParameters.Name | Remove-Module -Force
 
@@ -983,7 +990,35 @@ try
                         {
                             Write-Warning -Message 'Save-PSResource could not save (replace) one or more dependencies. This can be due to the module is loaded into the session (and referencing assemblies). Close the current session and open a new session and try again.'
                         }
+                        else
+                        {
+                            $savedModule = $true
+                        }
                     }
+
+                    $syncProgressCopy = $using:syncProgress
+
+                    #$syncProgressCopy.progressPercentage += $using:percentagePerModule
+                    $progressPercent = $syncProgressCopy.AddOrUpdate('ProgressPercentage', { param($key) return 0 }, { param($key, $value) return $value + $using:percentagePerModule })
+
+                    if ($savedModule)
+                    {
+                        Write-Progress -Activity 'PSResourceGet:' -PercentComplete $progressPercent -CurrentOperation 'Restoring Build Dependencies' -Status ('Saved module {0}' -f $savePSResourceParameters.Name)
+                    }
+                }
+
+                if ($IsCoreCLR)
+                {
+                    if (-not $PSResourceGetThrottleLimit)
+                    {
+                        $PSResourceGetThrottleLimit = 1
+                    }
+
+                    $modulesToSave | ForEach-Object -ThrottleLimit $PSResourceGetThrottleLimit -Parallel $forEachObjectScriptBlock
+                }
+                else
+                {
+                    $modulesToSave | ForEach-Object -Process $forEachObjectScriptBlock
                 }
 
                 Write-Progress -Activity 'PSResourceGet:' -PercentComplete 100 -CurrentOperation 'Restoring Build Dependencies' -Completed
@@ -1012,6 +1047,10 @@ try
     }
 
     Write-Progress -Activity 'Bootstrap:' -PercentComplete 100 -CurrentOperation 'Bootstrap complete' -Completed
+}
+catch
+{
+    throw $_
 }
 finally
 {
