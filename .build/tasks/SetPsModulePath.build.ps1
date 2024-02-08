@@ -17,7 +17,6 @@ SetPSModulePath:
     RemoveProgramFiles: true
     RemoveWindows: false
     SetSystemDefault: false
-
 #>
 
 Task Set_PSModulePath {
