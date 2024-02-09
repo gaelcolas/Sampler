@@ -40,7 +40,7 @@ stages:
             displayName: 'Build & Package Module'
             inputs:
               filePath: './build.ps1'
-              arguments: '-ResolveDependency -tasks pack -Verbose -Debug'
+              arguments: '-ResolveDependency -tasks pack'
               pwsh: true
             env:
               ModuleVersion: $(NuGetVersionV2)
