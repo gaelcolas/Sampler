@@ -301,12 +301,14 @@ task package_module_nupkg {
             {
                 $Prerelease = "-" + $Prerelease
             }
-            Write-Build Yellow ("  Packaging Required Module {0} v{1}{2}" -f $Module.Name, $Module.Version.ToString(), $Prerelease)
+            Write-Build Yellow ("  Packaging Required Module {0} v{1}{2} from path '{3}'" -f $Module.Name, $Module.Version.ToString(), $Prerelease, $module.ModuleBase))
 
             if ($PublishModuleWhatIf)
             {
                 $PublishModuleParams['WhatIf'] = $True
             }
+
+            Write-Verbose -Message (Get-Command -Name 'Publish-Module' -ErrorAction SilentlyContinue | Out-String) -Verbose
 
             # Release notes will be used from module manifest
             Publish-Module -Repository output -ErrorAction SilentlyContinue -Path $module.ModuleBase
