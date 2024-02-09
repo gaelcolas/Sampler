@@ -297,11 +297,13 @@ task package_module_nupkg {
         {
             # Replace the module by first (path & version) resolved in PSModulePath
             $module = Get-Module -ListAvailable -FullyQualifiedName $module | Select-Object -First 1
+
             if ($Prerelease = $module.PrivateData.PSData.Prerelease)
             {
                 $Prerelease = "-" + $Prerelease
             }
-            Write-Build Yellow ("  Packaging Required Module {0} v{1}{2} from path '{3}'" -f $Module.Name, $Module.Version.ToString(), $Prerelease, $module.ModuleBase))
+
+            Write-Build Yellow ("  Packaging Required Module {0} v{1}{2} from path '{3}'" -f $Module.Name, $Module.Version.ToString(), $Prerelease, $module.ModuleBase)
 
             if ($PublishModuleWhatIf)
             {
