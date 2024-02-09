@@ -23,6 +23,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   for the equivalent command in PSResourceGet.
 - Set_PSModulePath: The PSModulePath is now expanded and can therefore also
   contain variables.
+- Switch to build worker `windows-latest` for the build phase of the pipeline
+  due to a issue using `Publish-Module` on the latest updated build worker in
+  Azure Pipelines.
 
 ### Fixed
 
