@@ -21,6 +21,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   PowerShellGet & PSDepend by changing the configuration. Also default to
   using PowerShellGet v3 which is a compatibility module that is a wrapper
   for the equivalent command in PSResourceGet.
+- Switch to build worker `windows-latest` for the build phase of the pipeline
+  due to a issue using `Publish-Module` on the latest updated build worker in
+  Azure Pipelines.
 
 ### Fixed
 
