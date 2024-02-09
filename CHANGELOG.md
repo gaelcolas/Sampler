@@ -41,6 +41,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Now if both ModuleFast and PowerShellGet compatibility module is configured
   PSResourceGet is automatically added as a dependency. This is for example
   needed for publishing built module to the gallery.
+- Fix bug using PSResourceGet on the latest updated build workers in
+  Azure Pipelines.
 
 ## [0.117.0] - 2023-09-29
 
