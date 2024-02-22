@@ -24,6 +24,10 @@ BeforeAll {
     # Convert-Path required for PS7 or Join-Path fails
     $projectPath = "$($PSScriptRoot)\..\.." | Convert-Path
 
+    # Get git-related project path. This is relevant for modules that will not be deployed in the root folder of Git.
+    $gitTopLevelPath = (&git rev-parse --show-toplevel)
+    $gitRelatedModulePath = (($projectPath -replace [regex]::Escape([IO.Path]::DirectorySeparatorChar), '/') -replace $gitTopLevelPath, '').Trim('/') + '/'
+
     <#
         If the QA tests are run outside of the build script (e.g with Invoke-Pester)
         the parent scope has not set the variable $ProjectName.
@@ -73,10 +77,10 @@ if ($PLASTER_PARAM_UseGit -eq 'true')
         {
             $headCommit = &git rev-parse HEAD
             $defaultBranchCommit = &git rev-parse origin/main
-            $filesChanged = &git @('diff', "$defaultBranchCommit...$headCommit", '--name-only')
+            $filesChanged = (&git @('diff', "$defaultBranchCommit...$headCommit", '--name-only')) -replace "^$gitRelatedModulePath", ""
         }
 
-        $filesStagedAndUnstaged = &git @('diff', 'HEAD', '--name-only') 2>&1
+        $filesStagedAndUnstaged = (&git @('diff', 'HEAD', '--name-only') 2>&1) -replace "^$gitRelatedModulePath", ""
 
         $filesChanged += $filesStagedAndUnstaged
 
