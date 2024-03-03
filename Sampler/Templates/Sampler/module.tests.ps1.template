@@ -23,16 +23,17 @@ BeforeDiscovery {
 BeforeAll {
     # Convert-Path required for PS7 or Join-Path fails
     $projectPath = "$($PSScriptRoot)\..\.." | Convert-Path
-    <%
-    if ($PLASTER_PARAM_UseGit -eq 'true')
-    {
-    @'
+<%
+if ($PLASTER_PARAM_UseGit -eq 'true')
+{
+@'
         # Get git-related project path. This is relevant for modules that will not be deployed in the root folder of Git.
         $gitTopLevelPath = (&git rev-parse --show-toplevel)
         $gitRelatedModulePath = (($projectPath -replace [regex]::Escape([IO.Path]::DirectorySeparatorChar), '/') -replace $gitTopLevelPath, '').Trim('/') + '/'
-    '@
-    }
-    %>
+
+'@
+}
+%>
     <#
         If the QA tests are run outside of the build script (e.g with Invoke-Pester)
         the parent scope has not set the variable $ProjectName.
