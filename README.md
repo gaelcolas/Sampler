@@ -335,6 +335,45 @@ Invoke-Plaster @invokePlasterParameters
 >**Note:** The `GCPackage` template is not yet available, but can be created using
 >the `dsccommunity` template with modifications, see the section [GCPackage scaffolding](#gcpackage-scaffolding).
 
+### How to work with the multi-module repository
+
+Typically, such as with a community-driven module, you would have a single
+git repository dedicated to each module. However, there are situations where
+you might opt for a single git repository to encompass multiple modules. If
+you intend to establish a multi-module repository, ensure that each module
+is housed within its own folder. Each module's folder structure should be
+distinct and should not overlap with the folder structure of other modules.
+
+> [!TIP]
+> Right folder structure
+
+```bash
+GitRootFolder
+├───Module1
+├───Module2
+├───SomeModuleGroup #Not a module
+│   ├───GroupModule1
+│   └───GroupModule2
+└───Module3
+```
+
+> [!CAUTION]
+> Wrong folder structure
+
+```bash
+GitRootFolder
+├───Module1
+├───Module2
+├───Module3
+│   ├───SubModule1
+│   └───SubModule2
+└───Module3
+```
+
+>[!NOTE]
+>You can utilize the gitversion tag-prefix to differentiate tags for each module
+>separately. [gitVersion configuration](https://gitversion.net/docs/reference/configuration)
+
 ### How to download dependencies for the project
 
 To be able to build the project, all the dependencies listed in the file
@@ -709,6 +748,7 @@ _Guest Configuration_. This process will be replaced with a Plaster template.
    1. Replace build image with `windows-latest`.
    1. In the job `Package_Module` after the job `gitversion` and before the job
       `package` add this new job:
+
       ```yaml
       - task: PowerShell@2
         name: Exp_Feature
@@ -726,19 +766,24 @@ _Guest Configuration_. This process will be replaced with a Plaster template.
         env:
           ModuleVersion: $(gitVersion.NuGetVersionV2)
       ```
+
    1. Remove the job `Test_HQRM`.
    1. Remove the job `Test_Integration`.
    1. Remove the job `Code_Coverage`.
    1. Update deploy condition to use the Azure DevOps organization name:
+
       ``` yaml
       contains(variables['System.TeamFoundationCollectionUri'], 'myorganizationname')
       ````
+
    1. In the job `Deploy_Module` for both the deploy tasks `publishRelease`
       and `sendChangelogPR` add the following environment variables:
+
       ```yaml
       ReleaseBranch: main
       MainGitBranch: main
       ```
+
 1. Create a new folder `GCPackages` under the folder `source`.
 1. Create a new folder `UserAmyNotPresent` under the new folder `GCPackages`.
 1. Under the folder `UserAmyNotPresent` create a new file `UserAmyNotPresent.config.ps1`.
@@ -760,9 +805,11 @@ _Guest Configuration_. This process will be replaced with a Plaster template.
    ```
 
 1. Now resolve dependencies and run the task `gcpack`:
+
    ```powershell
    build.ps1 -task gcpack -ResolveDependency
    ```
+
 1. The built _Guest Configuration_ package can be found in the folder
    `output\GCPolicyPackages\UserAmyNotPresent`.
 

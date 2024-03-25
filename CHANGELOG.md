@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Update template for module.tests.ps1. Fixes [#465](https://github.com/gaelcolas/Sampler/issues/465)
 - Now the tasks work when using `Set-SamplerTaskVariable` with tasks that
   do not have the parameter `ChocolateyBuildOutput`.
 - Remove duplicate SECURITY.md template files, and fix templates to
