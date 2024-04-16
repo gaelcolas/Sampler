@@ -30,7 +30,7 @@
           destination='.vscode/tasks.json'
     />
 
-        <!-- VSCODE EXTENSIONS -->
+    <!-- VSCODE EXTENSIONS -->
     <file source='extensions.json'
           destination='.vscode/extensions.json'
     />
