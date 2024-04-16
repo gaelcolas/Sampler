@@ -84,6 +84,7 @@ Describe 'Custom Module Plaster Template' {
                 '.vscode/analyzersettings.psd1'
                 '.vscode/settings.json'
                 '.vscode/tasks.json'
+                '.vscode/extensions.json'
                 'source/ModuleDsc.psd1'
                 'source/ModuleDsc.psm1'
                 'source/Classes/1.class1.ps1'
