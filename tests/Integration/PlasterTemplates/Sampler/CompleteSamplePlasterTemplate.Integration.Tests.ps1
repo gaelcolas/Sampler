@@ -83,6 +83,7 @@ Describe 'Complete Module Plaster Template' {
                 '.vscode/analyzersettings.psd1'
                 '.vscode/settings.json'
                 '.vscode/tasks.json'
+                '.vscode/extensions.json'
                 'source/ModuleDsc.psd1'
                 'source/ModuleDsc.psm1'
                 # 'source/Modules/Folder.Common/Folder.Common.psm1'

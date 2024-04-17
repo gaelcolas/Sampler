@@ -31,6 +31,7 @@ Describe 'Vscode repo config files Plaster Template' {
 
                 # Files (relative to module folder)
                 '.vscode/analyzersettings.psd1'
+                '.vscode/extensions.json'
                 '.vscode/settings.json'
                 '.vscode/tasks.json'
             )

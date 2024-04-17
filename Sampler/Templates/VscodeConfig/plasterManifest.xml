@@ -4,7 +4,7 @@
   <metadata>
     <name>VscodeConfig</name>
     <id>48fd55d5-306a-4f98-b65f-a516f652d228</id>
-    <version>0.0.1</version>
+    <version>0.0.2</version>
     <title>VscodeConfig Template</title>
     <description>A template to add a .vscode config with settings, Analyzersettings and tasks to a Sampler Project</description>
     <author>Gael Colas</author>
@@ -28,6 +28,11 @@
     <!-- VSCODE SETTINGS -->
     <file source='tasks.json'
           destination='.vscode/tasks.json'
+    />
+
+    <!-- VSCODE EXTENSIONS -->
+    <file source='extensions.json'
+          destination='.vscode/extensions.json'
     />
 
   </content>
