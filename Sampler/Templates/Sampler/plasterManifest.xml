@@ -668,6 +668,12 @@
     />
 
     <!-- VSCODE SETTINGS -->
+    <file source='../VscodeConfig/extensions.json'
+          destination='${PLASTER_PARAM_ModuleName}/.vscode/extensions.json'
+          condition='${PLASTER_PARAM_ModuleType} -in @("dsccommunity","CompleteSample") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("vscode")'
+    />
+
+    <!-- VSCODE SETTINGS -->
     <file source='../VscodeConfig/tasks.json'
           destination='${PLASTER_PARAM_ModuleName}/.vscode/tasks.json'
           condition='${PLASTER_PARAM_UseVSCode} -eq $true -or ${PLASTER_PARAM_ModuleType} -in @("dsccommunity","CompleteSample") -or ${PLASTER_PARAM_Features} -Contains ("All") -or ${PLASTER_PARAM_Features} -Contains ("vscode")'
