@@ -23,7 +23,19 @@ BeforeDiscovery {
 BeforeAll {
     # Convert-Path required for PS7 or Join-Path fails
     $projectPath = "$($PSScriptRoot)\..\.." | Convert-Path
+<%
+if ($PLASTER_PARAM_UseGit -eq 'true')
+{
+@'
+    # Get git-related project path. This is relevant for modules that will not be deployed in the root folder of Git.
+    $gitTopLevelPath = (&git rev-parse --show-toplevel)
+    $gitRelatedModulePath = (($projectPath -replace [regex]::Escape([IO.Path]::DirectorySeparatorChar), '/') -replace $gitTopLevelPath, '')
+    if (-not [string]::IsNullOrEmpty($gitRelatedModulePath)) { $gitRelatedModulePath = $gitRelatedModulePath.Trim('/')  + '/' }
+    $escapedGitRelatedModulePath = [regex]::Escape($gitRelatedModulePath)
 
+'@
+}
+%>
     <#
         If the QA tests are run outside of the build script (e.g with Invoke-Pester)
         the parent scope has not set the variable $ProjectName.
@@ -73,10 +85,12 @@ if ($PLASTER_PARAM_UseGit -eq 'true')
         {
             $headCommit = &git rev-parse HEAD
             $defaultBranchCommit = &git rev-parse origin/main
-            $filesChanged = &git @('diff', "$defaultBranchCommit...$headCommit", '--name-only')
+            $filesChanged = (&git @('diff', "$defaultBranchCommit...$headCommit", '--name-only') |
+                Where-Object { $_ -match "^$escapedGitRelatedModulePath" }) -replace "^$escapedGitRelatedModulePath", ""
         }
 
-        $filesStagedAndUnstaged = &git @('diff', 'HEAD', '--name-only') 2>&1
+        $filesStagedAndUnstaged = (&git @('diff', 'HEAD', '--name-only') 2>&1 |
+            Where-Object { $_ -match "^$escapedGitRelatedModulePath" }) -replace "^$escapedGitRelatedModulePath", ""
 
         $filesChanged += $filesStagedAndUnstaged
 

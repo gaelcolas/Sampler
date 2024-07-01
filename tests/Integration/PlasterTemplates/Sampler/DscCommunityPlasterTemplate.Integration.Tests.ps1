@@ -70,6 +70,7 @@ Describe 'DSC Community Plaster Template' {
                 '.vscode/analyzersettings.psd1'
                 '.vscode/settings.json'
                 '.vscode/tasks.json'
+                '.vscode/extensions.json'
                 'source/en-US/about_ModuleDsc.help.txt'
                 'source/ModuleDsc.psd1'
                 'source/ModuleDsc.psm1'
