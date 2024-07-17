@@ -116,8 +116,8 @@ Describe 'Resolve dependencies' {
         Parameters = @{}
     }
 
-    Pester                         = @{
-        Version    = '5.5.0-rc1'
+    PesterConverter             = @{
+        Version    = '0.2.0-preview0007'
         Parameters = @{
             AllowPrerelease = $true
         }
