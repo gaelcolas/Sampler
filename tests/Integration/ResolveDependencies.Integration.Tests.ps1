@@ -148,10 +148,10 @@ Describe 'Resolve dependencies' {
             }
 
             It 'Should have resolve the correct pre-release version' {
-                $pesterModuleManifest = Import-PowerShellDataFile -Path '.\output\RequiredModules\Pester\**\Pester.psd1'
+                $pesterModuleManifest = Import-PowerShellDataFile -Path '.\output\RequiredModules\PesterConverter\**\PesterConverter.psd1'
 
-                $pesterModuleManifest.ModuleVersion | Should -Be '5.5.0'
-                $pesterModuleManifest.PrivateData.PSData.Prerelease | Should -Be 'rc1'
+                $pesterModuleManifest.ModuleVersion | Should -Be '0.2.0'
+                $pesterModuleManifest.PrivateData.PSData.Prerelease | Should -Be 'preview0007'
             }
         }
     }
