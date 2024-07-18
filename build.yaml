@@ -192,6 +192,8 @@ TaskHeader: |
 GitHubConfig:
   GitHubFilesToAdd:
     - 'CHANGELOG.md'
+  ReleaseAssets:
+    - output/WikiContent.zip
   GitHubConfigUserName: gaelcolas
   GitHubConfigUserEmail: gaelcolas@synedgy.com
   UpdateChangelogOnPrerelease: false
