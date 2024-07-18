@@ -31,6 +31,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Azure Pipelines.
 - Public command documentation has been moved from README.md to the GitHub
   repository Wiki.
+- Update order of deploy tasks for the Plaster templates to make it easier
+  to re-run a deploy phase when a GitHub token has expired.
 
 ### Fixed
 
