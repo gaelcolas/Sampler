@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added extensions.json for vscode
+- Automatic wiki documentation for public commands.
 
 ### Changed
 
@@ -33,6 +34,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Switch to build worker `windows-latest` for the build phase of the pipeline
   due to a issue using `Publish-Module` on the latest updated build worker in
   Azure Pipelines.
+- Public command documentation has been moved from README.md to the GitHub
+  repository Wiki.
+- Update order of deploy tasks for the Plaster templates to make it easier
+  to re-run a deploy phase when a GitHub token has expired.
 
 ### Fixed
 
@@ -54,6 +59,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Now if both ModuleFast and PowerShellGet compatibility module is configured
   PSResourceGet is automatically added as a dependency. This is for example
   needed for publishing built module to the gallery.
+- Update pipeline so build not fail.
 
 ## [0.117.0] - 2023-09-29
 
