@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.118.1] - 2024-07-20
+
 ### Added
 
 - Added extensions.json for vscode
