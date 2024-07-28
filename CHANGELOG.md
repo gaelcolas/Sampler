@@ -35,6 +35,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Switch to build worker `windows-latest` for the build phase of the pipeline
   due to a issue using `Publish-Module` on the latest updated build worker in
   Azure Pipelines.
+- Set_PSModulePath: The PSModulePath is now expanded and can therefore also
+  contain variables.
+- Switch to build worker `windows-latest` for the build phase of the pipeline
+  due to a issue using `Publish-Module` on the latest updated build worker in
+  Azure Pipelines.
 - Public command documentation has been moved from README.md to the GitHub
   repository Wiki.
 - Update order of deploy tasks for the Plaster templates to make it easier
