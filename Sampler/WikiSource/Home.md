@@ -10,18 +10,13 @@ for this repository.
 
 ## Getting started
 
-To get started either:
-
-- Install from the PowerShell Gallery using PowerShellGet by running the
-  following command:
-
-```powershell
-Install-Module -Name Sampler -Repository PSGallery
-```
+See the section [[Getting started]]
 
 ## Prerequisites
 
-- PowerShell 5.1 or higher
+- PowerShell 5.0 or PowerShell 7.0
+
+The build command will download all other modeules required into the Required Modules folder of your module project for you. 
 
 ## Change log
 
