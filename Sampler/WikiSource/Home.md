@@ -14,9 +14,9 @@ See the section [[Getting started]]
 
 ## Prerequisites
 
-- PowerShell 5.0 or PowerShell 7.0
+- PowerShell 5.or higher
 
-The build command will download all other modeules required into the Required Modules folder of your module project for you. 
+The build command will download all other modules required (if you choose too) into the `RequiredModules` folder of your module project for you. 
 
 ## Change log
 
