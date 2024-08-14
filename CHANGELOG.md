@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Pinned GitVersion to v5 in the pipeline since v6 is not yet supported, also
   updated templates to pin GitVersion v5. Workaround for issue [#477](https://github.com/gaelcolas/Sampler/issues/477).
 - Fix issue template in repository and Plaster template ([issue #483](https://github.com/gaelcolas/Sampler/issues/483)).
+- Moved large parts of the ReadMe to the Wiki to handle Include simple tutorials in the Wiki ([issue #487](https://github.com/gaelcolas/Sampler/issues/487))
 
 ## [0.118.1] - 2024-07-20
 
