@@ -98,4 +98,4 @@ See the [Sampler - Wiki][1] for additional examples.
 A full list of changes in each version can be found in the [change log][2].
 
 [1]: https://github.com/gaelcolas/Sampler/wiki
-[2]: (https://github.com/gaelcolas/Sampler/blob/main/CHANGELOG.md)
+[2]: https://github.com/gaelcolas/Sampler/blob/main/CHANGELOG.md
