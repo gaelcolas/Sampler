@@ -132,11 +132,11 @@ BuildWorkflow:
     # The meta task Generate_Wiki_Content is not used so that Linux and macOS is supported
     # - Generate_Conceptual_Help # Used for DSC resources
     - Create_Wiki_Output_Folder
-    - Copy_Source_Wiki_Folder
     # - Generate_Markdown_For_DSC_Resources # Used for DSC resources
     - Generate_Markdown_For_Public_Commands
     - Generate_External_Help_File_For_Public_Commands
     - Clean_Markdown_Of_Public_Commands
+    - Copy_Source_Wiki_Folder
     - Generate_Wiki_Sidebar
     - Clean_Markdown_Metadata
     - Package_Wiki_Content
