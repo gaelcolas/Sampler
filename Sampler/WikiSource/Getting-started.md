@@ -628,7 +628,7 @@ As seen in the bootstrap process above, the different workflows can be configure
 by editing the `build.psd1`: new tasks can be loaded, and the sequence can be
 added under the `BuildWorkflow` key by listing the names.
 
-In our case, the [build.yaml](build.yaml) defines several workflows (`.`,
+In our case, the `build.yaml` defines several workflows (`.`,
 `build`, `pack`, `hqrmtest`, `test`, and `publish`) that can be called by using:
 
 ```PowerShell
