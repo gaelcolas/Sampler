@@ -363,6 +363,7 @@ DscResource.DocGenerator:
 #           Setting Sampler PSModulePath           #
 ####################################################
 #SetPSModulePath:
+  #Sub expressions in the PSModulePath are supported but not part of the template as it does not work with Plaster
   #PSModulePath: C:\Program Files\WindowsPowerShell\Modules;C:\Windows\system32\WindowsPowerShell\v1.0\Modules;c:\Users\Install\.vscode\extensions\ms-vscode.powershell-2022.5.1\modules;
   #RemovePersonal: false
   #RemoveProgramFiles: false
