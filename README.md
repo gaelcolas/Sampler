@@ -1886,11 +1886,26 @@ SetPSModulePath:
   SetSystemDefault: false
 ```
 
+The `PSModulePath` parameter can access variables and contain sub-expressions.
+
+```yaml
+####################################################
+#           Setting Sampler PSModulePath           #
+####################################################
+SetPSModulePath:
+  PSModulePath: $ProjectPath\.temp\Microsoft Azure AD Sync\Bin;$([System.Environment]::GetFolderPath('ProgramFiles'))\WindowsPowerShell\Modules;$([System.Environment]::GetFolderPath('System'))\WindowsPowerShell\v1.0\Modules
+  RemovePersonal: false
+  RemoveProgramFiles: false
+  RemoveWindows: false
+  SetSystemDefault: false
+```
+
 #### Section SetPSModulePath
 
-##### Property SetPSModulePath
+##### Property PSModulePath
 
-Sets the `PSModulePath` to the specified value.
+Sets the `PSModulePath` to the specified value. This string is treated like an expandable
+string and can access variables and contain sub-expressions.
 
 ##### Property RemovePersonal
 
