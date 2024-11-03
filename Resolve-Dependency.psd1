@@ -13,6 +13,7 @@
     #ProxyCredential = '$MyCredentialVariable' #TODO: find a way to support credentials in build (resolve variable)
     Gallery         = 'PSGallery'
 
+
     # To use a private nuget repository change the following to your own feed. The locations must be a Nuget v2 feed due
     # to limitation in PowerShellGet v2.x. Example below is for a Azure DevOps Server project-scoped feed. While resolving
     # dependencies it will be registered as a trusted repository with the name specified in the property 'Gallery' above,
@@ -24,12 +25,17 @@
     # Private repositories will currently only work using PowerShellGet.
     #RegisterGallery = @{
     #    #Name = 'MyPrivateFeedName'
-    #    GallerySourceLocation = 'https://azdoserver.company.local/<org_name>/<project_name>/_packaging/<feed_name>/nuget/v2'
-    #    GalleryPublishLocation = 'https://azdoserver.company.local/<org_name>/<project_name>/_packaging/<feed_name>/nuget/v2'
-    #    GalleryScriptSourceLocation = 'https://azdoserver.company.local/<org_name>/<project_name>/_packaging/<feed_name>/nuget/v2'
-    #    GalleryScriptPublishLocation = 'https://azdoserver.company.local/<org_name>/<project_name>/_packaging/<feed_name>/nuget/v2'
+    #    SourceLocation = 'https://azdoserver.company.local/<org_name>/<project_name>/_packaging/<feed_name>/nuget/v2'
+    #    PublishLocation = 'https://azdoserver.company.local/<org_name>/<project_name>/_packaging/<feed_name>/nuget/v2'
+    #    ScriptSourceLocation = 'https://azdoserver.company.local/<org_name>/<project_name>/_packaging/<feed_name>/nuget/v2'
+    #    ScriptPublishLocation = 'https://azdoserver.company.local/<org_name>/<project_name>/_packaging/<feed_name>/nuget/v2'
     #    #InstallationPolicy = 'Trusted'
+    #    #Credential
     #}
+
+    # Register Package Source with Credential
+    # Register-PackageSource -Name psmodules -Location https://.io/artifactory/api/nuget/v2/psmodules -Credential $cred -Trusted -ProviderName NUGET
+    #
 
     #AllowOldPowerShellGetModule = $true
 
