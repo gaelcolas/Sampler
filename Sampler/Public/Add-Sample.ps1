@@ -36,7 +36,7 @@ function Add-Sample
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingFunctions', '')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '')]
     [CmdletBinding()]
-    [OutputType()]
+    [OutputType([void])]
     param
     (
         [Parameter()]
@@ -45,7 +45,10 @@ function Add-Sample
             'Classes',
             'ClassFolderResource',
             'ClassResource',
+            'ChocolateyPackage',
+            'ChocolateyPipeline',
             'Composite',
+            'SqlDacpac',
             'Enum',
             'Examples',
             'GithubConfig',
@@ -55,8 +58,7 @@ function Add-Sample
             'PrivateFunction',
             'PublicCallPrivateFunctions',
             'PublicFunction',
-            'VscodeConfig',
-            'ChocolateyPackage'
+            'VscodeConfig'
         )]
         [string]
         $Sample,

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<plasterManifest
+  schemaVersion="1.0" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+  <metadata>
+    <name>sqldapac</name>
+    <id>66000d01-3a6c-4a5a-967b-cd3a1bd6e681</id>
+    <version>0.0.1</version>
+    <title>SQL dacpac Template</title>
+    <description>A template to add a SQL project (sdk) that builds dacpac with dotnet build.</description>
+    <author>Gael Colas</author>
+    <tags>Sampler,Template, Build, Module, vscode, SQL, dacpac</tags>
+  </metadata>
+  <parameters>
+      <parameter store="text" name="SourceDirectory" type="text" prompt="What is your source folder?" default="source" />
+      <parameter store="text" name="ModuleAuthor" type="text" prompt="Author's name" default="$Env:Username" />
+      <parameter store="text" name="CompanyName" type="text" prompt="Company name" default="$PLASTER_PARAM_ModuleAuthor" />
+      <parameter store="text" name="SqlProjectName" type="text" prompt="What is your Sql Project name?" default="sql" />
+      <parameter store="text" name="SqlProjectDescription" type="text" prompt="Please describe your SQL project?" default="SQL Objects for ${PLASTER_PARAM_SqlProjectName}" />
+  </parameters>
+      <!--
+      condition=''
+      ${PLASTER_PARAM_ModuleType}         SimpleModule CustomModule CompleteSample SimpleModule_NoBuild  SharedDscConfig
+      -in @("SimpleModule","CustomModule","CompleteSample","SimpleModule_NoBuild","SharedDscConfig")
+      ${PLASTER_PARAM_ModuleAuthor}
+      ${PLASTER_PARAM_ModuleName}
+      ${PLASTER_PARAM_ModuleDescription}
+      ${PLASTER_PARAM_ModuleVersion}
+      ${PLASTER_PARAM_License}            true false
+      ${PLASTER_PARAM_LicenseType}        Apache MIT None
+      ${PLASTER_PARAM_Features}           All UnitTests ModuleQuality AppVeyor TestKitchen Gherkin DSCResources Enum Classes SampleScripts git
+
+     -->
+  <content>
+    <!-- MODULES FOLDER SCAFFOLDING -->
+
+      <!--   SOURCE/SqlProjectName Folder -->
+      <file source=''
+            destination='${PLASTER_PARAM_SourceDirectory}/${PLASTER_PARAM_SqlProjectName}'
+      />
+      <!--   SOURCE/SqlProjectName/tables Folder -->
+      <file source=''
+            destination='${PLASTER_PARAM_SourceDirectory}/${PLASTER_PARAM_SqlProjectName}/tables'
+      />
+      <!--   SOURCE/SqlProjectName/views Folder -->
+      <file source=''
+            destination='${PLASTER_PARAM_SourceDirectory}/${PLASTER_PARAM_SqlProjectName}/views'
+      />
+      <!--   SOURCE/SqlProjectName/procedures Folder -->
+      <file source=''
+            destination='${PLASTER_PARAM_SourceDirectory}/${PLASTER_PARAM_SqlProjectName}/procedures'
+      />
+      <!--   SOURCE/SqlProjectName/deploy Folder -->
+      <file source=''
+            destination='${PLASTER_PARAM_SourceDirectory}/${PLASTER_PARAM_SqlProjectName}/deploy'
+      />
+
+    <!-- PROJECT FILES SCAFFOLDING -->
+      <templateFile source='templatesql.sqlproj.template'
+            destination='${PLASTER_PARAM_SourceDirectory}/${PLASTER_PARAM_SqlProjectName}/${PLASTER_PARAM_SqlProjectName}.sqlproj'
+      />
+  </content>
+</plasterManifest>

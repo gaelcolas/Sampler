@@ -34,6 +34,7 @@
     </parameter>
     <parameter store="text" name="ModuleAuthor" type="text" prompt="Author's name" default="$Env:Username" />
     <parameter store="text" name="ModuleName" type="text" prompt="Name of your module" />
+    <parameter store="text" name="CompanyName" type="text" prompt="Company name?" default="$PLASTER_PARAM_ModuleAuthor" />
     <parameter name="ModuleDescription" type="text" prompt="Description of this module" />
     <parameter name="CustomRepo" default="PSGallery" type="text" prompt="Do you pull from default repository (PSGallery) or a custom repository?" />
     <parameter name="ModuleVersion" type="text" prompt="Module version"  default="0.0.1" />
@@ -472,7 +473,7 @@
     <newModuleManifest destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/${PLASTER_PARAM_ModuleName}.psd1'
         moduleVersion='$PLASTER_PARAM_ModuleVersion'
         author='$PLASTER_PARAM_ModuleAuthor'
-        companyName='$PLASTER_PARAM_ModuleAuthor'
+        companyName='$PLASTER_PARAM_CompanyName'
         description='$PLASTER_PARAM_ModuleDescription'
         rootModule='$PLASTER_PARAM_ModuleName.psm1'
         condition='-not (Test-Path "${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/${PLASTER_PARAM_ModuleName}.psd1")'

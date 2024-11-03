@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build">
+  <Sdk Name="Microsoft.Build.Sql" Version="0.1.9-preview" />
+  <!-- <Sdk Name="Microsoft.Build.Sql" Version="0.2.3-preview" /> -->
+  <PropertyGroup>
+    <Name><%=$PLASTER_PARAM_SqlProjectName %></Name>
+    <ProjectGuid>{<%=$PLASTER_Guid2 %>}</ProjectGuid>
+    <BaseIntermediateOutputPath>../../output/sql/<%=$PLASTER_PARAM_SqlProjectName %></BaseIntermediateOutputPath>
+    <OutputPath>../../output/sql/<%=$PLASTER_PARAM_SqlProjectName %>/bin</OutputPath>
+    <nugetOutputPath>../../output/nuget/</nugetOutputPath>
+    <DSP>Microsoft.Data.Tools.Schema.Sql.SqlAzureV12DatabaseSchemaProvider</DSP>
+    <ModelCollation>1033, CI</ModelCollation>
+    <PackageId><%=$PLASTER_PARAM_SqlProjectName %>.sql</PackageId>
+    <Version>1.0.0</Version>
+    <Description>SQL Objects for <%=$PLASTER_PARAM_SqlProjectName %>.</Description>
+    <Authors><%=$PLASTER_PARAM_ModuleAuthor %></Authors>
+    <Company><%=$PLASTER_PARAM_CompanyName %></Company>
+  </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="deploy" />
+    <Folder Include="procedures" />
+    <Folder Include="tables" />
+    <Folder Include="views" />
+  </ItemGroup>
+  <!-- <ItemGroup>
+    <None Include="deploy\publishProfile1.publish.xml" />
+  </ItemGroup> -->
+  <!-- <ItemGroup>
+    <PreDeploy Include="deploy\Script.PreDeployment1.sql" />
+  </ItemGroup> -->
+  <!-- <ItemGroup>
+    <PostDeploy Include="deploy\Script.PostDeployment1.sql" />
+  </ItemGroup> -->
+  <Target Name="BeforeBuild">
+    <Delete Files="$(BaseIntermediateOutputPath)\project.assets.json" />
+  </Target>
+</Project>

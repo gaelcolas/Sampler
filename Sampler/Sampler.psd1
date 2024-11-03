@@ -83,7 +83,7 @@
             ProjectUri   = 'https://github.com/gaelcolas/Sampler'
 
             # A URL to an icon representing this module.
-            IconUri      = 'https://raw.githubusercontent.com/gaelcolas/Sampler/main/Sampler/assets/sampler.png'
+            IconUri      = 'https://raw.githubusercontent.com/gaelcolas/Sampler/main/Sampler/assets/sampler-logo_512.png'
 
             # ReleaseNotes of this module
             ReleaseNotes = ''

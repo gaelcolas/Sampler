@@ -464,7 +464,6 @@ begin
             if ($AutoRestore -or -not $PSBoundParameters.ContainsKey('Tasks') -or $Tasks -contains 'build')
             {
                 Write-Host -Object "[pre-build] Dependency missing, running './build.ps1 -ResolveDependency -Tasks noop' for you `r`n" -ForegroundColor Yellow
-
                 $ResolveDependency = $true
             }
             else
@@ -486,7 +485,6 @@ begin
         Write-Host -Object "[pre-build] Resolving dependencies using preferred method." -ForegroundColor Green
 
         $resolveDependencyParams = @{ }
-
         # If BuildConfig is a Yaml file, bootstrap powershell-yaml via ResolveDependency.
         if ($BuildConfig -match '\.[yaml|yml]$')
         {
@@ -501,45 +499,36 @@ begin
             if ($MyInvocation.BoundParameters.ContainsKey($cmdParameter))
             {
                 $paramValue = $MyInvocation.BoundParameters.Item($cmdParameter)
-
                 Write-Debug " adding  $cmdParameter :: $paramValue [from user-provided parameters to Build.ps1]"
-
                 $resolveDependencyParams.Add($cmdParameter, $paramValue)
             }
             # Use defaults parameter value from Build.ps1, if any
             else
             {
                 $paramValue = Get-Variable -Name $cmdParameter -ValueOnly -ErrorAction Ignore
-
                 if ($paramValue)
                 {
                     Write-Debug " adding  $cmdParameter :: $paramValue [from default Build.ps1 variable]"
-
                     $resolveDependencyParams.Add($cmdParameter, $paramValue)
                 }
             }
         }
 
         Write-Host -Object "[pre-build] Starting bootstrap process." -ForegroundColor Green
-
         .\Resolve-Dependency.ps1 @resolveDependencyParams
     }
 
     if ($MyInvocation.ScriptName -notlike '*Invoke-Build.ps1')
     {
         Write-Verbose -Message "Bootstrap completed. Handing back to InvokeBuild."
-
         if ($PSBoundParameters.ContainsKey('ResolveDependency'))
         {
             Write-Verbose -Message "Dependency already resolved. Removing task."
-
             $null = $PSBoundParameters.Remove('ResolveDependency')
         }
 
         Write-Host -Object "[build] Starting build with InvokeBuild." -ForegroundColor Green
-
         Invoke-Build @PSBoundParameters -Task $Tasks -File $MyInvocation.MyCommand.Path
-
         Pop-Location -StackName 'BuildModule'
 
         return
