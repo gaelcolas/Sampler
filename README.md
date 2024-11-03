@@ -1,4 +1,5 @@
-# Sampler Module [![Azure DevOps builds](https://img.shields.io/azure-devops/build/Synedgy/524b41a5-5330-4967-b2de-bed8fd44da08/1)](https://synedgy.visualstudio.com/Sampler/_build?definitionId=1&_a=summary)
+# Sampler Module [![Azure DevOps builds](https://img.shields.io/azure-devops/build/Synedgy/524b41a5-5330-4967-b2de-bed8fd44da08/1)](https://synedgy.visualstudio.com/Sampler/_build?definitionId=1&_a=summary) <img src="./Sampler/assets/sampler-logo_512.png" align="right" style="width:75px" />
+
 
 [![PowerShell Gallery (with prereleases)](https://img.shields.io/powershellgallery/vpre/Sampler?label=Sampler%20Preview)](https://www.powershellgallery.com/packages/Sampler/)
 [![PowerShell Gallery](https://img.shields.io/powershellgallery/v/Sampler?label=Sampler)](https://www.powershellgallery.com/packages/Sampler/)
@@ -11,7 +12,8 @@ PowerShell build and deploy pipeline automation.
 
 The Sampler module in itself serves several purposes:
 
-- Quickly scaffold a PowerShell module project that can build and enforce some good practices.
+- Quickly scaffold a PowerShell module project that can build and enforce
+some good practices.
 - Provide a minimum set of [InvokeBuild](https://github.com/nightroman/Invoke-Build)
 tasks that help you build, test, pack and publish your module.
 - Help building your module by adding elaborate sample elements like classes,
@@ -98,7 +100,7 @@ to use PowerShellGet as the default and choose to use PSResourceGet from the
 command line by passing the parameter `UsePSResourceGet` to the build script
 `build.ps1`, e.g. `.\build.ps1 -ResolveDependency -Tasks noop -UsePSResourceGet`
 
-If both PSResourceGet and ModuleFast is enabled then PSResource will be
+If both PSResourceGet and ModuleFast is enabled then PSResourceGet will be
 preferred on Windows PowerShell and PowerShell 7.1 or lower. ModuleFast
 will be preferred on PowerShell 7.2 or higher.
 
@@ -371,7 +373,7 @@ GitRootFolder
 ```
 
 >[!NOTE]
->You can utilize the gitversion tag-prefix to differentiate tags for each module
+>You can use the gitversion tag-prefix to differentiate tags for each module
 >separately. [gitVersion configuration](https://gitversion.net/docs/reference/configuration)
 
 ### How to download dependencies for the project
