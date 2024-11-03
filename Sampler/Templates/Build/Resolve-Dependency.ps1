@@ -143,7 +143,11 @@ param
 
     [Parameter()]
     [System.String]
-    $UsePowerShellGetCompatibilityModuleVersion
+    $UsePowerShellGetCompatibilityModuleVersion,
+
+    [Parameter()]
+    [switch]
+    $Force
 )
 
 try
@@ -878,7 +882,7 @@ try
                 Write-Progress -Activity 'ModuleFast:' -PercentComplete 100 -CurrentOperation 'Dependencies restored' -Completed
             }
 
-            if ($UsePSResourceGet)
+            if ($UsePSResourceGet) # Resolve dependency in requiredModules.psd1 using PSResourceGet.
             {
                 Write-Progress -Activity 'Bootstrap:' -PercentComplete 90 -CurrentOperation 'Invoking PSResourceGet'
 
@@ -960,15 +964,34 @@ try
                     if ($savePSResourceParameters.Name -in $skipModule -and (Get-Module -Name $savePSResourceParameters.Name))
                     {
                         Write-Progress -Activity 'PSResourceGet:' -PercentComplete $progressPercentage -CurrentOperation 'Restoring Build Dependencies' -Status ('Skipping module {0}' -f $savePSResourceParameters.Name)
-
                         Write-Information -MessageData ('Skipping the module {0} since it cannot be refresh while loaded into the session. To refresh the module open a new session and resolve dependencies again.' -f $savePSResourceParameters.Name) -InformationAction 'Continue'
                     }
                     else
                     {
                         # Clear all module from the current session so any new version fetched will be re-imported.
                         Get-Module -Name $savePSResourceParameters.Name | Remove-Module -Force
+                        #TODO: Test that the module exists and only save if it doesn't
+                        $testResourceAvailParams = @{
+                            Name = $savePSResourceParameters.Name
+                            Path = $savePSResourceParameters.Path
+                            ErrorAction = 'SilentlyContinue'
+                        }
 
-                        Save-PSResource @savePSResourceParameters -ErrorVariable 'savePSResourceError'
+                        if ($savePSResourceParameters.Version)
+                        {
+                            $testResourceAvailParams['Version'] = $savePSResourceParameters.Version
+                        }
+
+                        $availableResources = Get-PSResource @testResourceAvailParams
+
+                        if ($null -ne $availableResources -and -not $Force)
+                        {
+                            Write-Verbose -Message ('Module {0} found at version {1} in {2}. Skipping...' -f $availableResources[0].Name,$availableResources[0].Version, $availableResources[0].ModuleBase)
+                        }
+                        else
+                        {
+                            Save-PSResource @savePSResourceParameters -ErrorVariable 'savePSResourceError'
+                        }
 
                         if ($savePSResourceError)
                         {
