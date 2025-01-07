@@ -51,7 +51,15 @@ function Get-BuildVersion
         {
             Write-Verbose -Message 'Using the version from GitVersion.'
 
-            $ModuleVersion = (gitversion | ConvertFrom-Json -ErrorAction 'Stop').NuGetVersionV2
+            $gitVersionObject = (gitversion | ConvertFrom-Json -ErrorAction 'Stop')
+
+            $ModuleVersion = '{0}' -f $gitVersionObject.MajorMinorPatch
+
+            if (-not [System.String]::IsNullOrEmpty($gitVersionObject.PreReleaseLabelWithDash))
+            {
+                $ModuleVersion = '{0}{1}{2:D4}' -f $gitVersionObject.MajorMinorPatch, $gitVersionObject.PreReleaseLabelWithDash, [System.Int32]$gitVersionObject.PreReleaseNumber
+            }
+
         }
         elseif (-not [System.String]::IsNullOrEmpty($ModuleManifestPath))
         {

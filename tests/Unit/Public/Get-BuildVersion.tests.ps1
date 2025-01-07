@@ -5,7 +5,7 @@ BeforeAll {
     if (-not (Get-Module -Name $script:moduleName -ListAvailable))
     {
         # Redirect all streams to $null, except the error stream (stream 2)
-        & "$PSScriptRoot/../../build.ps1" -Tasks 'noop' 2>&1 4>&1 5>&1 6>&1 > $null
+        & "$PSScriptRoot/../../../build.ps1" -Tasks 'noop' 2>&1 4>&1 5>&1 6>&1 > $null
     }
 
     # Re-import the module using force to get any code changes between runs.
@@ -54,7 +54,7 @@ Describe 'Get-BuildVersion' {
                     Mock -CommandName Import-PowerShellDataFile -MockWith {
                         return @{
                             ModuleVersion = '2.1.3'
-                            PrivateData = @{
+                            PrivateData   = @{
                                 PSData = @{
                                     Prerelease = ''
                                 }
@@ -75,7 +75,7 @@ Describe 'Get-BuildVersion' {
                     Mock -CommandName Import-PowerShellDataFile -MockWith {
                         return @{
                             ModuleVersion = '2.1.3'
-                            PrivateData = @{
+                            PrivateData   = @{
                                 PSData = @{
                                     Prerelease = 'preview0023'
                                 }
@@ -116,7 +116,7 @@ Describe 'Get-BuildVersion' {
             Context 'When passing a module version' {
                 BeforeAll {
                     Mock -CommandName gitversion -MockWith {
-                        return '{"NuGetVersionV2": "2.1.3"}'
+                        return '{"MajorMinorPatch": "2.1.3"}'
                     }
                 }
 
@@ -130,7 +130,7 @@ Describe 'Get-BuildVersion' {
             Context 'When passing a preview module version' {
                 BeforeAll {
                     Mock -CommandName gitversion -MockWith {
-                        return '{"NuGetVersionV2": "2.1.3-preview0023"}'
+                        return '{"MajorMinorPatch": "2.1.3","PreReleaseLabelWithDash": "-preview","PreReleaseNumber": "23"}'
                     }
                 }
 
@@ -154,7 +154,7 @@ Describe 'Get-BuildVersion' {
                     Mock -CommandName Import-PowerShellDataFile -MockWith {
                         return @{
                             ModuleVersion = '2.1.3'
-                            PrivateData = @{
+                            PrivateData   = @{
                                 PSData = @{
                                     Prerelease = ''
                                 }
@@ -175,7 +175,7 @@ Describe 'Get-BuildVersion' {
                     Mock -CommandName Import-PowerShellDataFile -MockWith {
                         return @{
                             ModuleVersion = '2.1.3'
-                            PrivateData = @{
+                            PrivateData   = @{
                                 PSData = @{
                                     Prerelease = 'preview0023'
                                 }
@@ -216,7 +216,7 @@ Describe 'Get-BuildVersion' {
             Context 'When passing a module version' {
                 BeforeAll {
                     Mock -CommandName gitversion -MockWith {
-                        return '{"NuGetVersionV2": "2.1.3"}'
+                        return '{"MajorMinorPatch": "2.1.3"}'
                     }
                 }
 
@@ -230,7 +230,7 @@ Describe 'Get-BuildVersion' {
             Context 'When passing a preview module version' {
                 BeforeAll {
                     Mock -CommandName gitversion -MockWith {
-                        return '{"NuGetVersionV2": "2.1.3-preview0023"}'
+                        return '{"MajorMinorPatch": "2.1.3","PreReleaseLabelWithDash": "-preview","PreReleaseNumber": "23"}'
                     }
                 }
 
