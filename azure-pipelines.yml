@@ -27,13 +27,15 @@ stages:
           vmImage: 'windows-latest'
         steps:
           - pwsh: |
-              dotnet tool install --global GitVersion.Tool --version 5.*
+              dotnet tool install --global GitVersion.Tool
               $gitVersionObject = dotnet-gitversion | ConvertFrom-Json
               $gitVersionObject.PSObject.Properties.ForEach{
                   Write-Host -Object "Setting Task Variable '$($_.Name)' with value '$($_.Value)'."
                   Write-Host -Object "##vso[task.setvariable variable=$($_.Name);]$($_.Value)"
               }
+              ##vso[task.setvariable variable=NuGetVersionV2;]$('{0}{1}{2:D4}' -f $gitVersionObject.MajorMinorPatch, $gitVersionObject.PreReleaseLabelWithDash, $gitVersionObject.PreReleaseNumber)
               Write-Host -Object "##vso[build.updatebuildnumber]$($gitVersionObject.FullSemVer)"
+
             displayName: Calculate ModuleVersion (GitVersion)
           - task: PowerShell@2
             name: package
