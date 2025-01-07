@@ -38,8 +38,8 @@ stages:
                 $ModuleVersion = '{0}{1}{2:D4}' -f $gitVersionObject.MajorMinorPatch, $gitVersionObject.PreReleaseLabelWithDash, [System.Int32]$gitVersionObject.PreReleaseNumber
               }
 
-              ##vso[task.setvariable variable=NuGetVersionV2;]$($ModuleVersion)
-              Write-Host -Object "Build Version $($NuGetVersionV2)
+              ##vso[task.setvariable variable=NuGetVersionV2;]$(ModuleVersion)
+              Write-Host -Object "Build Version $(NuGetVersionV2)
               Write-Host -Object "##vso[build.updatebuildnumber]$($gitVersionObject.FullSemVer)"
 
             displayName: Calculate ModuleVersion (GitVersion)
