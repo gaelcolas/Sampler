@@ -39,7 +39,7 @@ stages:
               }
 
               ##vso[task.setvariable variable=NuGetVersionV2;]$(ModuleVersion)
-              Write-Host -Object "Build Version $(NuGetVersionV2)
+              Write-Host -Object "Build Version $($ModuleVersion)
               Write-Host -Object "##vso[build.updatebuildnumber]$($gitVersionObject.FullSemVer)"
 
             displayName: Calculate ModuleVersion (GitVersion)
