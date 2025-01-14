@@ -377,7 +377,7 @@ task publish_module_to_gallery -if ($GalleryApiToken -and (Get-Command -Name @('
     {
         # When publishing, release notes will be used from module manifest.
 
-        if ((Get-Command -Name 'Publish-PSResource' -ErrorAction 'SilentlyContinue'))
+        if ((Get-Module -Name 'Microsoft.PowerShell.PSResourceGet' -ListAvailable))
         {
             Write-Build DarkGray "  Outputting configured repositories using command Get-PSResourceRepository"
 
