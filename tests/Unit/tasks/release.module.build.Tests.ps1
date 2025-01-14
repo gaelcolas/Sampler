@@ -462,6 +462,10 @@ Describe 'publish_module_to_gallery' {
 
     Context 'When publishing a PowerShell module' {
         BeforeAll {
+            Mock -CommandName Get-Command -ParameterFilter {
+                $Name -eq 'Publish-PSResource'
+            }
+
             Mock -CommandName Get-Content -ParameterFilter {
                 $Path -match 'builtModule'
             } -MockWith {
