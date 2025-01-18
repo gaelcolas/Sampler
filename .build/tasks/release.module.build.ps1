@@ -365,7 +365,6 @@ task publish_module_to_gallery -if ($GalleryApiToken -and (Get-Command -Name @('
         Path            = $BuiltModuleBase
         Repository      = $PSModuleFeed
         ErrorAction     = 'Stop'
-        Verbose         = $true # TODO: Debug, should be removed.
     }
 
     if ($PublishModuleWhatIf)
@@ -381,7 +380,7 @@ task publish_module_to_gallery -if ($GalleryApiToken -and (Get-Command -Name @('
         {
             Write-Build DarkGray "  Outputting configured repositories using command Get-PSResourceRepository"
 
-            Get-PSResourceRepository -Verbose
+            Get-PSResourceRepository
 
             Write-Build DarkGray "  Publishing using command Publish-PSResource"
 

@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix issue template in repository and Plaster template ([issue #483](https://github.com/gaelcolas/Sampler/issues/483)).
 - Task `publish_module_to_gallery`
   - Changed to use `Publish-PSResource` if available.
+  - Remove unnecessary debug information.
 
 ## [0.118.1] - 2024-07-20
 
