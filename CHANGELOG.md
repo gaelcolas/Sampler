@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.118.2] - 2025-01-19
+
 ### Changed
 
 - Pinned GitVersion to v5 in the pipeline since v6 is not yet supported, also
