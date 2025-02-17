@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed issue with localization string testing with new version of the HQRM
+  tests (module DscResource.Test).
+
 ## [0.118.2] - 2025-01-19
 
 ### Changed
