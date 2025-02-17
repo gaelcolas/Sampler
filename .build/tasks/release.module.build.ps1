@@ -336,7 +336,7 @@ task package_module_nupkg {
 }
 
 # Synopsis: Publish a built PowerShell module to a gallery.
-task publish_module_to_gallery -if ($GalleryApiToken -and (Get-Command -Name 'Publish-Module' -ErrorAction 'SilentlyContinue')) {
+task publish_module_to_gallery -if ($GalleryApiToken -and (Get-Command -Name @('Publish-Module', 'Publish-PSResource') -ErrorAction 'SilentlyContinue')) {
     # Get the vales for task variables, see https://github.com/gaelcolas/Sampler#task-variables.
     . Set-SamplerTaskVariable
 
@@ -363,7 +363,6 @@ task publish_module_to_gallery -if ($GalleryApiToken -and (Get-Command -Name 'Pu
 
     $PublishModuleParams = @{
         Path            = $BuiltModuleBase
-        NuGetApiKey     = $GalleryApiToken
         Repository      = $PSModuleFeed
         ErrorAction     = 'Stop'
     }
@@ -373,10 +372,30 @@ task publish_module_to_gallery -if ($GalleryApiToken -and (Get-Command -Name 'Pu
         $PublishModuleParams['WhatIf'] = $true
     }
 
-    if (!$SkipPublish)
+    if (-not $SkipPublish)
     {
-        # Release notes will be used from module manifest
-        Publish-Module @PublishModuleParams
+        # When publishing, release notes will be used from module manifest.
+
+        if ((Get-Module -Name 'Microsoft.PowerShell.PSResourceGet' -ListAvailable))
+        {
+            Write-Build DarkGray "  Outputting configured repositories using command Get-PSResourceRepository"
+
+            Get-PSResourceRepository
+
+            Write-Build DarkGray "  Publishing using command Publish-PSResource"
+
+            $PublishModuleParams['ApiKey'] = $GalleryApiToken
+
+            Publish-PSResource @PublishModuleParams
+        }
+        else
+        {
+            Write-Build DarkGray "  Publishing using command Publish-Module"
+
+            $PublishModuleParams['NuGetApiKey'] = $GalleryApiToken
+
+            Publish-Module @PublishModuleParams
+        }
     }
 
     Write-Build Green "Package Published to PSGallery."

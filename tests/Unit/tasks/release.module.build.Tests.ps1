@@ -461,31 +461,98 @@ Describe 'publish_module_to_gallery' {
     }
 
     Context 'When publishing a PowerShell module' {
-        BeforeAll {
-            Mock -CommandName Get-Content -ParameterFilter {
-                $Path -match 'builtModule'
-            } -MockWith {
-                <#
-                    The variable $BuiltModuleManifest will be set in the task
-                    (mocked by MockSetSamplerTaskVariable) with a path to the
-                    $TestDrive.
-                    Here we make sure the path exist so that WriteAllLines() works
-                    that is called in the task.
-                #>
-                New-Item -Path ($BuiltModuleManifest | Split-Path -Parent) -ItemType Directory -Force | Out-Null
+        Context 'When using PowerShellGet' {
+            BeforeAll {
+                # Mocking the task filter `-if` so the task is run.
+                Mock -CommandName Get-Command -ParameterFilter {
+                    $Name.Count -eq 2
+                } -MockWith {
+                    # We can return anything here, as long as it is not null.
+                    return 'Run task'
+                }
 
-                return '# ReleaseNotes ='
+                <#
+                    This mocks the evaluation inside the task, if PowerShellGet
+                    or PSResourceGet should be used.
+                #>
+                Mock -CommandName Get-Module -ParameterFilter {
+                    $Name -eq 'Microsoft.PowerShell.PSResourceGet'
+                }
+
+                Mock -CommandName Get-Content -ParameterFilter {
+                    $Path -match 'builtModule'
+                } -MockWith {
+                    <#
+                        The variable $BuiltModuleManifest will be set in the task
+                        (mocked by MockSetSamplerTaskVariable) with a path to the
+                        $TestDrive.
+                        Here we make sure the path exist so that WriteAllLines() works
+                        that is called in the task.
+                    #>
+                    New-Item -Path ($BuiltModuleManifest | Split-Path -Parent) -ItemType Directory -Force | Out-Null
+
+                    return '# ReleaseNotes ='
+                }
+
+                Mock -CommandName Publish-Module
             }
 
-            Mock -CommandName Publish-Module
+            It 'Should run the build task without throwing' {
+                {
+                    Invoke-Build -Task 'publish_module_to_gallery' -File $taskAlias.Definition @mockTaskParameters
+                } | Should -Not -Throw
+
+                Should -Invoke -CommandName Publish-Module -Exactly -Times 1 -Scope It
+            }
         }
 
-        It 'Should run the build task without throwing' {
-            {
-                Invoke-Build -Task 'publish_module_to_gallery' -File $taskAlias.Definition @mockTaskParameters
-            } | Should -Not -Throw
+        Context 'When using Microsoft.PowerShell.PSResourceGet' {
+            BeforeAll {
+                # Mocking the task filter `-if` so the task is run.
+                Mock -CommandName Get-Command -ParameterFilter {
+                    $Name.Count -eq 2
+                } -MockWith {
+                    # We can return anything here, as long as it is not null.
+                    return 'Run task'
+                }
 
-            Should -Invoke -CommandName Publish-Module -Exactly -Times 1 -Scope It
+                <#
+                    This mocks the evaluation inside the task, if PowerShellGet
+                    or PSResourceGet should be used.
+                #>
+                Mock -CommandName Get-Module -ParameterFilter {
+                    $Name -eq 'Microsoft.PowerShell.PSResourceGet'
+                } -MockWith {
+                    # We can return anything here, as long as it is not null.
+                    return 'Microsoft.PowerShell.PSResourceGet'
+                }
+
+                Mock -CommandName Get-Content -ParameterFilter {
+                    $Path -match 'builtModule'
+                } -MockWith {
+                    <#
+                        The variable $BuiltModuleManifest will be set in the task
+                        (mocked by MockSetSamplerTaskVariable) with a path to the
+                        $TestDrive.
+                        Here we make sure the path exist so that WriteAllLines() works
+                        that is called in the task.
+                    #>
+                    New-Item -Path ($BuiltModuleManifest | Split-Path -Parent) -ItemType Directory -Force | Out-Null
+
+                    return '# ReleaseNotes ='
+                }
+
+                Mock -CommandName Get-PSResourceRepository
+                Mock -CommandName Publish-PSResource
+            }
+
+            It 'Should run the build task without throwing' {
+                {
+                    Invoke-Build -Task 'publish_module_to_gallery' -File $taskAlias.Definition @mockTaskParameters
+                } | Should -Not -Throw
+
+                Should -Invoke -CommandName Publish-PSResource -Exactly -Times 1 -Scope It
+            }
         }
     }
 }
