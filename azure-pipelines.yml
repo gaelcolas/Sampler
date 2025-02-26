@@ -217,6 +217,16 @@ stages:
               artifactName: $(buildArtifactName)
               targetPath: '$(Build.SourcesDirectory)/$(buildFolderName)'
           - task: PowerShell@2
+            name: patch_module
+            displayName: 'Patch module ModuleBuilder'
+            inputs:
+              targetType: 'inline'
+              script: |
+                Install-PSResource -Name Viscalyx.Common -Repository PSGallery -TrustRepository -Quiet -Confirm:$false
+                Import-Module -Name Viscalyx.Common
+                Install-ModulePatch -Uri https://raw.githubusercontent.com/viscalyx/Viscalyx.Common/refs/heads/main/patches/ModuleBuilder_3.1.7_patch.json -Force
+              pwsh: $(PWSH)
+          - task: PowerShell@2
             name: test
             displayName: 'Run Integration Test'
             inputs:
