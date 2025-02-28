@@ -83,7 +83,7 @@ Describe 'SimpleModule' {
             # This is a workaround for the issue: https://github.com/PoshCode/ModuleBuilder/pull/136
             Install-PSResource -Name 'Viscalyx.Common' -Repository PSGallery -TrustRepository -Quiet -Confirm:$false
             Import-Module -Name Viscalyx.Common
-            Install-ModulePatch -SkipHashValidation -Uri 'https://raw.githubusercontent.com/viscalyx/Viscalyx.Common/refs/heads/main/patches/ModuleBuilder_3.1.7_patch.json' -Force
+            Install-ModulePatch -Uri 'https://raw.githubusercontent.com/viscalyx/Viscalyx.Common/refs/heads/main/patches/ModuleBuilder_3.1.7_patch.json' -Force
 
             ./build.ps1 -Tasks 'build' 4>&1 5>&1 6>&1 > $null
         } |
