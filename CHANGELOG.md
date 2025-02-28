@@ -11,6 +11,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Using Microsoft.PowerShell.PlatyPS to build documentation
 
+### Fixed
+
+- Fixed issue with localization string testing with new version of the HQRM
+  tests (module DscResource.Test).
+- Fixed a problem with ModuleBuilder which throws a parsing error in Windows
+  PowerShell (see PR https://github.com/PoshCode/ModuleBuilder/pull/136).
+  The fix is a workaround until ModuleBuilder release a new version with the
+  permanent fix.
+
 ## [0.118.2] - 2025-01-19
 
 ### Changed
