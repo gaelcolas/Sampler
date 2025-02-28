@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.118.3] - 2025-02-17
+
+- Using Microsoft.PowerShell.PlatyPS to build documentation
+
 ### Fixed
 
 - Fixed issue with localization string testing with new version of the HQRM

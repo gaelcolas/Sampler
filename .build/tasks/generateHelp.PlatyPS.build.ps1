@@ -57,7 +57,7 @@ function Get-GenerateHelpPlatyPSVariables
     $script:HelpSourceFolder = Get-SamplerAbsolutePath -Path $HelpSourceFolder -RelativeTo $ProjectPath
     "`tHelp Source Folder         = '$HelpSourceFolder'"
 
-    $script:HelpOutputFolder =  Get-SamplerAbsolutePath -Path $HelpOutputFolder -RelativeTo $OutputDirectory
+    $script:HelpOutputFolder = Get-SamplerAbsolutePath -Path $HelpOutputFolder -RelativeTo $OutputDirectory
     "`tHelp output Folder         = '$HelpOutputFolder'"
 
     if ($ModuleVersion)
@@ -85,30 +85,27 @@ Task Generate_MAML_from_built_module {
 
     Get-GenerateHelpPlatyPSVariables
 
-    $AlphabeticParamOrder = $true
     $WithModulePage = $true
-    $ExcludeDontShow = $true
 
     $generateHelpCommands = @"
     `$env:PSModulePath = '$Env:PSModulePath'
     `$targetModule = Import-Module -Name '$ProjectName' -ErrorAction Stop -Passthru
 
     `$newMarkdownHelpParams = @{
-        Module                = '$ProjectName'
+        ModuleInfo            = `$targetModule
         OutputFolder          = '$DocOutputFolder'
-        AlphabeticParamsOrder = `$$AlphabeticParamOrder
         WithModulePage        = `$$WithModulePage
-        ExcludeDontShow       = `$$ExcludeDontShow
         Force                 = `$true
         ErrorAction           = 'Stop'
         Locale                = '$HelpCultureInfo'
-        HelpVersion           = '$ModuleVersion'
+        HelpVersion           = '$ModuleVersionFolder'
     }
 
-    New-MarkdownHelp @newMarkdownHelpParams
-    New-ExternalHelp -Path "$DocOutputFolder" -OutputPath "$HelpOutputCultureFolder" -Force
+    New-MarkdownCommandHelp @newMarkdownHelpParams
+    `$allFiles = Get-ChildItem -Path '$DocOutputFolder' -Recurse -Filter "*.md"
+    `$import = Measure-PlatyPSMarkdown -Path `$allFiles | Where-Object Filetype -match 'CommandHelp' | Import-MarkdownCommandHelp -Path {`$_.FilePath}
+    Export-MamlCommandHelp -CommandHelp `$import -OutputFolder "$HelpOutputCultureFolder" -Force
 "@
-
     Write-Build -Color DarkGray -Text "$generateHelpCommands"
     $sb = [ScriptBlock]::create($generateHelpCommands)
 
