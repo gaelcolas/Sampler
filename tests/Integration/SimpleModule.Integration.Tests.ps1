@@ -80,6 +80,8 @@ Describe 'SimpleModule' {
 
             ./build.ps1 -ResolveDependency -Tasks 'noop' 4>&1 5>&1 6>&1 > $null
 
+            Write-Verbose -Message (get-module Sampler -ListAvailable | Out-String) -Verbose
+
             ./build.ps1 -Tasks 'build' 4>&1 5>&1 6>&1 > $null
         } |
             Receive-Job -Wait -AutoRemoveJob -ErrorVariable buildError
