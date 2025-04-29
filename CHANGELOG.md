@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixed issue with localization string testing with new version of the HQRM
   tests (module DscResource.Test).
+- Integration test for SimpleModule template was not using the built Sampler
+  module.
 
 ## [0.118.2] - 2025-01-19
 

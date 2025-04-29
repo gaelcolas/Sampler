@@ -83,8 +83,6 @@ Describe 'SimpleModule' {
             # Remove the downloaded Sampler version, to use the built version.
             Remove-Item -Path './output/RequiredModules/Sampler' -Recurse -Force -ErrorAction 'Stop'
 
-            Write-Verbose -Message (get-module Sampler -ListAvailable | Out-String) -Verbose
-
             ./build.ps1 -Tasks 'build' 4>&1 5>&1 6>&1 > $null
         } |
             Receive-Job -Wait -AutoRemoveJob -ErrorVariable buildError
