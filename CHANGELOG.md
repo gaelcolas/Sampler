@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Renamed function `Get-BuildVersion` to `Get-SamplerBuildVersion` to maintain
+  consistency with the module's naming convention and updated all references
+  throughout the codebase ([issue #520](https://github.com/gaelcolas/Sampler/issues/520)).
+
 ### Fixed
 
 - Fixed issue with localization string testing with new version of the HQRM

@@ -69,7 +69,7 @@ Describe 'Set-SamplerTaskVariable' {
                 return (Join-Path -Path $TestDrive -ChildPath 'MyProject/source')
             }
 
-            Mock -CommandName Get-BuildVersion -MockWith {
+            Mock -CommandName Get-SamplerBuildVersion -MockWith {
                 return '1.0.0-preview'
             }
         }
