@@ -80,6 +80,9 @@ Describe 'SimpleModule' {
 
             ./build.ps1 -ResolveDependency -Tasks 'noop' 4>&1 5>&1 6>&1 > $null
 
+            # Remove the downloaded Sampler version, to use the built version.
+            Remove-Item -Path './output/RequiredModules/Sampler' -Recurse -Force -ErrorAction 'Stop'
+
             Write-Verbose -Message (get-module Sampler -ListAvailable | Out-String) -Verbose
 
             ./build.ps1 -Tasks 'build' 4>&1 5>&1 6>&1 > $null
