@@ -7,18 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.118.3] - 2025-02-17
+## [0.118.4] - 2025-05-01
 
 - Using Microsoft.PowerShell.PlatyPS to build documentation
+
+## [0.118.3] - 2025-04-29
+
+### Changed
+
+- Renamed function `Get-BuildVersion` to `Get-SamplerBuildVersion` to maintain
+  consistency with the module's naming convention and updated all references
+  throughout the codebase ([issue #520](https://github.com/gaelcolas/Sampler/issues/520)).
 
 ### Fixed
 
 - Fixed issue with localization string testing with new version of the HQRM
   tests (module DscResource.Test).
-- Fixed a problem with ModuleBuilder which throws a parsing error in Windows
-  PowerShell (see PR https://github.com/PoshCode/ModuleBuilder/pull/136).
-  The fix is a workaround until ModuleBuilder release a new version with the
-  permanent fix.
+- Integration test for SimpleModule template was not using the built Sampler
+  module.
 
 ## [0.118.2] - 2025-01-19
 

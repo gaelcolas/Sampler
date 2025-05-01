@@ -24,11 +24,11 @@ AfterAll {
     Remove-Module -Name $script:moduleName
 }
 
-Describe 'Get-BuildVersion' {
+Describe 'Get-SamplerBuildVersion' {
     Context 'When a value for parameter ModuleVersion is passed' {
         Context 'When passing a module version' {
             It 'Should return the correct module version' {
-                $result = Sampler\Get-BuildVersion -ModuleManifestPath $TestDrive -ModuleVersion '2.1.3'
+                $result = Sampler\Get-SamplerBuildVersion -ModuleManifestPath $TestDrive -ModuleVersion '2.1.3'
 
                 $result | Should -Be '2.1.3'
             }
@@ -36,7 +36,7 @@ Describe 'Get-BuildVersion' {
 
         Context 'When passing a preview module version' {
             It 'Should return the correct module version' {
-                $result = Sampler\Get-BuildVersion -ModuleManifestPath $TestDrive -ModuleVersion '2.1.3-preview0023'
+                $result = Sampler\Get-SamplerBuildVersion -ModuleManifestPath $TestDrive -ModuleVersion '2.1.3-preview0023'
 
                 $result | Should -Be '2.1.3-preview0023'
             }
@@ -64,7 +64,7 @@ Describe 'Get-BuildVersion' {
                 }
 
                 It 'Should return the correct module version' {
-                    $result = Sampler\Get-BuildVersion -ModuleManifestPath $TestDrive -ModuleVersion ''
+                    $result = Sampler\Get-SamplerBuildVersion -ModuleManifestPath $TestDrive -ModuleVersion ''
 
                     $result | Should -Be '2.1.3'
                 }
@@ -85,7 +85,7 @@ Describe 'Get-BuildVersion' {
                 }
 
                 It 'Should return the correct module version' {
-                    $result = Sampler\Get-BuildVersion -ModuleManifestPath $TestDrive -ModuleVersion ''
+                    $result = Sampler\Get-SamplerBuildVersion -ModuleManifestPath $TestDrive -ModuleVersion ''
 
                     $result | Should -Be '2.1.3-preview0023'
                 }
@@ -121,7 +121,7 @@ Describe 'Get-BuildVersion' {
                 }
 
                 It 'Should return the correct module version' {
-                    $result = Sampler\Get-BuildVersion -ModuleManifestPath $TestDrive -ModuleVersion ''
+                    $result = Sampler\Get-SamplerBuildVersion -ModuleManifestPath $TestDrive -ModuleVersion ''
 
                     $result | Should -Be '2.1.3'
                 }
@@ -135,7 +135,7 @@ Describe 'Get-BuildVersion' {
                 }
 
                 It 'Should return the correct module version' {
-                    $result = Sampler\Get-BuildVersion -ModuleManifestPath $TestDrive -ModuleVersion ''
+                    $result = Sampler\Get-SamplerBuildVersion -ModuleManifestPath $TestDrive -ModuleVersion ''
 
                     $result | Should -Be '2.1.3-preview0023'
                 }
@@ -164,7 +164,7 @@ Describe 'Get-BuildVersion' {
                 }
 
                 It 'Should return the correct module version' {
-                    $result = Sampler\Get-BuildVersion -ModuleManifestPath $TestDrive
+                    $result = Sampler\Get-SamplerBuildVersion -ModuleManifestPath $TestDrive
 
                     $result | Should -Be '2.1.3'
                 }
@@ -185,7 +185,7 @@ Describe 'Get-BuildVersion' {
                 }
 
                 It 'Should return the correct module version' {
-                    $result = Sampler\Get-BuildVersion -ModuleManifestPath $TestDrive
+                    $result = Sampler\Get-SamplerBuildVersion -ModuleManifestPath $TestDrive
 
                     $result | Should -Be '2.1.3-preview0023'
                 }
@@ -221,7 +221,7 @@ Describe 'Get-BuildVersion' {
                 }
 
                 It 'Should return the correct module version' {
-                    $result = Sampler\Get-BuildVersion -ModuleManifestPath $TestDrive
+                    $result = Sampler\Get-SamplerBuildVersion -ModuleManifestPath $TestDrive
 
                     $result | Should -Be '2.1.3'
                 }
@@ -235,7 +235,7 @@ Describe 'Get-BuildVersion' {
                 }
 
                 It 'Should return the correct module version' {
-                    $result = Sampler\Get-BuildVersion -ModuleManifestPath $TestDrive
+                    $result = Sampler\Get-SamplerBuildVersion -ModuleManifestPath $TestDrive
 
                     $result | Should -Be '2.1.3-preview0023'
                 }
@@ -254,7 +254,7 @@ Describe 'Get-BuildVersion' {
             It 'Should throw the correct error' {
                 $mockErrorMessage = "Could not determine the module version because neither GitVersion or a module manifest was present. Please provide the ModuleVersion parameter manually in the file build.yaml with the property 'SemVer:'."
 
-                { Sampler\Get-BuildVersion -ModuleManifestPath $null } | Should -Throw -ExpectedMessage $mockErrorMessage
+                { Sampler\Get-SamplerBuildVersion -ModuleManifestPath $null } | Should -Throw -ExpectedMessage $mockErrorMessage
             }
         }
 
@@ -262,7 +262,7 @@ Describe 'Get-BuildVersion' {
             It 'Should throw the correct error' {
                 $mockErrorMessage = "Could not determine the module version because neither GitVersion or a module manifest was present. Please provide the ModuleVersion parameter manually in the file build.yaml with the property 'SemVer:'."
 
-                { Sampler\Get-BuildVersion -ModuleManifestPath '' } | Should -Throw -ExpectedMessage $mockErrorMessage
+                { Sampler\Get-SamplerBuildVersion -ModuleManifestPath '' } | Should -Throw -ExpectedMessage $mockErrorMessage
             }
         }
     }

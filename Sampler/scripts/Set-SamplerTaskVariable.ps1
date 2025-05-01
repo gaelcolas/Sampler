@@ -144,7 +144,7 @@ if ($AsNewBuild.IsPresent -or $isChocolateyPackage)
         will fetched from GitVersion if it is installed. If GitVersion is _not_
         installed the version is fetched from the module manifest in SourcePath.
     #>
-    $ModuleVersion = Get-BuildVersion @getBuildVersionParameters
+    $ModuleVersion = Get-SamplerBuildVersion @getBuildVersionParameters
 
     "`tModule Version             = '$ModuleVersion'"
 }
