@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.118.4] - 2025-05-01
+
+- Using Microsoft.PowerShell.PlatyPS to build documentation
+
 ## [0.118.3] - 2025-04-29
 
 ### Changed
