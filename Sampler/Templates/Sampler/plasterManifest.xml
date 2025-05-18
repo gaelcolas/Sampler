@@ -142,6 +142,10 @@
       <choice label='Test&amp;Kitchen'
               help="Adds TestKitchen folders, yaml and an example."
               value="TestKitchen"/>
+
+      <choice label='&amp;SqlDacpac'
+              help="Adds SQL Project folders and .sqlproj to build dacpac."
+              value="sqldacpac"/>
     </parameter>
   </parameters>
     <!--

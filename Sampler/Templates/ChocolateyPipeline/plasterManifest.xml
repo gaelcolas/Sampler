@@ -20,7 +20,7 @@
       <choice label='&amp;Yes' value='true' />
       <choice label='&amp;No' value='false' />
     </parameter>
-
+      <!-- TODO: Make sure this is useable and tested. Add entry in Add-Sample -->
     <parameter store="text"  name="LicenseType" type="choice" prompt="What license do you want?" default="2" condition='$PLASTER_PARAM_License -eq "true"' >
       <choice label='&amp;Apache'
               help="Adds an Apache license file."

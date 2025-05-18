@@ -116,7 +116,8 @@ function New-SampleModule
             'ModuleQuality',
             'Build',
             'AppVeyor',
-            'TestKitchen'
+            'TestKitchen',
+            'sqlDacpac'
             )]
         [System.String[]]
         $Features

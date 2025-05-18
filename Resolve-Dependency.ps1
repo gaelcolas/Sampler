@@ -94,7 +94,7 @@ param
     $Gallery = 'PSGallery',
 
     [Parameter()]
-    [System.Management.Automation.PSCredential]
+    [Object]
     $GalleryCredential,
 
     [Parameter()]
@@ -157,11 +157,8 @@ try
     }
 
     Write-Verbose -Message 'Importing Bootstrap default parameters from ''$PSScriptRoot/Resolve-Dependency.psd1''.'
-
     $resolveDependencyConfigPath = Join-Path -Path $PSScriptRoot -ChildPath '.\Resolve-Dependency.psd1' -Resolve -ErrorAction 'Stop'
-
     $resolveDependencyDefaults = Import-PowerShellDataFile -Path $resolveDependencyConfigPath
-
     $parameterToDefault = $MyInvocation.MyCommand.ParameterSets.Where{ $_.Name -eq $PSCmdlet.ParameterSetName }.Parameters.Keys
 
     if ($parameterToDefault.Count -eq 0)
@@ -179,14 +176,12 @@ try
             try
             {
                 $variableValue = $resolveDependencyDefaults[$parameterName]
-
                 if ($variableValue -is [System.String])
                 {
                     $variableValue = $ExecutionContext.InvokeCommand.ExpandString($variableValue)
                 }
 
                 $PSBoundParameters.Add($parameterName, $variableValue)
-
                 Set-Variable -Name $parameterName -Value $variableValue -Force -ErrorAction 'SilentlyContinue'
             }
             catch
@@ -205,17 +200,14 @@ catch
 if ($UseModuleFast -and $UsePSResourceGet)
 {
     Write-Information -MessageData 'Both ModuleFast and PSResourceGet is configured or/and passed as parameter.' -InformationAction 'Continue'
-
     if ($PSVersionTable.PSVersion -ge '7.2')
     {
         $UsePSResourceGet = $false
-
         Write-Information -MessageData 'PowerShell 7.2 or higher being used, prefer ModuleFast over PSResourceGet.' -InformationAction 'Continue'
     }
     else
     {
         $UseModuleFast = $false
-
         Write-Information -MessageData 'Windows PowerShell or PowerShell <=7.1 is being used, prefer PSResourceGet since ModuleFast is not supported on this version of PowerShell.' -InformationAction 'Continue'
     }
 }
@@ -233,7 +225,7 @@ if ($UseModuleFast -and -not (Get-Module -Name 'ModuleFast'))
 
             $moduleFastBootstrapScriptBlockParameters.UseMain = $true
         }
-        elseif($ModuleFastVersion)
+        elseif ($ModuleFastVersion)
         {
             if ($ModuleFastVersion -notmatch 'v')
             {
@@ -312,9 +304,7 @@ if ($UsePSResourceGet)
 
             # Bootstrapping Microsoft.PowerShell.PSResourceGet.
             Invoke-WebRequest @invokeWebRequestParameters
-
             $ProgressPreference = $previousProgressPreference
-
             $psResourceGetDownloaded = $true
         }
         catch
@@ -348,9 +338,7 @@ if ($UsePSResourceGet)
             Microsoft.PowerShell.Archive\Expand-Archive @expandArchiveParameters
 
             Remove-Item -Path $psResourceGetZipArchivePath
-
             Import-Module -Name $expandArchiveParameters.DestinationPath -Force
-
             # Successfully bootstrapped PSResourceGet, so let's use it.
             $UsePSResourceGet = $true
         }
@@ -359,7 +347,6 @@ if ($UsePSResourceGet)
     if ($UsePSResourceGet)
     {
         $psResourceGetModule = Get-Module -Name $psResourceGetModuleName
-
         $psResourceGetModuleVersion = $psResourceGetModule.Version.ToString()
 
         if ($psResourceGetModule.PrivateData.PSData.Prerelease)
@@ -381,7 +368,6 @@ if ($UsePSResourceGet)
             if ($UsePowerShellGetCompatibilityModuleVersion)
             {
                 $savePowerShellGetParameters.Version = $UsePowerShellGetCompatibilityModuleVersion
-
                 # Check if the version is a prerelease.
                 if ($UsePowerShellGetCompatibilityModuleVersion -match '\d+\.\d+\.\d+-.*')
                 {
@@ -390,7 +376,6 @@ if ($UsePSResourceGet)
             }
 
             Save-PSResource @savePowerShellGetParameters
-
             Import-Module -Name "$PSDependTarget/PowerShellGet"
         }
     }
@@ -487,18 +472,36 @@ if (-not ($UseModuleFast -or $UsePSResourceGet))
         }
 
         Write-Progress -Activity 'Bootstrap:' -PercentComplete 7 -CurrentOperation "Verifying private package repository '$Gallery'" -Completed
-
         $previousRegisteredRepository = Get-PSRepository -Name $Gallery -ErrorAction 'SilentlyContinue'
 
-        if ($previousRegisteredRepository.SourceLocation -ne $RegisterGallery.SourceLocation)
+        if ($RegisterGallery.ContainsKey('GalleryCredential') -and $RegisterGallery.GalleryCredential -is [string] -and $RegisterGallery.Credential -match '\s*\{(?<sb>.*)\}\s*$')
         {
-            if ($previousRegisteredRepository)
+            $scriptBlock = [scriptblock]::Create($matches.sb)
+            Write-Verbose -Message ('executing Scriptblock to retrieve Gallery Credentials: {0}' -f $scriptBlock)
+            $RegisterGallery['Credential'] = $scriptBlock.Invoke()
+
+            # Register Package Source with the credential before registering the PSRepository
+            $previouslyRegisteredPackageSource = Get-PackageSource -Name $Gallery
+            if ($previouslyRegisteredPackageSource)
+            {
+                Write-Progress -Activity 'Bootstrap:' -PercentComplete 9 -CurrentOperation "Re-registrering private package Source '$Gallery'" -Completed
+                Unregister-PackageSource -Name $Gallery
+                $unregisteredPreviousPackageSource = $true
+            }
+        }
+
+        if ($previousRegisteredRepository.SourceLocation -ne $RegisterGallery.SourceLocation -or $RegisterGallery.ContainsKey('Credential'))
+        {
+            if ($previousRegisteredRepository -or $RegisterGallery.ContainsKey('Credential'))
             {
                 Write-Progress -Activity 'Bootstrap:' -PercentComplete 9 -CurrentOperation "Re-registrering private package repository '$Gallery'" -Completed
-
                 Unregister-PSRepository -Name $Gallery
-
                 $unregisteredPreviousRepository = $true
+
+                if ($RegisterGallery.ContainsKey('Credential'))
+                {
+                    $packageSource = Register-PackageSource -Name $RegisterGallery.Name -Location $RegisterGallery.SourceLocation -Trusted -Credential $RegisterGallery.Credential -ProviderName NUGET
+                }
             }
             else
             {
@@ -578,7 +581,6 @@ try
                 }
 
                 Write-Progress -Activity 'Bootstrap:' -PercentComplete 60 -CurrentOperation 'Installing newer version of PowerShellGet'
-
                 Install-Module @installPowerShellGetParameters
             }
             else
@@ -594,17 +596,13 @@ try
                 }
 
                 Write-Progress -Activity 'Bootstrap:' -PercentComplete 60 -CurrentOperation "Saving PowerShellGet from $Gallery to $Scope"
-
                 Save-Module @saveModuleParameters
             }
 
             Write-Debug -Message 'Removing previous versions of PowerShellGet and PackageManagement from session'
-
             Get-Module -Name 'PowerShellGet' -All | Remove-Module -Force -ErrorAction 'SilentlyContinue'
             Get-Module -Name 'PackageManagement' -All | Remove-Module -Force
-
             Write-Progress -Activity 'Bootstrap:' -PercentComplete 65 -CurrentOperation 'Loading latest version of PowerShellGet'
-
             Write-Debug -Message 'Importing latest PowerShellGet and PackageManagement versions into session'
 
             if ($AllowOldPowerShellGetModule)
@@ -614,12 +612,10 @@ try
             else
             {
                 Import-Module -Name 'PackageManagement' -MinimumVersion '1.4.8.1' -Force
-
                 $powerShellGetModule = Import-Module -Name 'PowerShellGet' -MinimumVersion '2.2.5' -Force -PassThru
             }
 
             $powerShellGetVersion = $powerShellGetModule.Version.ToString()
-
             Write-Information -MessageData "Bootstrap: PowerShellGet version loaded is $powerShellGetVersion"
         }
 
@@ -651,9 +647,7 @@ try
             if ($PSDependTarget -in 'CurrentUser', 'AllUsers')
             {
                 Write-Debug -Message "Attempting to install from Gallery '$Gallery'."
-
                 Write-Warning -Message "Installing PSDepend in $PSDependTarget Scope."
-
                 $installPSDependParameters = @{
                     Name               = 'PSDepend'
                     Repository         = $Gallery
@@ -669,7 +663,6 @@ try
                 }
 
                 Write-Progress -Activity 'Bootstrap:' -PercentComplete 75 -CurrentOperation "Installing PSDepend from $Gallery"
-
                 Install-Module @installPSDependParameters
             }
             else
@@ -689,7 +682,6 @@ try
                 }
 
                 Write-Progress -Activity 'Bootstrap:' -PercentComplete 75 -CurrentOperation "Saving PSDepend from $Gallery to $PSDependTarget"
-
                 Save-Module @saveModuleParameters
             }
         }
@@ -745,7 +737,6 @@ try
         if ($UseModuleFast -or $UsePSResourceGet)
         {
             $requiredModules = Import-PowerShellDataFile -Path $DependencyFile
-
             $requiredModules = $requiredModules.GetEnumerator() |
                 Where-Object -FilterScript { $_.Name -ne 'PSDependOptions' }
 
@@ -960,14 +951,12 @@ try
                     if ($savePSResourceParameters.Name -in $skipModule -and (Get-Module -Name $savePSResourceParameters.Name))
                     {
                         Write-Progress -Activity 'PSResourceGet:' -PercentComplete $progressPercentage -CurrentOperation 'Restoring Build Dependencies' -Status ('Skipping module {0}' -f $savePSResourceParameters.Name)
-
                         Write-Information -MessageData ('Skipping the module {0} since it cannot be refresh while loaded into the session. To refresh the module open a new session and resolve dependencies again.' -f $savePSResourceParameters.Name) -InformationAction 'Continue'
                     }
                     else
                     {
                         # Clear all module from the current session so any new version fetched will be re-imported.
                         Get-Module -Name $savePSResourceParameters.Name | Remove-Module -Force
-
                         Save-PSResource @savePSResourceParameters -ErrorVariable 'savePSResourceError'
 
                         if ($savePSResourceError)
@@ -985,7 +974,6 @@ try
         else
         {
             Write-Progress -Activity 'Bootstrap:' -PercentComplete 90 -CurrentOperation 'Invoking PSDepend'
-
             Write-Progress -Activity 'PSDepend:' -PercentComplete 0 -CurrentOperation 'Restoring Build Dependencies'
 
             $psDependParameters = @{
