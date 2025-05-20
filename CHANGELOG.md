@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Add retry logic for ModuleFast dependency installation ([#510](https://github.com/gaelcolas/Sampler/issues/510)).
+- Using full-qualified call for `Expand-Archive` ([#519](https://github.com/gaelcolas/Sampler/issues/519)).
 
 ## [0.118.3] - 2025-04-29
 

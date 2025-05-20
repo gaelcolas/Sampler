@@ -345,7 +345,7 @@ if ($UsePSResourceGet)
                 Force           = $true
             }
 
-            Expand-Archive @expandArchiveParameters
+            Microsoft.PowerShell.Archive\Expand-Archive @expandArchiveParameters
 
             Remove-Item -Path $psResourceGetZipArchivePath
 
