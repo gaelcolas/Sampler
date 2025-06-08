@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added support for GitVersion 6 (Breaking Change).
+  - Updated `GitVersion.yml` config file.
+  - Removed the GitVersion task in Azure DevOps pipeline.
+  - Added a task to the Azure DevOps pipeline to Install GitVersion.
+  - Added a new build task to Sampler: `GitVersion`.
+  - Updated `Get-SamplerBuildVersion` to be compatible with GitVersion 6.
+  - Changed `README.md`.
+
 ### Fixed
 
 - Using full-qualified call for `Expand-Archive` ([#519](https://github.com/gaelcolas/Sampler/issues/519)).

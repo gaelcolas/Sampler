@@ -45,7 +45,7 @@ function Get-SamplerBuildVersion
         Write-Verbose -Message 'Module version is not determined yet. Evaluating methods to get new module version.'
 
         $gitVersionAvailable = Get-Command -Name 'gitversion' -ErrorAction 'SilentlyContinue'
-        $donetGitversionAvailable = Get-Command -Name 'dotnet-gitversion' -ErrorAction 'SilentlyContinue'
+        $dotnetGitversionAvailable = Get-Command -Name 'dotnet-gitversion' -ErrorAction 'SilentlyContinue'
 
         # If dotnet-gitversion is available and gitversion is not, alias it to gitversion.
         if ($donetGitversionAvailable -and -not $gitVersionAvailable)
@@ -53,11 +53,37 @@ function Get-SamplerBuildVersion
             New-Alias -Name 'gitversion' -Value 'dotnet-gitversion' -Scope 'Script' -ErrorAction 'SilentlyContinue'
         }
 
-        if ($gitVersionAvailable -or $donetGitversionAvailable)
+        if ($gitVersionAvailable -or $dotnetGitversionAvailable)
         {
             Write-Verbose -Message 'Using the version from GitVersion.'
 
-            $ModuleVersion = (gitversion | ConvertFrom-Json -ErrorAction 'Stop').NuGetVersionV2
+            $gitVersionObject = gitversion | ConvertFrom-Json -ErrorAction Stop
+            $isPreRelease = [bool]$gitVersionObject.PreReleaseLabel
+            $versionElements = $gitVersionObject.MajorMinorPatch
+
+            if ($isPreRelease)
+            {
+                if ($gitVersionObject.BranchName -eq 'main')
+                {
+                    $nextPreReleaseNumber = $gitVersionObject.PreReleaseNumber
+                    $paddedNextPreReleaseNumber = '{0:D4}' -f $nextPreReleaseNumber
+
+                    $versionElements += $gitVersionObject.PreReleaseLabelWithDash
+                    $versionElements += $paddedNextPreReleaseNumber
+                }
+                else
+                {
+                    $versionElements += $gitVersionObject.PreReleaseLabelWithDash
+                    $versionElements += '.' + $gitVersionObject.CommitsSinceVersionSource
+                }
+            }
+
+            $ModuleVersion = $versionElements -join '.'
+
+            Write-Verbose -Message (
+                "GitVersion returned the version '{0}'." -f $ModuleVersion
+            )
+
         }
         elseif (-not [System.String]::IsNullOrEmpty($ModuleManifestPath))
         {
