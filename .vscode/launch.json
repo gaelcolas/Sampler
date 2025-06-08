@@ -5,9 +5,41 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "PowerShell: Interactive Session",
             "type": "PowerShell",
-            "request": "launch"
+            "request": "launch",
+            "name": "Launch Build",
+            "script": "${workspaceRoot}/Build.ps1",
+            "args": [],
+            "cwd": "${workspaceRoot}/"
+        },
+        {
+            "type": "PowerShell",
+            "request": "launch",
+            "name": "Launch Build -ResolveDependency",
+            "script": "${workspaceRoot}/Build.ps1",
+            "args": ["-ResolveDependency"],
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "type": "PowerShell",
+            "request": "launch",
+            "name": "Launch Test",
+            "script": "${workspaceRoot}/Build.ps1",
+            "args": ["-Tasks test"],
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "name": "PowerShell Interactive Session",
+            "type": "PowerShell",
+            "request": "launch",
+            "cwd": ""
+        },
+        {
+            "name": "PowerShell: Launch Current File",
+            "type": "PowerShell",
+            "request": "launch",
+            "script": "${file}",
+            "cwd": "${file}"
         }
     ]
 }
