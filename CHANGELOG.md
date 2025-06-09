@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added a task to the Azure DevOps pipeline to Install GitVersion.
   - Added a new build task to Sampler: `GitVersion`.
   - Updated `Get-SamplerBuildVersion` to be compatible with GitVersion 6.
+  - Updated `Get-SamplerBuildVersion` Pester tests.
   - Changed `README.md`.
 
 ### Fixed
