@@ -7,8 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
-
 - Added support for GitVersion 6 (Breaking Change).
   - Updated `GitVersion.yml` config file.
   - Removed the GitVersion task in Azure DevOps pipeline.
@@ -18,11 +16,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Updated `Get-SamplerBuildVersion` Pester tests.
   - Changed `README.md`.
 
-### Fixed
+### Changed
 
-- Using full-qualified call for `Expand-Archive` ([#519](https://github.com/gaelcolas/Sampler/issues/519)).
-- Fixed a variable scoping issue preventing Pester tests to be invoked after the
-  first build ([#523](https://github.com/gaelcolas/Sampler/issues/523)).
+- Set GitVersion mode to [`Manual Deployment` ](https://gitversion.net/docs/reference/modes/manual-deployment).
+  > "Having not the necessity to deploy the build artifacts on every commit is
+    an indication of using the Manual Deployment mode. This mode can be used to
+    remain on the same pre-released version until it has been deployed dedicatedly.
+- Updated `GitVersion.yml` config file to work with GitVersion 6.
 
 ## [0.118.3] - 2025-04-29
 
