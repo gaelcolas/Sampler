@@ -116,7 +116,7 @@ Describe 'Get-SamplerBuildVersion' {
             Context 'When passing a module version' {
                 BeforeAll {
                     Mock -CommandName gitversion -MockWith {
-                        return '{"NuGetVersionV2": "2.1.3"}'
+                        return '{"MajorMinorPatch":"2.1.3"}'
                     }
                 }
 
@@ -130,7 +130,7 @@ Describe 'Get-SamplerBuildVersion' {
             Context 'When passing a preview module version' {
                 BeforeAll {
                     Mock -CommandName gitversion -MockWith {
-                        return '{"NuGetVersionV2": "2.1.3-preview0023"}'
+                        return '{"MajorMinorPatch":"2.1.3","PreReleaseLabel":"preview","PreReleaseLabelWithDash":"-preview","PreReleaseNumber":23,"BranchName":"main","CommitsSinceVersionSource":50}'
                     }
                 }
 
@@ -216,7 +216,7 @@ Describe 'Get-SamplerBuildVersion' {
             Context 'When passing a module version' {
                 BeforeAll {
                     Mock -CommandName gitversion -MockWith {
-                        return '{"NuGetVersionV2": "2.1.3"}'
+                        return '{"MajorMinorPatch":"2.1.3"}'
                     }
                 }
 
@@ -227,10 +227,10 @@ Describe 'Get-SamplerBuildVersion' {
                 }
             }
 
-            Context 'When passing a preview module version' {
+            Context 'When passing a preview module version in main branch' {
                 BeforeAll {
                     Mock -CommandName gitversion -MockWith {
-                        return '{"NuGetVersionV2": "2.1.3-preview0023"}'
+                        return '{"MajorMinorPatch":"2.1.3","PreReleaseLabel":"preview","PreReleaseLabelWithDash":"-preview","PreReleaseNumber":23,"BranchName":"main","CommitsSinceVersionSource":50}'
                     }
                 }
 
@@ -238,6 +238,20 @@ Describe 'Get-SamplerBuildVersion' {
                     $result = Sampler\Get-SamplerBuildVersion -ModuleManifestPath $TestDrive
 
                     $result | Should -Be '2.1.3-preview0023'
+                }
+            }
+
+            Context 'When passing a preview module version in fix branch' {
+                BeforeAll {
+                    Mock -CommandName gitversion -MockWith {
+                        return '{"MajorMinorPatch":"2.1.3","PreReleaseLabel":"preview","PreReleaseLabelWithDash":"-preview","PreReleaseNumber":23,"BranchName":"fix/Something","CommitsSinceVersionSource":50}'
+                    }
+                }
+
+                It 'Should return the correct module version' {
+                    $result = Sampler\Get-SamplerBuildVersion -ModuleManifestPath $TestDrive
+
+                    $result | Should -Be '2.1.3-preview.50'
                 }
             }
         }
