@@ -44,13 +44,13 @@ function Get-SamplerBuildVersion
     {
         Write-Verbose -Message 'Module version is not determined yet. Evaluating methods to get new module version.'
 
-        $gitVersionAvailable = Get-Command -Name 'gitversion' -ErrorAction 'SilentlyContinue'
-        $dotnetGitversionAvailable = Get-Command -Name 'dotnet-gitversion' -ErrorAction 'SilentlyContinue'
+        $gitVersionAvailable = Get-Command -Name gitversion -ErrorAction SilentlyContinue
+        $dotnetGitversionAvailable = Get-Command -Name 'dotnet-gitversion' -ErrorAction SilentlyContinue
 
         # If dotnet-gitversion is available and gitversion is not, alias it to gitversion.
-        if ($donetGitversionAvailable -and -not $gitVersionAvailable)
+        if ($dotnetGitversionAvailable -and -not $gitVersionAvailable)
         {
-            New-Alias -Name 'gitversion' -Value 'dotnet-gitversion' -Scope 'Script' -ErrorAction 'SilentlyContinue'
+            New-Alias -Name gitversion -Value dotnet-gitversion -Scope Script -ErrorAction SilentlyContinue
         }
 
         if ($gitVersionAvailable -or $dotnetGitversionAvailable)
