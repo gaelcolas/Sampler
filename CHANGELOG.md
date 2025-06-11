@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Using full-qualified call for `Expand-Archive` ([#519](https://github.com/gaelcolas/Sampler/issues/519)).
 - Fixed a variable scoping issue preventing Pester tests to be invoked after the
   first build ([#523](https://github.com/gaelcolas/Sampler/issues/523)).
+- Fixed another variable scoping issue preventing Pester tests to be invoked
+  after the first build ([#527](https://github.com/gaelcolas/Sampler/issues/527)).
 
 ## [0.118.3] - 2025-04-29
 
