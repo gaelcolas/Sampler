@@ -195,7 +195,7 @@ function New-SamplerPipeline
         }
         catch
         {
-            Write-Warning "Error processing Dynamic Parameters. $($_.Exception.Message)"
+            Write-Warning -Message "Error processing Dynamic Parameters. $($_.Exception.Message)"
         }
         finally
         {

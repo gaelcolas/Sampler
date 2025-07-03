@@ -43,7 +43,7 @@ function Update-JaCoCoStatistic
         $Document
     )
 
-    Write-Verbose "Start updating statistics!"
+    Write-Verbose -Message "Start updating statistics!"
 
     $totalInstructionCovered = 0
     $totalInstructionMissed = 0
@@ -56,7 +56,7 @@ function Update-JaCoCoStatistic
 
     foreach ($oPackage in $Document.report.package)
     {
-        Write-Verbose "Processing package $($oPackage.name)"
+        Write-Verbose -Message "Processing package $($oPackage.name)"
 
         $packageInstructionCovered = 0
         $packageInstructionMissed = 0
@@ -76,7 +76,7 @@ function Update-JaCoCoStatistic
             $classMethodCovered = 0
             $classMethodMissed = 0
 
-            Write-Verbose "  Processing sourcefile $($oPackageClass.sourcefilename)"
+            Write-Verbose -Message "  Processing sourcefile $($oPackageClass.sourcefilename)"
             $oPackageSourcefile = $oPackage.sourcefile | Where-Object -FilterScript { $_.Name -eq $oPackageClass.sourcefilename }
 
             for ($i = 0; $i -lt ([array]($oPackageClass.method)).Count; $i++)
@@ -93,7 +93,7 @@ function Update-JaCoCoStatistic
                 if ($i -ne ($currentMethod.Count - 1))
                 {
                     $end   = $currentMethod[$i+1].Line
-                    Write-Verbose "    Processing method: $($currentMethod[$i].Name)"
+                    Write-Verbose -Message "    Processing method: $($currentMethod[$i].Name)"
                     [array]$coll = $oPackageSourcefile.line | Where-Object {
                         [int]$_.nr -ge $start -and [int]$_.nr -lt $end
                     }
@@ -111,7 +111,7 @@ function Update-JaCoCoStatistic
                 }
                 else
                 {
-                    Write-Verbose "    Processing method: $($currentMethod[$i].Name)"
+                    Write-Verbose -Message "    Processing method: $($currentMethod[$i].Name)"
                     [array]$coll = $oPackageSourcefile.line | Where-Object {
                         [int]$_.nr -ge $start
                     }
@@ -159,12 +159,12 @@ function Update-JaCoCoStatistic
                 $counterMethod.missed = [string]$methodMissed
 
 
-                Write-Verbose "      Method Instruction Covered : $methodInstructionCovered"
-                Write-Verbose "      Method Instruction Missed  : $methodInstructionMissed"
-                Write-Verbose "      Method Line Covered        : $methodLineCovered"
-                Write-Verbose "      Method Line Missed         : $methodLineMissed"
-                Write-Verbose "      Method Covered             : $methodCovered"
-                Write-Verbose "      Method Missed              : $methodMissed"
+                Write-Verbose -Message "      Method Instruction Covered : $methodInstructionCovered"
+                Write-Verbose -Message "      Method Instruction Missed  : $methodInstructionMissed"
+                Write-Verbose -Message "      Method Line Covered        : $methodLineCovered"
+                Write-Verbose -Message "      Method Line Missed         : $methodLineMissed"
+                Write-Verbose -Message "      Method Covered             : $methodCovered"
+                Write-Verbose -Message "      Method Missed              : $methodMissed"
             }
 
             $packageInstructionCovered += $classInstructionCovered
@@ -225,12 +225,12 @@ function Update-JaCoCoStatistic
             $counterMethod.covered = [string]$classClassCovered
             $counterMethod.missed = [string]$classClassMissed
 
-            Write-Verbose "      Class Instruction Covered  : $classInstructionCovered"
-            Write-Verbose "      Class Instruction Missed   : $classInstructionMissed"
-            Write-Verbose "      Class Line Covered         : $classLineCovered"
-            Write-Verbose "      Class Line Missed          : $classLineMissed"
-            Write-Verbose "      Class Method Covered       : $classMethodCovered"
-            Write-Verbose "      Class Method Missed        : $classMethodMissed"
+            Write-Verbose -Message "      Class Instruction Covered  : $classInstructionCovered"
+            Write-Verbose -Message "      Class Instruction Missed   : $classInstructionMissed"
+            Write-Verbose -Message "      Class Line Covered         : $classLineCovered"
+            Write-Verbose -Message "      Class Line Missed          : $classLineMissed"
+            Write-Verbose -Message "      Class Method Covered       : $classMethodCovered"
+            Write-Verbose -Message "      Class Method Missed        : $classMethodMissed"
         }
 
         $totalInstructionCovered += $packageInstructionCovered
@@ -259,14 +259,14 @@ function Update-JaCoCoStatistic
         $counterClass.covered = [string]$packageClassCovered
         $counterClass.missed = [string]$packageClassMissed
 
-        Write-Verbose "  Package Instruction Covered: $packageInstructionCovered"
-        Write-Verbose "  Package Instruction Missed : $packageInstructionMissed"
-        Write-Verbose "  Package Line Covered       : $packageLineCovered"
-        Write-Verbose "  Package Line Missed        : $packageLineMissed"
-        Write-Verbose "  Package Method Covered     : $packageMethodCovered"
-        Write-Verbose "  Package Method Missed      : $packageMethodMissed"
-        Write-Verbose "  Package Class Covered      : $packageClassCovered"
-        Write-Verbose "  Package Class Missed       : $packageClassMissed"
+        Write-Verbose -Message "  Package Instruction Covered: $packageInstructionCovered"
+        Write-Verbose -Message "  Package Instruction Missed : $packageInstructionMissed"
+        Write-Verbose -Message "  Package Line Covered       : $packageLineCovered"
+        Write-Verbose -Message "  Package Line Missed        : $packageLineMissed"
+        Write-Verbose -Message "  Package Method Covered     : $packageMethodCovered"
+        Write-Verbose -Message "  Package Method Missed      : $packageMethodMissed"
+        Write-Verbose -Message "  Package Class Covered      : $packageClassCovered"
+        Write-Verbose -Message "  Package Class Missed       : $packageClassMissed"
     }
 
     #Update Total stats
@@ -286,20 +286,20 @@ function Update-JaCoCoStatistic
     $counterClass.covered = [string]$totalClassCovered
     $counterClass.missed = [string]$totalClassMissed
 
-    Write-Verbose "----------------------------------------"
-    Write-Verbose " Totals"
-    Write-Verbose "----------------------------------------"
-    Write-Verbose "  Total Instruction Covered : $totalInstructionCovered"
-    Write-Verbose "  Total Instruction Missed  : $totalInstructionMissed"
-    Write-Verbose "  Total Line Covered        : $totalLineCovered"
-    Write-Verbose "  Total Line Missed         : $totalLineMissed"
-    Write-Verbose "  Total Method Covered      : $totalMethodCovered"
-    Write-Verbose "  Total Method Missed       : $totalMethodMissed"
-    Write-Verbose "  Total Class Covered       : $totalClassCovered"
-    Write-Verbose "  Total Class Missed        : $totalClassMissed"
-    Write-Verbose "----------------------------------------"
+    Write-Verbose -Message "----------------------------------------"
+    Write-Verbose -Message " Totals"
+    Write-Verbose -Message "----------------------------------------"
+    Write-Verbose -Message "  Total Instruction Covered : $totalInstructionCovered"
+    Write-Verbose -Message "  Total Instruction Missed  : $totalInstructionMissed"
+    Write-Verbose -Message "  Total Line Covered        : $totalLineCovered"
+    Write-Verbose -Message "  Total Line Missed         : $totalLineMissed"
+    Write-Verbose -Message "  Total Method Covered      : $totalMethodCovered"
+    Write-Verbose -Message "  Total Method Missed       : $totalMethodMissed"
+    Write-Verbose -Message "  Total Class Covered       : $totalClassCovered"
+    Write-Verbose -Message "  Total Class Missed        : $totalClassMissed"
+    Write-Verbose -Message "----------------------------------------"
 
-    Write-Verbose "Completed merging files and updating statistics!"
+    Write-Verbose -Message "Completed merging files and updating statistics!"
 
     return $Document
 }

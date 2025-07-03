@@ -102,62 +102,62 @@ function Set-SamplerPSModulePath
     $newModulePath = $newModulePath -split $pathSeparator |
         Select-Object -Unique |
             Where-Object { $_ }
-    Write-Verbose "`t...The 'PSModulePath' has $($newModulePath.Count) paths"
-    Write-Debug "The 'PSModulePath' is '$newModulePath'"
+    Write-Verbose -Message "`t...The 'PSModulePath' has $($newModulePath.Count) paths"
+    Write-Debug -Message "The 'PSModulePath' is '$newModulePath'"
 
     if ($RemovePersonal)
     {
         $newModulePath = $newModulePath -notmatch '.+Documents.(Windows)?PowerShell.Modules'
-        Write-Verbose "`t...Removing Personal from 'PSModulePath'"
+        Write-Verbose -Message "`t...Removing Personal from 'PSModulePath'"
     }
 
     if ($RemoveProgramFiles)
     {
         $newModulePath = $newModulePath -notmatch '.+Program Files.(Windows)?PowerShell.(7.)?Modules'
-        Write-Verbose "`t...Removing Program Files from 'PSModulePath'"
+        Write-Verbose -Message "`t...Removing Program Files from 'PSModulePath'"
     }
 
     if ($RemoveWindows)
     {
         $newModulePath = $newModulePath -ne 'C:\Windows\system32\WindowsPowerShell\v1.0\Modules'
-        Write-Warning "It is not recommended to remove the Windows 'PSModulePath'"
-        Write-Verbose "`t...Removing Windows from 'PSModulePath'"
+        Write-Warning -Message "It is not recommended to remove the Windows 'PSModulePath'"
+        Write-Verbose -Message "`t...Removing Windows from 'PSModulePath'"
     }
-    Write-Verbose "`t...The 'PSModulePath' has $($newModulePath.Count) paths"
-    Write-Debug "The 'PSModulePath' is '$newModulePath'"
+    Write-Verbose -Message "`t...The 'PSModulePath' has $($newModulePath.Count) paths"
+    Write-Debug -Message "The 'PSModulePath' is '$newModulePath'"
 
     if ($RequiredModulesDirectory)
     {
         if ($newModulePath -contains $RequiredModulesDirectory)
         {
-            Write-Verbose "`t...Removing RequiredModulesDirectory from 'PSModulePath'"
+            Write-Verbose -Message "`t...Removing RequiredModulesDirectory from 'PSModulePath'"
             $newModulePath = $newModulePath -ne $RequiredModulesDirectory
         }
-        Write-Verbose "`t...Adding 'RequiredModulesDirectory' to 'PSModulePath'"
+        Write-Verbose -Message "`t...Adding 'RequiredModulesDirectory' to 'PSModulePath'"
         $newModulePath = @($RequiredModulesDirectory) + $newModulePath
     }
     else
     {
-        Write-Warning "The parameter 'RequiredModulesDirectory' is not set"
+        Write-Warning -Message "The parameter 'RequiredModulesDirectory' is not set"
     }
 
     if ($BuiltModuleSubdirectory)
     {
         if ($newModulePath -contains $BuiltModuleSubdirectory)
         {
-            Write-Verbose "`t...Removing BuiltModuleSubdirectory from 'PSModulePath'"
+            Write-Verbose -Message "`t...Removing BuiltModuleSubdirectory from 'PSModulePath'"
             $newModulePath = $newModulePath -ne $BuiltModuleSubdirectory
         }
-        Write-Verbose "`t...Adding 'BuiltModuleSubdirectory' to 'PSModulePath'"
+        Write-Verbose -Message "`t...Adding 'BuiltModuleSubdirectory' to 'PSModulePath'"
         $newModulePath = @($BuiltModuleSubdirectory) + $newModulePath
     }
     else
     {
-        Write-Warning "The parameter 'BuiltModuleSubdirectory' is not set"
+        Write-Warning -Message "The parameter 'BuiltModuleSubdirectory' is not set"
     }
 
     $newModulePath = $newModulePath -join $pathSeparator
-    Write-Verbose "`t...Writing '`$env:PSModulePath' variable"
+    Write-Verbose -Message "`t...Writing '`$env:PSModulePath' variable"
 
     if ($PSCmdlet.ShouldProcess($env:PSModulePath, "Set PSModulePath to '$newModulePath'"))
     {

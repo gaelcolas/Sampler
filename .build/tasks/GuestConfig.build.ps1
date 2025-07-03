@@ -159,7 +159,7 @@ task build_guestconfiguration_packages {
             {
                 # Write non-terminating errors that are not "A second CIM class definition for .... was found..."
                 $false
-                Write-Error $_ -ErrorAction Continue
+                Write-Error -Message $_ -ErrorAction Continue
             }
             else
             {
