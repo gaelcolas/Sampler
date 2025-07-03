@@ -497,7 +497,7 @@ begin
             {
                 $paramValue = $MyInvocation.BoundParameters.Item($cmdParameter)
 
-                Write-Debug " adding  $cmdParameter :: $paramValue [from user-provided parameters to Build.ps1]"
+                Write-Debug -Message " adding  $cmdParameter :: $paramValue [from user-provided parameters to Build.ps1]"
 
                 $resolveDependencyParams.Add($cmdParameter, $paramValue)
             }
@@ -508,7 +508,7 @@ begin
 
                 if ($paramValue)
                 {
-                    Write-Debug " adding  $cmdParameter :: $paramValue [from default Build.ps1 variable]"
+                    Write-Debug -Message " adding  $cmdParameter :: $paramValue [from default Build.ps1 variable]"
 
                     $resolveDependencyParams.Add($cmdParameter, $paramValue)
                 }

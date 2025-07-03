@@ -97,7 +97,7 @@ Describe 'Set-SamplerTaskVariable' {
             #>
             $result = . Sampler\Set-SamplerTaskVariable -AsNewBuild
 
-            Write-Debug ($result | Out-String) -Verbose
+            Write-Debug -Message ($result | Out-String) -Verbose
 
             $result | Should -Contain "`tProject Name               = 'MyProject'"
             $result | Should -Contain ("`tSource Path                = '{0}'" -f (Join-Path -Path $TestDrive -ChildPath 'MyProject/source'))
@@ -120,7 +120,7 @@ Describe 'Set-SamplerTaskVariable' {
             It 'Should return the expected output' {
                 $result = . Sampler\Set-SamplerTaskVariable -AsNewBuild
 
-                Write-Debug ($result | Out-String) -Verbose
+                Write-Debug -Message ($result | Out-String) -Verbose
 
                 $result | Should -Contain "`tProject Name               = 'MyProject'"
                 $result | Should -Contain ("`tSource Path                = '{0}'" -f (Join-Path -Path $TestDrive -ChildPath 'MyProject/source'))
@@ -150,7 +150,7 @@ Describe 'Set-SamplerTaskVariable' {
             It 'Should return the expected output' {
                 $result = . Sampler\Set-SamplerTaskVariable -AsNewBuild -Verbose
 
-                Write-Debug ($result | Out-String) -Verbose
+                Write-Debug -Message ($result | Out-String) -Verbose
 
                 $result | Should -Contain "`tProject Name               = 'MyProject'"
                 $result | Should -Contain ("`tSource Path                = '{0}'" -f (Join-Path -Path $TestDrive -ChildPath 'MyProject/source'))
@@ -180,7 +180,7 @@ Describe 'Set-SamplerTaskVariable' {
             It 'Should return the expected output' {
                 $result = . Sampler\Set-SamplerTaskVariable -AsNewBuild
 
-                Write-Debug ($result | Out-String) -Verbose
+                Write-Debug -Message ($result | Out-String) -Verbose
 
                 $result | Should -Contain "`tProject Name               = 'MyProject'"
                 $result | Should -Contain ("`tSource Path                = '{0}'" -f (Join-Path -Path $TestDrive -ChildPath 'MyProject/source'))
@@ -289,7 +289,7 @@ Describe 'Set-SamplerTaskVariable' {
             #>
             $result = . Sampler\Set-SamplerTaskVariable
 
-            Write-Debug ($result | Out-String) -Verbose
+            Write-Debug -Message ($result | Out-String) -Verbose
 
             $result | Should -Contain "`tProject Name               = 'MyProject'"
             $result | Should -Contain ("`tSource Path                = '{0}'" -f (Join-Path -Path $TestDrive -ChildPath 'MyProject/source'))
@@ -327,7 +327,7 @@ Describe 'Set-SamplerTaskVariable' {
                 #>
                 $result = . Sampler\Set-SamplerTaskVariable
 
-                Write-Debug ($result | Out-String) -Verbose
+                Write-Debug -Message ($result | Out-String) -Verbose
 
                 $result | Should -Contain "`tProject Name               = 'MyProject'"
                 $result | Should -Contain ("`tSource Path                = '{0}'" -f (Join-Path -Path $TestDrive -ChildPath 'MyProject/source'))
@@ -372,7 +372,7 @@ Describe 'Set-SamplerTaskVariable' {
                 #>
                 $result = . Sampler\Set-SamplerTaskVariable -Verbose
 
-                Write-Debug ($result | Out-String) -Verbose
+                Write-Debug -Message ($result | Out-String) -Verbose
 
                 $result | Should -Contain "`tProject Name               = 'MyProject'"
                 $result | Should -Contain ("`tSource Path                = '{0}'" -f (Join-Path -Path $TestDrive -ChildPath 'MyProject/source'))
@@ -417,7 +417,7 @@ Describe 'Set-SamplerTaskVariable' {
                 #>
                 $result = . Sampler\Set-SamplerTaskVariable
 
-                Write-Debug ($result | Out-String) -Verbose
+                Write-Debug -Message ($result | Out-String) -Verbose
 
                 $result | Should -Contain "`tProject Name               = 'MyProject'"
                 $result | Should -Contain ("`tSource Path                = '{0}'" -f (Join-Path -Path $TestDrive -ChildPath 'MyProject/source'))
