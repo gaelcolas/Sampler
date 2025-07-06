@@ -22,7 +22,7 @@
     .PARAMETER RequiredModulesDirectory
         Can be a path (relative to $PSScriptRoot or absolute) to tell Resolve-Dependency
         and PSDepend where to save the required modules. It is also possible to use
-        'CurrentUser' och 'AllUsers' to install missing dependencies. You can override
+        'CurrentUser' or 'AllUsers' to install missing dependencies. You can override
         the value for PSDepend in the Build.psd1 build manifest. The default value is
         'output/RequiredModules'.
 
