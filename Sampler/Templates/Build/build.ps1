@@ -10,7 +10,7 @@
         The default value is '' (empty string).
 
     .PARAMETER BuildConfig
-        Not yet written.
+        Path to a file with configuration. Supported extensions : psd1, yaml, yml, json, jsonc.
 
     .PARAMETER OutputDirectory
         Specifies the folder to build the artefact into. The default value is 'output'.
@@ -49,13 +49,13 @@
         used in the DscResource.Test.build.ps1 tasks.
 
     .PARAMETER ResolveDependency
-        Not yet written.
+        Resolve missing dependencies.
 
     .PARAMETER BuildInfo
         The build info object from ModuleBuilder. Defaults to an empty hashtable.
 
     .PARAMETER AutoRestore
-        Not yet written.
+        Specifies to restore the required modules by running build.ps1 with ResolveDependency switch and empty task `noop`.
 
     .PARAMETER UseModuleFast
         Specifies to use ModuleFast instead of PowerShellGet to resolve dependencies
