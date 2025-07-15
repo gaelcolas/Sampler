@@ -876,6 +876,9 @@ _Guest Configuration_. This process will be replaced with a Plaster template.
 
 1. Start by creating a new project using the template `dsccommunity`.
 
+<details open>
+<summary><strong>Windows</strong></summary>
+
    ```powershell
    Install-Module -Name 'Sampler' -Scope 'CurrentUser'
 
@@ -889,6 +892,25 @@ _Guest Configuration_. This process will be replaced with a Plaster template.
 
    New-SampleModule @newSampleModuleParameters
    ```
+
+</details>
+<summary><strong>macOS/Linux</strong></summary>
+
+   ```powershell
+   Install-Module -Name 'Sampler' -Scope 'CurrentUser'
+
+   $newSampleModuleParameters = @{
+      DestinationPath   = '/Users/$env:USER/source'
+      ModuleType        = 'dsccommunity'
+      ModuleName        = 'MyGCPackages'
+      ModuleAuthor      = 'My Name'
+      ModuleDescription = 'MyGCPackages Description'
+   }
+
+   New-SampleModule @newSampleModuleParameters
+   ```
+
+</details>
 
 1. In the file `build.yaml` add the following top-level key:
 
