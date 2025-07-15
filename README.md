@@ -537,13 +537,32 @@ InvokeRD ---> Save[["Save to RequiredModules"]]
 
 The following command will resolve dependencies using PSResourceGet:
 
+<details open>
+<summary><strong>Windows</strong></summary>
+
 ```powershell
 cd C:\source\MySimpleModule
 
 ./build.ps1 -ResolveDependency -Tasks noop
 ```
 
+</details>
+
+<details>
+<summary><strong>macOS/Linux</strong></summary>
+
+```powershell
+cd /Users/$env:USER/source/MySimpleModule
+
+./build.ps1 -ResolveDependency -Tasks noop
+```
+
+</details>
+
 The following command will resolve dependencies using [ModuleFast](https://github.com/JustinGrote/ModuleFast):
+
+<details open>
+<summary><strong>Windows</strong></summary>
 
 ```powershell
 cd C:\source\MySimpleModule
@@ -551,13 +570,42 @@ cd C:\source\MySimpleModule
 ./build.ps1 -ResolveDependency -Tasks noop -UseModuleFast
 ```
 
+</details>
+
+<details>
+<summary><strong>macOS/Linux</strong></summary>
+
+```powershell
+cd /Users/$env:USER/source/MySimpleModule
+
+./build.ps1 -ResolveDependency -Tasks noop -UseModuleFast
+```
+
+</details>
+
 The following command will resolve dependencies using [PSResourceGet](https://github.com/PowerShell/PSResourceGet):
+
+<details open>
+<summary><strong>Windows</strong></summary>
 
 ```powershell
 cd C:\source\MySimpleModule
 
 ./build.ps1 -ResolveDependency -Tasks noop -UsePSResourceGet
 ```
+
+</details>
+
+<details>
+<summary><strong>macOS/Linux</strong></summary>
+
+```powershell
+cd /Users/$env:USER/source/MySimpleModule
+
+./build.ps1 -ResolveDependency -Tasks noop -UsePSResourceGet
+```
+
+</details>
 
 The dependencies will be downloaded (or updated) from the PowerShell Gallery (unless
 another repository is specified) and saved in the project folder under
@@ -578,11 +626,27 @@ or if the required modules have changed in the file `RequiredModules.psd1`.
 
 The following command will build the project:
 
+<details open>
+<summary><strong>Windows</strong></summary>
+
 ```powershell
 cd C:\source\MySimpleModule
 
 ./build.ps1 -Tasks build
 ```
+
+</details>
+
+<details>
+<summary><strong>macOS/Linux</strong></summary>
+
+```powershell
+cd /Users/$env:USER/source/MySimpleModule
+
+./build.ps1 -Tasks build
+```
+
+</details>
 
 It is also possible to resolve dependencies and build the project
 at the same time using the command:
