@@ -894,6 +894,8 @@ _Guest Configuration_. This process will be replaced with a Plaster template.
    ```
 
 </details>
+
+<details>
 <summary><strong>macOS/Linux</strong></summary>
 
    ```powershell
