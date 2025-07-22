@@ -141,7 +141,7 @@ Install-ChocolateyPackage @packageArgs # https://chocolatey.org/docs/helpers-ins
 ## [DEPRECATING] PORTABLE EXAMPLE
 #$binRoot = Get-BinRoot
 #$installDir = Join-Path $binRoot "$packageName"
-#Write-Host "Adding `'$installDir`' to the path and the current shell path"
+#Write-Host -Object "Adding `'$installDir`' to the path and the current shell path"
 #Install-ChocolateyPath "$installDir"
 #$env:Path = "$($env:Path);$installDir"
 

@@ -418,7 +418,7 @@ Task Build_DscResourcesToExport_ModuleBuilder {
     {
         if (-not $ModuleInfo.ContainsKey('DscResourcesToExport'))
         {
-            Write-Error "Cannot add 'DscResourcesToExport' to the module manifest because the key is not present. Please add it manually to the '*.psd1' file in the source."
+            Write-Error -Message "Cannot add 'DscResourcesToExport' to the module manifest because the key is not present. Please add it manually to the '*.psd1' file in the source."
         }
 
         Write-Build -Color Green -Text "Updating the Module Manifest's DscResourcesToExport key..."

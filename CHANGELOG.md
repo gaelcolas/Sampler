@@ -7,14 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- Added support for GitVersion 6 (Breaking Change).
-  - Updated `GitVersion.yml` config file.
-  - Removed the GitVersion task in Azure DevOps pipeline.
-  - Added a task to the Azure DevOps pipeline to Install GitVersion.
-  - Added a new build task to Sampler: `GitVersion`.
-  - Updated `Get-SamplerBuildVersion` to be compatible with GitVersion 6.
-  - Updated `Get-SamplerBuildVersion` Pester tests.
-  - Changed `README.md`.
+### Fixed
+
+- Add retry logic for ModuleFast dependency installation ([#510](https://github.com/gaelcolas/Sampler/issues/510)).
+- Using full-qualified call for `Expand-Archive` ([#519](https://github.com/gaelcolas/Sampler/issues/519)).
+- Fixed a variable scoping issue preventing Pester tests to be invoked after the
+  first build ([#523](https://github.com/gaelcolas/Sampler/issues/523)).
+- Fixed another variable scoping issue preventing Pester tests to be invoked
+  after the first build ([#527](https://github.com/gaelcolas/Sampler/issues/527)).
+- Fixed typo in build.ps1 and added missing descriptions to parameters.
 
 ### Changed
 
@@ -23,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     an indication of using the Manual Deployment mode. This mode can be used to
     remain on the same pre-released version until it has been deployed dedicatedly.
 - Updated `GitVersion.yml` config file to work with GitVersion 6.
+- The use of Write-* cmdlets has been standardized to a consistent style with named parameters (-Message and -Object).
 
 ## [0.118.3] - 2025-04-29
 
