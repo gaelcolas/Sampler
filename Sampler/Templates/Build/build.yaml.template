@@ -175,13 +175,6 @@ BuildWorkflow:
     }
 %>
 <%
-    if($PLASTER_PARAM_ModuleType -in @('dsccommunity')) {
-@"
-    - Publish_GitHub_Wiki_Content
-"@
-    }
-%>
-<%
     if($PLASTER_PARAM_UseGitHub -eq 'true' -or $PLASTER_PARAM_Features -Contains ('All') -or $PLASTER_PARAM_Features -Contains ('GitHub')) {
 @"
     - Publish_Release_To_GitHub # Runs first, if token is expired it will fail early
