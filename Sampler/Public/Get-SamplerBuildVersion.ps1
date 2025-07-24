@@ -1,4 +1,3 @@
-
 <#
     .SYNOPSIS
         Calculates or retrieves the version of the Repository.
@@ -31,14 +30,8 @@ function Get-SamplerBuildVersion
 
         [Parameter()]
         [System.String]
-        $ModuleVersion
-    )
-
-    if (-not [string]::IsNullOrEmpty($env:ModuleVersion))
-    {
         $ModuleVersion = $env:ModuleVersion
-        Write-Verbose -Message "Using ModuleVersion from environment variable: $ModuleVersion"
-    }
+    )
 
     if ([System.String]::IsNullOrEmpty($ModuleVersion))
     {
@@ -59,30 +52,30 @@ function Get-SamplerBuildVersion
 
             $gitVersionObject = gitversion | ConvertFrom-Json -ErrorAction Stop
             $isPreRelease = [bool]$gitVersionObject.PreReleaseLabel
-            $versionElements = $gitVersionObject.MajorMinorPatch
 
-            if ($isPreRelease)
+            $ModuleVersion = if ($isPreRelease)
             {
                 if ($gitVersionObject.BranchName -eq 'main')
                 {
                     $nextPreReleaseNumber = $gitVersionObject.PreReleaseNumber
                     $paddedNextPreReleaseNumber = '{0:D4}' -f $nextPreReleaseNumber
 
-                    $versionElements += $gitVersionObject.PreReleaseLabelWithDash
-                    $versionElements += $paddedNextPreReleaseNumber
+                    #reutrn the version with the pre-release label and the next pre-release number
+                    '{0}{1}{2}' -f $gitVersionObject.MajorMinorPatch, $gitVersionObject.PreReleaseLabelWithDash, $paddedNextPreReleaseNumber
                 }
                 else
                 {
-                    $versionElements += $gitVersionObject.PreReleaseLabelWithDash
-                    $versionElements += '.' + $gitVersionObject.CommitsSinceVersionSource
+                    #return the version with the pre-release label and the number of commits since the version source
+                    '{0}{1}.{2}' -f $gitVersionObject.MajorMinorPatch, $gitVersionObject.PreReleaseLabelWithDash, $gitVersionObject.CommitsSinceVersionSource
                 }
             }
+            else
+            {
+                #return the version without pre-release label
+                '{0}' -f $gitVersionObject.MajorMinorPatch
+            }
 
-            $ModuleVersion = $versionElements -join '.'
-
-            Write-Verbose -Message (
-                "GitVersion returned the version '{0}'." -f $ModuleVersion
-            )
+            Write-Verbose -Message ("GitVersion returned the version '{0}'." -f $ModuleVersion)
 
         }
         elseif (-not [System.String]::IsNullOrEmpty($ModuleManifestPath))
