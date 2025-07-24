@@ -280,4 +280,30 @@ Describe 'Get-SamplerBuildVersion' {
             }
         }
     }
+
+    Context 'When the environment variable ModuleVersion is set' {
+        Context "When having a preview module version in main branch and the version is stored in the environment variable 'ModuleVersion'" {
+                BeforeAll {
+                    Mock -CommandName gitversion -MockWith {
+                        return '{"MajorMinorPatch":"2.1.3","PreReleaseLabel":"preview","PreReleaseLabelWithDash":"-preview","PreReleaseNumber":23,"BranchName":"main","CommitsSinceVersionSource":50}'
+                    }
+
+                    $env:ModuleVersion = '2.1.3-preview0025'
+                }
+
+                It 'Should return the correct module version' {
+                    $result = Sampler\Get-SamplerBuildVersion -ModuleManifestPath $TestDrive
+
+                    $result | Should -Be '2.1.3-preview0025'
+                }
+
+                It 'Should not have called gitversion' {
+                    Should -Invoke -CommandName 'gitversion' -Exactly -Times 0 -Scope It
+                }
+
+                AfterAll {
+                    Remove-Item -Path env:ModuleVersion -Force
+                }
+            }
+    }
 }
