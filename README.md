@@ -209,7 +209,7 @@ C:\> choco upgrade gitversion.portable
 
 If you use HomeBrew (install and upgrade):
 ```PowerShell
-PS /> brew upgrade gitversion
+PS > brew upgrade gitversion
 ```
 
 
