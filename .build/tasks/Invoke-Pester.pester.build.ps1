@@ -57,9 +57,7 @@ task Import_Pester {
     Import-Module -Name 'Pester' -MinimumVersion 4.0 -ErrorAction Stop
 }
 
-<#
-    Synopsis: Making sure the Module meets some quality standard (help, tests) using Pester 4.
-#>
+# Synopsis: Making sure the Module meets some quality standard (help, tests) using Pester 4.
 task Invoke_Pester_Tests_v4 {
     <#
         This will evaluate the version of Pester that has been imported into the
@@ -84,7 +82,7 @@ task Invoke_Pester_Tests_v4 {
         return
     }
 
-    # Get the vales for task variables, see https://github.com/gaelcolas/Sampler?tab=readme-ov-file#build-task-variables.
+    # Get the values for task variables, see https://github.com/gaelcolas/Sampler?tab=readme-ov-file#build-task-variables.
     . Set-SamplerTaskVariable
 
     $PesterOutputFolder = Get-SamplerAbsolutePath -Path $PesterOutputFolder -RelativeTo $OutputDirectory
@@ -362,7 +360,7 @@ task Fail_Build_If_Pester_Tests_Failed {
     "Asserting that no test failed"
     ""
 
-    # Get the vales for task variables, see https://github.com/gaelcolas/Sampler?tab=readme-ov-file#build-task-variables.
+    # Get the values for task variables, see https://github.com/gaelcolas/Sampler?tab=readme-ov-file#build-task-variables.
     . Set-SamplerTaskVariable
 
     $PesterOutputFolder = Get-SamplerAbsolutePath -Path $PesterOutputFolder -RelativeTo $OutputDirectory
@@ -416,9 +414,7 @@ task Fail_Build_If_Pester_Tests_Failed {
     }
 }
 
-<#
-    Synopsis: Making sure the Module meets some quality standard (help, tests) using Pester 5.
-#>
+# Synopsis: Making sure the Module meets some quality standard (help, tests) using Pester 5.
 task Invoke_Pester_Tests_v5 {
     <#
         This will evaluate the version of Pester that has been imported into the
@@ -440,7 +436,7 @@ task Invoke_Pester_Tests_v5 {
         return
     }
 
-    # Get the vales for task variables, see https://github.com/gaelcolas/Sampler?tab=readme-ov-file#build-task-variables.
+    # Get the values for task variables, see https://github.com/gaelcolas/Sampler?tab=readme-ov-file#build-task-variables.
     . Set-SamplerTaskVariable
 
     $PesterOutputFolder = Get-SamplerAbsolutePath -Path $PesterOutputFolder -RelativeTo $OutputDirectory
@@ -932,7 +928,7 @@ task Pester_If_Code_Coverage_Under_Threshold {
         return
     }
 
-    # Get the vales for task variables, see https://github.com/gaelcolas/Sampler?tab=readme-ov-file#build-task-variables.
+    # Get the values for task variables, see https://github.com/gaelcolas/Sampler?tab=readme-ov-file#build-task-variables.
     . Set-SamplerTaskVariable
 
     "`tCode Coverage Threshold    = '$CodeCoverageThreshold'"
@@ -1023,7 +1019,7 @@ task Pester_If_Code_Coverage_Under_Threshold {
 
 # Synopsis: Uploading Unit Test results to AppVeyor.
 task Upload_Test_Results_To_AppVeyor -If { (property BuildSystem 'unknown') -eq 'AppVeyor' } {
-    # Get the vales for task variables, see https://github.com/gaelcolas/Sampler?tab=readme-ov-file#build-task-variables.
+    # Get the values for task variables, see https://github.com/gaelcolas/Sampler?tab=readme-ov-file#build-task-variables.
     . Set-SamplerTaskVariable
 
     $PesterOutputFolder = Get-SamplerAbsolutePath -Path $PesterOutputFolder -RelativeTo $OutputDirectory
@@ -1086,7 +1082,7 @@ task Pester_Run_Times {
         return
     }
 
-    # Get the vales for task variables, see https://github.com/gaelcolas/Sampler?tab=readme-ov-file#build-task-variables.
+    # Get the values for task variables, see https://github.com/gaelcolas/Sampler?tab=readme-ov-file#build-task-variables.
     . Set-SamplerTaskVariable
 
     $PesterOutputFolder = Get-SamplerAbsolutePath -Path $PesterOutputFolder -RelativeTo $OutputDirectory
