@@ -41,7 +41,7 @@
     .OUTPUTS
         [System.String[]]
 
-        See https://github.com/gaelcolas/Sampler#task-variables.
+        See https://github.com/gaelcolas/Sampler?tab=readme-ov-file#build-task-variables.
 
     .EXAMPLE
         . Set-SamplerTaskVariable -AsNewBuild

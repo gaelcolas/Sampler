@@ -39,7 +39,7 @@ param
 
 # Synopsis: Build the Module based on its Build.psd1 definition
 Task Build_ModuleOutput_ModuleBuilder {
-    # Get the vales for task variables, see https://github.com/gaelcolas/Sampler#task-variables.
+    # Get the values for task variables, see https://github.com/gaelcolas/Sampler?tab=readme-ov-file#build-task-variables.
     . Set-SamplerTaskVariable -AsNewBuild
 
     Import-Module -Name ModuleBuilder -ErrorAction 'Stop'
@@ -127,7 +127,7 @@ Task Build_ModuleOutput_ModuleBuilder {
 }
 
 Task Build_NestedModules_ModuleBuilder {
-    # Get the vales for task variables, see https://github.com/gaelcolas/Sampler#task-variables.
+    # Get the values for task variables, see https://github.com/gaelcolas/Sampler?tab=readme-ov-file#build-task-variables.
     . Set-SamplerTaskVariable
 
     Import-Module -Name 'ModuleBuilder' -ErrorAction 'Stop'
@@ -325,7 +325,7 @@ Task Build_NestedModules_ModuleBuilder {
 }
 
 Task Build_DscResourcesToExport_ModuleBuilder {
-    # Get the vales for task variables, see https://github.com/gaelcolas/Sampler#task-variables.
+    # Get the values for task variables, see https://github.com/gaelcolas/Sampler?tab=readme-ov-file#build-task-variables.
     . Set-SamplerTaskVariable
 
     Import-Module -Name 'ModuleBuilder' -ErrorAction 'Stop'
