@@ -207,6 +207,12 @@ on your development environment. If you use Chocolatey (install and upgrade):
 C:\> choco upgrade gitversion.portable
 ```
 
+If you use HomeBrew (install and upgrade):
+```PowerShell
+PS > brew upgrade gitversion
+```
+
+
 This describes how to [install GitVersion in your CI environment build agents](https://gitversion.net/docs/usage/ci)
 if you plan to use the deploy pipelines in the CI.
 
@@ -240,6 +246,9 @@ the file `build.yaml` is where you configure and customize it.
 
 Creates a module with minimal structure and pipeline automation.
 
+<details open>
+<summary><strong>Windows</strong></summary>
+
 ```powershell
 Install-Module -Name 'Sampler' -Scope 'CurrentUser'
 
@@ -254,9 +263,33 @@ $newSampleModuleParameters = @{
 New-SampleModule @newSampleModuleParameters
 ```
 
+</details>
+
+<details>
+<summary><strong>macOS/Linux</strong></summary>
+
+```powershell
+Install-Module -Name 'Sampler' -Scope 'CurrentUser'
+
+$newSampleModuleParameters = @{
+    DestinationPath   = '/Users/$env:USER/source'
+    ModuleType        = 'SimpleModule'
+    ModuleName        = 'MySimpleModule'
+    ModuleAuthor      = 'My Name'
+    ModuleDescription = 'MySimpleModule Description'
+}
+
+New-SampleModule @newSampleModuleParameters
+```
+
+</details>
+
 #### `SimpleModule_NoBuild`
 
 Creates a simple module without the build automation.
+
+<details open>
+<summary><strong>Windows</strong></summary>
 
 ```powershell
 Install-Module -Name 'Sampler' -Scope 'CurrentUser'
@@ -272,9 +305,33 @@ $newSampleModuleParameters = @{
 New-SampleModule @newSampleModuleParameters
 ```
 
+</details>
+
+<details>
+<summary><strong>macOS/Linux</strong></summary>
+
+```powershell
+Install-Module -Name 'Sampler' -Scope 'CurrentUser'
+
+$newSampleModuleParameters = @{
+    DestinationPath   = '/Users/$env:USER/source'
+    ModuleType        = 'SimpleModule_NoBuild'
+    ModuleName        = 'MySimpleModuleNoBuild'
+    ModuleAuthor      = 'My Name'
+    ModuleDescription = 'MySimpleModuleNoBuild Description'
+}
+
+New-SampleModule @newSampleModuleParameters
+```
+
+</details>
+
 #### `CompleteSample`
 
 Creates a module with complete structure and example files.
+
+<details open>
+<summary><strong>Windows</strong></summary>
 
 ```powershell
 Install-Module -Name 'Sampler' -Scope 'CurrentUser'
@@ -290,10 +347,34 @@ $newSampleModuleParameters = @{
 New-SampleModule @newSampleModuleParameters
 ```
 
+</details>
+
+<details>
+<summary><strong>macOS/Linux</strong></summary>
+
+```powershell
+Install-Module -Name 'Sampler' -Scope 'CurrentUser'
+
+$newSampleModuleParameters = @{
+    DestinationPath   = '/Users/$env:USER/source'
+    ModuleType        = 'CompleteSample'
+    ModuleName        = 'MyCompleteSample'
+    ModuleAuthor      = 'My Name'
+    ModuleDescription = 'MyCompleteSample Description'
+}
+
+New-SampleModule @newSampleModuleParameters
+```
+
+</details>
+
 #### `dsccommunity`
 
 Creates a DSC module according to the DSC Community baseline with a pipeline
 for build, test, and release automation.
+
+<details open>
+<summary><strong>Windows</strong></summary>
 
 ```powershell
 Install-Module -Name 'Sampler' -Scope 'CurrentUser'
@@ -309,9 +390,33 @@ $newSampleModuleParameters = @{
 New-SampleModule @newSampleModuleParameters
 ```
 
+</details>
+
+<details>
+<summary><strong>macOS/Linux</strong></summary>
+
+```powershell
+Install-Module -Name 'Sampler' -Scope 'CurrentUser'
+
+$newSampleModuleParameters = @{
+    DestinationPath   = '/Users/$env:USER/source'
+    ModuleType        = 'dsccommunity'
+    ModuleName        = 'MyDscModule'
+    ModuleAuthor      = 'My Name'
+    ModuleDescription = 'MyDscModule Description'
+}
+
+New-SampleModule @newSampleModuleParameters
+```
+
+</details>
+
 #### `CustomModule`
 
 Will prompt you for more details as to what you'd like to scaffold.
+
+<details open>
+<summary><strong>Windows</strong></summary>
 
 ```powershell
 Install-Module -Name 'Sampler' -Scope 'CurrentUser'
@@ -329,6 +434,30 @@ $invokePlasterParameters = @{
 
 Invoke-Plaster @invokePlasterParameters
 ```
+
+</details>
+
+<details>
+<summary><strong>macOS/Linux</strong></summary>
+
+```powershell
+Install-Module -Name 'Sampler' -Scope 'CurrentUser'
+
+$samplerModule = Import-Module -Name Sampler -PassThru
+
+$invokePlasterParameters = @{
+   TemplatePath    = Join-Path -Path $samplerModule.ModuleBase -ChildPath 'Templates/Sampler'
+   DestinationPath   = '/Users/$env:USER/source'
+   ModuleType        = 'CustomModule'
+   ModuleName        = 'MyCustomModule'
+   ModuleAuthor      = 'My Name'
+   ModuleDescription = 'MyCustomModule Description'
+}
+
+Invoke-Plaster @invokePlasterParameters
+```
+
+</details>
 
 #### `GCPackage`
 
@@ -408,13 +537,32 @@ InvokeRD ---> Save[["Save to RequiredModules"]]
 
 The following command will resolve dependencies using PSResourceGet:
 
+<details open>
+<summary><strong>Windows</strong></summary>
+
 ```powershell
 cd C:\source\MySimpleModule
 
 ./build.ps1 -ResolveDependency -Tasks noop
 ```
 
+</details>
+
+<details>
+<summary><strong>macOS/Linux</strong></summary>
+
+```powershell
+cd /Users/$env:USER/source/MySimpleModule
+
+./build.ps1 -ResolveDependency -Tasks noop
+```
+
+</details>
+
 The following command will resolve dependencies using [ModuleFast](https://github.com/JustinGrote/ModuleFast):
+
+<details open>
+<summary><strong>Windows</strong></summary>
 
 ```powershell
 cd C:\source\MySimpleModule
@@ -422,13 +570,42 @@ cd C:\source\MySimpleModule
 ./build.ps1 -ResolveDependency -Tasks noop -UseModuleFast
 ```
 
+</details>
+
+<details>
+<summary><strong>macOS/Linux</strong></summary>
+
+```powershell
+cd /Users/$env:USER/source/MySimpleModule
+
+./build.ps1 -ResolveDependency -Tasks noop -UseModuleFast
+```
+
+</details>
+
 The following command will resolve dependencies using [PSResourceGet](https://github.com/PowerShell/PSResourceGet):
+
+<details open>
+<summary><strong>Windows</strong></summary>
 
 ```powershell
 cd C:\source\MySimpleModule
 
 ./build.ps1 -ResolveDependency -Tasks noop -UsePSResourceGet
 ```
+
+</details>
+
+<details>
+<summary><strong>macOS/Linux</strong></summary>
+
+```powershell
+cd /Users/$env:USER/source/MySimpleModule
+
+./build.ps1 -ResolveDependency -Tasks noop -UsePSResourceGet
+```
+
+</details>
 
 The dependencies will be downloaded (or updated) from the PowerShell Gallery (unless
 another repository is specified) and saved in the project folder under
@@ -449,11 +626,27 @@ or if the required modules have changed in the file `RequiredModules.psd1`.
 
 The following command will build the project:
 
+<details open>
+<summary><strong>Windows</strong></summary>
+
 ```powershell
 cd C:\source\MySimpleModule
 
 ./build.ps1 -Tasks build
 ```
+
+</details>
+
+<details>
+<summary><strong>macOS/Linux</strong></summary>
+
+```powershell
+cd /Users/$env:USER/source/MySimpleModule
+
+./build.ps1 -Tasks build
+```
+
+</details>
 
 It is also possible to resolve dependencies and build the project
 at the same time using the command:
@@ -683,6 +876,9 @@ _Guest Configuration_. This process will be replaced with a Plaster template.
 
 1. Start by creating a new project using the template `dsccommunity`.
 
+<details open>
+<summary><strong>Windows</strong></summary>
+
    ```powershell
    Install-Module -Name 'Sampler' -Scope 'CurrentUser'
 
@@ -696,6 +892,27 @@ _Guest Configuration_. This process will be replaced with a Plaster template.
 
    New-SampleModule @newSampleModuleParameters
    ```
+
+</details>
+
+<details>
+<summary><strong>macOS/Linux</strong></summary>
+
+   ```powershell
+   Install-Module -Name 'Sampler' -Scope 'CurrentUser'
+
+   $newSampleModuleParameters = @{
+      DestinationPath   = '/Users/$env:USER/source'
+      ModuleType        = 'dsccommunity'
+      ModuleName        = 'MyGCPackages'
+      ModuleAuthor      = 'My Name'
+      ModuleDescription = 'MyGCPackages Description'
+   }
+
+   New-SampleModule @newSampleModuleParameters
+   ```
+
+</details>
 
 1. In the file `build.yaml` add the following top-level key:
 
@@ -1058,10 +1275,10 @@ Get-MofSchemaName [-Path] <String> [<CommonParameters>]
 
 `[System.Collections.Hashtable]`
 
-Property Name | Type | Description
---- | --- | ---
-Name | `[System.String]` | The name of class
-FriendlyName | `[System.String]` | The friendly name of the class
+| Property Name | Type              | Description                    |
+| ------------- | ----------------- | ------------------------------ |
+| Name          | `[System.String]` | The name of class              |
+| FriendlyName  | `[System.String]` | The friendly name of the class |
 
 #### Example
 
@@ -1580,11 +1797,11 @@ Split-ModuleVersion [[-ModuleVersion] <String>] [<CommonParameters>]
 
 `[System.Management.Automation.PSCustomObject]`
 
-Property Name | Type | Description
---- | --- | ---
-Version | `[System.String]` | The module version (without prerelease string)
-PreReleaseString | `[System.String]` | The prerelease string part
-ModuleVersion | `[System.String]` | The full semantic version
+| Property Name    | Type              | Description                                    |
+| ---------------- | ----------------- | ---------------------------------------------- |
+| Version          | `[System.String]` | The module version (without prerelease string) |
+| PreReleaseString | `[System.String]` | The prerelease string part                     |
+| ModuleVersion    | `[System.String]` | The full semantic version                      |
 
 #### Example
 
