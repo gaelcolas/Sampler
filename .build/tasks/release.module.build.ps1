@@ -101,7 +101,7 @@ param
 
 # Synopsis: Create ReleaseNotes from changelog and update the Changelog for release
 task Create_changelog_release_output {
-    # Get the vales for task variables, see https://github.com/gaelcolas/Sampler#task-variables.
+    # Get the values for task variables, see https://github.com/gaelcolas/Sampler?tab=readme-ov-file#build-task-variables.
     . Set-SamplerTaskVariable
 
     $ChangeLogOutputPath = Get-SamplerAbsolutePath -Path 'CHANGELOG.md' -RelativeTo $OutputDirectory
@@ -208,7 +208,7 @@ task Create_changelog_release_output {
 
 # Synopsis: Publish Nuget package to a gallery.
 task publish_nupkg_to_gallery -if ($GalleryApiToken -and ((Get-Command -Name 'nuget' -ErrorAction 'SilentlyContinue') -or (Get-Command -Name 'dotnet' -ErrorAction 'SilentlyContinue'))) {
-    # Get the vales for task variables, see https://github.com/gaelcolas/Sampler#task-variables.
+    # Get the values for task variables, see https://github.com/gaelcolas/Sampler?tab=readme-ov-file#build-task-variables.
     . Set-SamplerTaskVariable
 
     Import-Module -Name 'ModuleBuilder' -ErrorAction 'Stop'
@@ -244,7 +244,7 @@ task publish_nupkg_to_gallery -if ($GalleryApiToken -and ((Get-Command -Name 'nu
 
 # Synopsis: Packaging the module by Publishing to output folder (incl dependencies)
 task package_module_nupkg {
-    # Get the vales for task variables, see https://github.com/gaelcolas/Sampler#task-variables.
+    # Get the values for task variables, see https://github.com/gaelcolas/Sampler?tab=readme-ov-file#build-task-variables.
     . Set-SamplerTaskVariable
 
     #region Set output/ as PSRepository
@@ -337,7 +337,7 @@ task package_module_nupkg {
 
 # Synopsis: Publish a built PowerShell module to a gallery.
 task publish_module_to_gallery -if ($GalleryApiToken -and (Get-Command -Name @('Publish-Module', 'Publish-PSResource') -ErrorAction 'SilentlyContinue')) {
-    # Get the vales for task variables, see https://github.com/gaelcolas/Sampler#task-variables.
+    # Get the values for task variables, see https://github.com/gaelcolas/Sampler?tab=readme-ov-file#build-task-variables.
     . Set-SamplerTaskVariable
 
     Import-Module -Name 'ModuleBuilder' -ErrorAction 'Stop'
