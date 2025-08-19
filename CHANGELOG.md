@@ -23,6 +23,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Set GitVersion mode to [`Manual Deployment` ](https://gitversion.net/docs/reference/modes/manual-deployment).
+  > "Having not the necessity to deploy the build artifacts on every commit is
+    an indication of using the Manual Deployment mode. This mode can be used to
+    remain on the same pre-released version until it has been deployed dedicatedly.
+- Updated `GitVersion.yml` config file to work with GitVersion 6.
 - The use of Write-* cmdlets has been standardized to a consistent style with named parameters (-Message and -Object).
 
 ## [0.118.3] - 2025-04-29

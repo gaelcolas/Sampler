@@ -1,4 +1,3 @@
-
 <#
     .SYNOPSIS
         Calculates or retrieves the version of the Repository.
@@ -13,7 +12,7 @@
         Path to the Module Manifest that should determine the version if GitVersion is not available.
 
     .PARAMETER ModuleVersion
-        Provide the Version to be splitted and do not rely on GitVersion or the Module's manifest.
+        Provide the Version to be split and do not rely on GitVersion or the Module's manifest.
 
     .EXAMPLE
         Get-SamplerBuildVersion -ModuleManifestPath source\MyModule.psd1
@@ -31,27 +30,53 @@ function Get-SamplerBuildVersion
 
         [Parameter()]
         [System.String]
-        $ModuleVersion
+        $ModuleVersion = $env:ModuleVersion
     )
 
     if ([System.String]::IsNullOrEmpty($ModuleVersion))
     {
         Write-Verbose -Message 'Module version is not determined yet. Evaluating methods to get new module version.'
 
-        $gitVersionAvailable = Get-Command -Name 'gitversion' -ErrorAction 'SilentlyContinue'
-        $donetGitversionAvailable = Get-Command -Name 'dotnet-gitversion' -ErrorAction 'SilentlyContinue'
+        $gitVersionAvailable = Get-Command -Name gitversion -ErrorAction SilentlyContinue
+        $dotnetGitversionAvailable = Get-Command -Name 'dotnet-gitversion' -ErrorAction SilentlyContinue
 
         # If dotnet-gitversion is available and gitversion is not, alias it to gitversion.
-        if ($donetGitversionAvailable -and -not $gitVersionAvailable)
+        if ($dotnetGitversionAvailable -and -not $gitVersionAvailable)
         {
-            New-Alias -Name 'gitversion' -Value 'dotnet-gitversion' -Scope 'Script' -ErrorAction 'SilentlyContinue'
+            New-Alias -Name gitversion -Value dotnet-gitversion -Scope Script -ErrorAction SilentlyContinue
         }
 
-        if ($gitVersionAvailable -or $donetGitversionAvailable)
+        if ($gitVersionAvailable -or $dotnetGitversionAvailable)
         {
             Write-Verbose -Message 'Using the version from GitVersion.'
 
-            $ModuleVersion = (gitversion | ConvertFrom-Json -ErrorAction 'Stop').NuGetVersionV2
+            $gitVersionObject = gitversion | ConvertFrom-Json -ErrorAction Stop
+            $isPreRelease = [bool]$gitVersionObject.PreReleaseLabel
+
+            $ModuleVersion = if ($isPreRelease)
+            {
+                if ($gitVersionObject.BranchName -eq 'main')
+                {
+                    $nextPreReleaseNumber = $gitVersionObject.PreReleaseNumber
+                    $paddedNextPreReleaseNumber = '{0:D4}' -f $nextPreReleaseNumber
+
+                    #reutrn the version with the pre-release label and the next pre-release number
+                    '{0}{1}{2}' -f $gitVersionObject.MajorMinorPatch, $gitVersionObject.PreReleaseLabelWithDash, $paddedNextPreReleaseNumber
+                }
+                else
+                {
+                    #return the version with the pre-release label and the number of commits since the version source
+                    '{0}{1}.{2}' -f $gitVersionObject.MajorMinorPatch, $gitVersionObject.PreReleaseLabelWithDash, $gitVersionObject.CommitsSinceVersionSource
+                }
+            }
+            else
+            {
+                #return the version without pre-release label
+                '{0}' -f $gitVersionObject.MajorMinorPatch
+            }
+
+            Write-Verbose -Message ("GitVersion returned the version '{0}'." -f $ModuleVersion)
+
         }
         elseif (-not [System.String]::IsNullOrEmpty($ModuleManifestPath))
         {
