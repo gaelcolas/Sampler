@@ -3,7 +3,7 @@
         Bootstrap script for PSDepend.
 
     .PARAMETER DependencyFile
-        Specifies the configuration file for the this script. The default value is
+        Specifies the dependency configuration file with modules for the this script. The default value is
         'RequiredModules.psd1' relative to this script's path.
 
     .PARAMETER PSDependTarget
@@ -21,7 +21,7 @@
 
     .PARAMETER Scope
         Specifies the scope to bootstrap the PackageProvider and PSGet if not available.
-        THe default value is 'CurrentUser'.
+        The default value is 'CurrentUser'.
 
     .PARAMETER Gallery
         Specifies the gallery to use when bootstrapping PackageProvider, PSGet and
@@ -32,19 +32,20 @@
         Specifies the credentials to use with the Gallery specified above.
 
     .PARAMETER AllowOldPowerShellGetModule
-        Allow you to use a locally installed version of PowerShellGet older than
-        1.6.0 (not recommended). Default it will install the latest PowerShellGet
+        Allows to use a locally installed version of PowerShellGet older than
+        1.6.0 (not recommended). By default it will install the latest PowerShellGet
         if an older version than 2.0 is detected.
 
     .PARAMETER MinimumPSDependVersion
-        Allow you to specify a minimum version fo PSDepend, if you're after specific
-        features.
+        Allows to specify a minimum version fo PSDepend, if specific
+        features required.
 
     .PARAMETER AllowPrerelease
-        Not yet written.
+        Allows to install prerelease versions of modules when resolving dependencies.
 
     .PARAMETER WithYAML
-        Not yet written.
+        Specifies that provided dependency configuration file is in YAML format and related operations
+        such as ensuring the presence of PowerShell-Yaml module should be taken.
 
     .PARAMETER UseModuleFast
         Specifies to use ModuleFast instead of PowerShellGet to resolve dependencies
