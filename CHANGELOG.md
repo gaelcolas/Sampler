@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - The use of Write-* cmdlets has been standardized to a consistent style with named parameters (-Message and -Object).
+- Updated comment-based help for Resolve-Dependency.ps1
 
 ## [0.118.3] - 2025-04-29
 
