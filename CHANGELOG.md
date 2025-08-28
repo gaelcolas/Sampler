@@ -23,7 +23,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   first build ([#523](https://github.com/gaelcolas/Sampler/issues/523)).
 - Fixed another variable scoping issue preventing Pester tests to be invoked
   after the first build ([#527](https://github.com/gaelcolas/Sampler/issues/527)).
-- Fixed typo in build.ps1.
+- Fixed typo in build.ps1 and added missing descriptions to parameters.
+- Fixed links to Build Tasks Variables documentation.
+- `dsccommunity` Template
+  - Added DocGenerator tasks and configuration to `build.yaml` [#468](https://github.com/gaelcolas/Sampler/issues/468).
+  - Updated HQRM task to use Pester 5 version.
+
+### Changed
+
+- The use of Write-* cmdlets has been standardized to a consistent style with named parameters (-Message and -Object).
 
 ## [0.118.3] - 2025-04-29
 

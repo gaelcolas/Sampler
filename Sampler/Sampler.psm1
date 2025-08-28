@@ -22,7 +22,7 @@ foreach ($import in @($Public + $Private))
 {
     try
     {
-        Write-Verbose "Importing $($Import.FullName)"
+        Write-Verbose -Message "Importing $($Import.FullName)"
         . $import.FullName
     }
     catch
