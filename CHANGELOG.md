@@ -8,12 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Platform-specific collapsible sections for all module templates (SimpleModule, SimpleModule_NoBuild, CompleteSample, dsccommunity, CustomModule, GCPackage scaffolding)
-- macOS/Linux path examples using `/Users/$env:USER/source` instead of `C:\source`
+- Note for cahning DestinationPath to the location where the module should be created depending on you platform and workflow.
 - HomeBrew installation instructions for GitVersion
 
-### Changed
-- Restructured command examples using collapsible HTML sections with Windows expanded by default and macOS/Linux being colapsed by default
 
 ### Fixed
 
