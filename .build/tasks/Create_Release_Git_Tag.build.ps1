@@ -43,6 +43,12 @@
     .PARAMETER BuildInfo
         The build info object from ModuleBuilder. Defaults to an empty hashtable.
 
+    .PARAMETER BuildCommit
+        The commit SHA that was built and tested. If not provided, defaults to:
+          - GitHub Actions: $env:GITHUB_SHA
+          - Azure Pipelines: $env:BUILD_SOURCEVERSION
+          - Otherwise: git rev-parse HEAD
+
     .NOTES
         This is a build task that is primarily meant to be run by Invoke-Build but
         wrapped by the Sampler project's build.ps1 (https://github.com/gaelcolas/Sampler).
@@ -91,100 +97,146 @@ param
     $GitConfigUserName = (property GitConfigUserName ''),
 
     [Parameter()]
-    $BuildInfo = (property BuildInfo @{ })
+    $BuildInfo = (property BuildInfo @{ }),
+
+    [Parameter()]
+    [string]
+    $BuildCommit = (property BuildCommit {
+        # Prefer CI-provided SHAs; fall back to local HEAD
+        if ($env:GITHUB_SHA) { return $env:GITHUB_SHA }
+        if ($env:BUILD_SOURCEVERSION) { return $env:BUILD_SOURCEVERSION }
+        if ($env:BuildSourceVersion) { return $env:BuildSourceVersion } # alt casing if mapped externally
+        try { Sampler\Invoke-SamplerGit -Argument @('rev-parse', 'HEAD') } catch { '' }
+    })
 )
 
 # Synopsis: Creates a git tag for the release that is published to a Gallery
 task Create_Release_Git_Tag {
     if ($SkipPublish)
     {
-        Write-Build Yellow ('Skipping the creating of a tag for module version ''{0}'' since ''$SkipPublish'' was set to ''$true''.' -f $ModuleVersion)
-
+        Write-Build Yellow ("Skipping the creating of a tag for module version '{0}' since '$SkipPublish' was set to '$true'." -f $ModuleVersion)
         return
     }
 
     . Set-SamplerTaskVariable
 
-    <#
-        This will return the tag on the HEAD commit, or blank if it
-        fails (the error that is catched to $null).
-
-        This call should not use Invoke-SamplerGit since it should not throw
-        on error, but return $null if failing.
-    #>
-    try
-    {
-        $isCurrentTag = git describe --contains 2> $null
-    }
-    catch
-    {
-        Write-Verbose -Message 'There is no tag defined yet.'
-    }
-
     $releaseTag = 'v{0}' -f $ModuleVersion
 
-    if ($isCurrentTag)
-    {
-        Write-Build Green ('Found a tag. Assuming a full release has been pushed for module version ''{0}''. Exiting.' -f $ModuleVersion)
+    # Debug: log how BuildCommit was resolved
+    $sourceHint = 'parameter'
+    if (-not $PSBoundParameters.ContainsKey('BuildCommit') -or [string]::IsNullOrWhiteSpace($BuildCommit)) {
+        if ($env:GITHUB_SHA -and $BuildCommit -eq $env:GITHUB_SHA) { $sourceHint = 'GITHUB_SHA' }
+        elseif ($env:BUILD_SOURCEVERSION -and $BuildCommit -eq $env:BUILD_SOURCEVERSION) { $sourceHint = 'BUILD_SOURCEVERSION' }
+        elseif ($env:BuildSourceVersion -and $BuildCommit -eq $env:BuildSourceVersion) { $sourceHint = 'BuildSourceVersion' }
+        else { $sourceHint = 'git rev-parse HEAD' }
     }
-    else
-    {
-        Write-Build DarkGray ('About to create the tag ''{0}'' for module version ''{1}''.' -f $releaseTag, $ModuleVersion)
 
-        foreach ($gitConfigKey in @('UserName', 'UserEmail'))
-        {
-            $gitConfigVariableName = 'GitConfig{0}' -f $gitConfigKey
+    Write-Build DarkGray ("`tModuleVersion: {0}" -f $ModuleVersion)
+    Write-Build DarkGray ("`tRelease tag:  {0}" -f $releaseTag)
+    Write-Build Cyan     ("`tBuildCommit:  {0} (source: {1})" -f $BuildCommit, $sourceHint)
 
-            if (-not (Get-Variable -Name $gitConfigVariableName -ValueOnly -ErrorAction 'SilentlyContinue'))
-            {
-                # Variable is not set in context, use $BuildInfo.ChangelogConfig.<varName>
-                $configurationValue = $BuildInfo.GitConfig.($gitConfigKey)
-
-                Set-Variable -Name $gitConfigVariableName -Value $configurationValue
-
-                Write-Build DarkGray "`t...Set property $gitConfigVariableName to the value $configurationValue"
-            }
-        }
-
-        Write-Build DarkGray "`tSetting git configuration."
-
-        Sampler\Invoke-SamplerGit -Argument @('config', 'user.name', $GitConfigUserName)
-        Sampler\Invoke-SamplerGit -Argument @('config', 'user.email', $GitConfigUserEmail)
-
-        # Make empty line in output
-        ''
-
-        Write-Build DarkGray ("`tGetting HEAD commit for the default branch '{0}." -f $MainGitBranch)
-
-        $defaultBranchHeadCommit = Sampler\Invoke-SamplerGit -Argument @('rev-parse', "origin/$MainGitBranch")
-
-        Write-Build DarkGray ("`tCreating tag '{0}' on the commit '{1}'." -f $releaseTag, $defaultBranchHeadCommit)
-
-        Sampler\Invoke-SamplerGit -Argument @('tag', $releaseTag, $defaultBranchHeadCommit)
-
-        Write-Build DarkGray ("`tPushing created tag '{0}' to the default branch '{1}'." -f $releaseTag, $MainGitBranch)
-
-        $pushArguments = @()
-
-        if ($BasicAuthPAT)
-        {
-            Write-Build DarkGray "`t`tUsing personal access token to push the tag."
-
-            $patBase64 = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(('{0}:{1}' -f 'PAT', $BasicAuthPAT)))
-
-            $pushArguments += @('-c', ('http.extraheader="AUTHORIZATION: basic {0}"' -f $patBase64))
-        }
-
-        $pushArguments += @('-c', 'http.sslbackend="schannel"', 'push', 'origin', '--tags')
-
-        Sampler\Invoke-SamplerGit -Argument $pushArguments
-
-        <#
-            Wait for a few seconds so the tag have time to propegate.
-            This way next task have chance to find the tag.
-        #>
-        Start-Sleep -Seconds 5
-
-        Write-Build Green 'Tag created and pushed.'
+    if (-not $BuildCommit -or $BuildCommit.Trim().Length -eq 0) {
+        throw "Unable to determine the commit to tag. Provide -BuildCommit, or ensure CI exposes GITHUB_SHA/BUILD_SOURCEVERSION, or that git rev-parse HEAD works."
     }
+
+    foreach ($gitConfigKey in @('UserName', 'UserEmail'))
+    {
+        $gitConfigVariableName = 'GitConfig{0}' -f $gitConfigKey
+
+        if (-not (Get-Variable -Name $gitConfigVariableName -ValueOnly -ErrorAction 'SilentlyContinue'))
+        {
+            # Variable is not set in context, use $BuildInfo.GitConfig.<varName>
+            $configurationValue = $BuildInfo.GitConfig.($gitConfigKey)
+
+            Set-Variable -Name $gitConfigVariableName -Value $configurationValue
+
+            Write-Build DarkGray "`t...Set property $gitConfigVariableName to the value $configurationValue"
+        }
+    }
+
+    Write-Build DarkGray "`tSetting git configuration."
+
+    if ($GitConfigUserName) { Sampler\Invoke-SamplerGit -Argument @('config', 'user.name', $GitConfigUserName) }
+    if ($GitConfigUserEmail) { Sampler\Invoke-SamplerGit -Argument @('config', 'user.email', $GitConfigUserEmail) }
+
+    # Ensure we have latest tags/refs locally to avoid stale state
+    try {
+        Write-Build DarkGray "`tFetching tags and pruning..."
+        Sampler\Invoke-SamplerGit -Argument @('fetch', '--tags', '--prune', 'origin')
+    } catch {
+        Write-Build Yellow "`tFetch failed or not required; continuing."
+    }
+
+    # If the tag already exists on remote, skip (prevents overlap collisions)
+    $lsRemoteArgs = @('ls-remote', '--tags', 'origin', $releaseTag)
+    if ($BasicAuthPAT)
+    {
+        $patBase64 = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(('PAT:{0}' -f $BasicAuthPAT)))
+        $lsRemoteArgs = @('-c', ('http.extraheader="AUTHORIZATION: basic {0}"' -f $patBase64)) + $lsRemoteArgs
+        Write-Build DarkGray "`tUsing PAT auth for remote queries."
+    }
+
+    $existingRemoteTag = $null
+    try {
+        $existingRemoteTag = Sampler\Invoke-SamplerGit -Argument $lsRemoteArgs
+    } catch {
+        # ignore - treat as non-existing
+    }
+
+    if ($existingRemoteTag)
+    {
+        Write-Build Green ("Found existing remote tag '{0}'. Assuming release for module version '{1}' has already been pushed. Exiting." -f $releaseTag, $ModuleVersion)
+        return
+    }
+
+    # Validate that the commit exists locally; if not, attempt to fetch it
+    $commitExists = $true
+    try {
+        Sampler\Invoke-SamplerGit -Argument @('cat-file', '-e', $BuildCommit)
+    } catch {
+        $commitExists = $false
+    }
+
+    if (-not $commitExists) {
+        Write-Build DarkGray ("`tCommit '{0}' not found locally; fetching from origin." -f $BuildCommit)
+        try {
+            Sampler\Invoke-SamplerGit -Argument @('fetch', 'origin', $BuildCommit)
+            Sampler\Invoke-SamplerGit -Argument @('cat-file', '-e', $BuildCommit)
+        } catch {
+            throw ("Unable to fetch or verify commit '{0}' from origin." -f $BuildCommit)
+        }
+    }
+
+    Write-Build DarkGray ("`tCreating tag '{0}' on the commit '{1}'." -f $releaseTag, $BuildCommit)
+
+    # Create a lightweight tag to minimize change in behavior
+    Sampler\Invoke-SamplerGit -Argument @('tag', $releaseTag, $BuildCommit)
+
+    Write-Build DarkGray ("`tPushing created tag '{0}' to origin." -f $releaseTag)
+
+    $pushArguments = @()
+    if ($BasicAuthPAT)
+    {
+        Write-Build DarkGray "`t`tUsing personal access token to push the tag."
+        $patBase64 = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(('PAT:{0}' -f $BasicAuthPAT)))
+        $pushArguments += @('-c', ('http.extraheader="AUTHORIZATION: basic {0}"' -f $patBase64))
+    }
+
+    # Keep existing SSL backend behavior
+    $pushArguments += @('-c', 'http.sslbackend="schannel"', 'push', 'origin', 'refs/tags/{0}:refs/tags/{0}' -f $releaseTag)
+
+    Sampler\Invoke-SamplerGit -Argument $pushArguments
+
+    # Verify the tag points to the expected commit after push
+    $taggedSha = Sampler\Invoke-SamplerGit -Argument @('rev-parse', $releaseTag)
+    Write-Build DarkGray ("`tTag '{0}' now points to '{1}'." -f $releaseTag, $taggedSha)
+
+    if ($taggedSha -ne $BuildCommit) {
+        throw ("Tag '{0}' points to '{1}', but expected '{2}'." -f $releaseTag, $taggedSha, $BuildCommit)
+    }
+
+    # Give a few seconds for propagation so downstream steps can find the tag
+    Start-Sleep -Seconds 5
+
+    Write-Build Green 'Tag created and pushed.'
 }
