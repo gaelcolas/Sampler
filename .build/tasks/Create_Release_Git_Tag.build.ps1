@@ -105,7 +105,6 @@ param
         # Prefer CI-provided SHAs; fall back to local HEAD
         if ($env:GITHUB_SHA) { return $env:GITHUB_SHA }
         if ($env:BUILD_SOURCEVERSION) { return $env:BUILD_SOURCEVERSION }
-        if ($env:BuildSourceVersion) { return $env:BuildSourceVersion } # alt casing if mapped externally
         try { Sampler\Invoke-SamplerGit -Argument @('rev-parse', 'HEAD') } catch { '' }
     })
 )
@@ -127,7 +126,6 @@ task Create_Release_Git_Tag {
     if (-not $PSBoundParameters.ContainsKey('BuildCommit') -or [string]::IsNullOrWhiteSpace($BuildCommit)) {
         if ($env:GITHUB_SHA -and $BuildCommit -eq $env:GITHUB_SHA) { $sourceHint = 'GITHUB_SHA' }
         elseif ($env:BUILD_SOURCEVERSION -and $BuildCommit -eq $env:BUILD_SOURCEVERSION) { $sourceHint = 'BUILD_SOURCEVERSION' }
-        elseif ($env:BuildSourceVersion -and $BuildCommit -eq $env:BuildSourceVersion) { $sourceHint = 'BuildSourceVersion' }
         else { $sourceHint = 'git rev-parse HEAD' }
     }
 

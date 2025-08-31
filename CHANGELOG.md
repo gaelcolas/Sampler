@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Enhanced `Create_Release_Git_Tag` task with CI-aware commit resolution and idempotent tagging to prevent race conditions in pipelines.
+
 ### Fixed
 
 - Add retry logic for ModuleFast dependency installation ([#510](https://github.com/gaelcolas/Sampler/issues/510)).
