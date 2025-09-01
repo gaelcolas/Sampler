@@ -89,24 +89,24 @@ param
     $BasicAuthPAT = (property BasicAuthPAT ''),
 
     [Parameter()]
-    [string]
+    [System.String]
     $GitConfigUserEmail = (property GitConfigUserEmail ''),
 
     [Parameter()]
-    [string]
+    [System.String]
     $GitConfigUserName = (property GitConfigUserName ''),
 
     [Parameter()]
     $BuildInfo = (property BuildInfo @{ }),
 
     [Parameter()]
-    [string]
-    $BuildCommit = (property BuildCommit {
+    [System.String]
+    $BuildCommit = (property BuildCommit $(
         # Prefer CI-provided SHAs; fall back to local HEAD
         if ($env:GITHUB_SHA) { return $env:GITHUB_SHA }
         if ($env:BUILD_SOURCEVERSION) { return $env:BUILD_SOURCEVERSION }
         try { Sampler\Invoke-SamplerGit -Argument @('rev-parse', 'HEAD') } catch { '' }
-    })
+    ))
 )
 
 # Synopsis: Creates a git tag for the release that is published to a Gallery
@@ -114,26 +114,59 @@ task Create_Release_Git_Tag {
     if ($SkipPublish)
     {
         Write-Build Yellow ("Skipping the creating of a tag for module version '{0}' since '$SkipPublish' was set to '$true'." -f $ModuleVersion)
+
         return
     }
 
     . Set-SamplerTaskVariable
 
+    $commitTag = $null
+
+    <#
+        This will return the tag on the commit being built. No tag on commit,
+        command will return $null and a preview tag must be created.
+
+        This call should not use Invoke-SamplerGit since it should not throw
+        on error, but return $null if failing.
+    #>
+    $commitTag = git describe --contains --abbrev=0 --tags $BuildCommit 2> $null
+
+    if ($commitTag)
+    {
+        Write-Build Green ('Found a tag ''{0}''. Assuming a full release has been pushed for module version v{1}. Exiting.' -f $commitTag, $ModuleVersion)
+
+        return
+    }
+
+    Write-Verbose -Message 'There is no tag defined yet.'
+
     $releaseTag = 'v{0}' -f $ModuleVersion
 
     # Debug: log how BuildCommit was resolved
     $sourceHint = 'parameter'
-    if (-not $PSBoundParameters.ContainsKey('BuildCommit') -or [string]::IsNullOrWhiteSpace($BuildCommit)) {
-        if ($env:GITHUB_SHA -and $BuildCommit -eq $env:GITHUB_SHA) { $sourceHint = 'GITHUB_SHA' }
-        elseif ($env:BUILD_SOURCEVERSION -and $BuildCommit -eq $env:BUILD_SOURCEVERSION) { $sourceHint = 'BUILD_SOURCEVERSION' }
-        else { $sourceHint = 'git rev-parse HEAD' }
+
+    if (-not $PSBoundParameters.ContainsKey('BuildCommit') -or [string]::IsNullOrWhiteSpace($BuildCommit))
+    {
+        if ($env:GITHUB_SHA -and $BuildCommit -eq $env:GITHUB_SHA)
+        {
+            $sourceHint = 'GITHUB_SHA'
+        }
+        elseif ($env:BUILD_SOURCEVERSION -and $BuildCommit -eq $env:BUILD_SOURCEVERSION)
+        {
+            $sourceHint = 'BUILD_SOURCEVERSION'
+        }
+        else
+        {
+            $sourceHint = 'git rev-parse HEAD'
+        }
     }
 
     Write-Build DarkGray ("`tModuleVersion: {0}" -f $ModuleVersion)
     Write-Build DarkGray ("`tRelease tag:  {0}" -f $releaseTag)
     Write-Build Cyan     ("`tBuildCommit:  {0} (source: {1})" -f $BuildCommit, $sourceHint)
 
-    if (-not $BuildCommit -or $BuildCommit.Trim().Length -eq 0) {
+    if (-not $BuildCommit -or $BuildCommit.Trim().Length -eq 0)
+    {
         throw "Unable to determine the commit to tag. Provide -BuildCommit, or ensure CI exposes GITHUB_SHA/BUILD_SOURCEVERSION, or that git rev-parse HEAD works."
     }
 
@@ -154,14 +187,23 @@ task Create_Release_Git_Tag {
 
     Write-Build DarkGray "`tSetting git configuration."
 
-    if ($GitConfigUserName) { Sampler\Invoke-SamplerGit -Argument @('config', 'user.name', $GitConfigUserName) }
-    if ($GitConfigUserEmail) { Sampler\Invoke-SamplerGit -Argument @('config', 'user.email', $GitConfigUserEmail) }
+    if ($GitConfigUserName)
+    {
+        Sampler\Invoke-SamplerGit -Argument @('config', 'user.name', $GitConfigUserName)
+    }
+    if ($GitConfigUserEmail)
+    {
+        Sampler\Invoke-SamplerGit -Argument @('config', 'user.email', $GitConfigUserEmail)
+    }
 
     # Ensure we have latest tags/refs locally to avoid stale state
-    try {
+    try
+    {
         Write-Build DarkGray "`tFetching tags and pruning..."
         Sampler\Invoke-SamplerGit -Argument @('fetch', '--tags', '--prune', 'origin')
-    } catch {
+    }
+    catch
+    {
         Write-Build Yellow "`tFetch failed or not required; continuing."
     }
 
@@ -170,37 +212,53 @@ task Create_Release_Git_Tag {
     if ($BasicAuthPAT)
     {
         $patBase64 = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(('PAT:{0}' -f $BasicAuthPAT)))
+
         $lsRemoteArgs = @('-c', ('http.extraheader="AUTHORIZATION: basic {0}"' -f $patBase64)) + $lsRemoteArgs
+
         Write-Build DarkGray "`tUsing PAT auth for remote queries."
     }
 
     $existingRemoteTag = $null
-    try {
+
+    try
+    {
         $existingRemoteTag = Sampler\Invoke-SamplerGit -Argument $lsRemoteArgs
-    } catch {
+    }
+    catch
+    {
         # ignore - treat as non-existing
     }
 
     if ($existingRemoteTag)
     {
         Write-Build Green ("Found existing remote tag '{0}'. Assuming release for module version '{1}' has already been pushed. Exiting." -f $releaseTag, $ModuleVersion)
+
         return
     }
 
     # Validate that the commit exists locally; if not, attempt to fetch it
     $commitExists = $true
-    try {
+
+    try
+    {
         Sampler\Invoke-SamplerGit -Argument @('cat-file', '-e', $BuildCommit)
-    } catch {
+    }
+    catch
+    {
         $commitExists = $false
     }
 
-    if (-not $commitExists) {
+    if (-not $commitExists)
+    {
         Write-Build DarkGray ("`tCommit '{0}' not found locally; fetching from origin." -f $BuildCommit)
-        try {
+
+        try
+        {
             Sampler\Invoke-SamplerGit -Argument @('fetch', 'origin', $BuildCommit)
             Sampler\Invoke-SamplerGit -Argument @('cat-file', '-e', $BuildCommit)
-        } catch {
+        }
+        catch
+        {
             throw ("Unable to fetch or verify commit '{0}' from origin." -f $BuildCommit)
         }
     }
@@ -227,6 +285,7 @@ task Create_Release_Git_Tag {
 
     # Verify the tag points to the expected commit after push
     $taggedSha = Sampler\Invoke-SamplerGit -Argument @('rev-parse', $releaseTag)
+
     Write-Build DarkGray ("`tTag '{0}' now points to '{1}'." -f $releaseTag, $taggedSha)
 
     if ($taggedSha -ne $BuildCommit) {
