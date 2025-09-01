@@ -301,19 +301,23 @@ task Create_Release_Git_Tag {
     # Verify the tag points to the expected commit after push
     if ($DryRun)
     {
-        Write-Build Yellow ("DRYRUN: Returned the commit that we would have expected to pushed tag to: {0}" -f $BuildCommit)
-        return $BuildCommit
+        Write-Build Yellow ("DRYRUN: Set tagged SHA to the commit that we would have expected to pushed tag to: {0}" -f $BuildCommit)
+
+        $taggedSha = $BuildCommit
     }
     else
     {
-        $taggedSha = Sampler\Invoke-SamplerGit -Argument @('rev-parse', $releaseTag)
+       $taggedSha = Sampler\Invoke-SamplerGit -Argument @('rev-parse', $releaseTag)
+    }
 
-        Write-Build DarkGray ("`tTag '{0}' now points to '{1}'." -f $releaseTag, $taggedSha)
+    Write-Build DarkGray ("`tTag '{0}' now points to '{1}'." -f $releaseTag, $taggedSha)
 
-        if ($taggedSha -ne $BuildCommit) {
-            throw ("Tag '{0}' points to '{1}', but expected '{2}'." -f $releaseTag, $taggedSha, $BuildCommit)
-        }
+    if ($taggedSha -ne $BuildCommit) {
+        throw ("Tag '{0}' points to '{1}', but expected '{2}'." -f $releaseTag, $taggedSha, $BuildCommit)
+    }
 
+    if (-not $DryRun)
+    {
         # Give a few seconds for propagation so downstream steps can find the tag
         Start-Sleep -Seconds 5
 

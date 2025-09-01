@@ -115,6 +115,7 @@ InModuleScope $ProjectName {
             It 'Should return the correct values when Shared is <Shared>' -TestCases $testCase {
                 param
                 (
+                    [Parameter()]
                     [System.Boolean]
                     $Shared
                 )
@@ -260,18 +261,23 @@ InModuleScope $ProjectName {
                 It 'Should return $false when ReadOnly is <ReadOnly>, and Hidden is <Hidden>' -TestCases $testCase {
                     param
                     (
+                        [Parameter()]
                         [System.String]
                         $Path,
 
+                        [Parameter()]
                         [System.Boolean]
                         $ReadOnly,
 
+                        [Parameter()]
                         [System.Boolean]
                         $Hidden,
 
+                        [Parameter()]
                         [System.Boolean]
                         $Shared,
 
+                        [Parameter()]
                         [System.String]
                         $ShareName
                     )
@@ -467,15 +473,19 @@ InModuleScope $ProjectName {
                 It 'Should call the correct mocks when ReadOnly is <ReadOnly>, and Hidden is <Hidden>' -TestCases $testCase {
                     param
                     (
+                        [Parameter()]
                         [System.Boolean]
                         $ReadOnly,
 
+                        [Parameter()]
                         [System.Boolean]
                         $Hidden,
 
+                        [Parameter()]
                         [System.Boolean]
                         $Shared,
 
+                        [Parameter()]
                         [System.String]
                         $ShareName
                     )
