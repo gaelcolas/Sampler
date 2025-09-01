@@ -49,6 +49,11 @@
           - Azure Pipelines: $env:BUILD_SOURCEVERSION
           - Otherwise: git rev-parse HEAD
 
+    .PARAMETER DryRun
+        If set to $true, the task will not push the tag to the remote repository
+        and will not perform verification. Instead, it will output what would
+        have been done. Defaults to $false.
+
     .NOTES
         This is a build task that is primarily meant to be run by Invoke-Build but
         wrapped by the Sampler project's build.ps1 (https://github.com/gaelcolas/Sampler).
@@ -106,7 +111,10 @@ param
         if ($env:GITHUB_SHA) { return $env:GITHUB_SHA }
         if ($env:BUILD_SOURCEVERSION) { return $env:BUILD_SOURCEVERSION }
         try { Sampler\Invoke-SamplerGit -Argument @('rev-parse', 'HEAD') } catch { '' }
-    ))
+    )),
+
+    [Parameter()]
+    $DryRun = (property DryRun $false)
 )
 
 # Synopsis: Creates a git tag for the release that is published to a Gallery
@@ -281,19 +289,34 @@ task Create_Release_Git_Tag {
     # Keep existing SSL backend behavior
     $pushArguments += @('-c', 'http.sslbackend="schannel"', 'push', 'origin', 'refs/tags/{0}:refs/tags/{0}' -f $releaseTag)
 
-    Sampler\Invoke-SamplerGit -Argument $pushArguments
-
-    # Verify the tag points to the expected commit after push
-    $taggedSha = Sampler\Invoke-SamplerGit -Argument @('rev-parse', $releaseTag)
-
-    Write-Build DarkGray ("`tTag '{0}' now points to '{1}'." -f $releaseTag, $taggedSha)
-
-    if ($taggedSha -ne $BuildCommit) {
-        throw ("Tag '{0}' points to '{1}', but expected '{2}'." -f $releaseTag, $taggedSha, $BuildCommit)
+    if ($DryRun)
+    {
+        Write-Build Yellow ("DRYRUN: Would have pushed refs/tags/{0}:refs/tags/{0}" -f $releaseTag)
+    }
+    else
+    {
+        Sampler\Invoke-SamplerGit -Argument $pushArguments
     }
 
-    # Give a few seconds for propagation so downstream steps can find the tag
-    Start-Sleep -Seconds 5
+    # Verify the tag points to the expected commit after push
+    if ($DryRun)
+    {
+        Write-Build Yellow ("DRYRUN: Returned the commit that we would have expected to pushed tag to: {0}" -f $BuildCommit)
+        return $BuildCommit
+    }
+    else
+    {
+        $taggedSha = Sampler\Invoke-SamplerGit -Argument @('rev-parse', $releaseTag)
 
-    Write-Build Green 'Tag created and pushed.'
+        Write-Build DarkGray ("`tTag '{0}' now points to '{1}'." -f $releaseTag, $taggedSha)
+
+        if ($taggedSha -ne $BuildCommit) {
+            throw ("Tag '{0}' points to '{1}', but expected '{2}'." -f $releaseTag, $taggedSha, $BuildCommit)
+        }
+
+        # Give a few seconds for propagation so downstream steps can find the tag
+        Start-Sleep -Seconds 5
+
+        Write-Build Green 'Tag created and pushed.'
+    }
 }
