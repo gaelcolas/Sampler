@@ -70,7 +70,6 @@
         only works then the method of downloading dependencies is PSResourceGet.
         This can also be configured in Resolve-Dependency.psd1.
 #>
-[System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingWriteHost', '', Justification = 'Suppressing this rule because build script currently uses Write-Host.')]
 [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', '', Justification = 'Suppressing this rule because how $PSDependTarget is assigned to splatting variable $resolveDependencyParams.')]
 [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingCmdletAliases', '', Justification = 'Suppressing this rule because build script calls thre alias Invoke-Build which points to a script file, and alias task which is an alias of Add-BuildTask.')]
 [CmdletBinding()]
@@ -171,7 +170,7 @@ process
 
     try
     {
-        Write-Host -Object "[build] Parsing defined tasks" -ForeGroundColor Magenta
+        Show-SamplerTextToUser -Object "[build] Parsing defined tasks" -ForeGroundColor Magenta
 
         # Load the default BuildInfo if the parameter BuildInfo is not set.
         if (-not $PSBoundParameters.ContainsKey('BuildInfo'))
@@ -182,7 +181,7 @@ process
                 {
                     $configFile = Get-Item -Path $BuildConfig
 
-                    Write-Host -Object "[build] Loading Configuration from $configFile"
+                    Show-SamplerTextToUser -Object "[build] Loading Configuration from $configFile"
 
                     $BuildInfo = switch -Regex ($configFile.Extension)
                     {
@@ -227,7 +226,7 @@ process
                 }
                 else
                 {
-                    Write-Host -Object "Configuration file '$($BuildConfig.FullName)' not found" -ForegroundColor Red
+                    Show-SamplerTextToUser -Object "Configuration file '$($BuildConfig.FullName)' not found" -ForegroundColor Red
 
                     # No config file was found, return empty hashtable.
                     $BuildInfo = @{ }
@@ -237,7 +236,7 @@ process
             {
                 $logMessage = "Error loading Config '$($BuildConfig.FullName)'.`r`nAre you missing dependencies?`r`nMake sure you run './build.ps1 -ResolveDependency -tasks noop' before running build to restore the required modules."
 
-                Write-Host -Object $logMessage -ForegroundColor Yellow
+                Show-SamplerTextToUser -Object $logMessage -ForegroundColor Yellow
 
                 $BuildInfo = @{ }
 
@@ -278,7 +277,7 @@ process
         # Pre-pending $BuildModuleOutput folder to PSModulePath to resolve built module from this folder.
         if ($powerShellModulePaths -notcontains $BuildModuleOutput)
         {
-            Write-Host -Object "[build] Pre-pending '$BuildModuleOutput' folder to PSModulePath" -ForegroundColor Green
+            Show-SamplerTextToUser -Object "[build] Pre-pending '$BuildModuleOutput' folder to PSModulePath" -ForegroundColor Green
 
             $env:PSModulePath = $BuildModuleOutput + [System.IO.Path]::PathSeparator + $env:PSModulePath
         }
@@ -293,7 +292,7 @@ process
             {
                 try
                 {
-                    Write-Host -Object "Importing tasks from module $module" -ForegroundColor DarkGray
+                    Show-SamplerTextToUser -Object "Importing tasks from module $module" -ForegroundColor DarkGray
 
                     $loadedModule = Import-Module -Name $module -PassThru -ErrorAction Stop
 
@@ -306,7 +305,7 @@ process
 
                         foreach ($aliasTask in $aliasTasks)
                         {
-                            Write-Host -Object "`t Loading $($aliasTask.Key)..." -ForegroundColor DarkGray
+                            Show-SamplerTextToUser -Object "`t Loading $($aliasTask.Key)..." -ForegroundColor DarkGray
 
                             # Dot-sourcing the Tasks via their exported aliases.
                             . (Get-Alias $aliasTask.Key)
@@ -315,7 +314,7 @@ process
                 }
                 catch
                 {
-                    Write-Host -Object "Could not load tasks for module $module." -ForegroundColor Red
+                    Show-SamplerTextToUser -Object "Could not load tasks for module $module." -ForegroundColor Red
 
                     Write-Error -Message $_
                 }
@@ -339,7 +338,7 @@ process
             Write-Build -Object 'No sequence currently defined for the default task' -ForegroundColor Yellow
         }
 
-        Write-Host -Object 'Adding Workflow from configuration:' -ForegroundColor DarkGray
+        Show-SamplerTextToUser -Object 'Adding Workflow from configuration:' -ForegroundColor DarkGray
 
         # Load Invoke-Build task sequences/workflows from $BuildInfo.
         foreach ($workflow in $BuildInfo.BuildWorkflow.keys)
@@ -353,12 +352,12 @@ process
                 $workflowItem = [ScriptBlock]::Create($Matches['sb'])
             }
 
-            Write-Host -Object "  +-> $workflow" -ForegroundColor DarkGray
+            Show-SamplerTextToUser -Object "  +-> $workflow" -ForegroundColor DarkGray
 
             task $workflow $workflowItem
         }
 
-        Write-Host -Object "[build] Executing requested workflow: $($Tasks -join ', ')" -ForeGroundColor Magenta
+        Show-SamplerTextToUser -Object "[build] Executing requested workflow: $($Tasks -join ', ')" -ForeGroundColor Magenta
 
     }
     finally
@@ -369,6 +368,40 @@ process
 
 begin
 {
+        # This is a quickfix for the PSScriptAnalyzer rule PSAvoidUsingWriteHost which we are not allowed to override in QA tests.
+    function Show-SamplerTextToUser
+    {
+        [CmdletBinding()]
+        [OutputType()]
+        param
+        (
+            [Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)]
+            [System.Object[]]
+            $Object,
+
+            [Parameter()]
+            [System.ConsoleColor]
+            $ForegroundColor,
+
+            [Parameter()]
+            [System.ConsoleColor]
+            $BackgroundColor,
+
+            [Parameter()]
+            [System.String]
+            $Separator = ' ',
+
+            [Parameter()]
+            [switch]
+            $NoNewline
+        )
+
+        # Join incoming objects with the provided separator so Write-Host receives a single string
+        $Object = ($Object -join $Separator)
+
+        Write-Host @PSBoundParameters
+    }
+
     # Find build config if not specified.
     if (-not $BuildConfig)
     {
@@ -397,7 +430,7 @@ begin
 
     if ($MyInvocation.ScriptName -notlike '*Invoke-Build.ps1')
     {
-        Write-Host -Object "[pre-build] Starting Build Init" -ForegroundColor Green
+        Show-SamplerTextToUser -Object "[pre-build] Starting Build Init" -ForegroundColor Green
 
         Push-Location $PSScriptRoot -StackName 'BuildModule'
     }
@@ -405,7 +438,7 @@ begin
     if ($RequiredModulesDirectory -in @('CurrentUser', 'AllUsers'))
     {
         # Installing modules instead of saving them.
-        Write-Host -Object "[pre-build] Required Modules will be installed to the PowerShell module path that is used for $RequiredModulesDirectory." -ForegroundColor Green
+        Show-SamplerTextToUser -Object "[pre-build] Required Modules will be installed to the PowerShell module path that is used for $RequiredModulesDirectory." -ForegroundColor Green
 
         <#
             The variable $PSDependTarget will be used below when building the splatting
@@ -436,7 +469,7 @@ begin
         }
         else
         {
-            Write-Host -Object "[pre-build] Creating required modules directory $RequiredModulesDirectory." -ForegroundColor Green
+            Show-SamplerTextToUser -Object "[pre-build] Creating required modules directory $RequiredModulesDirectory." -ForegroundColor Green
 
             $requiredModulesPath = (New-Item -ItemType Directory -Force -Path $RequiredModulesDirectory).FullName
         }
@@ -447,7 +480,7 @@ begin
         if ($RequiredModulesDirectory -notin @('CurrentUser', 'AllUsers') -and
             ($powerShellModulePaths -notcontains $RequiredModulesDirectory))
         {
-            Write-Host -Object "[pre-build] Pre-pending '$RequiredModulesDirectory' folder to PSModulePath" -ForegroundColor Green
+            Show-SamplerTextToUser -Object "[pre-build] Pre-pending '$RequiredModulesDirectory' folder to PSModulePath" -ForegroundColor Green
 
             $env:PSModulePath = $RequiredModulesDirectory + [System.IO.Path]::PathSeparator + $env:PSModulePath
         }
@@ -461,7 +494,7 @@ begin
         {
             if ($AutoRestore -or -not $PSBoundParameters.ContainsKey('Tasks') -or $Tasks -contains 'build')
             {
-                Write-Host -Object "[pre-build] Dependency missing, running './build.ps1 -ResolveDependency -Tasks noop' for you `r`n" -ForegroundColor Yellow
+                Show-SamplerTextToUser -Object "[pre-build] Dependency missing, running './build.ps1 -ResolveDependency -Tasks noop' for you `r`n" -ForegroundColor Yellow
 
                 $ResolveDependency = $true
             }
@@ -481,7 +514,7 @@ begin
 
     if ($ResolveDependency)
     {
-        Write-Host -Object "[pre-build] Resolving dependencies using preferred method." -ForegroundColor Green
+        Show-SamplerTextToUser -Object "[pre-build] Resolving dependencies using preferred method." -ForegroundColor Green
 
         $resolveDependencyParams = @{ }
 
@@ -518,7 +551,7 @@ begin
             }
         }
 
-        Write-Host -Object "[pre-build] Starting bootstrap process." -ForegroundColor Green
+        Show-SamplerTextToUser -Object "[pre-build] Starting bootstrap process." -ForegroundColor Green
 
         .\Resolve-Dependency.ps1 @resolveDependencyParams
     }
@@ -534,7 +567,7 @@ begin
             $null = $PSBoundParameters.Remove('ResolveDependency')
         }
 
-        Write-Host -Object "[build] Starting build with InvokeBuild." -ForegroundColor Green
+        Show-SamplerTextToUser -Object "[build] Starting build with InvokeBuild." -ForegroundColor Green
 
         Invoke-Build @PSBoundParameters -Task $Tasks -File $MyInvocation.MyCommand.Path
 
