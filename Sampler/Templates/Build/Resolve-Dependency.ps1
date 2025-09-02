@@ -233,7 +233,7 @@ if ($UseModuleFast -and -not (Get-Module -Name 'ModuleFast'))
 
             $moduleFastBootstrapScriptBlockParameters.UseMain = $true
         }
-        elseif($ModuleFastVersion)
+        elseif ($ModuleFastVersion)
         {
             if ($ModuleFastVersion -notmatch 'v')
             {
