@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Note for cahning DestinationPath to the location where the module should be created depending on you platform and workflow.
+- HomeBrew installation instructions for GitVersion
+
+
 ### Fixed
 
 - Add retry logic for ModuleFast dependency installation ([#510](https://github.com/gaelcolas/Sampler/issues/510)).
