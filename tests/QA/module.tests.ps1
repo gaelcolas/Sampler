@@ -60,9 +60,10 @@ Describe 'Changelog Management' -Tag 'Changelog' {
             [bool](&(Get-Process -Id $PID).Path -NoProfile -Command 'git rev-parse --is-inside-work-tree 2>$null'))
     ) {
         # Get the list of changed files compared with branch main
+        $filesChanged = @()
         $headCommit = &git rev-parse HEAD
         $defaultBranchCommit = &git rev-parse origin/main
-        $filesChanged = &git @('diff', "$defaultBranchCommit...$headCommit", '--name-only')
+        $filesChanged += &git @('diff', "$defaultBranchCommit...$headCommit", '--name-only')
         $filesStagedAndUnstaged = &git @('diff', 'HEAD', '--name-only')
 
         $filesChanged += $filesStagedAndUnstaged
