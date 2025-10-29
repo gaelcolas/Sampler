@@ -233,7 +233,7 @@ stages:
           #    filePath: './build.ps1'
           #    arguments: '-tasks merge'
           #    pwsh: true
-          - task: PublishCodeCoverageResults@1
+          - task: PublishCodeCoverageResults@2
             displayName: 'Publish Code Coverage to Azure DevOps'
             inputs:
               codeCoverageTool: 'JaCoCo'

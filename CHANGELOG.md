@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Updated HQRM task to use Pester 5 version.
 - Fix QA tests failing with latest version of DscResource.Test.
 - Fixed issue with changelog check under certain conditions
+- Updated PublishCodeCoverageResults@1 tasks to PublishCodeCoverageResults@2 as version 1 is deprecated.
 
 ### Changed
 
@@ -957,7 +958,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fixed #192 where the `Build-Module` command from module builder returns
-  a rooted path (sometimes). 
+  a rooted path (sometimes).
 
 ## [0.107.0] - 2020-09-07
 
@@ -1086,7 +1087,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Update the repository to always use the latest version of the module
   `ModuleBuilder`.
-  
+
 ### Fixed
 
 - Now the prerelease is cleaned so that it does not contain any dashes by
@@ -1155,7 +1156,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   not specified via the `-BuildConfig` parameter.
 - Updated the PesterScript parameter to allow the specification of hastables,
   to enable specifying parameters to Pester.
-  
+
 ### Added
 
 - Add conceptual build step for DSC resources [issue #122](https://github.com/gaelcolas/Sampler/issues/122).
@@ -1186,14 +1187,14 @@ assets with conditional content.
  other than PSGallery.
 - Update the plaster template to replace 'synedgy' with 'dsccommunity' if
   the module type is 'dsccommunity'.
-  
+
 ## [0.99.3] - 2020-01-21
 
 ### Changed
 
 - The deploy step is no longer run if the Azure DevOps organization URL
   does not contain 'synedgy'.
-  
+
 ## [0.99.2] - 2020-01-16
 
 ### Added
