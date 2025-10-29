@@ -267,7 +267,7 @@ stages:
           #  inputs:
           #    codeCoverageTool: 'JaCoCo'
           #    summaryFileLocation: '$(buildFolderName)/$(testResultFolderName)/JaCoCo_coverage.xml'
-          #    pathToSources: '$(Build.SourcesDirectory)/$(dscBuildVariable.RepositoryName)/'
+          #    pathToSources: '$(Build.SourcesDirectory)/source/'
 
           # Uncomment if Codecov.io should be used (see docs at Codecov.io how to use and the required repository configuration).
           #- script: |
