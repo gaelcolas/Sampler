@@ -1,0 +1,23 @@
+@{
+    PSDependOptions             = @{
+        AddToPath  = $true
+        Target     = 'output\RequiredModules'
+        Parameters = @{
+            Repository = '<%=$PLASTER_PARAM_CustomRepo %>'
+        }
+    }
+
+    InvokeBuild                 = 'latest'
+    PSScriptAnalyzer            = 'latest'
+    Pester                      = 'latest'
+    ModuleBuilder               = 'latest'
+    ChangelogManagement         = 'latest'
+    Sampler                     = 'latest'
+    'Sampler.GitHubTasks'       = 'latest'
+    # Build dependencies needed for using the module
+    'DscResource.Base'          = 'latest'
+    'DscResource.Common'        = 'latest'
+    'DscResource.Test'          = 'latest'
+
+    DSCSchemaGenerator          = 'latest'
+}

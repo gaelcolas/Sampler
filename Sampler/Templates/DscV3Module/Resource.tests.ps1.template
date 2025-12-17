@@ -1,0 +1,232 @@
+# FileContent.tests.ps1
+# Pester tests for FileContent DSC v3 resource
+
+BeforeDiscovery {
+    try
+    {
+        if (-not (Get-Module -Name 'DscResource.Test'))
+        {
+            # Assumes dependencies have been resolved, so if this module is not available, run 'noop' task.
+            Import-Module -Name 'DscResource.Test' -Force -ErrorAction 'Stop'
+        }
+    }
+    catch [System.IO.FileNotFoundException]
+    {
+        throw 'DscResource.Test module dependency not found. Please run ".\build.ps1 -ResolveDependency -Tasks noop" first.'
+    }
+}
+
+BeforeAll {
+    $script:dscModuleName = '<%=$PLASTER_PARAM_ModuleName %>'
+
+    Import-Module -Name $script:dscModuleName
+
+    $PSDefaultParameterValues['InModuleScope:ModuleName'] = $script:dscModuleName
+    $PSDefaultParameterValues['Mock:ModuleName'] = $script:dscModuleName
+    $PSDefaultParameterValues['Should:ModuleName'] = $script:dscModuleName
+}
+
+AfterAll {
+    $PSDefaultParameterValues.Remove('InModuleScope:ModuleName')
+    $PSDefaultParameterValues.Remove('Mock:ModuleName')
+    $PSDefaultParameterValues.Remove('Should:ModuleName')
+
+    Get-Module -Name $script:dscModuleName -All | Remove-Module -Force
+}
+
+Describe 'FileContent' {
+    Context 'When the class is instantiated' {
+        It 'Should not throw an exception' {
+            InModuleScope -ScriptBlock {
+                { [FileContent]::new() } | Should -Not -Throw
+            }
+        }
+
+        It 'Should have a default constructor' {
+            InModuleScope -ScriptBlock {
+                $instance = [FileContent]::new()
+                $instance | Should -Not -BeNullOrEmpty
+            }
+        }
+
+        It 'Should be of the correct type' {
+            InModuleScope -ScriptBlock {
+                $instance = [FileContent]::new()
+                $instance.GetType().Name | Should -Be 'FileContent'
+            }
+        }
+    }
+}
+
+Describe 'FileContent\Get()' -Tag 'Get' {
+    Context 'When the system is in the desired state' {
+        Context 'When the file exists' {
+            BeforeAll {
+                InModuleScope -ScriptBlock {
+                    $script:mockFileContentInstance = [FileContent] @{
+                        Path    = 'C:\temp\test.txt'
+                        Content = 'Hello World'
+                    }
+
+                    <#
+                        This mocks the method GetCurrentState().
+
+                        Method Get() will call the base method Get() which will
+                        call back to the derived class method GetCurrentState()
+                        to get the result to return from the derived method Get().
+                    #>
+                    $script:mockFileContentInstance |
+                        Add-Member -Force -MemberType 'ScriptMethod' -Name 'GetCurrentState' -Value {
+                            return [System.Collections.Hashtable] @{
+                                Path         = 'C:\temp\test.txt'
+                                Content      = 'Hello World'
+                                _exist       = $true
+                                FileSize     = 11
+                                LastModified = [System.DateTime]::Now
+                            }
+                        }
+                }
+            }
+
+            It 'Should return the correct values' {
+                InModuleScope -ScriptBlock {
+                    $result = $script:mockFileContentInstance.Get()
+
+                    $result.Path | Should -Be 'C:\temp\test.txt'
+                    $result.Content | Should -Be 'Hello World'
+                    $result._exist | Should -BeTrue
+                }
+            }
+        }
+
+        Context 'When the file does not exist' {
+            BeforeAll {
+                InModuleScope -ScriptBlock {
+                    $script:mockFileContentInstance = [FileContent] @{
+                        Path    = 'C:\temp\nonexistent.txt'
+                        Content = 'Some content'
+                    }
+
+                    $script:mockFileContentInstance |
+                        Add-Member -Force -MemberType 'ScriptMethod' -Name 'GetCurrentState' -Value {
+                            return [System.Collections.Hashtable] @{
+                                Path         = 'C:\temp\nonexistent.txt'
+                                Content      = $null
+                                _exist       = $false
+                                FileSize     = 0
+                                LastModified = [System.DateTime]::MinValue
+                            }
+                        }
+                }
+            }
+
+            It 'Should return _exist as false' {
+                InModuleScope -ScriptBlock {
+                    $result = $script:mockFileContentInstance.Get()
+
+                    $result._exist | Should -BeFalse
+                }
+            }
+        }
+    }
+}
+
+Describe 'FileContent\Test()' -Tag 'Test' {
+    Context 'When the system is in the desired state' {
+        BeforeAll {
+            InModuleScope -ScriptBlock {
+                $script:mockFileContentInstance = [FileContent] @{
+                    Path    = 'C:\temp\test.txt'
+                    Content = 'Hello World'
+                }
+
+                $script:mockFileContentInstance |
+                    Add-Member -Force -MemberType 'ScriptMethod' -Name 'GetCurrentState' -Value {
+                        return [System.Collections.Hashtable] @{
+                            Path         = 'C:\temp\test.txt'
+                            Content      = 'Hello World'
+                            _exist       = $true
+                            FileSize     = 11
+                            LastModified = [System.DateTime]::Now
+                        }
+                    }
+            }
+        }
+
+        It 'Should return $true' {
+            InModuleScope -ScriptBlock {
+                $result = $script:mockFileContentInstance.Test()
+
+                $result | Should -BeTrue
+            }
+        }
+    }
+
+    Context 'When the system is not in the desired state' {
+        BeforeAll {
+            InModuleScope -ScriptBlock {
+                $script:mockFileContentInstance = [FileContent] @{
+                    Path    = 'C:\temp\test.txt'
+                    Content = 'Expected Content'
+                }
+
+                $script:mockFileContentInstance |
+                    Add-Member -Force -MemberType 'ScriptMethod' -Name 'GetCurrentState' -Value {
+                        return [System.Collections.Hashtable] @{
+                            Path         = 'C:\temp\test.txt'
+                            Content      = 'Different Content'
+                            _exist       = $true
+                            FileSize     = 17
+                            LastModified = [System.DateTime]::Now
+                        }
+                    }
+            }
+        }
+
+        It 'Should return $false' {
+            InModuleScope -ScriptBlock {
+                $result = $script:mockFileContentInstance.Test()
+
+                $result | Should -BeFalse
+            }
+        }
+    }
+}
+
+Describe 'FileContent\Set()' -Tag 'Set' {
+    Context 'When the system is not in the desired state' {
+        BeforeAll {
+            InModuleScope -ScriptBlock {
+                $script:mockFileContentInstance = [FileContent] @{
+                    Path    = 'C:\temp\test.txt'
+                    Content = 'New Content'
+                }
+
+                $script:modifyWasCalled = $false
+
+                $script:mockFileContentInstance |
+                    Add-Member -Force -MemberType 'ScriptMethod' -Name 'GetCurrentState' -Value {
+                        return [System.Collections.Hashtable] @{
+                            Path         = 'C:\temp\test.txt'
+                            Content      = 'Old Content'
+                            _exist       = $true
+                            FileSize     = 11
+                            LastModified = [System.DateTime]::Now
+                        }
+                    } -PassThru |
+                    Add-Member -Force -MemberType 'ScriptMethod' -Name 'Modify' -Value {
+                        $script:modifyWasCalled = $true
+                    }
+            }
+        }
+
+        It 'Should call Modify method' {
+            InModuleScope -ScriptBlock {
+                $script:mockFileContentInstance.Set()
+
+                $script:modifyWasCalled | Should -BeTrue
+            }
+        }
+    }
+}
+

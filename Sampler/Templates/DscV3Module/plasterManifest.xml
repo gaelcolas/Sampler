@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<plasterManifest
+  schemaVersion="1.0" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+  <metadata>
+    <name>DscV3Module</name>
+    <id>c9d8e7f6-5a4b-3c2d-1e0f-a9b8c7d6e5f4</id>
+    <version>0.0.1</version>
+    <title>DSC v3 Module Template</title>
+    <description>A complete module template for building DSC v3 class-based resources with automatic manifest generation using DscSchemaGenerator</description>
+    <author>Gijsreyn</author>
+    <tags>Sampler, Template, DSC, DSCv3, DscSchemaGenerator, Module</tags>
+  </metadata>
+  <parameters>
+    <parameter store="text" name="ModuleAuthor" type="text" prompt="Author's name" default="$Env:Username" />
+    <parameter store="text" name="ModuleName" type="text" prompt="Name of your module" />
+    <parameter store="text" name="ModuleDescription" type="text" prompt="Description of this module" default="A DSC v3 module with class-based resources." />
+    <parameter store="text" name="ModuleVersion" type="text" prompt="Module version" default="0.0.1" />
+    <parameter store="text" name="MainGitBranch" type="text" prompt="Name of your default branch" default="main" />
+    <parameter store="text" name="CustomRepo" type="text" prompt="Custom PSRepository (or PSGallery)" default="PSGallery" />
+
+    <parameter store="text" name="License" type="choice" prompt="Do you want to include a License?" default="1">
+      <choice label="&amp;Yes" value="true" />
+      <choice label="&amp;No" value="false" />
+    </parameter>
+
+    <parameter store="text" name="LicenseType" type="choice" prompt="What license do you want?" default="2" condition='$PLASTER_PARAM_License -eq "true"'>
+      <choice label="&amp;Apache" value="Apache" />
+      <choice label="&amp;MIT" value="MIT" />
+      <choice label="&amp;None" value="None" />
+    </parameter>
+
+    <parameter store="text" name="SourceDirectory" type="choice" prompt="What name for your source folder?" default="2">
+      <choice label="&amp;The Module's name (${PLASTER_PARAM_ModuleName})" value="${PLASTER_PARAM_ModuleName}" />
+      <choice label="&amp;source" value="source" />
+      <choice label="s&amp;rc" value="src" />
+    </parameter>
+  </parameters>
+
+  <content>
+    <!-- Root module folder -->
+    <file source='' destination='${PLASTER_PARAM_ModuleName}' />
+
+    <!-- SOURCE folder structure -->
+    <file source='' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}' />
+    <file source='' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/Classes' />
+    <file source='' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/Private' />
+    <file source='' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/Public' />
+    <file source='' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/en-US' />
+
+    <!-- Output folder -->
+    <file source='' destination='${PLASTER_PARAM_ModuleName}/output' />
+    <file source='' destination='${PLASTER_PARAM_ModuleName}/output/RequiredModules' />
+
+    <!-- Tests folder -->
+    <file source='' destination='${PLASTER_PARAM_ModuleName}/tests' />
+    <file source='' destination='${PLASTER_PARAM_ModuleName}/tests/Unit' />
+    <file source='' destination='${PLASTER_PARAM_ModuleName}/tests/Unit/Classes' />
+
+    <!-- Git files -->
+    <file source='gitignore' destination='${PLASTER_PARAM_ModuleName}/.gitignore' />
+    <file source='gitattributes' destination='${PLASTER_PARAM_ModuleName}/.gitattributes' />
+
+    <!-- Build scripts -->
+    <file source='build.ps1' destination='${PLASTER_PARAM_ModuleName}/build.ps1' />
+    <file source='Resolve-Dependency.ps1' destination='${PLASTER_PARAM_ModuleName}/Resolve-Dependency.ps1' />
+    <templateFile source='Resolve-Dependency.psd1.template' destination='${PLASTER_PARAM_ModuleName}/Resolve-Dependency.psd1' />
+    <templateFile source='RequiredModules.psd1.template' destination='${PLASTER_PARAM_ModuleName}/RequiredModules.psd1' />
+    <templateFile source='build.yaml.template' destination='${PLASTER_PARAM_ModuleName}/build.yaml' />
+
+    <!-- Module manifest and module file -->
+    <templateFile source='module.psd1.template' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/${PLASTER_PARAM_ModuleName}.psd1' />
+    <templateFile source='module.psm1.template' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/${PLASTER_PARAM_ModuleName}.psm1' />
+    <file source='prefix.ps1' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/prefix.ps1' />
+
+    <!-- First DSC Resource (class in Classes folder, resource.ps1 in source root) -->
+    <templateFile source='Classes/020.FileContent.ps1.template' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/Classes/020.FileContent.ps1' />
+    <templateFile source='Resource.ps1.template' destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/resource.ps1' />
+    <templateFile source='Resource.tests.ps1.template' destination='${PLASTER_PARAM_ModuleName}/tests/Unit/Classes/FileContent.tests.ps1' />
+
+    <!-- Documentation -->
+    <templateFile source='README.md.template' destination='${PLASTER_PARAM_ModuleName}/README.md' />
+    <templateFile source='CHANGELOG.md.template' destination='${PLASTER_PARAM_ModuleName}/CHANGELOG.md' />
+
+    <!-- License -->
+    <templateFile source='LICENSES/LICENSE.MIT.template'
+          destination='${PLASTER_PARAM_ModuleName}/LICENSE'
+          condition='$PLASTER_PARAM_License -eq "true" -and $PLASTER_PARAM_LicenseType -eq "MIT"' />
+    <templateFile source='LICENSES/LICENSE.Apache.template'
+          destination='${PLASTER_PARAM_ModuleName}/LICENSE'
+          condition='$PLASTER_PARAM_License -eq "true" -and $PLASTER_PARAM_LicenseType -eq "Apache"' />
+
+    <!-- VS Code settings -->
+    <file source='' destination='${PLASTER_PARAM_ModuleName}/.vscode' />
+    <file source='.vscode/extensions.json' destination='${PLASTER_PARAM_ModuleName}/.vscode/extensions.json' />
+    <file source='.vscode/settings.json' destination='${PLASTER_PARAM_ModuleName}/.vscode/settings.json' />
+    <file source='.vscode/tasks.json' destination='${PLASTER_PARAM_ModuleName}/.vscode/tasks.json' />
+  </content>
+</plasterManifest>

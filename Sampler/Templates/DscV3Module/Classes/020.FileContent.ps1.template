@@ -1,0 +1,143 @@
+<#
+    .SYNOPSIS
+        Manages the content of a file on the filesystem.
+
+    .DESCRIPTION
+        This DSC resource ensures that a file exists with specific content.
+
+    .PARAMETER Path
+        The full path to the file to manage.
+        This is the key property used to uniquely identify the resource instance.
+
+    .PARAMETER Content
+        The content that should be present in the file.
+        When the resource is applied, this content will be written to the file.
+
+    .PARAMETER _exist
+        Indicates whether the file currently exists.
+        This is a read-only property populated by the Get() method.
+
+    .PARAMETER FileSize
+        The size of the file in bytes.
+        This is a read-only property populated by the Get() method.
+
+    .PARAMETER LastModified
+        The last modified timestamp of the file.
+        This is a read-only property populated by the Get() method.
+#>
+
+[DscResource()]
+class FileContent : ResourceBase
+{
+    <#
+        The full path to the file to manage.
+    #>
+    [DscProperty(Key)]
+    [System.String]
+    $Path
+
+    <#
+        The content that should be in the file.
+    #>
+    [DscProperty()]
+    [System.String]
+    $Content
+
+    <#
+        Whether the file exists (read-only).
+    #>
+    [DscProperty(NotConfigurable)]
+    [System.Boolean]
+    $_exist
+
+    <#
+        The file size in bytes (read-only).
+    #>
+    [DscProperty(NotConfigurable)]
+    [System.Int64]
+    $FileSize
+
+    <#
+        The last modified timestamp (read-only).
+    #>
+    [DscProperty(NotConfigurable)]
+    [System.DateTime]
+    $LastModified
+
+    FileContent() : base ()
+    {
+        # These properties will not be enforced during comparison.
+        $this.ExcludeDscProperties = @()
+    }
+
+    <#
+        Returns the current state of the resource.
+        Calls the base class Get() method.
+    #>
+    [FileContent] Get()
+    {
+        return ([ResourceBase] $this).Get()
+    }
+
+    <#
+        Tests if the resource is in the desired state.
+        Calls the base class Test() method.
+    #>
+    [System.Boolean] Test()
+    {
+        return ([ResourceBase] $this).Test()
+    }
+
+    <#
+        Sets the resource to the desired state.
+        Calls the base class Set() method.
+    #>
+    [void] Set()
+    {
+        ([ResourceBase] $this).Set()
+    }
+
+    <#
+        Base method Get() calls this method to get the current state as a hashtable.
+    #>
+    hidden [System.Collections.Hashtable] GetCurrentState([System.Collections.Hashtable] $properties)
+    {
+        $currentState = @{
+            Path         = $this.Path
+            Content      = $null
+            _exist       = $false
+            FileSize     = [System.Int64] 0
+            LastModified = [System.DateTime]::MinValue
+        }
+
+        if (Test-Path -Path $this.Path)
+        {
+            $file = Get-Item -Path $this.Path
+            $currentState._exist = $true
+            $currentState.Content = Get-Content -Path $this.Path -Raw
+            $currentState.FileSize = $file.Length
+            $currentState.LastModified = $file.LastWriteTime
+        }
+
+        return $currentState
+    }
+
+    <#
+        Base method Set() calls this method with the properties that should be
+        enforced but are not in desired state.
+    #>
+    hidden [void] Modify([System.Collections.Hashtable] $properties)
+    {
+        # Ensure parent directory exists
+        $parentPath = Split-Path -Path $this.Path -Parent
+
+        if ($parentPath -and -not (Test-Path -Path $parentPath))
+        {
+            New-Item -Path $parentPath -ItemType Directory -Force | Out-Null
+        }
+
+        # Write the content to the file
+        Set-Content -Path $this.Path -Value $this.Content -Force
+    }
+}
+
