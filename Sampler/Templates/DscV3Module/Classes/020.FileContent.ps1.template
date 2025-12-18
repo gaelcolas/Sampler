@@ -27,7 +27,7 @@
 #>
 
 [DscResource()]
-class FileContent : ResourceBase
+class FileContent : <%=$PLASTER_PARAM_ModuleName %>ResourceBase
 {
     <#
         The full path to the file to manage.

@@ -230,3 +230,154 @@ Describe 'FileContent\Set()' -Tag 'Set' {
     }
 }
 
+Describe 'FileContent\GetCurrentState()' -Tag 'GetCurrentState' {
+    Context 'When the file exists' {
+        BeforeAll {
+            InModuleScope -ScriptBlock {
+                $script:mockFileContentInstance = [FileContent] @{
+                    Path    = 'C:\temp\test.txt'
+                    Content = 'Hello World'
+                }
+            }
+        }
+
+        BeforeEach {
+            Mock -CommandName Test-Path -MockWith { return $true }
+            Mock -CommandName Get-Item -MockWith {
+                return [PSCustomObject] @{
+                    Length        = 11
+                    LastWriteTime = [System.DateTime]::new(2025, 1, 15, 10, 30, 0)
+                }
+            }
+            Mock -CommandName Get-Content -MockWith { return 'Hello World' }
+        }
+
+        It 'Should return the correct state with file properties' {
+            InModuleScope -ScriptBlock {
+                $result = $script:mockFileContentInstance.GetCurrentState(@{})
+
+                $result.Path | Should -Be 'C:\temp\test.txt'
+                $result.Content | Should -Be 'Hello World'
+                $result._exist | Should -BeTrue
+                $result.FileSize | Should -Be 11
+                $result.LastModified | Should -Be ([System.DateTime]::new(2025, 1, 15, 10, 30, 0))
+            }
+
+            Should -Invoke -CommandName Test-Path -Exactly -Times 1 -Scope It
+            Should -Invoke -CommandName Get-Item -Exactly -Times 1 -Scope It
+            Should -Invoke -CommandName Get-Content -Exactly -Times 1 -Scope It
+        }
+    }
+
+    Context 'When the file does not exist' {
+        BeforeAll {
+            InModuleScope -ScriptBlock {
+                $script:mockFileContentInstance = [FileContent] @{
+                    Path    = 'C:\temp\nonexistent.txt'
+                    Content = 'Some content'
+                }
+            }
+        }
+
+        BeforeEach {
+            Mock -CommandName Test-Path -MockWith { return $false }
+        }
+
+        It 'Should return default state values' {
+            InModuleScope -ScriptBlock {
+                $result = $script:mockFileContentInstance.GetCurrentState(@{})
+
+                $result.Path | Should -Be 'C:\temp\nonexistent.txt'
+                $result.Content | Should -BeNullOrEmpty
+                $result._exist | Should -BeFalse
+                $result.FileSize | Should -Be 0
+                $result.LastModified | Should -Be ([System.DateTime]::MinValue)
+            }
+
+            Should -Invoke -CommandName Test-Path -Exactly -Times 1 -Scope It
+        }
+    }
+}
+
+Describe 'FileContent\Modify()' -Tag 'Modify' {
+    Context 'When the parent directory exists' {
+        BeforeAll {
+            InModuleScope -ScriptBlock {
+                $script:mockFileContentInstance = [FileContent] @{
+                    Path    = 'C:\temp\test.txt'
+                    Content = 'New Content'
+                }
+            }
+        }
+
+        BeforeEach {
+            Mock -CommandName Split-Path -MockWith { return 'C:\temp' }
+            Mock -CommandName Test-Path -MockWith { return $true }
+            Mock -CommandName Set-Content
+        }
+
+        It 'Should write content to the file without creating directory' {
+            InModuleScope -ScriptBlock {
+                $script:mockFileContentInstance.Modify(@{})
+            }
+
+            Should -Invoke -CommandName Set-Content -Exactly -Times 1 -Scope It -ParameterFilter {
+                $Path -eq 'C:\temp\test.txt' -and $Value -eq 'New Content' -and $Force -eq $true
+            }
+            Should -Invoke -CommandName Test-Path -Exactly -Times 1 -Scope It
+        }
+    }
+
+    Context 'When the parent directory does not exist' {
+        BeforeAll {
+            InModuleScope -ScriptBlock {
+                $script:mockFileContentInstance = [FileContent] @{
+                    Path    = 'C:\temp\subfolder\test.txt'
+                    Content = 'New Content'
+                }
+            }
+        }
+
+        BeforeEach {
+            Mock -CommandName Split-Path -MockWith { return 'C:\temp\subfolder' }
+            Mock -CommandName Test-Path -MockWith { return $false }
+            Mock -CommandName New-Item
+            Mock -CommandName Set-Content
+        }
+
+        It 'Should create the parent directory and write content' {
+            InModuleScope -ScriptBlock {
+                $script:mockFileContentInstance.Modify(@{})
+            }
+
+            Should -Invoke -CommandName New-Item -Exactly -Times 1 -Scope It -ParameterFilter {
+                $Path -eq 'C:\temp\subfolder' -and $ItemType -eq 'Directory' -and $Force -eq $true
+            }
+            Should -Invoke -CommandName Set-Content -Exactly -Times 1 -Scope It
+        }
+    }
+
+    Context 'When the path has no parent directory' {
+        BeforeAll {
+            InModuleScope -ScriptBlock {
+                $script:mockFileContentInstance = [FileContent] @{
+                    Path    = 'test.txt'
+                    Content = 'Root Content'
+                }
+            }
+        }
+
+        BeforeEach {
+            Mock -CommandName Split-Path -MockWith { return $null }
+            Mock -CommandName Set-Content
+        }
+
+        It 'Should write content without checking parent directory' {
+            InModuleScope -ScriptBlock {
+                $script:mockFileContentInstance.Modify(@{})
+            }
+
+            Should -Invoke -CommandName Set-Content -Exactly -Times 1 -Scope It
+        }
+    }
+}
