@@ -56,6 +56,7 @@
         by not checking after the module manifest in the built module.
 
 #>
+[System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', '', Justification = 'Because the variables like BuildModuleOutput are not usedin the script but in the tasks that dot-source this script.')]
 param
 (
     [Parameter()]
