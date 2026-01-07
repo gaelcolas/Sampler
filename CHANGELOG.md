@@ -8,9 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Note for cahning DestinationPath to the location where the module should be created depending on you platform and workflow.
-- HomeBrew installation instructions for GitVersion
 
+- Note for caching DestinationPath to the location where the module should be
+  created depending on you platform and workflow.
+- HomeBrew installation instructions for GitVersion
 
 ### Fixed
 
@@ -27,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Updated HQRM task to use Pester 5 version.
 - Fix QA tests failing with latest version of DscResource.Test.
 - Fixed issue with changelog check under certain conditions
+- how to configure http.sslBackend schannel in command in the `Create_Release_Git_Tag` task.
 
 ### Changed
 
