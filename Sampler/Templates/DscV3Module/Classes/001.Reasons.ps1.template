@@ -1,0 +1,23 @@
+<#
+    .SYNOPSIS
+        The reason class for <%=$PLASTER_PARAM_ModuleName %> DSC resources.
+
+    .DESCRIPTION
+        The reason class is used to return the reason a property is not in desired state.
+
+    .PARAMETER Code
+        The code for the reason. The code is in the format 'ResourceName:ResourceName:PropertyName'.
+
+    .PARAMETER Phrase
+        The phrase describing the reason why the property is not in desired state.
+#>
+class <%=$PLASTER_PARAM_ModuleName %>Reason
+{
+    [DscProperty()]
+    [System.String]
+    $Code
+
+    [DscProperty()]
+    [System.String]
+    $Phrase
+}

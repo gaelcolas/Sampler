@@ -1,0 +1,5 @@
+@{
+    Gallery         = '<%=$PLASTER_PARAM_CustomRepo %>'
+    AllowPrerelease = $false
+    WithYAML        = $true
+}
