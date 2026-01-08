@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.119.0] - 2026-01-08
+
 ### Added
 
 - Note for caching DestinationPath to the location where the module should be
