@@ -287,7 +287,7 @@ task Create_Release_Git_Tag {
     }
 
     # Keep existing SSL backend behavior
-    $pushArguments += @('-c', 'http.sslbackend="schannel"', 'push', 'origin', 'refs/tags/{0}:refs/tags/{0}' -f $releaseTag)
+    $pushArguments += @('-c', 'http.sslbackend=schannel', 'push', 'origin', 'refs/tags/{0}:refs/tags/{0}' -f $releaseTag)
 
     if ($DryRun)
     {

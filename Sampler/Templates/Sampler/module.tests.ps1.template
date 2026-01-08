@@ -80,12 +80,13 @@ if ($PLASTER_PARAM_UseGit -eq 'true')
             that required files are changed.
         #>
 
+        $filesChanged = @()
         # Only run if there is a remote called origin
         if (((git remote) -match 'origin'))
         {
             $headCommit = &git rev-parse HEAD
             $defaultBranchCommit = &git rev-parse origin/main
-            $filesChanged = (&git @('diff', "$defaultBranchCommit...$headCommit", '--name-only') |
+            $filesChanged += (&git @('diff', "$defaultBranchCommit...$headCommit", '--name-only') |
                 Where-Object { $_ -match "^$escapedGitRelatedModulePath" }) -replace "^$escapedGitRelatedModulePath", ""
         }
 

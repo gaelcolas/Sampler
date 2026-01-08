@@ -207,6 +207,12 @@ on your development environment. If you use Chocolatey (install and upgrade):
 C:\> choco upgrade gitversion.portable
 ```
 
+If you use HomeBrew (install and upgrade):
+```PowerShell
+PS > brew upgrade gitversion
+```
+
+
 This describes how to [install GitVersion in your CI environment build agents](https://gitversion.net/docs/usage/ci)
 if you plan to use the deploy pipelines in the CI.
 
@@ -239,6 +245,8 @@ the file `build.yaml` is where you configure and customize it.
 #### `SimpleModule`
 
 Creates a module with minimal structure and pipeline automation.
+>[!NOTE]
+>Change the `DestinationPath` to the location where the module should be created depending on you platform and workflow.
 
 ```powershell
 Install-Module -Name 'Sampler' -Scope 'CurrentUser'
@@ -1058,10 +1066,10 @@ Get-MofSchemaName [-Path] <String> [<CommonParameters>]
 
 `[System.Collections.Hashtable]`
 
-Property Name | Type | Description
---- | --- | ---
-Name | `[System.String]` | The name of class
-FriendlyName | `[System.String]` | The friendly name of the class
+| Property Name | Type              | Description                    |
+| ------------- | ----------------- | ------------------------------ |
+| Name          | `[System.String]` | The name of class              |
+| FriendlyName  | `[System.String]` | The friendly name of the class |
 
 #### Example
 
@@ -1580,11 +1588,11 @@ Split-ModuleVersion [[-ModuleVersion] <String>] [<CommonParameters>]
 
 `[System.Management.Automation.PSCustomObject]`
 
-Property Name | Type | Description
---- | --- | ---
-Version | `[System.String]` | The module version (without prerelease string)
-PreReleaseString | `[System.String]` | The prerelease string part
-ModuleVersion | `[System.String]` | The full semantic version
+| Property Name    | Type              | Description                                    |
+| ---------------- | ----------------- | ---------------------------------------------- |
+| Version          | `[System.String]` | The module version (without prerelease string) |
+| PreReleaseString | `[System.String]` | The prerelease string part                     |
+| ModuleVersion    | `[System.String]` | The full semantic version                      |
 
 #### Example
 
