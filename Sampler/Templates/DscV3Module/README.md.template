@@ -1,0 +1,68 @@
+# <%=$PLASTER_PARAM_ModuleName %>
+
+<%=$PLASTER_PARAM_ModuleDescription %>
+
+## Overview
+
+This is a DSC v3 module containing class-based DSC resources. It uses the [DscSchemaGenerator](https://www.powershellgallery.com/packages/DSCSchemaGenerator) module to automatically generate DSC v3 resource manifests during the build process.
+
+## Requirements
+
+- PowerShell 7.2 or later
+- DSC v3
+
+## Installation
+
+```powershell
+Install-Module -Name <%=$PLASTER_PARAM_ModuleName %>
+```
+
+## DSC Resources
+
+### DSC_<%=$PLASTER_PARAM_ResourceName %>
+
+<%=$PLASTER_PARAM_ResourceDescription %>
+
+#### Properties
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| Name | String | Key | The unique identifier for the resource |
+| Ensure | String | No | Whether the resource should exist ('Present' or 'Absent'). Default: 'Present' |
+| Description | String | No | An optional description for this resource instance |
+| Status | String | Read-Only | The current state of the resource |
+
+#### Example
+
+```yaml
+# DSC v3 configuration example
+$schema: https://aka.ms/dsc/schemas/v3/bundled/config/document.json
+resources:
+  - name: Example
+    type: <%=$PLASTER_PARAM_ResourceTypePrefix %><%=$PLASTER_PARAM_ModuleName %>/DSC_<%=$PLASTER_PARAM_ResourceName %>
+    properties:
+      Name: MyResource
+      Ensure: Present
+      Description: My sample resource
+```
+
+## Building
+
+```powershell
+# Resolve dependencies
+./build.ps1 -ResolveDependency -Tasks noop
+
+# Build the module (includes DSC manifest generation)
+./build.ps1 -Tasks build
+
+# Run tests
+./build.ps1 -Tasks test
+```
+
+## Contributing
+
+Contributions are welcome! Please read the contributing guidelines before submitting a pull request.
+
+## License
+
+See the [LICENSE](LICENSE) file for license information.

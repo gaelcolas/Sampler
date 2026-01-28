@@ -1,0 +1,171 @@
+# This script is called by the DSC engine with JSON input via stdin
+
+[CmdletBinding()]
+param(
+    [Parameter(ValueFromPipeline = $true)]
+    [string]$InputJson,
+
+    [Parameter()]
+    [ValidateSet('get', 'set', 'test')]
+    [string]$Operation
+)
+
+$ErrorActionPreference = 'Stop'
+
+# Helper function to write DSC trace output
+function Write-DscTrace
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [ValidateSet('Error', 'Warn', 'Info', 'Debug', 'Trace')]
+        [string]$Level,
+
+        [Parameter(Mandatory = $true)]
+        [string]$Message
+    )
+
+    $trace = @{
+        $Level = $Message
+    } | ConvertTo-Json -Compress
+
+    $host.ui.WriteErrorLine($trace)
+}
+
+# Helper function to get type from a module
+# PowerShell classes defined in modules are not directly accessible after Import-Module
+# We need to use this pattern to get the type from the module's scope
+function GetTypeInstanceFromModule
+{
+    param(
+        [string]$modulename,
+        [string]$classname
+    )
+
+    $type = & (Import-Module $modulename -PassThru) ([scriptblock]::Create("'$classname' -as 'type'"))
+    return $type
+}
+
+# Get the directory where this script is located
+$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$modulePath = Join-Path $scriptDir '<%=$PLASTER_PARAM_ModuleName %>.psm1'
+
+# Import the module
+Import-Module $modulePath -Force
+
+# Get the resource type from the module
+$resourceType = GetTypeInstanceFromModule -modulename $modulePath -classname 'FileContent'
+
+# Use piped input
+Write-DscTrace -Level Debug -Message "Received input: $InputJson"
+
+# Parse the JSON input
+$inputObject = $InputJson | ConvertFrom-Json
+
+# Determine the operation from the parameter or input
+if (-not $Operation -and $inputObject.PSObject.Properties['_operation'])
+{
+    $Operation = $inputObject._operation
+}
+
+Write-DscTrace -Level Debug -Message "Operation: $Operation"
+
+# Create an instance of the resource
+$resource = $resourceType::new()
+
+# Set properties from input
+if ($inputObject.PSObject.Properties['Path'])
+{
+    $resource.Path = $inputObject.Path
+}
+if ($inputObject.PSObject.Properties['Content'])
+{
+    $resource.Content = $inputObject.Content
+}
+
+# Execute the appropriate method
+switch ($Operation)
+{
+    'get'
+    {
+        Write-DscTrace -Level Debug -Message 'Executing Get operation'
+        $result = $resource.Get()
+        $output = @{
+            Path         = $result.Path
+            Content      = $result.Content
+            _exist       = $result._exist
+            LastModified = $result.LastModified
+            FileSize     = $result.FileSize
+        }
+        $output | ConvertTo-Json -Compress
+    }
+    'set'
+    {
+        Write-DscTrace -Level Debug -Message 'Executing Set operation'
+        # Get state before set to determine what changed
+        $beforeState = $resource.Get()
+        $changedProperties = @()
+
+        # Perform the set operation
+        $resource.Set()
+
+        # Get state after set
+        $afterState = $resource.Get()
+
+        # Determine which properties changed
+        if ($beforeState.Content -ne $afterState.Content)
+        {
+            $changedProperties += 'Content'
+        }
+        if ($beforeState._exist -ne $afterState._exist)
+        {
+            $changedProperties += '_exist'
+        }
+
+        # Output Line 1: State after set (for 'state' or 'stateAndDiff' return modes)
+        @{
+            Path         = $afterState.Path
+            Content      = $afterState.Content
+            LastModified = $afterState.LastModified
+            FileSize     = $afterState.FileSize
+            _exist       = $afterState._exist
+        } | ConvertTo-Json -Compress
+
+        # Output Line 2: Changed properties array (for 'stateAndDiff' return mode)
+        $changedProperties | ConvertTo-Json -Compress
+    }
+    'test'
+    {
+        Write-DscTrace -Level Debug -Message 'Executing Test operation'
+        $currentState = $resource.Get()
+        $testResult = $resource.Test()
+        $diffProperties = @()
+
+        # Determine which properties are not in desired state
+        if ($currentState.Content -ne $resource.Content)
+        {
+            $diffProperties += 'Content'
+        }
+        if (-not $currentState._exist)
+        {
+            $diffProperties += '_exist'
+        }
+
+        # Output Line 1: State with _inDesiredState (for 'state' or 'stateAndDiff' return modes)
+        @{
+            Path            = $currentState.Path
+            Content         = $currentState.Content
+            LastModified    = $currentState.LastModified
+            FileSize        = $currentState.FileSize
+            _exist          = $currentState._exist
+            _inDesiredState = $testResult
+        } | ConvertTo-Json -Compress
+
+        # Output Line 2: Diff properties array (for 'stateAndDiff' return mode)
+        $diffProperties | ConvertTo-Json -Compress
+    }
+    default
+    {
+        Write-DscTrace -Level Error -Message "Unknown operation: $Operation"
+        throw "Unknown operation: $Operation. Valid operations are: get, set, test"
+    }
+}

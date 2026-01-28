@@ -1,0 +1,37 @@
+@{
+    RootModule        = '<%=$PLASTER_PARAM_ModuleName %>.psm1'
+    ModuleVersion     = '<%=$PLASTER_PARAM_ModuleVersion %>'
+    GUID              = '<%= [guid]::NewGuid().ToString() %>'
+    Author            = '<%=$PLASTER_PARAM_ModuleAuthor %>'
+    CompanyName       = 'Unknown'
+    Copyright         = '(c) <%=$PLASTER_PARAM_ModuleAuthor %>. All rights reserved.'
+    Description       = '<%=$PLASTER_PARAM_ModuleDescription %>'
+    PowerShellVersion = '7.2'
+
+    # Functions to export from this module
+    FunctionsToExport = @()
+
+    # Cmdlets to export from this module
+    CmdletsToExport   = @()
+
+    # Variables to export from this module
+    VariablesToExport = @()
+
+    # Aliases to export from this module
+    AliasesToExport   = @()
+
+    # DSC resources to export from this module
+    DscResourcesToExport = @(
+        'DSC_<%=$PLASTER_PARAM_ResourceName %>'
+    )
+
+    PrivateData       = @{
+        PSData = @{
+            Tags         = @('DSC', 'DSCv3', 'DesiredStateConfiguration')
+            LicenseUri   = ''
+            ProjectUri   = ''
+            ReleaseNotes = ''
+            Prerelease   = ''
+        }
+    }
+}
