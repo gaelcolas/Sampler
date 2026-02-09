@@ -16,10 +16,10 @@
         Provide the Version to be splitted and do not rely on GitVersion or the Module's manifest.
 
     .EXAMPLE
-        Get-BuildVersion -ModuleManifestPath source\MyModule.psd1
+        Get-SamplerBuildVersion -ModuleManifestPath source\MyModule.psd1
 
 #>
-function Get-BuildVersion
+function Get-SamplerBuildVersion
 {
     [CmdletBinding()]
     [OutputType([System.String])]

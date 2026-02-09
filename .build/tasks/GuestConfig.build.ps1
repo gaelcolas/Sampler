@@ -41,9 +41,9 @@ param
     $BuildInfo = (property BuildInfo @{ })
 )
 
-# SYNOPSIS: Building the Azure Policy Guest Configuration Packages
+# Synopsis: Building the Azure Policy Guest Configuration Packages
 task build_guestconfiguration_packages {
-    # Get the vales for task variables, see https://github.com/gaelcolas/Sampler#task-variables.
+    # Get the values for task variables, see https://github.com/gaelcolas/Sampler?tab=readme-ov-file#build-task-variables.
     . Set-SamplerTaskVariable -AsNewBuild
 
     if (-not (Split-Path -IsAbsolute $GCPackagesPath))
@@ -159,7 +159,7 @@ task build_guestconfiguration_packages {
             {
                 # Write non-terminating errors that are not "A second CIM class definition for .... was found..."
                 $false
-                Write-Error $_ -ErrorAction Continue
+                Write-Error -Message $_ -ErrorAction Continue
             }
             else
             {

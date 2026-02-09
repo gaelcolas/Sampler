@@ -17,7 +17,6 @@ SetPSModulePath:
     RemoveProgramFiles: true
     RemoveWindows: false
     SetSystemDefault: false
-
 #>
 
 Task Set_PSModulePath {
@@ -54,6 +53,11 @@ Task Set_PSModulePath {
 
     $param.BuiltModuleSubdirectory = $BuiltModuleSubdirectory
     $param.RequiredModulesDirectory = $RequiredModulesDirectory
+
+    if ($param.PSModulePath)
+    {
+        $param.PSModulePath = $ExecutionContext.InvokeCommand.ExpandString($param.PSModulePath)
+    }
 
     $newPSModulePath = Set-SamplerPSModulePath @param -PassThru
     Write-Build darkGray "`t...The new 'PSModulePath' is '$newPSModulePath'"

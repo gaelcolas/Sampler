@@ -57,7 +57,7 @@ Describe 'Set-SamplerTaskVariable' {
                 return (Join-Path -Path $TestDrive -ChildPath (Join-Path -Path 'source' -ChildPath 'MyModule.psd1'))
             }
 
-            Mock -CommandName Get-BuildVersion -MockWith {
+            Mock -CommandName Get-SamplerBuildVersion -MockWith {
                 return '2.0.0'
             }
         }
@@ -109,7 +109,7 @@ Describe 'Set-SamplerTaskVariable' {
                 return $true
             }
 
-            Mock -CommandName Get-BuildVersion -MockWith {
+            Mock -CommandName Get-SamplerBuildVersion -MockWith {
                 return '2.0.0'
             }
         }

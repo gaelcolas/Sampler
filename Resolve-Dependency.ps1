@@ -233,7 +233,7 @@ if ($UseModuleFast -and -not (Get-Module -Name 'ModuleFast'))
 
             $moduleFastBootstrapScriptBlockParameters.UseMain = $true
         }
-        elseif($ModuleFastVersion)
+        elseif ($ModuleFastVersion)
         {
             if ($ModuleFastVersion -notmatch 'v')
             {
@@ -345,7 +345,7 @@ if ($UsePSResourceGet)
                 Force           = $true
             }
 
-            Expand-Archive @expandArchiveParameters
+            Microsoft.PowerShell.Archive\Expand-Archive @expandArchiveParameters
 
             Remove-Item -Path $psResourceGetZipArchivePath
 
@@ -866,9 +866,24 @@ try
                 if ($moduleFastPlan)
                 {
                     # Clear all modules in plan from the current session so they can be fetched again.
-                    $moduleFastPlan.Name | Get-Module | Remove-Module -Force
-
-                    $moduleFastPlan | Install-ModuleFast @installModuleFastParameters
+                    try
+                    {
+                        $moduleFastPlan.Name | Get-Module | Remove-Module -Force
+                        $moduleFastPlan | Install-ModuleFast @installModuleFastParameters
+                    }
+                    catch
+                    {
+                        Write-Warning -Message 'ModuleFast could not save one or more dependencies. Retrying...'
+                        try
+                        {
+                            $moduleFastPlan.Name | Get-Module | Remove-Module -Force
+                            $moduleFastPlan | Install-ModuleFast @installModuleFastParameters
+                        }
+                        catch
+                        {
+                            Write-Error 'ModuleFast could not save one or more dependencies even after a retry.'
+                        }
+                    }
                 }
                 else
                 {

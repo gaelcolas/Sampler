@@ -175,7 +175,7 @@ task Create_Release_Git_Tag {
             $pushArguments += @('-c', ('http.extraheader="AUTHORIZATION: basic {0}"' -f $patBase64))
         }
 
-        $pushArguments += @('-c', 'http.sslbackend="schannel"', 'push', 'origin', '--tags')
+        $pushArguments += @('-c', 'http.sslbackend=schannel', 'push', 'origin', '--tags')
 
         Sampler\Invoke-SamplerGit -Argument $pushArguments
 

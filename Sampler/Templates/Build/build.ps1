@@ -10,7 +10,7 @@
         The default value is '' (empty string).
 
     .PARAMETER BuildConfig
-        Not yet written.
+        Path to a file with configuration. Supported extensions : psd1, yaml, yml, json, jsonc.
 
     .PARAMETER OutputDirectory
         Specifies the folder to build the artefact into. The default value is 'output'.
@@ -22,7 +22,7 @@
     .PARAMETER RequiredModulesDirectory
         Can be a path (relative to $PSScriptRoot or absolute) to tell Resolve-Dependency
         and PSDepend where to save the required modules. It is also possible to use
-        'CurrentUser' och 'AllUsers' to install missing dependencies. You can override
+        'CurrentUser' or 'AllUsers' to install missing dependencies. You can override
         the value for PSDepend in the Build.psd1 build manifest. The default value is
         'output/RequiredModules'.
 
@@ -49,13 +49,13 @@
         used in the DscResource.Test.build.ps1 tasks.
 
     .PARAMETER ResolveDependency
-        Not yet written.
+        Resolve missing dependencies.
 
     .PARAMETER BuildInfo
         The build info object from ModuleBuilder. Defaults to an empty hashtable.
 
     .PARAMETER AutoRestore
-        Not yet written.
+        Specifies to restore the required modules by running build.ps1 with ResolveDependency switch and empty task `noop`.
 
     .PARAMETER UseModuleFast
         Specifies to use ModuleFast instead of PowerShellGet to resolve dependencies
@@ -70,6 +70,7 @@
         only works then the method of downloading dependencies is PSResourceGet.
         This can also be configured in Resolve-Dependency.psd1.
 #>
+[System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', '', Justification = 'Suppressing this rule because how $PSDependTarget is assigned to splatting variable $resolveDependencyParams.')]
 [CmdletBinding()]
 param
 (
@@ -296,14 +297,17 @@ process
 
                     foreach ($TaskToExport in $BuildInfo['ModuleBuildTasks'].($module))
                     {
-                        $loadedModule.ExportedAliases.GetEnumerator().Where{
-                            Write-Host -Object "`t Loading $($_.Key)..." -ForegroundColor DarkGray
-
+                        $aliasTasks = $loadedModule.ExportedAliases.GetEnumerator().Where{
                             # Using -like to support wildcard.
                             $_.Key -like $TaskToExport
-                        }.ForEach{
+                        }
+
+                        foreach ($aliasTask in $aliasTasks)
+                        {
+                            Write-Host -Object "`t Loading $($aliasTask.Key)..." -ForegroundColor DarkGray
+
                             # Dot-sourcing the Tasks via their exported aliases.
-                            . (Get-Alias $_.Key)
+                            . (Get-Alias $aliasTask.Key)
                         }
                     }
                 }
@@ -317,12 +321,13 @@ process
         }
 
         # Loading Build Tasks defined in the .build/ folder (will override the ones imported above if same task name).
-        Get-ChildItem -Path '.build/' -Recurse -Include '*.ps1' -ErrorAction Ignore |
-            ForEach-Object {
-                "Importing file $($_.BaseName)" | Write-Verbose
+        $taskFiles = Get-ChildItem -Path '.build/' -Recurse -Include '*.ps1' -ErrorAction Ignore
+        foreach ($taskFile in $taskFiles)
+        {
+            "Importing file $($taskFile.BaseName)" | Write-Verbose
 
-                . $_.FullName
-            }
+            . $taskFile.FullName
+        }
 
         # Synopsis: Empty task, useful to test the bootstrap process.
         task noop { }
@@ -352,7 +357,6 @@ process
         }
 
         Write-Host -Object "[build] Executing requested workflow: $($Tasks -join ', ')" -ForeGroundColor Magenta
-
     }
     finally
     {
@@ -493,7 +497,7 @@ begin
             {
                 $paramValue = $MyInvocation.BoundParameters.Item($cmdParameter)
 
-                Write-Debug " adding  $cmdParameter :: $paramValue [from user-provided parameters to Build.ps1]"
+                Write-Debug -Message " adding  $cmdParameter :: $paramValue [from user-provided parameters to Build.ps1]"
 
                 $resolveDependencyParams.Add($cmdParameter, $paramValue)
             }
@@ -504,7 +508,7 @@ begin
 
                 if ($paramValue)
                 {
-                    Write-Debug " adding  $cmdParameter :: $paramValue [from default Build.ps1 variable]"
+                    Write-Debug -Message " adding  $cmdParameter :: $paramValue [from default Build.ps1 variable]"
 
                     $resolveDependencyParams.Add($cmdParameter, $paramValue)
                 }

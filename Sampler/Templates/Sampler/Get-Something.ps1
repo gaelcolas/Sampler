@@ -30,12 +30,12 @@ function Get-Something
     {
         if ($pscmdlet.ShouldProcess($Data))
         {
-            Write-Verbose ('Returning the data: {0}' -f $Data)
+            Write-Verbose -Message ('Returning the data: {0}' -f $Data)
             Get-PrivateFunction -PrivateData $Data
         }
         else
         {
-            Write-Verbose 'oh dear'
+            Write-Verbose -Message 'oh dear'
         }
     }
 }

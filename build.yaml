@@ -96,6 +96,7 @@ DscTest:
           - "Common Tests - Validate Localization"
           - "Common Tests - Validate Example Files To Be Published"
           - "Common Tests - Validate Example Files"
+          - "Common Tests - Required Script Analyzer Rules"
       Output:
         Verbosity: Detailed
         CIFormat: Auto

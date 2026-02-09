@@ -34,7 +34,6 @@ $packageArgs = @{
     #validExitCodes= @(0) #please insert other valid exit codes here
 }
 
-$uninstalled = $false
 # Get-UninstallRegistryKey is new to 0.9.10, if supporting 0.9.9.x and below,
 # take a dependency on "chocolatey-core.extension" in your nuspec file.
 # This is only a fuzzy search if $softwareName includes '*'. Otherwise it is
@@ -44,7 +43,7 @@ $uninstalled = $false
 
 if ($key.Count -eq 1)
 {
-  $key | % {
+  $key | ForEach-Object -Process {
     $packageArgs['file'] = "$($_.UninstallString)" #NOTE: You may need to split this if it contains spaces, see below
 
     if ($packageArgs['fileType'] -eq 'MSI')
@@ -73,7 +72,7 @@ if ($key.Count -eq 1)
 }
 elseif ($key.Count -eq 0)
 {
-    Write-Warning "$packageName has already been uninstalled by other means."
+    Write-Warning -Message "$packageName has already been uninstalled by other means."
 }
 elseif ($key.Count -gt 1)
 {

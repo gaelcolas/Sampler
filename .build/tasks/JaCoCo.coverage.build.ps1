@@ -55,7 +55,7 @@ param
 
 # Synopsis: Merging several code coverage files together.
 task Merge_CodeCoverage_Files {
-    # Get the vales for task variables, see https://github.com/gaelcolas/Sampler#task-variables.
+    # Get the values for task variables, see https://github.com/gaelcolas/Sampler?tab=readme-ov-file#build-task-variables.
     . Set-SamplerTaskVariable
 
     $osShortName = Get-OperatingSystemShortName
@@ -201,13 +201,13 @@ function Start-CodeCoverageMerge
 
     if (Confirm-CodeCoverageFileFormat -CodeCovFile $targetDocument)
     {
-        Write-Verbose "Successfully imported $($firstFile.Name) as a baseline"
+        Write-Verbose -Message "Successfully imported $($firstFile.Name) as a baseline"
 
         $merged = 0
         foreach ($file in $otherFiles)
         {
             [xml]$mergeDocument = Get-Content -Path $file.FullName -Raw
-            Write-Verbose "Merging $($file.Name) into baseline"
+            Write-Verbose -Message "Merging $($file.Name) into baseline"
             if (Confirm-CodeCoverageFileFormat -CodeCovFile $mergeDocument)
             {
                 $targetDocument = Merge-JaCoCoReport -OriginalDocument $targetDocument -MergeDocument $mergeDocument
@@ -215,11 +215,11 @@ function Start-CodeCoverageMerge
             }
             else
             {
-                Write-Verbose "The following code coverage file is not using the JaCoCo format: $($file.Name)"
+                Write-Verbose -Message "The following code coverage file is not using the JaCoCo format: $($file.Name)"
             }
         }
 
-        Write-Verbose "Merge completed: Successfully merged $merged files into the baseline"
+        Write-Verbose -Message "Merge completed: Successfully merged $merged files into the baseline"
 
         $targetDocument = Update-JaCoCoStatistic -Document $targetDocument
 
@@ -243,7 +243,7 @@ function Start-CodeCoverageMerge
 
 # Synopsis: Convert JaCoCo coverage so it supports a built module by way of ModuleBuilder.
 task Convert_Pester_Coverage {
-    # Get the vales for task variables, see https://github.com/gaelcolas/Sampler#task-variables.
+    # Get the values for task variables, see https://github.com/gaelcolas/Sampler?tab=readme-ov-file#build-task-variables.
     . Set-SamplerTaskVariable
 
     $GetCodeCoverageThresholdParameters = @{

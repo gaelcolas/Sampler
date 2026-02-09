@@ -78,7 +78,12 @@ Describe 'SimpleModule' {
             git add . 2>&1
             git commit --message=first
 
-            ./build.ps1 -ResolveDependency -Tasks 'build' 4>&1 5>&1 6>&1 > $null
+            ./build.ps1 -ResolveDependency -Tasks 'noop' 4>&1 5>&1 6>&1 > $null
+
+            # Remove the downloaded Sampler version, to use the built version.
+            Remove-Item -Path './output/RequiredModules/Sampler' -Recurse -Force -ErrorAction 'Stop'
+
+            ./build.ps1 -Tasks 'build' 4>&1 5>&1 6>&1 > $null
         } |
             Receive-Job -Wait -AutoRemoveJob -ErrorVariable buildError
 

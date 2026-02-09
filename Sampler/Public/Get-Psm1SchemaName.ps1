@@ -39,11 +39,11 @@ function Get-Psm1SchemaName
 
         if ($configurations.Count -ne 1)
         {
-            Write-Error "It is expected to find only 1 configuration in the file '$Path' but found $($configurations.Count)"
+            Write-Error -Message "It is expected to find only 1 configuration in the file '$Path' but found $($configurations.Count)"
         }
         else
         {
-            Write-Verbose "Found Configuration '$($configurations[0].InstanceName)'"
+            Write-Verbose -Message "Found Configuration '$($configurations[0].InstanceName)'"
             $configurations[0].InstanceName.Value
         }
     }

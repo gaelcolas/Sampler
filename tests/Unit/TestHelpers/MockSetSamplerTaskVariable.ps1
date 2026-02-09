@@ -154,6 +154,6 @@ Mock -CommandName Get-Item -MockWith {
 }
 
 # This is only used when calling Set-SamplerTaskVariable with parameter -AsNewBuild
-Mock -CommandName Get-BuildVersion -MockWith {
+Mock -CommandName Get-SamplerBuildVersion -MockWith {
     return '2.0.0'
 }

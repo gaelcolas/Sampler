@@ -41,7 +41,7 @@
     .OUTPUTS
         [System.String[]]
 
-        See https://github.com/gaelcolas/Sampler#task-variables.
+        See https://github.com/gaelcolas/Sampler?tab=readme-ov-file#build-task-variables.
 
     .EXAMPLE
         . Set-SamplerTaskVariable -AsNewBuild
@@ -56,6 +56,7 @@
         by not checking after the module manifest in the built module.
 
 #>
+[System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', '', Justification = 'Because the variables like BuildModuleOutput are not usedin the script but in the tasks that dot-source this script.')]
 param
 (
     [Parameter()]
@@ -144,7 +145,7 @@ if ($AsNewBuild.IsPresent -or $isChocolateyPackage)
         will fetched from GitVersion if it is installed. If GitVersion is _not_
         installed the version is fetched from the module manifest in SourcePath.
     #>
-    $ModuleVersion = Get-BuildVersion @getBuildVersionParameters
+    $ModuleVersion = Get-SamplerBuildVersion @getBuildVersionParameters
 
     "`tModule Version             = '$ModuleVersion'"
 }
