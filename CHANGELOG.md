@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixes
+
+- Update URL for PowerShell gallery pre-release badge ([#553](https://github.com/gaelcolas/Sampler/issues/553)).
+
 ## [0.119.0] - 2026-01-08
 
 ### Added
