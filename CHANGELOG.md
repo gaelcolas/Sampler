@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Update URL for PowerShell gallery pre-release badge ([#553](https://github.com/gaelcolas/Sampler/issues/553)).
 - Update azure-pipelines task PublishCodeCoverageResults to v2 ([#551](https://github.com/gaelcolas/Sampler/issues/551)).
 
 ## [0.119.0] - 2026-01-08
