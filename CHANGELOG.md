@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Update URL for PowerShell gallery pre-release badge ([#553](https://github.com/gaelcolas/Sampler/issues/553)).
 - Update azure-pipelines task PublishCodeCoverageResults to v2 ([#551](https://github.com/gaelcolas/Sampler/issues/551)).
+- Pinned Plaster to 1.1.4.
 
 ## [0.119.0] - 2026-01-08
 
