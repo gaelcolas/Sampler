@@ -164,7 +164,7 @@ task package_psresource_nupkg {
             if ($nextModule.Count -gt 1)
             {
                 # Maybe there were ScriptsToProcess, so we imported more than 1 elements
-                # We need to find just the module, either by name or by it's manifest path
+                # We need to find just the module, either by name or by its manifest path
                 $nextModule = $nextModule.Where({
                     $nextModuleAbsolutePath = Get-SamplerAbsolutePath -Path $_.Path
                     $nextModuleSpecsPath = Get-SamplerAbsolutePath -Path $nextModuleSpecs.Name
@@ -177,7 +177,7 @@ task package_psresource_nupkg {
         catch
         {
             Write-Build Red "Error importing module $($nextModuleSpecs.Name) with version $($nextModuleSpecs.Version). $($_.Exception.Message)"
-            throw 'Cannot continue packaging the module without all required modules being available. Please ensure all required modules are available in the environment or marked as externally managed.'
+            throw "Cannot continue packaging the module. Error with $($nextModuleSpecs.Name) with version $($nextModuleSpecs.Version). $($_.Exception.Message)"
         }
 
         # Best way to deduce the module manifest I found
@@ -204,7 +204,7 @@ task package_psresource_nupkg {
             if ($nextModuleSpecs.Name -notin $alreadyPublishedModules.Name)
             {
                 # TODO: Maybe be more robust with the prerelease flag?
-                $isModuleInOutputRepo = $nextModule | Find-Module -repository output -ErrorAction SilentlyContinue -AllowPrerelease
+                $isModuleInOutputRepo = $nextModule | Find-PSResource -repository 'output' -ErrorAction SilentlyContinue -AllowPrerelease
                 $nextReleaseTag = if ($nextModuleManifest.PrivateData.PSData.Prerelease)
                 {
                      '-{0}' -f $nextModuleManifest.PrivateData.PSData.Prerelease
