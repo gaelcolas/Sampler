@@ -76,6 +76,6 @@
     #PSResourceGetVersion = '1.2.0'
 
     # PowerShellGet compatibility module only works when using PSResourceGet or ModuleFast.
-    UsePowerShellGetCompatibilityModule = $true
-    UsePowerShellGetCompatibilityModuleVersion = '3.0.23-beta23'
+    # UsePowerShellGetCompatibilityModule = $true
+    # UsePowerShellGetCompatibilityModuleVersion = '3.0.23-beta23'
 }
