@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `package_psresource_nupkg` tasks that recursively packs dependencies, ignoring `ExternalDependencies` using `PSResourceGet` module.
+
 ### Fixed
 
 - Update URL for PowerShell gallery pre-release badge ([#553](https://github.com/gaelcolas/Sampler/issues/553)).
