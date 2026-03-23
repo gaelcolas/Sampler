@@ -17,7 +17,7 @@ AfterAll {
 }
 
 Describe 'publish.nuget' {
-    It 'Should have exported the alias correct' {
+    It 'Should have exported the alias correctly' {
         $taskAlias = Get-Alias -Name 'publish.nuget.build.Sampler.ib.tasks'
 
         $taskAlias.Name | Should -Be 'publish.nuget.build.Sampler.ib.tasks'

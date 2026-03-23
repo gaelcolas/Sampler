@@ -17,7 +17,7 @@ AfterAll {
 }
 
 Describe 'JaCoCo.coverage' {
-    It 'Should have exported the alias correct' {
+    It 'Should have exported the alias correctly' {
         $taskAlias = Get-Alias -Name 'JaCoCo.coverage.build.Sampler.ib.tasks'
 
         $taskAlias.Name | Should -Be 'JaCoCo.coverage.build.Sampler.ib.tasks'

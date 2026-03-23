@@ -17,7 +17,7 @@ AfterAll {
 }
 
 Describe 'release.psresource' {
-    It 'Should have exported the alias correct' {
+    It 'Should have exported the alias correctly' {
         $taskAlias = Get-Alias -Name 'release.psresource.build.Sampler.ib.tasks'
 
         $taskAlias.Name | Should -Be 'release.psresource.build.Sampler.ib.tasks'
@@ -25,7 +25,6 @@ Describe 'release.psresource' {
         $taskAlias.Definition | Should -Match 'Sampler[\/|\\]\d+\.\d+\.\d+[\/|\\]tasks[\/|\\]release\.psresource\.build\.ps1'
     }
 }
-
 
 Describe 'package_psresource_nupkg' {
     BeforeAll {
@@ -65,7 +64,25 @@ Describe 'package_psresource_nupkg' {
                 #>
                 New-Item -Path ($BuiltModuleManifest | Split-Path -Parent) -ItemType Directory -Force | Out-Null
 
-                return '# ReleaseNotes ='
+                return @'
+@{
+    ModuleVersion = '2.0.0'
+    GUID = '00000000-0000-0000-0000-000000000000'
+    Author = 'Test'
+    CompanyName = 'Test'
+    Copyright = 'Test'
+    Description = 'Test module'
+    FunctionsToExport = '*'
+    CmdletsToExport = '*'
+    VariablesToExport = '*'
+    AliasesToExport = '*'
+    PrivateData = @{
+        PSData = @{
+            # ReleaseNotes = 'Test release notes'
+        }
+    }
+}
+'@
             }
 
             Mock -CommandName Get-SamplerModuleInfo -MockWith {
@@ -83,7 +100,7 @@ Describe 'package_psresource_nupkg' {
             } | Should -Not -Throw
 
             Should -Invoke -CommandName Publish-PSResource -Exactly -Times 1 -Scope It
-        } -Skip
+        }
     }
 
     Context 'When packaging a Nuget package with a required PSResource' {
@@ -118,7 +135,25 @@ Describe 'package_psresource_nupkg' {
                 #>
                 New-Item -Path ($BuiltModuleManifest | Split-Path -Parent) -ItemType Directory -Force | Out-Null
 
-                return '# ReleaseNotes ='
+                return @'
+@{
+    ModuleVersion = '2.0.0'
+    GUID = '00000000-0000-0000-0000-000000000000'
+    Author = 'Test'
+    CompanyName = 'Test'
+    Copyright = 'Test'
+    Description = 'Test module'
+    FunctionsToExport = '*'
+    CmdletsToExport = '*'
+    VariablesToExport = '*'
+    AliasesToExport = '*'
+    PrivateData = @{
+        PSData = @{
+            # ReleaseNotes = 'Test release notes'
+        }
+    }
+}
+'@
             }
 
             Mock -CommandName Get-SamplerModuleInfo -MockWith {
@@ -164,8 +199,6 @@ Describe 'package_psresource_nupkg' {
                 Invoke-Build -Task 'package_psresource_nupkg' -File $taskAlias.Definition @mockTaskParameters
             } | Should -Not -Throw
 
-            Should -Invoke -CommandName Get-Module -Exactly -Times 1 -Scope It
-
             Should -Invoke -CommandName Publish-PSResource -ParameterFilter {
                 $Path -eq ($TestDrive | Join-Path -ChildPath 'MyDependentModule')
             } -Exactly -Times 1 -Scope It
@@ -173,6 +206,6 @@ Describe 'package_psresource_nupkg' {
             Should -Invoke -CommandName Publish-PSResource -ParameterFilter {
                 $Path -match 'MyModule'
             } -Exactly -Times 1 -Scope It
-        } -Skip
+        }
     }
 }

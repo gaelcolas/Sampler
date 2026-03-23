@@ -102,11 +102,12 @@ task package_psresource_nupkg {
     # Force registering the output repository mapping to the Project's output path
     try
     {
+        Write-Build DarkGray "  Unregistering output repository."
         $null = Unregister-PSResourceRepository -Name output -ErrorAction Ignore
     }
     catch
     {
-        Write-Build Yellow "Output repository was not registered, skipping unregistering."
+        Write-Build Yellow "  Output repository was not registered, skipping unregistering."
     }
 
 
@@ -204,7 +205,15 @@ task package_psresource_nupkg {
             if ($nextModuleSpecs.Name -notin $alreadyPublishedModules.Name)
             {
                 # TODO: Maybe be more robust with the prerelease flag?
-                $isModuleInOutputRepo = $nextModule | Find-PSResource -repository 'output' -ErrorAction SilentlyContinue -AllowPrerelease
+
+                if (Get-PSResourceRepository -Name output -ErrorAction Ignore)
+                {
+                    $isModuleInOutputRepo = $nextModule | Find-PSResource -repository 'output' -ErrorAction Ignore -Prerelease
+                }
+                else {
+                    $isModuleInOutputRepo = $false
+                }
+
                 $nextReleaseTag = if ($nextModuleManifest.PrivateData.PSData.Prerelease)
                 {
                      '-{0}' -f $nextModuleManifest.PrivateData.PSData.Prerelease

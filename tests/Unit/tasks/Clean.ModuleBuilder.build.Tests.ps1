@@ -17,7 +17,7 @@ AfterAll {
 }
 
 Describe 'Clean.ModuleBuilder' {
-    It 'Should have exported the alias correct' {
+    It 'Should have exported the alias correctly' {
         $taskAlias = Get-Alias -Name 'Clean.ModuleBuilder.build.Sampler.ib.tasks'
 
         $taskAlias.Name | Should -Be 'Clean.ModuleBuilder.build.Sampler.ib.tasks'

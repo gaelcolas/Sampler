@@ -17,7 +17,7 @@ AfterAll {
 }
 
 Describe 'release.module' {
-    It 'Should have exported the alias correct' {
+    It 'Should have exported the alias correctly' {
         $taskAlias = Get-Alias -Name 'release.module.build.Sampler.ib.tasks'
 
         $taskAlias.Name | Should -Be 'release.module.build.Sampler.ib.tasks'

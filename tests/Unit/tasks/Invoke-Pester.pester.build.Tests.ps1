@@ -17,7 +17,7 @@ AfterAll {
 }
 
 Describe 'Invoke-Pester' {
-    It 'Should have exported the alias correct' {
+    It 'Should have exported the alias correctly' {
         $taskAlias = Get-Alias -Name 'Invoke-Pester.pester.build.Sampler.ib.tasks'
 
         $taskAlias.Name | Should -Be 'Invoke-Pester.pester.build.Sampler.ib.tasks'

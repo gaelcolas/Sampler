@@ -17,7 +17,7 @@ AfterAll {
 }
 
 Describe 'Changelog.changelogmanagement' {
-    It 'Should have exported the alias correct' {
+    It 'Should have exported the alias correctly' {
         $taskAlias = Get-Alias -Name 'Changelog.changelogmanagement.build.Sampler.ib.tasks'
 
         $taskAlias.Name | Should -Be 'Changelog.changelogmanagement.build.Sampler.ib.tasks'

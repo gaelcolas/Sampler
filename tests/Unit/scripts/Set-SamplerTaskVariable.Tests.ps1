@@ -17,7 +17,7 @@ AfterAll {
 }
 
 Describe 'Set-SamplerTaskVariable' {
-    It 'Should have exported the alias correct' {
+    It 'Should have exported the alias correctly' {
         <#
             Need to add scope global to get the alias that is exported by the module,
             not the alias that is exported by build.ps1 into local session (to be
