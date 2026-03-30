@@ -255,6 +255,16 @@ Describe 'publish_module_to_gallery' {
                     return '# ReleaseNotes ='
                 }
 
+                if (-not (Get-Command -Name 'Get-PSResourceRepository' -ErrorAction SilentlyContinue))
+                {
+                    function Get-PSResourceRepository {}
+                }
+
+                if (-not (Get-Command -Name 'Publish-PSResource' -ErrorAction SilentlyContinue))
+                {
+                    function Publish-PSResource {}
+                }
+
                 Mock -CommandName Get-PSResourceRepository
                 Mock -CommandName Publish-PSResource
             }
