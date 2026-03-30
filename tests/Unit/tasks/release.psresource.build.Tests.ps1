@@ -41,7 +41,7 @@ Describe 'package_psresource_nupkg' {
 
     Context 'When packaging a Nuget package' {
         BeforeAll {
-            import-module -Name PSResourceGet
+            import-module -Name Microsoft.PowerShell.PSResourceGet
             Mock -CommandName Unregister-PSResourceRepository
             Mock -CommandName Register-PSResourceRepository
 
