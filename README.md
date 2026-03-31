@@ -1,30 +1,32 @@
-# Sampler Module [![Azure DevOps builds](https://img.shields.io/azure-devops/build/Synedgy/524b41a5-5330-4967-b2de-bed8fd44da08/1)](https://synedgy.visualstudio.com/Sampler/_build?definitionId=1&_a=summary)
 
-[![PowerShell Gallery (with prereleases)](https://img.shields.io/powershellgallery/vpre/Sampler?label=Sampler%20Preview)](https://www.powershellgallery.com/packages/Sampler/)
+# Sampler Module [![Azure DevOps builds](https://img.shields.io/azure-devops/build/Synedgy/524b41a5-5330-4967-b2de-bed8fd44da08/1)](https://synedgy.visualstudio.com/Sampler/_build?definitionId=1&_a=summary) <img align="right" width="110" height="110" src="Sampler/assets/sampler.png">  
+
+[![PowerShell Gallery (with prereleases)](https://img.shields.io/powershellgallery/v/Sampler?label=Sampler%20Preview&include_prereleases)](https://www.powershellgallery.com/packages/Sampler/)
 [![PowerShell Gallery](https://img.shields.io/powershellgallery/v/Sampler?label=Sampler)](https://www.powershellgallery.com/packages/Sampler/)
 [![Azure DevOps tests](https://img.shields.io/azure-devops/tests/SynEdgy/Sampler/1)](https://synedgy.visualstudio.com/Sampler/_test/analytics?definitionId=1&contextType=build)
 ![Azure DevOps coverage](https://img.shields.io/azure-devops/coverage/Synedgy/Sampler/1)
 ![PowerShell Gallery](https://img.shields.io/powershellgallery/p/Sampler)
 
-## 1. Description
+Sampler is an opinionated scaffolding and build-automation framework for
+PowerShell module projects. It gives you a production-ready project
+structure, a reproducible build pipeline powered by
+[InvokeBuild](https://github.com/nightroman/Invoke-Build), and a library
+of reusable tasks — so you can focus on writing your module instead of
+maintaining infrastructure.
 
-This project is used to scaffold a PowerShell module project, complete with
-PowerShell build, test and deploy pipeline automation.
+## Why Sampler?
 
-The `Sampler` module in itself serves several purposes:
-
-- Quickly scaffold a PowerShell module project that can build and enforce some good practices.
-- Provide a minimum set of [InvokeBuild](https://github.com/nightroman/Invoke-Build)
-tasks that help you build, test, pack and publish your module.
-- Help building your module by adding elaborate sample elements like classes,
-  MOF-based DSC resources, class-based DSC resources, helper modules, embedded helper
-  modules, and more.
-- Avoid the "it works on my machine" and remove the dependence on specific tools
-  (such as a CI tool).
-- Ensures the build process can be run anywhere the same way (whether behind a
-  firewall, on a developers workstation, or in a build agent).
-- Assume nothing is set up, and you don't have local administrator rights.
-- Works on Windows, Linux and MacOS.
+- **Scaffold in seconds**: Generate a new module project with built-in
+  CI/CD support, code-quality checks, and best-practice conventions.
+- **Build, test, pack & publish**: A curated set of InvokeBuild tasks
+  covers the full lifecycle from source to the PowerShell Gallery.
+- **Rich templates**: Add classes, MOF-based DSC resources, class-based
+  DSC resources, helper modules, composite resources, and more with a
+  single command.
+- **Reproducible everywhere**: The same build runs on a developer
+  workstation, behind a corporate firewall, or in a CI agent — no
+  local-admin rights or pre-installed tooling required.
+- **Cross-platform**: Works on Windows, Linux, and macOS.
 
 Check the video for a quick intro:
 

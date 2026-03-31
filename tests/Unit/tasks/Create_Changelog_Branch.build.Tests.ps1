@@ -23,7 +23,7 @@ Describe 'Create_Changelog_Branch' {
         $taskAlias = Get-Alias -Name "$buildTaskName.build.Sampler.ib.tasks"
     }
 
-    It 'Should have exported the alias correct' {
+    It 'Should have exported the alias correctly' {
         $taskAlias.Name | Should -Be 'Create_Changelog_Branch.build.Sampler.ib.tasks'
         $taskAlias.ReferencedCommand | Should -Be 'Create_Changelog_Branch.build.ps1'
         $taskAlias.Definition | Should -Match 'Sampler[\/|\\]\d+\.\d+\.\d+[\/|\\]tasks[\/|\\]Create_Changelog_Branch\.build\.ps1'

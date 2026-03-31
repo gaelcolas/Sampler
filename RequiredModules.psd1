@@ -25,4 +25,5 @@
     xDscResourceDesigner        = 'latest'
     PlatyPS                     = 'latest'
     'DscResource.DocGenerator'  = 'latest'
+    'Microsoft.PowerShell.PSResourceGet' = 'latest'
 }

@@ -17,7 +17,7 @@ AfterAll {
 }
 
 Describe 'ChocolateyPackage' {
-    It 'Should have exported the alias correct' {
+    It 'Should have exported the alias correctly' {
         $taskAlias = Get-Alias -Name 'ChocolateyPackage.build.Sampler.ib.tasks'
 
         $taskAlias.Name | Should -Be 'ChocolateyPackage.build.Sampler.ib.tasks'

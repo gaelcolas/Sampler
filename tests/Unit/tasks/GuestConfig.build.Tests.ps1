@@ -17,7 +17,7 @@ AfterAll {
 }
 
 Describe 'GuestConfig' {
-    It 'Should have exported the alias correct' {
+    It 'Should have exported the alias correctly' {
         $taskAlias = Get-Alias -Name 'GuestConfig.build.Sampler.ib.tasks'
 
         $taskAlias.Name | Should -Be 'GuestConfig.build.Sampler.ib.tasks'

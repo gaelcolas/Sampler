@@ -17,7 +17,7 @@ AfterAll {
 }
 
 Describe 'generateHelp.PlatyPS' {
-    It 'Should have exported the alias correct' {
+    It 'Should have exported the alias correctly' {
         $taskAlias = Get-Alias -Name 'generateHelp.PlatyPS.build.Sampler.ib.tasks'
 
         $taskAlias.Name | Should -Be 'generateHelp.PlatyPS.build.Sampler.ib.tasks'

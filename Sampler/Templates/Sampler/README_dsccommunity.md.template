@@ -9,7 +9,7 @@ configuration of PRODUCT.
 ![Azure DevOps coverage (branch)](https://img.shields.io/azure-devops/coverage/dsccommunity/<%= $PLASTER_PARAM_ModuleName %>/9999/<%= if ($PLASTER_PARAM_GitMainBranch -eq 'master') { 'master' } else { 'main' } %>)
 [![codecov](https://codecov.io/gh/dsccommunity/<%= $PLASTER_PARAM_ModuleName %>/branch/<%= if ($PLASTER_PARAM_GitMainBranch -eq 'master') { 'master' } else { 'main' } %>/graph/badge.svg)](https://codecov.io/gh/dsccommunity/<%= $PLASTER_PARAM_ModuleName %>)
 [![Azure DevOps tests](https://img.shields.io/azure-devops/tests/dsccommunity/<%= $PLASTER_PARAM_ModuleName %>/9999/<%= if ($PLASTER_PARAM_GitMainBranch -eq 'master') { 'master' } else { 'main' } %>)](https://dsccommunity.visualstudio.com/<%= $PLASTER_PARAM_ModuleName %>/_test/analytics?definitionId=9999&contextType=build)
-[![PowerShell Gallery (with prereleases)](https://img.shields.io/powershellgallery/vpre/<%= $PLASTER_PARAM_ModuleName %>?label=<%= $PLASTER_PARAM_ModuleName %>%20Preview)](https://www.powershellgallery.com/packages/<%= $PLASTER_PARAM_ModuleName %>/)
+[![PowerShell Gallery (with prereleases)](https://img.shields.io/powershellgallery/v/<%= $PLASTER_PARAM_ModuleName %>?label=<%= $PLASTER_PARAM_ModuleName %>%20Preview&include_prelreleases)](https://www.powershellgallery.com/packages/<%= $PLASTER_PARAM_ModuleName %>/)
 [![PowerShell Gallery](https://img.shields.io/powershellgallery/v/<%= $PLASTER_PARAM_ModuleName %>?label=<%= $PLASTER_PARAM_ModuleName %>)](https://www.powershellgallery.com/packages/<%= $PLASTER_PARAM_ModuleName %>/)
 
 ## Code of Conduct

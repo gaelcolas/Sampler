@@ -63,7 +63,7 @@
         script and correct parameter values. This will also affect the use of parameter
         `-UseModuleFast` of the Resolve-Dependency.ps1 or build.ps1 script.
     #>
-    #UseModuleFast = $true
+    # UseModuleFast = $true
     #ModuleFastVersion = '0.1.2'
     #ModuleFastBleedingEdge = $true
 
@@ -73,9 +73,9 @@
         set to $false then PowerShellGet will be used to resolve dependencies.
     #>
     UsePSResourceGet = $true
-    PSResourceGetVersion = '1.0.1'
+    #PSResourceGetVersion = '1.2.0'
 
     # PowerShellGet compatibility module only works when using PSResourceGet or ModuleFast.
-    UsePowerShellGetCompatibilityModule = $true
-    UsePowerShellGetCompatibilityModuleVersion = '3.0.23-beta23'
+    # UsePowerShellGetCompatibilityModule = $true
+    # UsePowerShellGetCompatibilityModuleVersion = '3.0.23-beta23'
 }

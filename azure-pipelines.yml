@@ -24,7 +24,7 @@ stages:
       - job: Package_Module
         displayName: 'Package Module'
         pool:
-          vmImage: 'windows-latest'
+          vmImage: 'ubuntu-latest'
         steps:
           - pwsh: |
               dotnet tool install --global GitVersion.Tool --version 5.*
@@ -287,10 +287,9 @@ stages:
               filePath: './build.ps1'
               arguments: '-tasks merge'
               pwsh: true
-          - task: PublishCodeCoverageResults@1
+          - task: PublishCodeCoverageResults@2
             displayName: 'Publish Azure Code Coverage'
             inputs:
-              codeCoverageTool: 'JaCoCo'
               summaryFileLocation: '$(buildFolderName)/$(testResultFolderName)/JaCoCo_coverage.xml'
               pathToSources: '$(Build.SourcesDirectory)/$(dscBuildVariable.RepositoryName)/'
           - script: |

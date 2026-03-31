@@ -26,7 +26,7 @@ Describe 'SetPsModulePath' -Tag x {
         }
     }
 
-    It 'Should have exported the alias correct' {
+    It 'Should have exported the alias correctly' {
 
         $taskAlias.Name | Should -Be 'SetPsModulePath.build.Sampler.ib.tasks'
         $taskAlias.ReferencedCommand | Should -Be 'SetPsModulePath.build.ps1'
