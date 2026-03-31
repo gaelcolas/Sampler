@@ -223,8 +223,16 @@ task package_psresource_nupkg {
                 if (-not $isModuleInOutputRepo)
                 {
                     Write-Build Yellow ("  Packaging Required Module {0} v{1} from path '{2}'" -f $nextModuleManifest.Name, $moduleVersionWithTag, $nextModule.ModuleBase)
-                    Publish-PSResource -Repository output -ErrorAction SilentlyContinue -Path $nextModuleManifestPath -WhatIf:$PublishModuleWhatIf
-                    Write-Build Green ("  Published Required Module {0} v{1} to output repository" -f $nextModuleManifest.Name, $moduleVersionWithTag)
+                    try
+                    {
+                        Publish-PSResource -Repository output -ErrorAction Stop -Path $nextModuleManifestPath -WhatIf:$PublishModuleWhatIf
+                        Write-Build Green ("  Published Required Module {0} v{1} to output repository" -f $nextModuleManifest.Name, $moduleVersionWithTag)
+                    }
+                    catch
+                    {
+                        Write-Build Red ("  Failed to publish Required Module {0} v{1} to output repository. Error: {2}" -f $nextModuleManifest.Name, $moduleVersionWithTag, $_)
+                        throw
+                    }
                 }
                 else
                 {
