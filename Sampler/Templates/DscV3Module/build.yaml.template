@@ -1,0 +1,104 @@
+---
+####################################################
+#          ModuleBuilder Configuration             #
+####################################################
+BuiltModuleSubdirectory: module
+Prefix: prefix.ps1
+CopyPaths:
+  - en-US
+  - resource.ps1
+
+Encoding: UTF8
+VersionedOutputDirectory: true
+
+####################################################
+#      ModuleBuilder Submodules Configuration      #
+####################################################
+
+NestedModule:
+    DscResource.Common:
+      CopyOnly: true
+      Path: ./output/RequiredModules/DscResource.Common
+      AddToManifest: false
+      Exclude: PSGetModuleInfo.xml
+
+    DscResource.Base:
+      CopyOnly: true
+      Path: ./output/RequiredModules/DscResource.Base
+      AddToManifest: false
+      Exclude: PSGetModuleInfo.xml
+
+####################################################
+#       Sampler Pipeline Configuration             #
+####################################################
+BuildWorkflow:
+  '.':
+    - build
+    - test
+
+  build:
+    - Clean
+    - Build_Module_ModuleBuilder
+    - Build_NestedModules_ModuleBuilder
+    - Create_changelog_release_output
+    - Build_DscV3_Manifests
+
+  pack:
+    - build
+    - package_module_nupkg
+
+  test:
+    - Pester_Tests_Stop_On_Fail
+    - Pester_if_Code_Coverage_Under_Threshold
+
+  publish:
+    - Publish_Release_To_GitHub
+    - publish_module_to_gallery
+
+####################################################
+#       PESTER Configuration                       #
+####################################################
+Pester:
+  OutputFormat: NUnitXML
+  ExcludeFromCodeCoverage:
+    - Modules/DscResource.Common
+    - Modules/DscResource.Base
+    - resource.ps1
+  Script:
+  ExcludeTag:
+  Tag:
+  CodeCoverageThreshold: 85
+
+####################################################
+#       DSC v3 Manifest Generation                 #
+####################################################
+DscV3Manifest:
+  # Resource type prefix (optional, e.g., 'MyOrg/')
+  ResourceTypePrefix: ''
+  # Version to use in manifests (uses ModuleVersion if not specified)
+  # Version: '0.1.0'
+  # Tags to add to all manifests
+  Tags: []
+  # Return type for set and test operations: 'state' or 'stateAndDiff'
+  # 'state' - Returns only the current state
+  # 'stateAndDiff' - Returns state on line 1, changed/diff properties on line 2
+  SetReturns: 'stateAndDiff'
+  TestReturns: 'stateAndDiff'
+  # List of resources to generate manifests for (auto-discovered from Classes folder if empty)
+  # Resources:
+  #   - Name: <%=$PLASTER_PARAM_ResourceName %>
+
+####################################################
+#       ModuleBuildTasks Configuration             #
+####################################################
+ModuleBuildTasks:
+  Sampler:
+    - '*.build.Sampler.ib.tasks'
+  Sampler.GitHubTasks:
+    - '*.ib.tasks'
+
+####################################################
+#       GitVersion Configuration                   #
+####################################################
+GitVersion:
+  mainBranch: <%=$PLASTER_PARAM_MainGitBranch %>

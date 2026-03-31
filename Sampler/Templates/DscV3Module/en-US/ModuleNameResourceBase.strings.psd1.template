@@ -1,0 +1,5 @@
+<#
+    Localized resources for <%=$PLASTER_PARAM_ModuleName %>ResourceBase class.
+#>
+ConvertFrom-StringData -StringData @'
+'@

@@ -14,6 +14,7 @@
             - Classes: A sample of 4 classes with inheritence and how to manage the orders to avoid parsing errors.
             - ClassResource: A Class-Based DSC Resources showing some best practices including tests, Reasons, localized strings.
             - Composite: A DSC Composite Resource (a configuration block) packaged the right way to make sure it's visible by Get-DscResource.
+            - DscV3Resource: A Class-Based DSC v3 Resource with automatic manifest generation using DscSchemaGenerator.
             - Enum: An example of a simple Enum.
             - MofResource: A sample of a MOF-Based DSC Resource following the DSC Community practices.
             - PrivateFunction: A sample of a Private function (not exported from the module) and its test.
@@ -27,6 +28,9 @@
 
     .EXAMPLE
         C:\src\MyModule> Add-Sample -Sample PublicFunction -PublicFunctionName Get-MyStuff
+
+    .EXAMPLE
+        C:\src\MyModule> Add-Sample -Sample DscV3Resource -ResourceName MyResource -ResourceDescription "Manages my resource"
 
     .NOTES
         This module requires and uses Plaster.
@@ -46,6 +50,7 @@ function Add-Sample
             'ClassFolderResource',
             'ClassResource',
             'Composite',
+            'DscV3Resource',
             'Enum',
             'Examples',
             'GithubConfig',

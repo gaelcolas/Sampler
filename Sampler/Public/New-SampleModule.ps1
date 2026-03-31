@@ -1,4 +1,3 @@
-
 <#
     .SYNOPSIS
         Create a module scaffolding and add samples & build pipeline.
@@ -19,6 +18,7 @@
         Specifies the type of module to create. The default value is 'SimpleModule'.
         Preset of module you would like to create:
             - CompleteSample
+            - DscV3Module - A DSC v3 module with class-based resources
             - SimpleModule
             - SimpleModule_NoBuild
             - dsccommunity
@@ -68,7 +68,7 @@ function New-SampleModule
 
         [Parameter(ParameterSetName = 'ByModuleType')]
         [string]
-        [ValidateSet('SimpleModule', 'CompleteSample', 'SimpleModule_NoBuild', 'dsccommunity')]
+        [ValidateSet('SimpleModule', 'CompleteSample', 'SimpleModule_NoBuild', 'dsccommunity', 'DscV3Module')]
         $ModuleType = 'SimpleModule',
 
         [Parameter()]
@@ -122,7 +122,16 @@ function New-SampleModule
         $Features
     )
 
-    $templateSubPath = 'Templates/Sampler'
+    # Select the appropriate template based on module type
+    if ($ModuleType -eq 'DscV3Module')
+    {
+        $templateSubPath = 'Templates/DscV3Module'
+    }
+    else
+    {
+        $templateSubPath = 'Templates/Sampler'
+    }
+
     $samplerBase = $MyInvocation.MyCommand.Module.ModuleBase
 
     $invokePlasterParam = @{
@@ -132,8 +141,17 @@ function New-SampleModule
         ModuleName        = $ModuleName
     }
 
+    # Parameters that should not be passed to Plaster when DSC V3 template is used
+    $excludeFromPlaster = @('ModuleType', 'DestinationPath', 'ModuleName', 'Features', 'ModuleVersion')
+
     foreach ($paramName in $MyInvocation.MyCommand.Parameters.Keys)
     {
+        # Skip parameters that shouldn't be passed to Plaster
+        if ($paramName -in $excludeFromPlaster -and $ModuleType -eq 'DscV3Module')
+        {
+            continue
+        }
+
         $paramValue = Get-Variable -Name $paramName -ValueOnly -ErrorAction SilentlyContinue
 
         # if $paramName is $null, leave it to Plaster to ask the user.

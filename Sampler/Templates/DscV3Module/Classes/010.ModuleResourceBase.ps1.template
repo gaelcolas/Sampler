@@ -1,0 +1,23 @@
+<#
+    .SYNOPSIS
+        The base class for <%=$PLASTER_PARAM_ModuleName %> class-based resources.
+
+    .DESCRIPTION
+        This is the module-specific base class that inherits from ResourceBase
+        (from DscResource.Base module). All DSC resources in this module should
+        inherit from this class.
+
+    .PARAMETER Reasons
+        Returns the reason a property is not in desired state.
+#>
+class <%=$PLASTER_PARAM_ModuleName %>ResourceBase : ResourceBase
+{
+    [DscProperty(NotConfigurable)]
+    [<%=$PLASTER_PARAM_ModuleName %>Reason[]]
+    $Reasons
+
+    # Passing the module's base directory to the base constructor.
+    <%=$PLASTER_PARAM_ModuleName %>ResourceBase () : base ($PSScriptRoot)
+    {
+    }
+}

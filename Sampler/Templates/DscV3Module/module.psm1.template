@@ -1,0 +1,66 @@
+# <%=$PLASTER_PARAM_ModuleName %>.psm1
+# DSC v3 Module with class-based resources
+
+#region Module Initialization
+
+$script:ModulePath = $PSScriptRoot
+
+# Import Classes (order matters for inheritance)
+$classFiles = @(
+    # Add class files in dependency order
+    Get-ChildItem -Path "$PSScriptRoot/Classes" -Filter '*.ps1' -ErrorAction SilentlyContinue |
+        Sort-Object -Property Name
+)
+
+foreach ($classFile in $classFiles)
+{
+    try
+    {
+        . $classFile.FullName
+        Write-Verbose -Message "Imported class: $($classFile.BaseName)"
+    }
+    catch
+    {
+        throw "Failed to import class $($classFile.FullName): $_"
+    }
+}
+
+# Import Private functions
+$privateFunctions = Get-ChildItem -Path "$PSScriptRoot/Private" -Filter '*.ps1' -ErrorAction SilentlyContinue
+
+foreach ($function in $privateFunctions)
+{
+    try
+    {
+        . $function.FullName
+        Write-Verbose -Message "Imported private function: $($function.BaseName)"
+    }
+    catch
+    {
+        throw "Failed to import private function $($function.FullName): $_"
+    }
+}
+
+# Import Public functions
+$publicFunctions = Get-ChildItem -Path "$PSScriptRoot/Public" -Filter '*.ps1' -ErrorAction SilentlyContinue
+
+foreach ($function in $publicFunctions)
+{
+    try
+    {
+        . $function.FullName
+        Write-Verbose -Message "Imported public function: $($function.BaseName)"
+    }
+    catch
+    {
+        throw "Failed to import public function $($function.FullName): $_"
+    }
+}
+
+# Export public functions
+if ($publicFunctions)
+{
+    Export-ModuleMember -Function $publicFunctions.BaseName
+}
+
+#endregion
