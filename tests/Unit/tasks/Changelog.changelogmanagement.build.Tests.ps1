@@ -1,0 +1,243 @@
+BeforeAll {
+    $script:moduleName = 'Sampler'
+
+    # If the module is not found, run the build task 'noop'.
+    if (-not (Get-Module -Name $script:moduleName -ListAvailable))
+    {
+        # Redirect all streams to $null, except the error stream (stream 2)
+        & "$PSScriptRoot/../../build.ps1" -Tasks 'noop' 2>&1 4>&1 5>&1 6>&1 > $null
+    }
+
+    # Re-import the module using force to get any code changes between runs.
+    Import-Module -Name $script:moduleName -Force -ErrorAction 'Stop'
+}
+
+AfterAll {
+    Remove-Module -Name $script:moduleName
+}
+
+Describe 'Changelog.changelogmanagement' {
+    It 'Should have exported the alias correctly' {
+        $taskAlias = Get-Alias -Name 'Changelog.changelogmanagement.build.Sampler.ib.tasks'
+
+        $taskAlias.Name | Should -Be 'Changelog.changelogmanagement.build.Sampler.ib.tasks'
+        $taskAlias.ReferencedCommand | Should -Be 'Changelog.changelogmanagement.build.ps1'
+        $taskAlias.Definition | Should -Match 'Sampler[\/|\\]\d+\.\d+\.\d+[\/|\\]tasks[\/|\\]Changelog\.changelogmanagement\.build\.ps1'
+    }
+}
+
+Describe 'Create_changelog_release_output' {
+    BeforeAll {
+        # Dot-source mocks
+        . $PSScriptRoot/../TestHelpers/MockSetSamplerTaskVariable
+
+        $taskAlias = Get-Alias -Name 'Changelog.changelogmanagement.build.Sampler.ib.tasks'
+
+        $mockTaskParameters = @{
+            OutputDirectory = Join-Path -Path $TestDrive -ChildPath 'output'
+            ProjectName = 'MyModule'
+        }
+    }
+
+    Context 'When creating the changelog output for a PowerShell module' {
+        BeforeAll {
+            Mock -CommandName Update-Changelog -RemoveParameterValidation 'Path'
+
+            Mock -CommandName Get-ChangelogData -MockWith {
+                return @{
+                    Released = @{
+                        Version = '2.0.0'
+                        RawData = 'Mock changelog release output'
+                    }
+                }
+            } -RemoveParameterValidation 'Path'
+
+            Mock -CommandName ConvertFrom-Changelog -RemoveParameterValidation 'Path'
+
+            Mock -CommandName Get-Content -ParameterFilter {
+                $Path -match 'ReleaseNotes\.md'
+            } -MockWith {
+                return 'Mock changelog release output'
+            }
+
+            Mock -CommandName Get-Content -ParameterFilter {
+                $Path -match 'builtModule'
+            } -MockWith {
+                <#
+                    The variable $BuiltModuleManifest will be set in the task
+                    (mocked by MockSetSamplerTaskVariable) with a path to the
+                    $TestDrive.
+                    Here we make sure the path exist so that WriteAllLines() works
+                    that is called in the task.
+                #>
+                New-Item -Path ($BuiltModuleManifest | Split-Path -Parent) -ItemType Directory -Force
+
+                return '# ReleaseNotes ='
+            }
+
+            Mock -CommandName Test-Path -ParameterFilter {
+                $Path -match 'builtModule'
+            } -MockWith {
+                return $true
+            }
+
+            Mock -CommandName Update-Manifest
+        }
+
+        It 'Should run the build task without throwing' {
+            {
+                Invoke-Build -Task 'Create_changelog_release_output' -File $taskAlias.Definition @mockTaskParameters
+            } | Should -Not -Throw
+
+            Should -Invoke -CommandName Update-Manifest -ParameterFilter {
+                $Value -eq 'Mock changelog release output'
+            } -Exactly -Times 1 -Scope It
+        }
+
+        Context 'When the release notes are longer than 10000 characters' {
+            BeforeAll {
+                Mock -CommandName Get-ChangelogData -MockWith {
+                    return @{
+                        Released = @{
+                            Version = '2.0.0'
+                            # The string 'This will be removed' will be stripped.
+                            RawData = '0123456789' * 1000 + 'This will be removed'
+                        }
+                    }
+                } -RemoveParameterValidation 'Path'
+            }
+
+            It 'Should run the build task without throwing' {
+                {
+                    Invoke-Build -Task 'Create_changelog_release_output' -File $taskAlias.Definition @mockTaskParameters
+                } | Should -Not -Throw
+
+                Should -Invoke -CommandName Update-Manifest -ParameterFilter {
+                    $Value -eq '0123456789' * 1000
+                } -Exactly -Times 1 -Scope It
+            }
+        }
+    }
+
+    Context 'When there are no ReleaseNotes.md but a CHANGELOG.md' {
+        BeforeAll {
+            Mock -CommandName Update-Changelog -RemoveParameterValidation 'Path'
+
+            Mock -CommandName Get-ChangelogData -MockWith {
+                return @{
+                    Released = @{
+                        Version = '2.0.0'
+                        RawData = 'Mock changelog release output'
+                    }
+                }
+            } -RemoveParameterValidation 'Path'
+
+            Mock -CommandName ConvertFrom-Changelog -RemoveParameterValidation 'Path'
+
+            Mock -CommandName Get-Content -ParameterFilter {
+                $Path -match 'ReleaseNotes\.md'
+            } -MockWith {
+                return $null
+            }
+
+            Mock -CommandName Get-Content -ParameterFilter {
+                $Path -match 'CHANGELOG\.md'
+            } -MockWith {
+                return 'Mock changelog release output'
+            }
+
+            Mock -CommandName Get-Content -ParameterFilter {
+                $Path -match 'builtModule'
+            } -MockWith {
+                <#
+                    The variable $BuiltModuleManifest will be set in the task
+                    (mocked by MockSetSamplerTaskVariable) with a path to the
+                    $TestDrive.
+                    Here we make sure the path exist so that WriteAllLines() works
+                    that is called in the task.
+                #>
+                New-Item -Path ($BuiltModuleManifest | Split-Path -Parent) -ItemType Directory -Force | Out-Null
+
+                return '# ReleaseNotes ='
+            }
+
+            Mock -CommandName Test-Path -ParameterFilter {
+                $Path -match 'builtModule'
+            } -MockWith {
+                return $true
+            }
+
+            Mock -CommandName Update-Manifest
+        }
+
+        It 'Should run the build task without throwing' {
+            {
+                Invoke-Build -Task 'Create_changelog_release_output' -File $taskAlias.Definition @mockTaskParameters
+            } | Should -Not -Throw
+
+            Should -Invoke -CommandName Update-Manifest -ParameterFilter {
+                $Value -eq 'Mock changelog release output'
+            } -Exactly -Times 1 -Scope It
+        }
+    }
+
+    Context 'When there are no release notes' {
+        BeforeAll {
+            Mock -CommandName Update-Changelog -RemoveParameterValidation 'Path'
+
+            Mock -CommandName Get-ChangelogData -MockWith {
+                return @{
+                    Released = @{
+                        Version = '2.0.0'
+                        RawData = 'Mock changelog release output'
+                    }
+                }
+            } -RemoveParameterValidation 'Path'
+
+            Mock -CommandName ConvertFrom-Changelog -RemoveParameterValidation 'Path'
+
+            Mock -CommandName Get-Content -ParameterFilter {
+                $Path -match 'ReleaseNotes\.md'
+            } -MockWith {
+                return $null
+            }
+
+            Mock -CommandName Get-Content -ParameterFilter {
+                $Path -match 'CHANGELOG\.md'
+            } -MockWith {
+                return $null
+            }
+
+            Mock -CommandName Get-Content -ParameterFilter {
+                $Path -match 'builtModule'
+            } -MockWith {
+                <#
+                    The variable $BuiltModuleManifest will be set in the task
+                    (mocked by MockSetSamplerTaskVariable) with a path to the
+                    $TestDrive.
+                    Here we make sure the path exist so that WriteAllLines() works
+                    that is called in the task.
+                #>
+                New-Item -Path ($BuiltModuleManifest | Split-Path -Parent) -ItemType Directory -Force | Out-Null
+
+                return '# ReleaseNotes ='
+            }
+
+            Mock -CommandName Test-Path -ParameterFilter {
+                $Path -match 'builtModule'
+            } -MockWith {
+                return $true
+            }
+
+            Mock -CommandName Update-Manifest
+        }
+
+        It 'Should run the build task without throwing' {
+            {
+                Invoke-Build -Task 'Create_changelog_release_output' -File $taskAlias.Definition @mockTaskParameters
+            } | Should -Not -Throw
+
+            Should -Invoke -CommandName Update-Manifest -Exactly -Times 0 -Scope It
+        }
+    }
+}

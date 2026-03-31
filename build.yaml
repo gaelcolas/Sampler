@@ -145,7 +145,8 @@ BuildWorkflow:
   pack:
     - build
     - docs
-    - package_module_nupkg
+    - package_psresource_nupkg
+    # - package_module_nupkg # This is the old version of the pack task
 
   hqrmtest:
     - Invoke_HQRM_Tests_Stop_On_Fail

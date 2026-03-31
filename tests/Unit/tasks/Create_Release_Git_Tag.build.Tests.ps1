@@ -23,7 +23,7 @@ Describe 'Create_Release_Git_Tag' {
         $taskAlias = Get-Alias -Name "$buildTaskName.build.Sampler.ib.tasks"
     }
 
-    It 'Should have exported the alias correct' {
+    It 'Should have exported the alias correctly' {
         $taskAlias.Name | Should -Be 'Create_Release_Git_Tag.build.Sampler.ib.tasks'
         $taskAlias.ReferencedCommand | Should -Be 'Create_Release_Git_Tag.build.ps1'
         $taskAlias.Definition | Should -Match 'Sampler[\/|\\]\d+\.\d+\.\d+[\/|\\]tasks[\/|\\]Create_Release_Git_Tag\.build\.ps1'

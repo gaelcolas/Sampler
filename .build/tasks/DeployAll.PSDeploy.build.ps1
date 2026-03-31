@@ -16,6 +16,7 @@ param (
 
 # Synopsis: Deploy everything configured in PSDeploy
 task Deploy_with_PSDeploy {
+    Write-Warning -Message 'DEPRECATED: Support for PSDeploy will be removed in a future Sampler release.'
     if ([System.String]::IsNullOrEmpty($ProjectName))
     {
         $ProjectName = Get-SamplerProjectName -BuildRoot $BuildRoot

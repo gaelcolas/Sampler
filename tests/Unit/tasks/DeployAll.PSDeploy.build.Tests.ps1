@@ -17,7 +17,7 @@ AfterAll {
 }
 
 Describe 'DeployAll.PSDeploy' {
-    It 'Should have exported the alias correct' {
+    It 'Should have exported the alias correctly' {
         $taskAlias = Get-Alias -Name 'DeployAll.PSDeploy.build.Sampler.ib.tasks'
 
         $taskAlias.Name | Should -Be 'DeployAll.PSDeploy.build.Sampler.ib.tasks'
