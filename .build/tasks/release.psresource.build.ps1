@@ -172,7 +172,7 @@ task package_psresource_nupkg {
                     $_.Name -eq $nextModuleSpecs.Name -or $nextModuleAbsolutePath -eq $nextModuleSpecsPath
                 }, 1)
 
-                Write-Warning -Message ('Found {0} elements importing {1}.' -f $nextModule.Count, $nextModuleSpecs.Name)
+                Write-Build DarkGray ('  Found {0} elements importing {1}.' -f $nextModule.Count, $nextModuleSpecs.Name)
             }
         }
         catch
@@ -194,7 +194,7 @@ task package_psresource_nupkg {
         {
             foreach ($module in $nextModuleSpecsDependencies)
             {
-                Write-Verbose -Verbose -Message ('Module {0} v{1} has dependency on module {2} {3}' -f $nextModule.Name, $nextModule.Version, $module.Name, $module.Version)
+                Write-Build DarkGray ('     Module {0} v{1} has dependency on module {2} {3}' -f $nextModule.Name, $nextModule.Version, $module.Name, $module.Version)
                 $resourceToPublishQueue.Enqueue([Microsoft.PowerShell.Commands.ModuleSpecification[]]$module)
             }
 

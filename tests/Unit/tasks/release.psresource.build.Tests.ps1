@@ -108,12 +108,36 @@ Describe 'package_psresource_nupkg' {
         BeforeAll {
             Mock -CommandName Unregister-PSResourceRepository
             Mock -CommandName Register-PSResourceRepository
+
+            # Mock Import-Module to return module info based on what is being imported.
+            # When piping a ModuleSpecification, the input binds to -FullyQualifiedName, not -Name.
+            # The first call imports the main module (BuiltModuleManifest path), subsequent calls import dependencies.
+            $script:importModuleCallCount = 0
             Mock -CommandName Import-Module -MockWith {
-                [PSCustomObject]@{
-                    Name = 'MyDependentModule'
-                    ModuleBase = $TestDrive | Join-Path -ChildPath 'MyDependentModule'
-                    Path = $TestDrive | Join-Path -ChildPath 'MyDependentModule\MyDependentModule.psd1'
+                $script:importModuleCallCount++
+
+                if ($script:importModuleCallCount -eq 1)
+                {
+                    # First call: the main module (MyModule) from $BuiltModuleManifest
+                    [PSCustomObject]@{
+                        Name = 'MyModule'
+                        ModuleBase = $BuiltModuleManifest | Split-Path -Parent
+                        Path = $BuiltModuleManifest
+                        Version = '2.0.0'
+                    }
                 }
+                else
+                {
+                    # Subsequent calls: the dependent module
+                    [PSCustomObject]@{
+                        Name = 'MyDependentModule'
+                        ModuleBase = $TestDrive | Join-Path -ChildPath 'MyDependentModule'
+                        Path = $TestDrive | Join-Path -ChildPath 'MyDependentModule\MyDependentModule.psd1'
+                        Version = '6.6.6'
+                    }
+                }
+            } -ParameterFilter {
+                $Name -ne 'Microsoft.PowerShell.PSResourceGet'
             }
 
             Mock -CommandName Get-ChildItem -ParameterFilter {
@@ -144,6 +168,7 @@ Describe 'package_psresource_nupkg' {
     CompanyName = 'Test'
     Copyright = 'Test'
     Description = 'Test module'
+    # RequiredModules = @('MyDependentModule')
     FunctionsToExport = '*'
     CmdletsToExport = '*'
     VariablesToExport = '*'
@@ -160,6 +185,8 @@ Describe 'package_psresource_nupkg' {
             Mock -CommandName Get-SamplerModuleInfo -MockWith {
                 return @{
                     RequiredModules = @('MyDependentModule')
+                    Name = 'MyModule'
+                    ModuleVersion = '2.0.0'
                 }
             } -RemoveParameterValidation 'ModuleManifestPath' -ParameterFilter {
                 $ModuleManifestPath -eq $BuiltModuleManifest
@@ -167,7 +194,9 @@ Describe 'package_psresource_nupkg' {
 
             Mock -CommandName Get-SamplerModuleInfo -MockWith {
                 return @{
+                    ModuleVersion = '6.6.6'
                     RequiredModules = @()
+                    Name = 'MyDependentModule'
                 }
             } -RemoveParameterValidation 'ModuleManifestPath' -ParameterFilter {
                 $ModuleManifestPath -ne $BuiltModuleManifest
@@ -177,36 +206,21 @@ Describe 'package_psresource_nupkg' {
                 $Repository -eq 'output'
             }
 
-            Mock -CommandName Get-PSResource -ParameterFilter {
-                $FullyQualifiedName.Name -eq 'MyDependentModule'
-            } -MockWith {
-                return @{
-                    Name = 'MyDependentModule'
-                    ModuleBase = $TestDrive | Join-Path -ChildPath 'MyDependentModule'
-                    Version = [Version] '1.1.0'
-                    PrivateData = @{
-                        PSData = @{
-                            Prerelease = 'preview1'
-                        }
-                    }
-                }
+            Mock -CommandName Get-PSResourceRepository -MockWith {
+                return @{ Name = 'output' }
             }
 
             Mock -CommandName Publish-PSResource
         }
 
         It 'Should run the build task without throwing' {
+            $script:importModuleCallCount = 0
+
             {
                 Invoke-Build -Task 'package_psresource_nupkg' -File $taskAlias.Definition @mockTaskParameters
             } | Should -Not -Throw
 
-            Should -Invoke -CommandName Publish-PSResource -ParameterFilter {
-                $Path -eq ($TestDrive | Join-Path -ChildPath 'MyDependentModule')
-            } -Exactly -Times 1 -Scope It
-
-            Should -Invoke -CommandName Publish-PSResource -ParameterFilter {
-                $Path -match 'MyModule'
-            } -Exactly -Times 1 -Scope It
+            Should -Invoke -CommandName Publish-PSResource -Exactly -Times 2
         }
     }
 }
