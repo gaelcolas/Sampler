@@ -1,58 +1,14 @@
-
-# Sampler Module [![Azure DevOps builds](https://img.shields.io/azure-devops/build/Synedgy/524b41a5-5330-4967-b2de-bed8fd44da08/1)](https://synedgy.visualstudio.com/Sampler/_build?definitionId=1&_a=summary) <img align="right" width="110" height="110" src="Sampler/assets/sampler.png">  
-
-[![PowerShell Gallery (with prereleases)](https://img.shields.io/powershellgallery/v/Sampler?label=Sampler%20Preview&include_prereleases)](https://www.powershellgallery.com/packages/Sampler/)
-[![PowerShell Gallery](https://img.shields.io/powershellgallery/v/Sampler?label=Sampler)](https://www.powershellgallery.com/packages/Sampler/)
-[![Azure DevOps tests](https://img.shields.io/azure-devops/tests/SynEdgy/Sampler/1)](https://synedgy.visualstudio.com/Sampler/_test/analytics?definitionId=1&contextType=build)
-![Azure DevOps coverage](https://img.shields.io/azure-devops/coverage/Synedgy/Sampler/1)
-![PowerShell Gallery](https://img.shields.io/powershellgallery/p/Sampler)
-
-Sampler is an opinionated scaffolding and build-automation framework for
-PowerShell module projects. It gives you a production-ready project
-structure, a reproducible build pipeline powered by
-[InvokeBuild](https://github.com/nightroman/Invoke-Build), and a library
-of reusable tasks — so you can focus on writing your module instead of
-maintaining infrastructure.
-
-## Why Sampler?
-
-- **Scaffold in seconds**: Generate a new module project with built-in
-  CI/CD support, code-quality checks, and best-practice conventions.
-- **Build, test, pack & publish**: A curated set of InvokeBuild tasks
-  covers the full lifecycle from source to the PowerShell Gallery.
-- **Rich templates**: Add classes, MOF-based DSC resources, class-based
-  DSC resources, helper modules, composite resources, and more with a
-  single command.
-- **Reproducible everywhere**: The same build runs on a developer
-  workstation, behind a corporate firewall, or in a CI agent — no
-  local-admin rights or pre-installed tooling required.
-- **Cross-platform**: Works on Windows, Linux, and macOS.
-
-Check the video for a quick intro:
-
-[![Modern PowerShell module Development](https://img.youtube.com/vi/_Hr6CeTKbLc/0.jpg)](https://www.youtube.com/watch?v=_Hr6CeTKbLc)
-
-> _Note:_ The video only shows a tiny part of the `Sampler` usage.  
-> Make sure to read the additional documentation in the configuration files and the
-> Getting started section in the [Sampler - Wiki][1].
-
-## 2. Prerequisites
-
-- PowerShell 5.x or PowerShell 7.x
-
-The `build.ps1` script will download all other specified modules required into the `RequiredModules` folder of your module project for you.
-
-## 3. Usage
+## Usage
 
 ### How to create a new project
 
-To create a new project, the command `New-SampleModule` should be used. Depending
+To create a new project the command `New-SampleModule` should be used. Depending
 on the template used with the command the content in project will contain
 different sample content while some also adds additional pipeline jobs. But all
 templates (except one) will have the basic tasks to have a working pipeline including
 build, test and deploy stages.
 
-The templates are:
+The sections below show how to use each template. The templates are:
 
 - `SimpleModule` - Creates a module with minimal structure and pipeline automation.
 - `SimpleModule_NoBuild` - Creates a simple module without the build automation.
@@ -68,19 +24,14 @@ pipeline scripts. Once the project is created, the `build.ps1` inside the new
 project folder is how you interact with the built-in pipeline automation, and
 the file `build.yaml` is where you configure and customize it.
 
-The section below shows only how to create a new module using the `SimpleModule` template.  
-For the complete `Getting Started` instructions, **please see** the [Sampler - Wiki][1].
-
-#### SimpleModule
+#### `SimpleModule`
 
 Creates a module with minimal structure and pipeline automation.
->[!NOTE]
->Change the `DestinationPath` to the location where the module should be created depending on you platform and workflow.
 
 ```powershell
 Install-Module -Name 'Sampler' -Scope 'CurrentUser'
 
-$NewSampleModuleParameters = @{
+$newSampleModuleParameters = @{
     DestinationPath   = 'C:\source'
     ModuleType        = 'SimpleModule'
     ModuleName        = 'MySimpleModule'
@@ -88,21 +39,843 @@ $NewSampleModuleParameters = @{
     ModuleDescription = 'MySimpleModule Description'
 }
 
-New-SampleModule @NewSampleModuleParameters
+New-SampleModule @newSampleModuleParameters
 ```
 
-See the [Sampler - Wiki][1] for additional examples.
+### Resolving dependencies
 
-## 4. References and links
+The Sampler templates is configured to use PSResourceGet as the method of
+resolving dependencies. The property `UsePSResourceGet` is default configured
+to `$true` in the file Resolve-Dependency.psd1. If that configuration is
+removed or disabled (set to `$false`) then resolving dependencies will
+revert to PowerShellGet & PSDepend.
 
-* [Sampler - Wiki][1]
+The specification syntax of the file RequiredModules.psd1 works with all
+three methods of resolving dependencies.
 
-## 5. Change log
+```powershell
+@{
+   # Gives latest release
+   Pester = 'latest'
 
-A full list of changes in each version can be found in the [change log][2].
+   # Gives specific release (also known as pinning version)
+   Pester = '4.10.1'
 
-[1]: https://github.com/gaelcolas/Sampler/wiki
-[2]: https://github.com/gaelcolas/Sampler/blob/main/CHANGELOG.md
+   # Gives latest preview release
+   'ComputerManagementDsc' = @{
+      Version    = 'latest'
+      Parameters = @{
+         AllowPrerelease = $true
+      }
+   }
+
+   # Gives specific preview release (also known as pinning version)
+   'ComputerManagementDsc' = @{
+      Version    = '9.1.0-preview0002'
+      Parameters = @{
+         AllowPrerelease = $true
+      }
+   }
+}
+```
+
+When using the method _PowerShellGet & PSDepend_ this configuration should
+also be added to the file RequiredModules.psd1 to control the behavior
+of PSDepend. This is only required if you need to use _PowerShellGet & PSDepend_.
+It is not required for PSResourceGet or ModuleFast.
+
+```powershell
+@{
+   PSDependOptions = @{
+      AddToPath  = $true
+      Target     = 'output\RequiredModules'
+      Parameters = @{
+         Repository = 'PSGallery'
+      }
+   }
+```
+
+#### PSResourceGet
+
+It is possible to use [PSResourceGet](https://github.com/PowerShell/PSResourceGet)
+to resolve dependencies. PSResourceGet works with Windows PowerShell and
+PowerShell (some restrictions on versions exist). To use PSResourceGet as
+a replacement for PowerShellGet it is possible to enable it in the configuration
+file `Resolve-Dependency.psd1`. It is also possible to allow the repository
+to use PowerShellGet as the default and choose to use PSResourceGet from the
+command line by passing the parameter `UsePSResourceGet` to the build script
+`build.ps1`, e.g. `.\build.ps1 -ResolveDependency -Tasks noop -UsePSResourceGet`
+
+If both PSResourceGet and ModuleFast is enabled then PSResource will be
+preferred on Windows PowerShell and PowerShell 7.1 or lower. ModuleFast
+will be preferred on PowerShell 7.2 or higher.
+
+#### ModuleFast
+
+It is possible to use [ModuleFast](https://github.com/JustinGrote/ModuleFast)
+to resolve dependencies. ModuleFast only works with PowerShell 7.2 or higher.
+To use ModuleFast as a replacement for PowerShellGet it is possible to
+enable it in the configuration file `Resolve-Dependency.psd1`.
+It is also possible to allow the repository to use PowerShellGet as the
+default and choose to use ModuleFast from the command line by passing
+the parameter `UseModuleFast` to the build script `build.ps1`, e.g.
+`.\build.ps1 -ResolveDependency -Tasks noop -UseModuleFast`.
+
+If both PSResourceGet and ModuleFast is enabled then ModuleFast will be
+preferred on PowerShell 7.2 or higher. PSResource will be preferred
+on Windows PowerShell and PowerShell 7.1 or lower.
+
+When using ModuleFast as the only method there is more options to specify
+modules in the file RequiredModules.psd1. This syntax will limit resolving
+dependencies to just ModuleFast (and PowerShell 7.2 or higher) as they are
+not supported by the other methods. See the comment-based help of the command
+[`Install-ModuleFast`](https://github.com/JustinGrote/ModuleFast/blob/main/ModuleFast.psm1)
+for more information of the available syntax.
+
+```powershell
+@{
+   # Gives the latest release
+   'ComputerManagementDsc' =  'latest'
+
+   # Gives the specific release
+   'ComputerManagementDsc' =  '9.0.0'
+   
+   # Gives the latest patch release for v9.0
+   'ComputerManagementDsc' =  ':9.0.*'
+
+   # Gives the latest preview release
+   'ComputerManagementDsc' =  '!'
+
+   # Gives the latest release (including previews) that is higher that v9.0.0
+   'ComputerManagementDsc' =  '!>9.0.0'
+
+   # Must be exactly 9.1.0-preview0002
+   'ComputerManagementDsc' =  '9.1.0-preview0002'
+   'ComputerManagementDsc' =  '@9.1.0-preview0002'
+   'ComputerManagementDsc' =  ':9.1.0-preview0002'
+   'ComputerManagementDsc' =  ':[9.1.0-preview0002]'
+
+   # Must be a higher version than 9.1.0-preview0002
+   'ComputerManagementDsc' =  '>9.1.0-preview0002'
+
+   # Must be a lower version than 9.1.0-preview0002
+   'ComputerManagementDsc' =  '<9.1.0-preview0002'
+
+   # Must be a lower version than or equal to 9.1.0-preview0002
+   'ComputerManagementDsc' =  '<=9.1.0-preview0002'
+
+   # Must be a higher version than or equal to 9.1.0-preview0002
+   'ComputerManagementDsc' =  '>=9.1.0-preview0002'
+
+   # Exact range, exclusive. Must be lower version than 9.2.0. 9.2.0 is not allowed.
+   'ComputerManagementDsc' =  ':(,9.2.0)'
+
+   # Exact range, exclusive. Must be higher version than 9.0.0. 9.0.0 is not allowed.
+   'ComputerManagementDsc' =  ':(9.0.0,)'
+
+   # Exact range, inclusive. Must be version than 9.0.0 or higher up to or equal to 9.2.0.
+   'ComputerManagementDsc' =  ':[9.0.0,9.2.0]'
+}
+
+```
+
+#### PowerShellGet & PSDepend
+
+Because we resolve dependencies from a nuget feed, whether the public
+PowerShell Gallery or your private repository, a working version of PowerShellGet
+is required. Using PowerShellGet is the default if no other configuration
+is done. We recommend the latest version of PowerShellGet v2.
+
+### Managing the Module versions (optional)
+
+Managing the versions of your module is tedious, and is hard to maintain
+consistency over time. The usual tricks like checking what the latest version on
+PowerShell Gallery is, or use the `BuildNumber` to increment a `0.0.x` version
+works but isn't ideal, especially if we want to stick to [semver](https://semver.org/).
+
+While you can manage the version by updating the module manifest manually or by
+letting your CI tool update the `ModuleVersion` environment variable, we think
+the best method is to rely on the cross-platform tool [`GitVersion`](https://gitversion.net/docs/).
+
+[`GitVersion`](https://gitversion.net/docs/) will generate the version based on
+the git history. You control what version to deploy using [git tags](https://git-scm.com/book/en/v2/Git-Basics-Tagging).
+
+Generally, GitVersion will look at the latest version tag, the branch names, commit
+messages, to try to determine the Major/Minor/Patch (semantic versioning) based
+on detected change (configurable in the file [`GitVersion.yml`](https://gitversion.net/docs/reference/configuration)
+that is part of your project).
+
+Therefore, it is recommended that you install `GitVersion` on your development environment
+and on your CI environment build agents.
+
+There are various ways to [install GitVersion](https://gitversion.net/docs/usage/cli/installation)
+on your development environment. If you use Chocolatey (install and upgrade):
+
+```PowerShell
+C:\> choco upgrade gitversion.portable
+```
+
+This describes how to [install GitVersion in your CI environment build agents](https://gitversion.net/docs/usage/ci)
+if you plan to use the deploy pipelines in the CI.
+
+## Usage
+
+### How to create a new project
+
+To create a new project the command `New-SampleModule` should be used. Depending
+on the template used with the command the content in project will contain
+different sample content while some also adds additional pipeline jobs. But all
+templates (except one) will have the basic tasks to have a working pipeline including
+build, test and deploy stages.
+
+The sections below show how to use each template. The templates are:
+
+- `SimpleModule` - Creates a module with minimal structure and pipeline automation.
+- `SimpleModule_NoBuild` - Creates a simple module without the build automation.
+- `CompleteSample` - Creates a module with complete structure and example files.
+- `dsccommunity` - Creates a DSC module according to the DSC Community baseline
+   with a pipeline for build, test, and release automation.
+- `CustomModule` - Will prompt you for more details as to what you'd like to scaffold.
+- `GCPackage` - Creates a module that can be deployed to be used with _Azure Policy_
+  _Guest Configuration_.
+
+As per the video above, you can create a new module project with all files and
+pipeline scripts. Once the project is created, the `build.ps1` inside the new
+project folder is how you interact with the built-in pipeline automation, and
+the file `build.yaml` is where you configure and customize it.
+
+#### `SimpleModule`
+
+Creates a module with minimal structure and pipeline automation.
+
+```powershell
+Install-Module -Name 'Sampler' -Scope 'CurrentUser'
+
+$newSampleModuleParameters = @{
+    DestinationPath   = 'C:\source'
+    ModuleType        = 'SimpleModule'
+    ModuleName        = 'MySimpleModule'
+    ModuleAuthor      = 'My Name'
+    ModuleDescription = 'MySimpleModule Description'
+}
+
+New-SampleModule @newSampleModuleParameters
+```
+
+#### `SimpleModule_NoBuild`
+
+Creates a simple module without the build automation.
+
+```powershell
+Install-Module -Name 'Sampler' -Scope 'CurrentUser'
+
+$newSampleModuleParameters = @{
+    DestinationPath   = 'C:\source'
+    ModuleType        = 'SimpleModule_NoBuild'
+    ModuleName        = 'MySimpleModuleNoBuild'
+    ModuleAuthor      = 'My Name'
+    ModuleDescription = 'MySimpleModuleNoBuild Description'
+}
+
+New-SampleModule @newSampleModuleParameters
+```
+
+#### `CompleteSample`
+
+Creates a module with complete structure and example files.
+
+```powershell
+Install-Module -Name 'Sampler' -Scope 'CurrentUser'
+
+$newSampleModuleParameters = @{
+    DestinationPath   = 'C:\source'
+    ModuleType        = 'CompleteSample'
+    ModuleName        = 'MyCompleteSample'
+    ModuleAuthor      = 'My Name'
+    ModuleDescription = 'MyCompleteSample Description'
+}
+
+New-SampleModule @newSampleModuleParameters
+```
+
+#### `dsccommunity`
+
+Creates a DSC module according to the DSC Community baseline with a pipeline
+for build, test, and release automation.
+
+```powershell
+Install-Module -Name 'Sampler' -Scope 'CurrentUser'
+
+$newSampleModuleParameters = @{
+    DestinationPath   = 'C:\source'
+    ModuleType        = 'dsccommunity'
+    ModuleName        = 'MyDscModule'
+    ModuleAuthor      = 'My Name'
+    ModuleDescription = 'MyDscModule Description'
+}
+
+New-SampleModule @newSampleModuleParameters
+```
+
+#### `CustomModule`
+
+Will prompt you for more details as to what you'd like to scaffold.
+
+```powershell
+Install-Module -Name 'Sampler' -Scope 'CurrentUser'
+
+$samplerModule = Import-Module -Name Sampler -PassThru
+
+$invokePlasterParameters = @{
+   TemplatePath    = Join-Path -Path $samplerModule.ModuleBase -ChildPath 'Templates/Sampler'
+   DestinationPath   = 'C:\source'
+   ModuleType        = 'CustomModule'
+   ModuleName        = 'MyCustomModule'
+   ModuleAuthor      = 'My Name'
+   ModuleDescription = 'MyCustomModule Description'
+}
+
+Invoke-Plaster @invokePlasterParameters
+```
+
+#### `GCPackage`
+
+>**Note:** The `GCPackage` template is not yet available, but can be created using
+>the `dsccommunity` template with modifications, see the section [GCPackage scaffolding](#gcpackage-scaffolding).
+
+### How to work with the multi-module repository
+
+Typically, such as with a community-driven module, you would have a single
+git repository dedicated to each module. However, there are situations where
+you might opt for a single git repository to encompass multiple modules. If
+you intend to establish a multi-module repository, ensure that each module
+is housed within its own folder. Each module's folder structure should be
+distinct and should not overlap with the folder structure of other modules.
+
+> [!TIP]
+> Right folder structure
+
+```bash
+GitRootFolder
+├───Module1
+├───Module2
+├───SomeModuleGroup #Not a module
+│   ├───GroupModule1
+│   └───GroupModule2
+└───Module3
+```
+
+> [!CAUTION]
+> Wrong folder structure
+
+```bash
+GitRootFolder
+├───Module1
+├───Module2
+├───Module3
+│   ├───SubModule1
+│   └───SubModule2
+└───Module3
+```
+
+>[!NOTE]
+>You can utilize the gitversion tag-prefix to differentiate tags for each module
+>separately. [gitVersion configuration](https://gitversion.net/docs/reference/configuration)
+
+### How to download dependencies for the project
+
+To be able to build the project, all the dependencies listed in the file
+`RequiredModules.psd1` must first be available. This is the beginning of
+the build process so that anyone doing a git clone can 're-hydrate' the
+project and start testing and producing the build artefact locally with
+minimal environmental dependencies.
+
+>[!NOTE]
+>Try to avoid mixing these different methods in the same session. When
+>switching to use a different method, open a new PowerShell session so
+>none of the modules dependencies are loaded into the session.
+
+```mermaid
+graph LR
+
+RD[Resolve dependencies] --> Method{Method?}
+Method{Method?} -->|"(Legacy, to use,
+disable other
+methods)"| PowerShellGet(["PowerShellGet"])
+Method -->|"parameter
+-UseModuleFast"| ModuleFast(["ModuleFast"])
+Method -->|"(Default),
+parameter
+-UsePSResourceGet"| PSResourceGet(["PSResourceGet"])
+PowerShellGet -->|"Invoke-PSDepend"| InvokeRD
+ModuleFast -->|"Install-ModuleFast"| InvokeRD
+PSResourceGet -->|"Save-PSResource"| InvokeRD
+InvokeRD[Use preferred method]  <--> PSGallery["PowerShell Gallery"]
+InvokeRD ---> Save[["Save to RequiredModules"]]
+```
+
+The following command will resolve dependencies using PSResourceGet:
+
+```powershell
+cd C:\source\MySimpleModule
+
+./build.ps1 -ResolveDependency -Tasks noop
+```
+
+The following command will resolve dependencies using [ModuleFast](https://github.com/JustinGrote/ModuleFast):
+
+```powershell
+cd C:\source\MySimpleModule
+
+./build.ps1 -ResolveDependency -Tasks noop -UseModuleFast
+```
+
+The following command will resolve dependencies using [PSResourceGet](https://github.com/PowerShell/PSResourceGet):
+
+```powershell
+cd C:\source\MySimpleModule
+
+./build.ps1 -ResolveDependency -Tasks noop -UsePSResourceGet
+```
+
+The dependencies will be downloaded (or updated) from the PowerShell Gallery (unless
+another repository is specified) and saved in the project folder under
+`./output/RequiredModules`.
+
+> By default, each repository should not rely on your personal development
+> environment, so that it's easier to repeat on any machine or build agent.
+
+Normally this command only needs to be run once, but the command can be run
+anytime to update to a newer version of a required module (if one is available),
+or if the required modules have changed in the file `RequiredModules.psd1`.
+
+> **Note:** If a required module is removed in the file `RequiredModules.psd1`
+> that module will not be automatically removed from the folder
+> `./output/RequiredModules`.
+
+### How to build the project
+
+The following command will build the project:
+
+```powershell
+cd C:\source\MySimpleModule
+
+./build.ps1 -Tasks build
+```
+
+It is also possible to resolve dependencies and build the project
+at the same time using the command:
+
+```powershell
+./build.ps1 -ResolveDependency -Tasks build
+```
+
+If there are any errors during build they will be shown in the output and the
+build will stop. If it is successful the output should end with:
+
+```plaintext
+Build succeeded. 7 tasks, 0 errors, 0 warnings 00:00:06.1049394
+```
+
+> **NOTE:** The number of tasks can differ depending on which template that
+> was used to create the project.
+
+### How to set up the build environment in the current PowerShell session
+
+If you only want to make sure the environment is configured, or you only want
+to resolve the dependencies, you can call the built-in task `noop` ("no operation")
+which won't do anything other than a quick way to run the bootstrap script (there
+is no code that executes in the `noop` task).
+
+```powershell
+./build.ps1 -Tasks noop
+```
+
+>**Note:** For the built-in `noop` task to work, the dependencies must first
+>have been resolved.
+
+### How to run tests
+
+<!-- markdownlint-disable MD028 - empty line in block quote -->
+> [!NOTE]
+> Which tests are run is determined by the paths configured
+> by a key in the _Pester_ configuration in the file `build.yml`. The key
+> differs depending on the version of _Pester_ being used. The key is `Script`
+> when using _Pester v4_, and `Path` when using _Pester v5_.
+
+> [!IMPORTANT]
+>If running (or debugging) tests in Visual Studio Code you should first make sure
+>the session environment is set correctly. This is normally done when you build
+>the project. But if there is no need to rebuild the project it is faster to run
+>the [built-in task `noop`](#how-to-set-up-the-build-environment-in-the-current-powershell-session)
+>in the _PowerShell Integrated Console_.
+<!-- markdownlint-enable MD028 - empty line in block quote -->
+
+Running all the unit tests, the quality tests and show code coverage can
+be achieved by running the command:
+
+```powershell
+`./build.ps1 -Tasks test`
+```
+
+Integration tests are not run by default when using the build task `test`.
+To run the integration test use the following command:
+
+```powershell
+`./build.ps1 -Tasks test -PesterPath 'tests/Integration' -CodeCoverageThreshold 0`
+```
+
+To run all tests in a specific folder use the parameter `PesterPath` and
+optionally `CodeCoverageThreshold` set to `0` to turn off code coverage.
+This runs all the quality tests:
+
+```powershell
+`./build.ps1 -Tasks test -PesterPath 'tests/QA' -CodeCoverageThreshold 0`
+```
+
+To run a specific test file, again use the parameter `PesterPath` and
+optionally `CodeCoverageThreshold` set to `0` to turn off code coverage.
+This runs just the specific test file `New-SamplerXmlJaCoCoCounter.tests.ps1`:
+
+<!-- markdownlint-disable MD013 - Line length -->
+```powershell
+./build.ps1 -Tasks test -PesterPath ./tests/Unit/Private/New-SamplerXmlJaCoCoCounter.tests.ps1 -CodeCoverageThreshold 0
+```
+<!-- markdownlint-enable MD013 - Line length -->
+
+### How to run the default workflow
+
+It is possible to do all of the above (resolve dependencies, build, and run tests)
+in just one line by running the following:
+
+```powershell
+./build -ResolveDependency
+```
+
+The parameter `Task` is not used which means this will run the default workflow
+(`.`). The tasks for the default workflow are configured in the file `build.yml`.
+Normally the default workflow builds the project and runs all the configured test.
+
+This means by running this it will build and run all configured tests:
+
+```powershell
+./build.ps1
+```
+
+### How to list all available tasks
+
+Because the build tasks are `InvokeBuild` tasks, we can discover them using
+the `?` task. So to list the available tasks in a project, run the following
+command:
+
+```powershell
+./build.ps1 -Tasks ?
+```
+
+> **NOTE:** If it is not already done, first make sure to resolve dependencies.
+> Dependencies can also hold tasks that are used in the pipeline.
+
+## About the bootstrap process (`build.ps1`)
+
+The `build.ps1` is the _entry point_ to invoke any task, or a list of build
+tasks (workflow), leveraging the [`Invoke-Build`](https://www.powershellgallery.com/packages/InvokeBuild)
+task runner.
+
+The script does not assume your environment has the required PowerShell modules,
+so the bootstrap is done by the project's script file `build.ps1`, and can
+resolve the dependencies listed in the project's file `RequiredModules.psd1`
+using [`PSDepend`](https://www.powershellgallery.com/packages/PSDepend).
+
+Invoking `build.ps1` with the `-ResolveDependency` parameter will prepare your
+environment like so:
+
+1. Updates the session environment variable (`$env:PSModulePath`) to resolve
+   the built module (`.\output`) and the modules in the folder `./output/RequiredModules`
+   by prepending those paths to `$env:PSModulePath`. By prepending the paths
+   to the session `$env:PSModulePath` the build process will make those
+   dependencies available in your session for module discovery and auto-loading,
+   and also make it possible to use one or more of those modules as part of your built
+   module.
+1. (Optional) Making sure you have a compatible version of the modules _PowerShellGet_ and
+   _PackageManagement_ (`version -gt 1.6`). If not, these will be installed from the
+   configured repository. Only required if you plan to use legacy PowerShellGet, default
+   PSResourceGet is used.
+1. Download or install the `PowerShell-yaml` and `PSDepend` modules needed
+   for further dependency management.
+1. Read the `build.yaml` configuration.
+1. If the Nuget package provider is not present, install and import Nuget PackageProvider
+   (proxy enabled).
+1. Invoke [PSDepend](https://www.powershellgallery.com/packages/PSDepend) on
+   the file `RequiredModules.psd1`. It will not install required modules to
+   your environment, it will save them to your project's folder `./output/RequiredModules`.
+1. Hand over the task execution to `Invoke-Build` to run the configured
+   workflow.
+
+## About Sampler build workflow
+
+Let's look at the pipeline of the `Sampler` module itself to better understand
+how the pipeline automation is configured for a project created using a
+template from the Sampler module.
+
+> **NOTE:** Depending on the Sampler template used when creating a new project
+> there can be additional configuration options - but they can all be added
+> manually when those options are needed. The Sampler project itself does not use
+> all features available (an example is DSC resources documentation generation).
+
+### Default Workflow Currently configured
+
+As seen in the bootstrap process above, the different workflows can be configured
+by editing the `build.psd1`: new tasks can be loaded, and the sequence can be
+added under the `BuildWorkflow` key by listing the names.
+
+In our case, the `build.yaml` defines several workflows (`.`,
+`build`, `pack`, `hqrmtest`, `test`, and `publish`) that can be called by using:
+
+```PowerShell
+ .\build.ps1 -Tasks <Workflow_or_task_Name>
+```
+
+The detail of the **default workflow** is as follow (InvokeBuild defaults to
+the workflow named '.' when no tasks is specified):
+
+```yml
+BuildWorkflow:
+  '.':
+    - build
+    - test
+```
+
+The tasks `build` and `tests` are meta-tasks or workflow calling other tasks:
+
+```yml
+  build:
+    - Clean
+    - Build_Module_ModuleBuilder
+    - Build_NestedModules_ModuleBuilder
+    - Create_changelog_release_output
+  test:
+    - Pester_Tests_Stop_On_Fail
+    - Pester_if_Code_Coverage_Under_Threshold
+    - hqrmtest
+```
+
+Those tasks are imported from a module, in this case from
+the `.build/` folder, from this `Sampler` module,
+but for another module you would use this line in your `build.yml` config:
+
+```yaml
+ModuleBuildTasks:
+  Sampler:
+    - '*.build.Sampler.ib.tasks' # this means: import (dot source) all aliases ending with .ib.tasks exported by 'Sampler' module
+```
+
+You can edit your `build.yml` to change the workflow, add a custom task,
+create repository-specific task in a `.build/` folder named `*.build.ps1`.
+
+```yml
+  MyTask: {
+    # do something with some PowerShellCode
+    Write-Host "Doing something in a task"
+  }
+
+  build:
+    - Clean
+    - MyTask
+    - call_another_task
+```
+
+## GCPackage scaffolding
+
+Creates a module that can be deployed to be used with _Azure Policy_
+_Guest Configuration_. This process will be replaced with a Plaster template.
+
+1. Start by creating a new project using the template `dsccommunity`.
+
+   ```powershell
+   Install-Module -Name 'Sampler' -Scope 'CurrentUser'
+
+   $newSampleModuleParameters = @{
+      DestinationPath   = 'C:\source'
+      ModuleType        = 'dsccommunity'
+      ModuleName        = 'MyGCPackages'
+      ModuleAuthor      = 'My Name'
+      ModuleDescription = 'MyGCPackages Description'
+   }
+
+   New-SampleModule @newSampleModuleParameters
+   ```
+
+1. In the file `build.yaml` add the following top-level key:
+
+   ```yaml
+   BuiltModuleSubdirectory: module
+   ```
+
+1. In the file `build.yaml` modify the `pack` key under the top-level key
+   `BuildWorkflow` by adding the task `gcpack`:
+
+   ```yaml  
+   pack:
+    - build
+    - package_module_nupkg
+    - gcpack
+   ```
+
+1. In the file `build.yaml` modify the `GitHubConfig` top-level key
+   as follows:
+
+   ```yaml  
+   GitHubConfig:
+     GitHubFilesToAdd:
+       - 'CHANGELOG.md'
+     ReleaseAssets:
+       - output/GCPolicyPackages/UserAmyNotPresent*.zip
+     GitHubConfigUserName: myGitHubUserName
+     GitHubConfigUserEmail: myEmail@address.com
+     UpdateChangelogOnPrerelease: false
+   ```
+
+1. In the file `RequiredModules.psd1` add the module _GuestConfiguration_
+   and `xPSDesiredStateConfiguration` to the list of dependency modules.
+
+   ```powershell
+   @{
+      # ... current dependencies
+
+      xPSDesiredStateConfiguration = 'latest'
+      GuestConfiguration = @{
+         Version = 'latest'
+         Parameters = @{
+               AllowPrerelease = $true
+         }
+      }
+   }
+   ```
+
+1. Modify the `azure-pipelines.yml` as follows:
+   1. Replace build image with `windows-latest`.
+   1. In the job `Package_Module` after the job `gitversion` and before the job
+      `package` add this new job:
+
+      ```yaml
+      - task: PowerShell@2
+        name: Exp_Feature
+        displayName: 'Enable Experimental features'
+        inputs:
+          pwsh: true
+          targetType: inline
+          continueOnError: true
+          script: |
+             ./build.ps1 -Tasks noop -ResolveDependency
+              Import-Module GuestConfiguration
+              Enable-ExperimentalFeature -Name GuestConfiguration.Pester
+              Enable-ExperimentalFeature -Name GuestConfiguration.SetScenario
+              Enable-ExperimentalFeature -Name PSDesiredStateConfiguration.InvokeDscResource -ErrorAction SilentlyContinue
+        env:
+          ModuleVersion: $(gitVersion.NuGetVersionV2)
+      ```
+
+   1. Remove the job `Test_HQRM`.
+   1. Remove the job `Test_Integration`.
+   1. Remove the job `Code_Coverage`.
+   1. Update deploy condition to use the Azure DevOps organization name:
+
+      ``` yaml
+      contains(variables['System.TeamFoundationCollectionUri'], 'myorganizationname')
+      ````
+
+   1. In the job `Deploy_Module` for both the deploy tasks `publishRelease`
+      and `sendChangelogPR` add the following environment variables:
+
+      ```yaml
+      ReleaseBranch: main
+      MainGitBranch: main
+      ```
+
+1. Create a new folder `GCPackages` under the folder `source`.
+1. Create a new folder `UserAmyNotPresent` under the new folder `GCPackages`.
+1. Under the folder `UserAmyNotPresent` create a new file `UserAmyNotPresent.config.ps1`.
+1. In the file `UserAmyNotPresent.config.ps1` add the following:
+
+   ```powershell
+   Configuration UserAmyNotPresent {
+      Import-DSCResource -ModuleName 'xPSDesiredStateConfiguration'
+
+      Node UserAmyNotPresent
+      {
+         xUser 'UserAmyNotPresent'
+         {
+               Ensure   = 'Absent'
+               UserName = 'amy'
+         }
+      }
+   }
+   ```
+
+1. Now resolve dependencies and run the task `gcpack`:
+
+   ```powershell
+   build.ps1 -task gcpack -ResolveDependency
+   ```
+
+1. The built _Guest Configuration_ package can be found in the folder
+   `output\GCPolicyPackages\UserAmyNotPresent`.
+
+## Commands
+
+Refer to the comment-based help for more information about these commands.
+
+### `Add-Sample`
+
+This command is used to invoke a plaster template built-in the
+Sampler module. With this function you can bootstrap your module project
+by adding classes, functions and associated tests, examples and configuration
+elements.
+
+#### Syntax
+
+<!-- markdownlint-disable MD013 - Line length -->
+```plaintext
+Add-Sample [[-Sample] <String>] [[-DestinationPath] <String>] [<CommonParameters>]
+```
+<!-- markdownlint-enable MD013 - Line length -->
+
+#### Outputs
+
+None.
+
+#### Example
+
+```powershell
+Add-Sample -Sample PublicFunction -PublicFunctionName Get-MyStuff
+```
+
+This example adds a public function to the module (in the current folder),
+with a sample unit test that test the public function.
+
+### `Invoke-SamplerGit`
+
+This command executes git with the provided arguments and throws an error
+if the call failed.
+
+#### Syntax
+
+<!-- markdownlint-disable MD013 - Line length -->
+```plaintext
+Invoke-SamplerGit [-Argument] <string[]> [<CommonParameters>]
+```
+<!-- markdownlint-enable MD013 - Line length -->
+
+#### Outputs
+
+[System.String]
+
+#### Example
+
+```powershell
+Invoke-SamplerGit -Argument @('config', 'user.name', 'MyName')
+```
+
 Calls git to set user name in the git config.
 
 ### `New-SampleModule`
@@ -293,10 +1066,10 @@ Get-MofSchemaName [-Path] <String> [<CommonParameters>]
 
 `[System.Collections.Hashtable]`
 
-| Property Name | Type              | Description                    |
-| ------------- | ----------------- | ------------------------------ |
-| Name          | `[System.String]` | The name of class              |
-| FriendlyName  | `[System.String]` | The friendly name of the class |
+Property Name | Type | Description
+--- | --- | ---
+Name | `[System.String]` | The name of class
+FriendlyName | `[System.String]` | The friendly name of the class
 
 #### Example
 
@@ -815,11 +1588,11 @@ Split-ModuleVersion [[-ModuleVersion] <String>] [<CommonParameters>]
 
 `[System.Management.Automation.PSCustomObject]`
 
-| Property Name    | Type              | Description                                    |
-| ---------------- | ----------------- | ---------------------------------------------- |
-| Version          | `[System.String]` | The module version (without prerelease string) |
-| PreReleaseString | `[System.String]` | The prerelease string part                     |
-| ModuleVersion    | `[System.String]` | The full semantic version                      |
+Property Name | Type | Description
+--- | --- | ---
+Version | `[System.String]` | The module version (without prerelease string)
+PreReleaseString | `[System.String]` | The prerelease string part
+ModuleVersion | `[System.String]` | The full semantic version
 
 #### Example
 
@@ -1121,26 +1894,11 @@ SetPSModulePath:
   SetSystemDefault: false
 ```
 
-The `PSModulePath` parameter can access variables and contain sub-expressions.
-
-```yaml
-####################################################
-#           Setting Sampler PSModulePath           #
-####################################################
-SetPSModulePath:
-  PSModulePath: $ProjectPath\.temp\Microsoft Azure AD Sync\Bin;$([System.Environment]::GetFolderPath('ProgramFiles'))\WindowsPowerShell\Modules;$([System.Environment]::GetFolderPath('System'))\WindowsPowerShell\v1.0\Modules
-  RemovePersonal: false
-  RemoveProgramFiles: false
-  RemoveWindows: false
-  SetSystemDefault: false
-```
-
 #### Section SetPSModulePath
 
-##### Property PSModulePath
+##### Property SetPSModulePath
 
-Sets the `PSModulePath` to the specified value. This string is treated like an expandable
-string and can access variables and contain sub-expressions.
+Sets the `PSModulePath` to the specified value.
 
 ##### Property RemovePersonal
 

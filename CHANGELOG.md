@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Update URL for PowerShell gallery pre-release badge ([#553](https://github.com/gaelcolas/Sampler/issues/553)).
 - Update azure-pipelines task PublishCodeCoverageResults to v2 ([#551](https://github.com/gaelcolas/Sampler/issues/551)).
+- Moved large parts of the ReadMe to the Wiki to handle Include simple tutorials in the Wiki ([issue #487](https://github.com/gaelcolas/Sampler/issues/487))
 
 ## [0.119.0] - 2026-01-08
 
