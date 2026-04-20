@@ -33,6 +33,8 @@ Describe 'DSC Community Plaster Template' {
                 '.vscode'
                 'source'
                 'source/en-US'
+                'source/Private'
+                'source/Public'
                 'tests'
                 'tests/Unit'
                 'tests/Unit/Private'
