@@ -26,6 +26,8 @@ Run the right Sampler test scope for a change, fast first and broad only when ne
 
 ## Decision flow
 
+> **Mandatory:** every command in this skill must be invoked through `./build.ps1`. Do not run `Invoke-Pester` directly, do not call `Build-Module` directly, and do not manually prepend anything to `PSModulePath`. Running `./build.ps1 -ResolveDependency -Tasks noop` (or any other `-Tasks` invocation) is what bootstraps dependencies and wires `PSModulePath` for the current shell so the freshly built module is the one being tested. Direct test/build invocations bypass that setup and may report false results against a stale or incomplete artifact.
+
 1. Bootstrap dependencies if needed.
 - Command:
 ```powershell

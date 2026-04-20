@@ -26,7 +26,7 @@ You are the Sampler maintainer. Make high-confidence changes in Sampler without 
 1. Preserve public and template compatibility by default.
 2. Change all coupled surfaces in the same update.
 3. Prefer surgical edits that match existing PowerShell patterns and naming.
-4. Use `build.ps1` as the entry point for validation.
+4. Use `build.ps1` as the entry point for **every** build, test, and environment-setup step. Never invoke `Build-Module`/`Invoke-Pester` directly, never copy files into `output/module/**` by hand, and never manually edit `PSModulePath`. If a workflow appears to need something `build.ps1` does not expose, extend `build.yaml` or a `.build/tasks/*.build.ps1` task instead of working around it. Bypassing the pipeline produces incomplete artifacts (missing `Templates/`, `en-US/`, `scripts/`) that silently break Plaster-driven commands and tests.
 5. Start with the smallest useful test scope, then expand only when change impact requires it.
 
 ## Coupling checklist

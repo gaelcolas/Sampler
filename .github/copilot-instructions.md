@@ -4,6 +4,14 @@
 
 Use `build.ps1` as the entry point for local work. It bootstraps dependencies into `output/RequiredModules`, prepends the built module path to `PSModulePath`, and then delegates to InvokeBuild workflows defined in `build.yaml`.
 
+### Mandatory rule — never bypass `build.ps1`
+
+- Always build the module with `./build.ps1 -Tasks build`. Never invoke `Build-Module` (or any other ModuleBuilder cmdlet) directly, and never copy files into `output/module/**` by hand. Bypassing the InvokeBuild pipeline produces an incomplete artifact (missing `Templates/`, `en-US/`, `scripts/`, `tasks/`), which silently breaks Plaster-driven commands such as `New-SampleModule` and any test that imports the built module.
+- Always run tests with `./build.ps1 -Tasks test ...`. Do not call `Invoke-Pester` directly against `tests/**` from a fresh shell — `build.ps1` is what configures `PSModulePath`, ensures the module is freshly built, and applies the Pester configuration from `build.yaml`. Direct `Invoke-Pester` runs may pick up a stale or partial build and report misleading failures.
+- Always set up the environment through `build.ps1`. Do not manually prepend `output/RequiredModules` or `output/module` to `PSModulePath`. Instead, run `./build.ps1 -ResolveDependency -Tasks noop` (or any other `-Tasks <name>` invocation) at the start of a session — it bootstraps dependencies and configures `PSModulePath` for the current shell so subsequent `Import-Module Sampler -Force` calls resolve the freshly built artifact.
+- After `./build.ps1 -Tasks build` completes in the current shell, `Import-Module Sampler -Force` is sufficient to load the built module for ad-hoc verification (for example, running `New-SampleModule` against a scratch path). Do not start a separate PowerShell session to test — the path setup performed by `build.ps1` only applies to the shell that ran it.
+- The same rule applies inside agents, skills, and CI helpers: every build/test/validation step must go through `./build.ps1`. If a workflow appears to require something `build.ps1` does not expose, extend `build.yaml` (or a `.build/tasks/*.build.ps1` task) instead of working around it.
+
 ```powershell
 # Restore required modules into output/RequiredModules
 ./build.ps1 -ResolveDependency -Tasks noop
