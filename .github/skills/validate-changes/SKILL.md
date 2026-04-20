@@ -63,6 +63,57 @@ Run the right Sampler test scope for a change, fast first and broad only when ne
 ./build.ps1 -Tasks hqrmtest
 ```
 
+## Running these commands without hanging
+
+Always tee `./build.ps1` output to a log file rather than wrapping the call in `| Select-Object -Last <N>` (or any other buffering filter). Inline `Select-Object` against a long-running pipeline forces full-stream buffering and the agent shell appears to hang — even after the build finishes — and would also swallow any unexpected prompt. Instead, stream freely and read the log:
+
+```powershell
+if (Test-Path output\validate-test.log) { Remove-Item output\validate-test.log -Force }
+
+./build.ps1 -Tasks test -PesterPath '<paths>' -CodeCoverageThreshold 0 2>&1 |
+    Tee-Object -FilePath output\validate-test.log
+
+# Then poll/inspect the log without re-running:
+Get-Content output\validate-test.log -Tail 20
+Select-String -Path output\validate-test.log -Pattern 'Build (FAILED|succeeded)'
+```
+
+When invoked through the `powershell` tool, prefer `mode="async"` with `Tee-Object` and poll periodically — never tail with `| Select -Last N` against a still-running build.
+
+## Diagnosing failures from XML output
+
+Test failures are recorded in machine-readable XML under `output/testResults/`. Always read those files instead of grepping the build log — they tell you *which* tests failed and *why*.
+
+- **Pester (`-Tasks test`)** writes NUnit XML at `output/testResults/NUnitXml_<ProjectName>_<Version>.<OS>.PSv.<PSVersion>.xml`. Each failing assertion is a `<test-case result="Failure">` node with the assertion message under `<failure><message>`:
+
+  ```powershell
+  $latest = Get-ChildItem output\testResults\NUnitXml_*.xml |
+      Sort-Object LastWriteTime -Descending | Select-Object -First 1
+  [xml]$x = Get-Content $latest.FullName
+  $x.SelectNodes('//test-case[@result="Failure"]') | ForEach-Object {
+      "==FAIL==`n$($_.name)`n$($_.failure.message)`n"
+  }
+  ```
+
+- **HQRM (`-Tasks hqrmtest`)** writes a CliXml-serialized Pester run object at `output/testResults/DscTestObject_DscTest_<ProjectName>_<Version>.<OS>.PSv.<PSVersion>.xml`. This is **not** NUnit XML — XPath against `<test-case>` returns nothing. Look for `<S N="Result">Failed</S>` and read surrounding context, or grep `DisplayErrorMessage` for the assertion text:
+
+  ```powershell
+  $f = Get-ChildItem output\testResults\DscTestObject_DscTest_*.xml |
+      Sort-Object LastWriteTime -Descending | Select-Object -First 1
+  $lines = Get-Content $f.FullName
+  foreach ($h in Select-String -Path $f.FullName -Pattern '"Result">Failed')
+  {
+      "===line $($h.LineNumber)==="
+      $lines[($h.LineNumber - 1)..($h.LineNumber + 20)] -join "`n"
+  }
+  Select-String -Path $f.FullName -Pattern 'DisplayErrorMessage'
+  ```
+
+  Skip aggregate `Result=Failed` nodes (run/container totals) — real test failures sit alongside an `<S N="ItemType">Test</S>`, an `ErrorRecord`, and a `ScriptBlock`.
+
+- Always pick the **latest** result file (`Sort-Object LastWriteTime -Descending`); each invocation rewrites these XML files.
+- When reporting a failure to the user, quote the XML's assertion message — do not paraphrase the build-log tail.
+
 ## Completion checks
 
 - All selected test commands exit successfully.
