@@ -86,9 +86,12 @@ function New-SamplerPipeline
             $plasterModule = Get-Module -Name 'Plaster'
 
             <#
-                Load manifest file using culture lookup (using Plaster module private function Get-PlasterManifestPathForCulture).
-                This is the current function that is called:
-                https://github.com/PowerShellOrg/Plaster/blob/0506a26ffb532a335a4e62a8da31d9ca0177ae2a/src/InvokePlaster.ps1#L1478
+                Load manifest file using culture lookup (using a Plaster module private function).
+                Plaster v2.x exposes this helper as `Get-PlasterManifestPathForCulture`
+                (see https://github.com/PowerShellOrg/Plaster/blob/0506a26ffb532a335a4e62a8da31d9ca0177ae2a/src/InvokePlaster.ps1#L1478),
+                while Plaster v1.x defined it without the verb-noun separator as
+                `GetPlasterManifestPathForCulture`. Resolve whichever name the loaded
+                Plaster module exposes so Sampler keeps working with both versions.
             #>
             $manifestPath = & $plasterModule {
                 param
@@ -102,7 +105,19 @@ function New-SamplerPipeline
                     $Culture
                 )
 
-                Get-PlasterManifestPathForCulture -TemplatePath $templateAbsolutePath -Culture $Culture
+                $manifestPathCommand = Get-Command -Name 'Get-PlasterManifestPathForCulture' -ErrorAction 'Ignore'
+
+                if (-not $manifestPathCommand)
+                {
+                    $manifestPathCommand = Get-Command -Name 'GetPlasterManifestPathForCulture' -ErrorAction 'Ignore'
+                }
+
+                if (-not $manifestPathCommand)
+                {
+                    throw "Unable to locate Plaster's manifest-path-for-culture helper. Expected 'Get-PlasterManifestPathForCulture' (Plaster 2.x) or 'GetPlasterManifestPathForCulture' (Plaster 1.x)."
+                }
+
+                & $manifestPathCommand -TemplatePath $templateAbsolutePath -Culture $Culture
             } $templateAbsolutePath $PSCulture
 
             if (($null -eq $manifestPath) -or (-not (Test-Path -Path $manifestPath)))
