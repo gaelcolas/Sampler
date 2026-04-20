@@ -319,7 +319,100 @@ New-SampleModule @newSampleModuleParameters
 
 #### `CustomModule`
 
-Will prompt you for more details as to what you'd like to scaffold.
+The `CustomModule` template lets you cherry-pick exactly which features should
+be scaffolded into your project instead of accepting a fixed preset such as
+`SimpleModule` or `dsccommunity`. It is the right choice when none of the
+opinionated templates match your needs and you want to combine, for example,
+classes, DSC resources and an Azure Pipelines pipeline in a single project.
+
+If you call `New-SampleModule -ModuleType CustomModule` without `-Features`,
+Sampler will interactively prompt you to multi-select the features to include
+and to confirm the related options (Git, GitVersion, GitHub, Azure Pipelines,
+Visual Studio Code, CodeCov.io, license type, etc.).
+
+##### Available `Features` values
+
+The `-Features` parameter accepts an array of one or more of the following
+values (they map 1:1 to the multichoice values defined in the Plaster template):
+
+| Value             | What it adds to the scaffolded project                                                                 |
+| ----------------- | ------------------------------------------------------------------------------------------------------ |
+| `All`             | Enables every feature listed below in one go.                                                          |
+| `Enum`            | `Enum` source folder and an example enum.                                                              |
+| `Classes`         | PowerShell 5+ `Classes` source folder and an example class.                                            |
+| `DSCResources`    | `DSCResources` source folder and a sample MOF-based resource.                                          |
+| `ClassDSCResource`| Class-based DSC resource scaffolding.                                                                  |
+| `SampleScripts`   | Sample scripts under the source tree.                                                                  |
+| `git`             | `.gitignore` and other Git configuration files.                                                        |
+| `gitversion`      | `GitVersion.yml` for automatic semantic versioning.                                                    |
+| `github`          | GitHub configuration: issue/PR templates and `CODE_OF_CONDUCT.md`.                                     |
+| `vscode`          | `.vscode` folder with recommended Visual Studio Code settings.                                         |
+| `codecov`         | `codecov.yml` for code coverage reporting via CodeCov.io.                                              |
+| `azurepipelines`  | `azure-pipelines.yml` and supporting files for Azure Pipelines.                                        |
+| `Gherkin`         | Gherkin/specification test scaffolding.                                                                |
+| `UnitTests`       | `tests/Unit` folder and example Pester tests for the features you selected.                            |
+| `ModuleQuality`   | Quality-assurance Pester tests (help, ScriptAnalyzer, code coverage gates).                            |
+| `Build`           | Build folder and supporting build scripts.                                                             |
+| `AppVeyor`        | AppVeyor configuration and build steps.                                                                |
+| `TestKitchen`     | Test Kitchen folders, YAML and an example.                                                             |
+
+> Use `All` on its own to opt into every feature. Otherwise list each feature
+> you want explicitly — features that are not listed will not be scaffolded.
+
+##### Non-interactive example: cherry-pick a custom feature set
+
+The example below scaffolds a module that combines classes, DSC resources, unit
+tests, quality checks, a build pipeline, GitHub configuration, Azure Pipelines
+and CodeCov.io reporting, without any interactive prompts:
+
+```powershell
+Install-Module -Name 'Sampler' -Scope 'CurrentUser'
+
+$newSampleModuleParameters = @{
+    DestinationPath   = 'C:\source'
+    ModuleType        = 'CustomModule'
+    ModuleName        = 'MyCustomModule'
+    ModuleAuthor      = 'My Name'
+    ModuleDescription = 'MyCustomModule Description'
+    ModuleVersion     = '0.0.1'
+    LicenseType       = 'MIT'
+    SourceDirectory   = 'source'
+    MainGitBranch     = 'main'
+    Features          = @(
+        'Classes',
+        'DSCResources',
+        'UnitTests',
+        'ModuleQuality',
+        'Build',
+        'git',
+        'github',
+        'vscode',
+        'azurepipelines',
+        'codecov'
+    )
+}
+
+New-SampleModule @newSampleModuleParameters
+```
+
+To enable everything the template can produce, pass a single `All` value:
+
+```powershell
+New-SampleModule -DestinationPath 'C:\source' `
+    -ModuleType 'CustomModule' `
+    -ModuleName 'MyCustomModule' `
+    -ModuleAuthor 'My Name' `
+    -ModuleDescription 'MyCustomModule Description' `
+    -LicenseType 'MIT' `
+    -SourceDirectory 'source' `
+    -Features 'All'
+```
+
+##### Interactive example via `Invoke-Plaster`
+
+If you prefer to drive the Plaster template directly and answer the prompts as
+they appear, you can also call `Invoke-Plaster` against the template shipped
+with Sampler:
 
 ```powershell
 Install-Module -Name 'Sampler' -Scope 'CurrentUser'
@@ -327,7 +420,7 @@ Install-Module -Name 'Sampler' -Scope 'CurrentUser'
 $samplerModule = Import-Module -Name Sampler -PassThru
 
 $invokePlasterParameters = @{
-   TemplatePath    = Join-Path -Path $samplerModule.ModuleBase -ChildPath 'Templates/Sampler'
+   TemplatePath      = Join-Path -Path $samplerModule.ModuleBase -ChildPath 'Templates/Sampler'
    DestinationPath   = 'C:\source'
    ModuleType        = 'CustomModule'
    ModuleName        = 'MyCustomModule'
@@ -337,6 +430,10 @@ $invokePlasterParameters = @{
 
 Invoke-Plaster @invokePlasterParameters
 ```
+
+> **Tip:** the `Features` parameter is only honored when `ModuleType` is set
+> to `CustomModule`. The other module types ship with a fixed feature set and
+> ignore `-Features`.
 
 #### `GCPackage`
 
