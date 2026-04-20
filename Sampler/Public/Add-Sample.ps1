@@ -104,7 +104,7 @@ function Add-Sample
             $plasterModule = Get-Module -Name 'Plaster'
 
             <#
-                Load manifest file using culture lookup (using Plaster module private function GetPlasterManifestPathForCulture).
+                Load manifest file using culture lookup (using Plaster module private function Get-PlasterManifestPathForCulture).
                 This is the current function that is called:
                 https://github.com/PowerShellOrg/Plaster/blob/0506a26ffb532a335a4e62a8da31d9ca0177ae2a/src/InvokePlaster.ps1#L1478
             #>
@@ -120,7 +120,7 @@ function Add-Sample
                     $Culture
                 )
 
-                GetPlasterManifestPathForCulture -TemplatePath $templateAbsolutePath -Culture $Culture
+                Get-PlasterManifestPathForCulture -TemplatePath $templateAbsolutePath -Culture $Culture
             } $templateAbsolutePath $PSCulture
 
             if (($null -eq $manifestPath) -or (-not (Test-Path -Path $manifestPath)))

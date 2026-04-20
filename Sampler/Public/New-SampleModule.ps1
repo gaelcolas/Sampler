@@ -22,6 +22,7 @@
             - SimpleModule
             - SimpleModule_NoBuild
             - dsccommunity
+            - CustomModule
 
     .PARAMETER ModuleAuthor
         The author of module that will be populated in the Module Manifest and will show in the Gallery.
@@ -38,6 +39,9 @@
     .PARAMETER ModuleVersion
         Version you want to set in your Module Manifest. If you follow our approach, this will be updated during compilation anyway.
 
+    .PARAMETER MainGitBranch
+        The name of the default Git branch to configure in templates that use Git (defaults to 'main').
+
     .PARAMETER LicenseType
         Type of license you would like to add to your repository. We recommend MIT for Open Source projects.
 
@@ -47,6 +51,10 @@
 
     .PARAMETER Features
         If you'd rather select specific features from this template to build your module, use this parameter instead.
+        Valid values mirror the Plaster template feature choices:
+            All, Enum, Classes, DSCResources, ClassDSCResource, SampleScripts,
+            git, gitversion, github, vscode, codecov, azurepipelines,
+            Gherkin, UnitTests, ModuleQuality, Build, AppVeyor, TestKitchen.
 
     .EXAMPLE
         C:\src> New-SampleModule -DestinationPath . -ModuleType CompleteSample -ModuleAuthor "Gael Colas" -ModuleName MyModule -ModuleVersion 0.0.1 -ModuleDescription "a sample module" -LicenseType MIT -SourceDirectory Source
@@ -58,7 +66,7 @@ function New-SampleModule
 {
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingFunctions', '')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '')]
-    [CmdletBinding(DefaultParameterSetName = 'ByModuleType')]
+    [CmdletBinding()]
     [OutputType([System.Void])]
     param (
         [Parameter(Mandatory = $true)]
@@ -66,9 +74,9 @@ function New-SampleModule
         [System.String]
         $DestinationPath,
 
-        [Parameter(ParameterSetName = 'ByModuleType')]
+        [Parameter()]
         [string]
-        [ValidateSet('SimpleModule', 'CompleteSample', 'SimpleModule_NoBuild', 'dsccommunity')]
+        [ValidateSet('SimpleModule', 'CompleteSample', 'SimpleModule_NoBuild', 'dsccommunity', 'CustomModule')]
         $ModuleType = 'SimpleModule',
 
         [Parameter()]
@@ -94,6 +102,10 @@ function New-SampleModule
 
         [Parameter()]
         [System.String]
+        $MainGitBranch = 'main',
+
+        [Parameter()]
+        [System.String]
         [ValidateSet('MIT','Apache','None')]
         $LicenseType = 'MIT',
 
@@ -102,7 +114,7 @@ function New-SampleModule
         [ValidateSet('source','src')]
         $SourceDirectory = 'source',
 
-        [Parameter(ParameterSetName = 'ByFeature')]
+        [Parameter()]
         [ValidateSet(
             'All',
             'Enum',
@@ -111,6 +123,11 @@ function New-SampleModule
             'ClassDSCResource',
             'SampleScripts',
             'git',
+            'gitversion',
+            'github',
+            'vscode',
+            'codecov',
+            'azurepipelines',
             'Gherkin',
             'UnitTests',
             'ModuleQuality',
@@ -124,6 +141,19 @@ function New-SampleModule
 
     $templateSubPath = 'Templates/Sampler'
     $samplerBase = $MyInvocation.MyCommand.Module.ModuleBase
+
+    <#
+        When the caller supplies -Features but does not explicitly choose a
+        -ModuleType, treat the invocation as a CustomModule cherry-pick. The
+        Plaster template only honors the Features multichoice when ModuleType
+        is 'CustomModule', so without this auto-switch the Features values
+        would be silently ignored and the user would still be prompted for
+        every Use* option of the default 'SimpleModule' preset.
+    #>
+    if ($PSBoundParameters.ContainsKey('Features') -and -not $PSBoundParameters.ContainsKey('ModuleType'))
+    {
+        $ModuleType = 'CustomModule'
+    }
 
     $invokePlasterParam = @{
         TemplatePath = Join-Path -Path $samplerBase -ChildPath $templateSubPath
@@ -151,6 +181,36 @@ function New-SampleModule
     else
     {
         $invokePlasterParam.add('License', 'true')
+    }
+
+    <#
+        For CustomModule scaffolding, derive every Use* template parameter
+        from the explicit Features list so that Plaster never prompts the
+        caller for them. Each Use* is set to 'true' when the matching
+        feature (or 'All') is selected, and to 'false' otherwise. This
+        guarantees that an invocation that fully specifies -Features runs
+        non-interactively.
+    #>
+    if ($ModuleType -eq 'CustomModule' -and $PSBoundParameters.ContainsKey('Features'))
+    {
+        $featureToUseParameter = [ordered]@{
+            UseGit            = 'git'
+            UseGitVersion     = 'gitversion'
+            UseGitHub         = 'github'
+            UseAzurePipelines = 'azurepipelines'
+            UseCodeCovIo      = 'codecov'
+            UseVSCode         = 'vscode'
+        }
+
+        $allFeatures = $Features -contains 'All'
+
+        foreach ($useParameter in $featureToUseParameter.Keys)
+        {
+            $featureName = $featureToUseParameter[$useParameter]
+            $isEnabled   = $allFeatures -or ($Features -contains $featureName)
+
+            $invokePlasterParam[$useParameter] = if ($isEnabled) { 'true' } else { 'false' }
+        }
     }
 
     Invoke-Plaster @invokePlasterParam
