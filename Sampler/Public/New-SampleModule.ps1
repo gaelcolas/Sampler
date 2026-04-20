@@ -59,6 +59,14 @@
     .EXAMPLE
         C:\src> New-SampleModule -DestinationPath . -ModuleType CompleteSample -ModuleAuthor "Gael Colas" -ModuleName MyModule -ModuleVersion 0.0.1 -ModuleDescription "a sample module" -LicenseType MIT -SourceDirectory Source
 
+    .EXAMPLE
+        # Non-interactive, feature-driven scaffolding for a CustomModule. Because every
+        # required parameter is supplied, no prompts are shown and only the requested
+        # features are included (no Azure Pipelines, no GitHub-specific files, etc.).
+        C:\src> New-SampleModule -DestinationPath .\output\test\ -ModuleName testMod `
+                    -ModuleDescription 'test module by features' -CustomRepo 'PSGallery' `
+                    -Features Enum,Classes,git,UnitTests
+
     .NOTES
         See Add-Sample to add elements such as functions (private or public), tests, DSC Resources to your project.
 #>

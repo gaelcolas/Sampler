@@ -23,6 +23,10 @@
 
     .NOTES
         Other parameters will be displayed based on the Template used for the pipeline.
+        The culture-aware manifest path is resolved at runtime against either
+        Plaster v2.x (`Get-PlasterManifestPathForCulture`) or Plaster v1.x
+        (`GetPlasterManifestPathForCulture`), so `New-SamplerPipeline` works with
+        both major Plaster versions.
         See Add-Sample to add elements such as functions (private or public), tests, DSC Resources to your project.
 #>
 function New-SamplerPipeline

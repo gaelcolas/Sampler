@@ -435,6 +435,14 @@ Invoke-Plaster @invokePlasterParameters
 > to `CustomModule`. The other module types ship with a fixed feature set and
 > ignore `-Features`.
 
+> **Non-interactive scaffolding:** when you pass `-Features` together with the
+> other required parameters (`-ModuleName`, `-ModuleDescription`, `-CustomRepo`,
+> etc.), Sampler does not prompt for the features you did not select or for the
+> options that are not relevant to those features. For example, supplying only
+> `-Features Enum,Classes,git,UnitTests` will not prompt for Azure Pipelines,
+> GitHub, GitVersion, CodeCov.io or the GitHub owner — only the Git-related
+> options remain in scope and they default sensibly when not provided.
+
 #### `GCPackage`
 
 >**Note:** The `GCPackage` template is not yet available, but can be created using

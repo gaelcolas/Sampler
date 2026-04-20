@@ -29,7 +29,10 @@
         C:\src\MyModule> Add-Sample -Sample PublicFunction -PublicFunctionName Get-MyStuff
 
     .NOTES
-        This module requires and uses Plaster.
+        This module requires and uses Plaster. The culture-aware manifest path is
+        resolved at runtime against either Plaster v2.x (`Get-PlasterManifestPathForCulture`)
+        or Plaster v1.x (`GetPlasterManifestPathForCulture`), so `Add-Sample` works
+        with both major Plaster versions.
 #>
 function Add-Sample
 {
