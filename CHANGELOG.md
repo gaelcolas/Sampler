@@ -16,7 +16,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update URL for PowerShell gallery pre-release badge ([#553](https://github.com/gaelcolas/Sampler/issues/553)).
 - Update azure-pipelines task PublishCodeCoverageResults to v2 ([#551](https://github.com/gaelcolas/Sampler/issues/551)).
 - Updated comment-based help for Resolve-Dependency.ps1
-- Moved large parts of the ReadMe to the Wiki to handle Include simple tutorials in the Wiki ([issue #487](https://github.com/gaelcolas/Sampler/issues/487))
+- Moved large parts of the ReadMe to the Wiki to handle Include simple tutorials in the Wiki ([issue #487](https://github.com/gaelcolas/Sampler/issues/487)).
+
+### Changed
+
+- Added support for GitVersion 6 (Breaking Change).
+  - Updated `GitVersion.yml` config file.
+  - Removed the GitVersion task in Azure DevOps pipeline.
+  - Added a task to the Azure DevOps pipeline to Install GitVersion.
+  - Added a new build task to Sampler: `GitVersion`.
+  - Updated `Get-SamplerBuildVersion` to be compatible with GitVersion 6.
+  - Updated `Get-SamplerBuildVersion` Pester tests.
+  - Changed `README.md`.
 
 ## [0.119.0] - 2026-01-08
 

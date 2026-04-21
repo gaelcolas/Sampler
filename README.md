@@ -883,9 +883,9 @@ default path in variable `BuildModuleOutput`.
 
 ### `ModuleVersion`
 
-The module version of the built module. Defaults to the property `NuGetVersionV2`
+The module version of the built module. Defaults to the property `ModuleVersion`
 returned by the executable `gitversion`, or if the executable `gitversion`
-is not available the the variable defaults to an empty string, and the
+is not available the variable defaults to an empty string, and the
 build module task will use the version found in the Module Manifest.
 
 It is also possible to set the session environment variable `$env:ModuleVersion`
