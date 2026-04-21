@@ -160,6 +160,7 @@ function New-SampleModule
     #>
     if ($PSBoundParameters.ContainsKey('Features') -and -not $PSBoundParameters.ContainsKey('ModuleType'))
     {
+        Write-Verbose -Message ('Features parameter is only effective when ModuleType is CustomModule. Switching ModuleType to CustomModule to honor the selected features.')
         $ModuleType = 'CustomModule'
     }
 
