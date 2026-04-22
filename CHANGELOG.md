@@ -18,6 +18,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `copilot-instructions.md` documenting build/test/quality commands, the mandatory `./build.ps1` entry point, high-level architecture, key conventions (changelog discipline, `-ErrorAction 'Ignore'` preference, cross-platform/cross-version PS5.1+PS7 support), guidance for running long builds without hanging the agent shell (always tee output to a log file), and how to extract test failures from the Pester NUnit XML and HQRM CliXml result files.
   - Per-area `instructions/*.instructions.md` files for public functions, private functions, Plaster templates, build tasks, and Pester tests.
   - `agents/sampler-maintainer.md` agent definition and the `skills/validate-changes` skill that picks the smallest useful test scope and surfaces XML-based failure diagnostics.
+- Tab-completion for the `-Tasks` parameter of the scaffolded `Build.ps1`.
+  Candidates include the Invoke-Build `?` help token, tasks defined under
+  `./.build/**/*.ps1`, tasks imported from modules under
+  `./output/RequiredModules/**/*.build.ps1`, and workflow aliases declared
+  under `BuildWorkflow:` in `build.yaml`. The completer is self-contained and
+  works in a fresh clone before `Resolve-Dependency` has ever run.
 
 ### Changed
 
@@ -993,7 +999,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fixed #192 where the `Build-Module` command from module builder returns
-  a rooted path (sometimes). 
+  a rooted path (sometimes).
 
 ## [0.107.0] - 2020-09-07
 

@@ -75,6 +75,95 @@
 param
 (
     [Parameter(Position = 0)]
+    [ArgumentCompleter({
+            param ($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)
+
+            # $PSScriptRoot is not reliable inside an ArgumentCompleter script block;
+            # derive the script root defensively, falling back to the current location.
+            $scriptRoot = if ($PSCommandPath)
+            {
+                Split-Path -Path $PSCommandPath -Parent
+            }
+            else
+            {
+                $PWD.Path
+            }
+
+            $tasks = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+
+            # Built-in Invoke-Build help token
+            [void] $tasks.Add('?')
+
+            $taskRegex = '^\s*task\s+[''"]?([A-Za-z_][\w\.\-]*)'
+
+            # Tasks defined in the local '.build' directory
+            $localBuildDir = Join-Path -Path $scriptRoot -ChildPath '.build'
+            if (Test-Path -Path $localBuildDir)
+            {
+                foreach ($file in Get-ChildItem -Path $localBuildDir -Filter '*.ps1' -Recurse -ErrorAction SilentlyContinue)
+                {
+                    foreach ($line in Get-Content -LiteralPath $file.FullName -ErrorAction SilentlyContinue)
+                    {
+                        if ($line -match $taskRegex)
+                        {
+                            [void] $tasks.Add($Matches[1])
+                        }
+                    }
+                }
+            }
+
+            # Tasks imported from Sampler and related modules (*.build.ps1 files)
+            $modulesDir = Join-Path -Path $scriptRoot -ChildPath 'output/RequiredModules'
+            if (Test-Path -Path $modulesDir)
+            {
+                foreach ($file in Get-ChildItem -Path $modulesDir -Filter '*.build.ps1' -Recurse -ErrorAction SilentlyContinue)
+                {
+                    foreach ($line in Get-Content -LiteralPath $file.FullName -ErrorAction SilentlyContinue)
+                    {
+                        if ($line -match $taskRegex)
+                        {
+                            [void] $tasks.Add($Matches[1])
+                        }
+                    }
+                }
+            }
+
+            # Workflow aliases defined under BuildWorkflow in build.yaml
+            $buildYaml = Join-Path -Path $scriptRoot -ChildPath 'build.yaml'
+            if (Test-Path -Path $buildYaml)
+            {
+                $inWorkflow = $false
+                foreach ($line in Get-Content -LiteralPath $buildYaml -ErrorAction SilentlyContinue)
+                {
+                    if ($line -match '^BuildWorkflow\s*:')
+                    {
+                        $inWorkflow = $true
+                        continue
+                    }
+
+                    if ($inWorkflow)
+                    {
+                        # Exit the BuildWorkflow block as soon as a new top-level key is encountered
+                        if ($line -match '^\S')
+                        {
+                            break
+                        }
+
+                        if ($line -match '^\s{2}["'']?([^"''\s:#][^:]*?)["'']?\s*:\s*$')
+                        {
+                            [void] $tasks.Add($Matches[1])
+                        }
+                    }
+                }
+            }
+
+            $tasks |
+                Where-Object { $_ -like "$wordToComplete*" } |
+                Sort-Object |
+                ForEach-Object {
+                    [System.Management.Automation.CompletionResult]::new($_, $_, 'ParameterValue', $_)
+                }
+        })]
     [System.String[]]
     $Tasks = '.',
 
