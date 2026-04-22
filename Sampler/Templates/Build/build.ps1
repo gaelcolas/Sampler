@@ -100,32 +100,18 @@ param
             $localBuildDir = Join-Path -Path $scriptRoot -ChildPath '.build'
             if (Test-Path -Path $localBuildDir)
             {
-                foreach ($file in Get-ChildItem -Path $localBuildDir -Filter '*.ps1' -Recurse -ErrorAction SilentlyContinue)
-                {
-                    foreach ($line in Get-Content -LiteralPath $file.FullName -ErrorAction SilentlyContinue)
-                    {
-                        if ($line -match $taskRegex)
-                        {
-                            [void] $tasks.Add($Matches[1])
-                        }
-                    }
-                }
+                Get-ChildItem -Path $localBuildDir -Filter '*.ps1' -Recurse -ErrorAction SilentlyContinue |
+                    Select-String -Pattern $taskRegex -ErrorAction SilentlyContinue |
+                    ForEach-Object { [void] $tasks.Add($_.Matches[0].Groups[1].Value) }
             }
 
             # Tasks imported from Sampler and related modules (*.build.ps1 files)
             $modulesDir = Join-Path -Path $scriptRoot -ChildPath 'output/RequiredModules'
             if (Test-Path -Path $modulesDir)
             {
-                foreach ($file in Get-ChildItem -Path $modulesDir -Filter '*.build.ps1' -Recurse -ErrorAction SilentlyContinue)
-                {
-                    foreach ($line in Get-Content -LiteralPath $file.FullName -ErrorAction SilentlyContinue)
-                    {
-                        if ($line -match $taskRegex)
-                        {
-                            [void] $tasks.Add($Matches[1])
-                        }
-                    }
-                }
+                Get-ChildItem -Path $modulesDir -Filter '*.build.ps1' -Recurse -ErrorAction SilentlyContinue |
+                    Select-String -Pattern $taskRegex -ErrorAction SilentlyContinue |
+                    ForEach-Object { [void] $tasks.Add($_.Matches[0].Groups[1].Value) }
             }
 
             # Workflow aliases defined under BuildWorkflow in build.yaml
