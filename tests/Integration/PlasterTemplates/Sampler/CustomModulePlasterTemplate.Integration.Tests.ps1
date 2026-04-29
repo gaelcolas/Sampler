@@ -997,7 +997,6 @@ Describe 'Custom Module Plaster Template' {
             'CHANGELOG.md'
             'CODE_OF_CONDUCT.md'
             'SECURITY.md'
-            'GitVersion.yml'
             'README.md'
             'source/ModuleDsc.psd1'
             'source/ModuleDsc.psm1'
@@ -1025,7 +1024,7 @@ Describe 'Custom Module Plaster Template' {
                 ModuleVersion        = '1.0.0'
                 CustomRepo           = 'PSGallery'
                 License              = 'false'
-                Features             = 'git' # All,Enum,Classes,DSCResources,SampleScripts,git,Gherkin,UnitTests,ModuleQuality,Build,AppVeyor,TestKitchen
+                Features             = 'git'# All,Enum,Classes,DSCResources,SampleScripts,git,Gherkin,UnitTests,ModuleQuality,Build,AppVeyor,TestKitchen
                 GitHubOwner          = 'AccountName'
                 UseGit               = $true
                 UseGitVersion        = $true
@@ -1243,6 +1242,8 @@ Describe 'Custom Module Plaster Template' {
 
             # Folders (relative to module root)
 
+            'output'
+            'output/RequiredModules'
             'source'
             'source/en-US'
             'source/Private'

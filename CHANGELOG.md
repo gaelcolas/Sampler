@@ -10,6 +10,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `package_psresource_nupkg` tasks that recursively packs dependencies, ignoring `ExternalDependencies` using `PSResourceGet` module.
+- `New-SampleModule` `Features` parameter now accepts `github`, `vscode`, `codecov`, `azurepipelines`, and `gitversion` to mirror the Plaster template's feature choices.
+- `New-SampleModule` documents the `CustomModule` `ModuleType` and the new `MainGitBranch` parameter.
+- `New-SampleModule` `ModuleType` `ValidateSet` now includes `CustomModule`.
+- `New-SampleModule` exposes a `MainGitBranch` parameter (defaults to `main`) for templates that configure a default Git branch.
+- GitHub Copilot guidance for the project under `.github/`:
+  - `copilot-instructions.md` documenting build/test/quality commands, the mandatory `./build.ps1` entry point, high-level architecture, key conventions (changelog discipline, `-ErrorAction 'Ignore'` preference, cross-platform/cross-version PS5.1+PS7 support), guidance for running long builds without hanging the agent shell (always tee output to a log file), and how to extract test failures from the Pester NUnit XML and HQRM CliXml result files.
+  - Per-area `instructions/*.instructions.md` files for public functions, private functions, Plaster templates, build tasks, and Pester tests.
+  - `agents/sampler-maintainer.md` agent definition and the `skills/validate-changes` skill that picks the smallest useful test scope and surfaces XML-based failure diagnostics.
+
+### Changed
+
+- `New-SampleModule` no longer splits `ModuleType` and `Features` into separate parameter sets, so both can be supplied in the same invocation.
 
 ### Fixed
 
@@ -17,6 +29,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update azure-pipelines task PublishCodeCoverageResults to v2 ([#551](https://github.com/gaelcolas/Sampler/issues/551)).
 - Updated comment-based help for Resolve-Dependency.ps1
 - Moved large parts of the ReadMe to the Wiki to handle Include simple tutorials in the Wiki ([issue #487](https://github.com/gaelcolas/Sampler/issues/487))
+- Expanded the `CustomModule` section in the wiki `Getting-started` page to document the `-Features` parameter, list every supported feature value and show non-interactive examples.
+- `Sampler` Plaster template
+  - Fixed `Features` choice values so `azurepipelines`, `vscode`, `github`, and `codecov` are valid multichoice values (previously the Azure Pipelines option was unusable).
+  - Fixed prompt conditions for `UseGit`, `UseGitVersion`, `UseCodeCovIo`, `UseGitHub`, `UseAzurePipelines`, `UseVSCode`, `License`, and `LicenseType` which contained contradictory `Features.Count` checks that prevented prompts from ever firing.
+  - Fixed `GitHubOwner` condition that used `-contains` against an integer (`Features.Count`).
+  - Replaced `${PLASTER_PARAM_Features} -in @(...)` checks with explicit `-contains` checks so multichoice `Features` arrays are evaluated correctly.
+  - Fixed the `azure-pipelines.yml` file condition that referenced the non-existent `Azure-Pipelines` feature value.
+  - Aligned `New-SampleModule` `Features` `ValidateSet` casing with the template's choice values.
+- Made `Add-Sample` and `New-SamplerPipeline` resolve Plaster's culture-aware manifest-path helper at runtime so they work with both Plaster v2.x (`Get-PlasterManifestPathForCulture`) and Plaster v1.x (`GetPlasterManifestPathForCulture`).
 
 ## [0.119.0] - 2026-01-08
 
