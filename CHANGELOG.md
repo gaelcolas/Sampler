@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `Create_DscAdaptedResourceManifests` and `Create_DscResourceManifestsList` build tasks that use the `DscResource.Authoring` module to generate Microsoft DSC adapted resource manifests from class-based DSC resources found in the built module. Configuration is read from the `DscResource.Authoring:` section in `build.yaml` and supports per-resource property overrides via `PropertyOverrides`.
 - `package_psresource_nupkg` tasks that recursively packs dependencies, ignoring `ExternalDependencies` using `PSResourceGet` module.
 - `New-SampleModule` `Features` parameter now accepts `github`, `vscode`, `codecov`, `azurepipelines`, and `gitversion` to mirror the Plaster template's feature choices.
 - `New-SampleModule` documents the `CustomModule` `ModuleType` and the new `MainGitBranch` parameter.
