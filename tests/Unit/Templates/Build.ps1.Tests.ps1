@@ -45,13 +45,31 @@ Describe 'Sampler Build.ps1 template' {
 
             Set-Content -Path (Join-Path -Path $script:fakeRoot -ChildPath '.build/Foo.ps1') -Value 'task Foo {}'
 
+            # The fixture exercises three things:
+            #   1. Plain workflow aliases (CompWorkflow, OtherWf, TrailingWf).
+            #   2. An in-yaml scriptblock value with nested braces (Inline). Its
+            #      key must be picked up, but identifiers that appear *inside*
+            #      the scriptblock body must not be treated as workflow aliases.
+            #   3. A non-workflow root key (NextKey) that terminates the block.
             $yamlLines = @(
                 'BuildWorkflow:'
+                ''
                 '  CompWorkflow:'
                 '    - build'
                 '    - test'
+                ''
                 '  OtherWf:'
                 '    - noop'
+                ''
+                '  # An in-yaml scriptblock value with nested braces.'
+                '  Inline: {'
+                '    if ($true) {'
+                '      InnerKey: not_a_workflow'
+                '    }'
+                '  }'
+                ''
+                '  TrailingWf:'
+                '    - x'
                 'NextKey: value'
             )
             Set-Content -Path (Join-Path -Path $script:fakeRoot -ChildPath 'build.yaml') -Value ($yamlLines -join [System.Environment]::NewLine)
@@ -67,7 +85,13 @@ Describe 'Sampler Build.ps1 template' {
             # falls back to $PWD.Path for its script root.
             function Invoke-Completer
             {
-                param ([string] $WordToComplete)
+                param
+                (
+                    [Parameter(Mandatory = $true)]
+                    [AllowEmptyString()]
+                    [System.String]
+                    $WordToComplete
+                )
 
                 $ps = [powershell]::Create()
                 try
@@ -86,7 +110,7 @@ Describe 'Sampler Build.ps1 template' {
             }
         }
 
-        It 'Returns a non-empty, sorted, deduplicated completion list' {
+        It 'Returns the workflow aliases, the local task and the help token' {
             $results = Invoke-Completer -WordToComplete ''
             $values = @($results | ForEach-Object { $_.CompletionText })
 
@@ -95,11 +119,45 @@ Describe 'Sampler Build.ps1 template' {
             $values | Should -Contain 'Foo'
             $values | Should -Contain 'CompWorkflow'
             $values | Should -Contain 'OtherWf'
+            $values | Should -Contain 'Inline'
+            $values | Should -Contain 'TrailingWf'
+        }
 
-            # Sorted alphabetically.
-            ($values -join '|') | Should -Be (($values | Sort-Object) -join '|')
+        It 'Does not pick up identifiers inside an in-yaml scriptblock value' {
+            $results = Invoke-Completer -WordToComplete ''
+            $values = @($results | ForEach-Object { $_.CompletionText })
 
-            # Deduplicated (case-insensitive).
+            # 'InnerKey' lives inside the Inline scriptblock body and must not
+            # be treated as a top-level workflow alias.
+            $values | Should -Not -Contain 'InnerKey'
+        }
+
+        It 'Preserves YAML / file declaration order (no alphabetical sort)' {
+            $results = Invoke-Completer -WordToComplete ''
+            $values = @($results | ForEach-Object { $_.CompletionText })
+
+            # Workflow aliases appear in their declaration order from the YAML,
+            # followed by the local '.build/' tasks, followed by the Invoke-Build
+            # help token. We assert *relative* order rather than equality, to
+            # stay robust to other workspace artefacts that the completer may
+            # legitimately discover.
+            $expectedOrder = @('CompWorkflow', 'OtherWf', 'Inline', 'TrailingWf', 'Foo', '?')
+
+            $actualPositions = foreach ($name in $expectedOrder)
+            {
+                [System.Array]::IndexOf([System.Object[]] $values, $name)
+            }
+
+            $actualPositions | Should -Not -Contain -1
+
+            $sortedPositions = $actualPositions | Sort-Object
+            ($actualPositions -join '|') | Should -Be ($sortedPositions -join '|')
+        }
+
+        It 'Deduplicates entries (case-insensitive)' {
+            $results = Invoke-Completer -WordToComplete ''
+            $values = @($results | ForEach-Object { $_.CompletionText })
+
             ($values | Group-Object | Where-Object Count -gt 1) | Should -BeNullOrEmpty
         }
 
@@ -119,4 +177,3 @@ Describe 'Sampler Build.ps1 template' {
         }
     }
 }
-

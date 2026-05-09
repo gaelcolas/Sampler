@@ -76,7 +76,23 @@ param
 (
     [Parameter(Position = 0)]
     [ArgumentCompleter({
-            param ($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)
+            param
+            (
+                [Parameter()]
+                $commandName,
+
+                [Parameter()]
+                $parameterName,
+
+                [Parameter()]
+                $wordToComplete,
+
+                [Parameter()]
+                $commandAst,
+
+                [Parameter()]
+                $fakeBoundParameters
+            )
 
             # $PSScriptRoot is not reliable inside an ArgumentCompleter script block;
             # derive the script root defensively, falling back to the current location.
@@ -89,63 +105,127 @@ param
                 $PWD.Path
             }
 
-            $tasks = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+            # Use an ordered hashtable so YAML / file declaration order is preserved
+            # (case-insensitive deduplication via Contains lookup).
+            $tasks = [ordered] @{ }
 
-            # Built-in Invoke-Build help token
-            [void] $tasks.Add('?')
-
-            $taskRegex = '^\s*task\s+[''"]?([A-Za-z_][\w\.\-]*)'
-
-            # Tasks defined in the local '.build' directory
-            $localBuildDir = Join-Path -Path $scriptRoot -ChildPath '.build'
-            if (Test-Path -Path $localBuildDir)
-            {
-                Get-ChildItem -Path $localBuildDir -Filter '*.ps1' -Recurse -ErrorAction SilentlyContinue |
-                    Select-String -Pattern $taskRegex -ErrorAction SilentlyContinue |
-                    ForEach-Object { [void] $tasks.Add($_.Matches[0].Groups[1].Value) }
-            }
-
-            # Tasks imported from Sampler and related modules (*.build.ps1 files)
-            $modulesDir = Join-Path -Path $scriptRoot -ChildPath 'output/RequiredModules'
-            if (Test-Path -Path $modulesDir)
-            {
-                Get-ChildItem -Path $modulesDir -Filter '*.build.ps1' -Recurse -ErrorAction SilentlyContinue |
-                    Select-String -Pattern $taskRegex -ErrorAction SilentlyContinue |
-                    ForEach-Object { [void] $tasks.Add($_.Matches[0].Groups[1].Value) }
-            }
-
-            # Workflow aliases defined under BuildWorkflow in build.yaml
+            # 1. Workflow aliases declared under BuildWorkflow in build.yaml.
+            #    These are the high-level entry points users typically tab-complete
+            #    to (build, docs, pack, ...), so they appear first.
             $buildYaml = Join-Path -Path $scriptRoot -ChildPath 'build.yaml'
             if (Test-Path -Path $buildYaml)
             {
-                $inWorkflow = $false
-                foreach ($line in Get-Content -LiteralPath $buildYaml -ErrorAction SilentlyContinue)
-                {
-                    if ($line -match '^BuildWorkflow\s*:')
-                    {
-                        $inWorkflow = $true
-                        continue
-                    }
+                $yamlText = Get-Content -LiteralPath $buildYaml -Raw -ErrorAction Ignore
 
-                    if ($inWorkflow)
+                if ($yamlText)
+                {
+                    # Extract everything from "^BuildWorkflow:" up to (but not
+                    # including) the next root-level YAML key (a non-indented
+                    # line that starts with a word character) or end-of-file.
+                    $blockMatch = [regex]::Match(
+                        $yamlText,
+                        '(?ms)^BuildWorkflow\s*:\s*\r?\n(?<body>.*?)(?=^\w|\Z)'
+                    )
+
+                    if ($blockMatch.Success)
                     {
-                        # Exit the BuildWorkflow block as soon as a new top-level key is encountered
-                        if ($line -match '^\S')
+                        $bodyLines = $blockMatch.Groups['body'].Value -split '\r?\n'
+
+                        # Discover the workflow's child indent level from the
+                        # first non-empty, non-comment indented line.
+                        $childIndent = $null
+                        foreach ($line in $bodyLines)
                         {
-                            break
+                            if ($line -match '^(?<i>\s+)[^\s#]')
+                            {
+                                $childIndent = $Matches['i'].Length
+                                break
+                            }
                         }
 
-                        if ($line -match '^\s{2}["'']?([^"''\s:#][^:]*?)["'']?\s*:\s*$')
+                        if ($null -ne $childIndent)
                         {
-                            [void] $tasks.Add($Matches[1])
+                            $childKeyRegex = "^\s{$childIndent}['""]?(?<key>[A-Za-z_\.][^\s:#'""]*)['""]?\s*:"
+                            $braceDepth = 0
+
+                            foreach ($line in $bodyLines)
+                            {
+                                # Strip trailing comments to keep the brace count
+                                # honest (a '#' starts a YAML comment).
+                                $codeLine = $line -replace '(?<!\\)#.*$'
+
+                                # Only collect a key when we are not currently
+                                # inside an in-yaml scriptblock value (depth 0).
+                                if ($braceDepth -eq 0 -and $codeLine -match $childKeyRegex)
+                                {
+                                    $key = $Matches['key'].Trim().Trim("'", '"')
+
+                                    if ($key -and $key -ne '.' -and -not $tasks.Contains($key))
+                                    {
+                                        $tasks[$key] = $null
+                                    }
+                                }
+
+                                # Update brace depth AFTER checking, so a key on
+                                # the same line as an opening brace is still
+                                # collected (e.g. "MyTask: { ... }").
+                                $opens  = ([regex]::Matches($codeLine, '\{')).Count
+                                $closes = ([regex]::Matches($codeLine, '\}')).Count
+                                $braceDepth += $opens - $closes
+
+                                if ($braceDepth -lt 0)
+                                {
+                                    $braceDepth = 0
+                                }
+                            }
                         }
                     }
                 }
             }
 
-            $tasks |
+            $taskRegex = '^\s*task\s+[''"]?([A-Za-z_][\w\.\-]*)'
+
+            # 2. Tasks defined in the local '.build' directory.
+            $localBuildDir = Join-Path -Path $scriptRoot -ChildPath '.build'
+            if (Test-Path -Path $localBuildDir)
+            {
+                Get-ChildItem -Path $localBuildDir -Filter '*.ps1' -Recurse -ErrorAction Ignore |
+                    Select-String -Pattern $taskRegex -ErrorAction Ignore |
+                    ForEach-Object {
+                        $name = $_.Matches[0].Groups[1].Value
+
+                        if ($name -and -not $tasks.Contains($name))
+                        {
+                            $tasks[$name] = $null
+                        }
+                    }
+            }
+
+            # 3. Tasks imported from Sampler and related modules (*.build.ps1).
+            $modulesDir = Join-Path -Path $scriptRoot -ChildPath 'output/RequiredModules'
+            if (Test-Path -Path $modulesDir)
+            {
+                Get-ChildItem -Path $modulesDir -Filter '*.build.ps1' -Recurse -ErrorAction Ignore |
+                    Select-String -Pattern $taskRegex -ErrorAction Ignore |
+                    ForEach-Object {
+                        $name = $_.Matches[0].Groups[1].Value
+
+                        if ($name -and -not $tasks.Contains($name))
+                        {
+                            $tasks[$name] = $null
+                        }
+                    }
+            }
+
+            # 4. Built-in Invoke-Build help token (last so it doesn't push the
+            #    workflow aliases off the top of the candidate list).
+            if (-not $tasks.Contains('?'))
+            {
+                $tasks['?'] = $null
+            }
+
+            $tasks.Keys |
                 Where-Object { $_ -like "$wordToComplete*" } |
-                Sort-Object |
                 ForEach-Object {
                     [System.Management.Automation.CompletionResult]::new($_, $_, 'ParameterValue', $_)
                 }

@@ -19,11 +19,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Per-area `instructions/*.instructions.md` files for public functions, private functions, Plaster templates, build tasks, and Pester tests.
   - `agents/sampler-maintainer.md` agent definition and the `skills/validate-changes` skill that picks the smallest useful test scope and surfaces XML-based failure diagnostics.
 - Tab-completion for the `-Tasks` parameter of the scaffolded `Build.ps1`.
-  Candidates include the Invoke-Build `?` help token, tasks defined under
-  `./.build/**/*.ps1`, tasks imported from modules under
-  `./output/RequiredModules/**/*.build.ps1`, and workflow aliases declared
-  under `BuildWorkflow:` in `build.yaml`. The completer is self-contained and
-  works in a fresh clone before `Resolve-Dependency` has ever run.
+  Candidates include workflow aliases declared under `BuildWorkflow:` in
+  `build.yaml`, tasks defined under `./.build/**/*.ps1`, tasks imported from
+  modules under `./output/RequiredModules/**/*.build.ps1`, and the Invoke-Build
+  `?` help token. Candidates are emitted in YAML / file declaration order
+  (workflow aliases first, then individual tasks). The YAML parser extracts
+  the `BuildWorkflow:` block up to the next root-level key and tracks brace
+  depth so it correctly handles in-yaml scriptblock values (single- or
+  multi-line, including nested braces) without picking up identifiers from
+  inside the scriptblock body. The completer is self-contained and works in a
+  fresh clone before `Resolve-Dependency` has ever run.
 
 ### Changed
 
