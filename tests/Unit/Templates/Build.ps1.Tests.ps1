@@ -45,6 +45,17 @@ Describe 'Sampler Build.ps1 template' {
 
             Set-Content -Path (Join-Path -Path $script:fakeRoot -ChildPath '.build/Foo.ps1') -Value 'task Foo {}'
 
+            # Tasks file with both a real task and a comment line that begins
+            # with the literal text "task something" but is not a real task
+            # declaration. The completer must NOT pick up "comment" as a task.
+            $tricky = @(
+                'task Bar { }'
+                '<#'
+                '    task comment $foo is described in the help block'
+                '#>'
+            ) -join [System.Environment]::NewLine
+            Set-Content -Path (Join-Path -Path $script:fakeRoot -ChildPath '.build/Bar.ps1') -Value $tricky
+
             # The fixture exercises three things:
             #   1. Plain workflow aliases (CompWorkflow, OtherWf, TrailingWf).
             #   2. An in-yaml scriptblock value with nested braces (Inline). Its
@@ -117,10 +128,22 @@ Describe 'Sampler Build.ps1 template' {
             $values | Should -Not -BeNullOrEmpty
             $values | Should -Contain '?'
             $values | Should -Contain 'Foo'
+            $values | Should -Contain 'Bar'
             $values | Should -Contain 'CompWorkflow'
             $values | Should -Contain 'OtherWf'
             $values | Should -Contain 'Inline'
             $values | Should -Contain 'TrailingWf'
+        }
+
+        It 'Does not pick up identifiers from comment text that mentions "task <name>"' {
+            $results = Invoke-Completer -WordToComplete ''
+            $values = @($results | ForEach-Object { $_.CompletionText })
+
+            # 'comment' appears inside a <# ... #> help block on a line that
+            # reads 'task comment $foo is described ...'. The regex must reject
+            # it because it is followed by a $ variable reference, which is
+            # not a valid Invoke-Build task signature.
+            $values | Should -Not -Contain 'comment'
         }
 
         It 'Does not pick up identifiers inside an in-yaml scriptblock value' {
@@ -137,11 +160,12 @@ Describe 'Sampler Build.ps1 template' {
             $values = @($results | ForEach-Object { $_.CompletionText })
 
             # Workflow aliases appear in their declaration order from the YAML,
-            # followed by the local '.build/' tasks, followed by the Invoke-Build
-            # help token. We assert *relative* order rather than equality, to
-            # stay robust to other workspace artefacts that the completer may
-            # legitimately discover.
-            $expectedOrder = @('CompWorkflow', 'OtherWf', 'Inline', 'TrailingWf', 'Foo', '?')
+            # followed by the local '.build/' tasks (in Get-ChildItem order,
+            # which is alphabetical by file name on Windows: Bar.ps1, Foo.ps1),
+            # followed by the Invoke-Build help token. We assert *relative*
+            # order rather than equality, to stay robust to other workspace
+            # artefacts that the completer may legitimately discover.
+            $expectedOrder = @('CompWorkflow', 'OtherWf', 'Inline', 'TrailingWf', 'Bar', 'Foo', '?')
 
             $actualPositions = foreach ($name in $expectedOrder)
             {

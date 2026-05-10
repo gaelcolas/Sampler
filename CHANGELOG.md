@@ -27,8 +27,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the `BuildWorkflow:` block up to the next root-level key and tracks brace
   depth so it correctly handles in-yaml scriptblock values (single- or
   multi-line, including nested braces) without picking up identifiers from
-  inside the scriptblock body. The completer is self-contained and works in a
-  fresh clone before `Resolve-Dependency` has ever run.
+  inside the scriptblock body. The task-discovery regex anchors the captured
+  name to a real word boundary, so identifiers that only happen to appear
+  after the literal text `task ` inside a comment block (for example a
+  `task parameter $foo` description in comment-based help) are no longer
+  surfaced as completion candidates. The completer is self-contained and
+  works in a fresh clone before `Resolve-Dependency` has ever run.
 
 ### Changed
 

@@ -183,7 +183,16 @@ param
                 }
             }
 
-            $taskRegex = '^\s*task\s+[''"]?([A-Za-z_][\w\.\-]*)'
+            # Match an Invoke-Build task declaration:
+            #   task <Name> ...
+            # The lookahead anchors the end of the captured name to a real
+            # word-boundary so we don't truncate longer identifiers (e.g.
+            # 'parameter' inside a comment) into spurious matches like
+            # 'paramete'. What may follow a real task name:
+            #   * optional whitespace then a syntax char  ({  (  ,  @  -  #  '  "  )
+            #   * mandatory whitespace then a word char   (next Job string)
+            #   * end-of-line                             (rare but legal)
+            $taskRegex = '^\s*task\s+[''"]?(?<name>[A-Za-z_][\w\.\-]*)[''"]?(?=\s*[{(,@\-#''"]|\s+\w|\s*$)'
 
             # 2. Tasks defined in the local '.build' directory.
             $localBuildDir = Join-Path -Path $scriptRoot -ChildPath '.build'
@@ -192,7 +201,7 @@ param
                 Get-ChildItem -Path $localBuildDir -Filter '*.ps1' -Recurse -ErrorAction Ignore |
                     Select-String -Pattern $taskRegex -ErrorAction Ignore |
                     ForEach-Object {
-                        $name = $_.Matches[0].Groups[1].Value
+                        $name = $_.Matches[0].Groups['name'].Value
 
                         if ($name -and -not $tasks.Contains($name))
                         {
@@ -208,7 +217,7 @@ param
                 Get-ChildItem -Path $modulesDir -Filter '*.build.ps1' -Recurse -ErrorAction Ignore |
                     Select-String -Pattern $taskRegex -ErrorAction Ignore |
                     ForEach-Object {
-                        $name = $_.Matches[0].Groups[1].Value
+                        $name = $_.Matches[0].Groups['name'].Value
 
                         if ($name -and -not $tasks.Contains($name))
                         {
