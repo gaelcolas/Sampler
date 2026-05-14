@@ -148,7 +148,7 @@
       <parameter name="GitHubOwner" type="text"
                   default="MyOrgName"
                   prompt="What is the name of the GitHub owner (personal or organization account) that will publish the module?"
-                  condition="($PLASTER_PARAM_ModuleType -eq 'CustomModule' -and ($PLASTER_PARAM_Features -contains 'github' -or $PLASTER_PARAM_Features -contains 'All')) -or ($PLASTER_PARAM_UseGitHub -eq 'true' -and $PLASTER_PARAM_ModuleType -notin @('dsccommunity', 'SimpleModule_NoBuild', 'CustomModule')) -or $PLASTER_PARAM_ModuleType -in @('CompleteSample')" />
+                  condition="($PLASTER_PARAM_ModuleType -eq 'CustomModule' -and ($PLASTER_PARAM_Features -contains 'github' -or $PLASTER_PARAM_Features -contains 'All')) -or ($PLASTER_PARAM_UseGitHub -eq 'true' -and $PLASTER_PARAM_ModuleType -notin @('dsccommunity', 'SimpleModule_NoBuild'))" />
 
       <parameter name="GitHubOwnerDscCommunity" type="text"
                   default="dsccommunity"
