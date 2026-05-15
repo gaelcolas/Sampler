@@ -107,14 +107,7 @@ task Invoke_Pester_Tests_v4 {
     $ModuleVersion = $samplerProjectBuildInfo.ModuleVersion
 
     # Get the values for task variables, see https://github.com/gaelcolas/Sampler?tab=readme-ov-file#build-task-variables.
-    if ($samplerProjectBuildInfo.BuildType -ne 'Other' -and -not $samplerProjectBuildInfo.HasBuiltOutput)
-    {
-        . Set-SamplerTaskVariable -AsNewBuild
-    }
-    else
-    {
-        . Set-SamplerTaskVariable
-    }
+    . Set-SamplerTaskVariable
 
     $PesterOutputFolder = Get-SamplerAbsolutePath -Path $PesterOutputFolder -RelativeTo $OutputDirectory
 
@@ -514,14 +507,7 @@ task Invoke_Pester_Tests_v5 {
     $ModuleVersion = $samplerProjectBuildInfo.ModuleVersion
 
     # Get the values for task variables, see https://github.com/gaelcolas/Sampler?tab=readme-ov-file#build-task-variables.
-    if ($samplerProjectBuildInfo.BuildType -ne 'Other' -and -not $samplerProjectBuildInfo.HasBuiltOutput)
-    {
-        . Set-SamplerTaskVariable -AsNewBuild
-    }
-    else
-    {
-        . Set-SamplerTaskVariable
-    }
+    . Set-SamplerTaskVariable
 
     $PesterOutputFolder = Get-SamplerAbsolutePath -Path $PesterOutputFolder -RelativeTo $OutputDirectory
 
