@@ -18,7 +18,8 @@
         Root path of the project or repository.
 
     .PARAMETER OutputDirectory
-        Build output directory.
+        Root output directory that contains the built module and related build
+        artifacts for the project.
 
     .PARAMETER BuiltModuleSubdirectory
         Optional built module subdirectory under the output directory.
@@ -27,7 +28,8 @@
         Specifies whether the built module output is versioned.
 
     .PARAMETER ProjectName
-        Optional project/module name.
+        Optional project or module name. If omitted, this function tries to infer
+        it from build metadata or the source manifest.
 
     .PARAMETER SourcePath
         Optional source path. If omitted, this function tries to resolve it.
