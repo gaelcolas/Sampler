@@ -76,6 +76,16 @@ Describe 'Invoke_Pester_Tests_v4' {
                 return 0
             }
 
+            Mock -CommandName Get-SamplerProjectBuildInfo -MockWith {
+                return @{
+                    ProjectName    = 'MyModule'
+                    SourcePath     = (Join-Path -Path $TestDrive -ChildPath 'source')
+                    ModuleVersion  = '2.0.0'
+                    BuildType      = 'PowerShellModule'
+                    HasBuiltOutput = $true
+                }
+            }
+
             Mock -CommandName Get-Command -ParameterFilter {
                 $Name -eq 'Invoke-Pester'
             } -MockWith {
@@ -163,6 +173,16 @@ Describe 'Invoke_Pester_Tests_v5' {
 
             Mock -CommandName New-Item
 
+            Mock -CommandName Get-SamplerProjectBuildInfo -MockWith {
+                return @{
+                    ProjectName    = 'MyModule'
+                    SourcePath     = (Join-Path -Path $TestDrive -ChildPath 'source')
+                    ModuleVersion  = '2.0.0'
+                    BuildType      = 'PowerShellModule'
+                    HasBuiltOutput = $true
+                }
+            }
+
             Mock -CommandName Import-Module -ParameterFilter {
                 $Name -eq 'MyModule' -or $Name -like '*MyModule.psd1'
             } -MockWith {
@@ -213,6 +233,16 @@ Describe 'Invoke_Pester_Tests_v5' {
             }
 
             Mock -CommandName New-Item
+
+            Mock -CommandName Get-SamplerProjectBuildInfo -MockWith {
+                return @{
+                    ProjectName    = 'MyModule'
+                    SourcePath     = (Join-Path -Path $TestDrive -ChildPath 'source')
+                    ModuleVersion  = '2.0.0'
+                    BuildType      = 'PowerShellModule'
+                    HasBuiltOutput = $true
+                }
+            }
 
             Mock -CommandName Import-Module -ParameterFilter {
                 $Name -eq 'MyModule' -or $Name -like '*MyModule.psd1'
@@ -286,6 +316,16 @@ Describe 'Invoke_Pester_Tests_v5' {
             }
 
             Mock -CommandName New-Item
+
+            Mock -CommandName Get-SamplerProjectBuildInfo -MockWith {
+                return @{
+                    ProjectName    = 'MyRepository'
+                    SourcePath     = ''
+                    ModuleVersion  = '0.0.1'
+                    BuildType      = 'Other'
+                    HasBuiltOutput = $false
+                }
+            }
 
             Mock -CommandName Test-Path -ParameterFilter {
                 $Path -eq $repositoryTestsPath
