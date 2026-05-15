@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Pester task setup now resolves repository-only test runs without requiring a prebuilt module, while still preferring the built module when it exists.
 - Added `Get-SamplerProjectBuildInfo` and updated Pester build tasks to use its `BuildType`/`HasBuiltOutput` project model directly instead of Pester-specific setup/import/identity wrapper functions.
 - Pinned `ModuleBuilder` to `3.1.8` in `RequiredModules.psd1` because newer versions break Sampler task alias registration during tests.
+- Temporarily skip the `SimpleModule` integration tests that depend on building the sample module on Windows PowerShell 5.1 while `ModuleBuilder` 3.2 is broken there.
 
 ### Fixed
 

@@ -57,7 +57,8 @@ Describe 'SimpleModule' {
         { Invoke-Plaster @invokePlasterParameters } | Should -Not -Throw
     }
 
-    It 'Should build MySimpleModule without throwing' {
+    # TODO: Revert this skip once ModuleBuilder ships a fixed release for the Windows PowerShell 5.1 issue.
+    It 'Should build MySimpleModule without throwing' -Skip:($PSVersionTable.PSVersion.Major -eq 5) {
         # Must be set so $Using:PWD works.
         Set-Location -Path $mockModuleRootPath
 
@@ -90,7 +91,8 @@ Describe 'SimpleModule' {
         $buildError | Should -BeNullOrEmpty
     }
 
-    It 'Should import MySimpleModule without throwing' {
+    # TODO: Revert this skip once ModuleBuilder ships a fixed release for the Windows PowerShell 5.1 issue.
+    It 'Should import MySimpleModule without throwing' -Skip:($PSVersionTable.PSVersion.Major -eq 5) {
         # Must be set so $Using:PWD works.
         Set-Location -Path $mockModuleRootPath
 
@@ -111,7 +113,8 @@ Describe 'SimpleModule' {
         This is probably due to running Invoke-Build task that runs Invoke-Pester
         that then again runs Invoke-Build that again runs Invoke-Pester.
     #>
-    It 'Should pass all sample tests' -Skip:($PSVersionTable.PSEdition -eq 'Desktop') {
+    # TODO: Revert this skip once ModuleBuilder ships a fixed release for the Windows PowerShell 5.1 issue.
+    It 'Should pass all sample tests' -Skip:($PSVersionTable.PSVersion.Major -eq 5) {
         # Must be set so $Using:PWD works.
         Set-Location -Path $mockModuleRootPath
 
