@@ -7,3 +7,5 @@ output/*
 !**/README.md
 DscResource.tests
 Sampler/Modules/DscResource.Common
+
+resume-build.log

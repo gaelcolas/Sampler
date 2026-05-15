@@ -76,6 +76,16 @@ Describe 'Invoke_Pester_Tests_v4' {
                 return 0
             }
 
+            Mock -CommandName Get-SamplerProjectBuildInfo -MockWith {
+                return @{
+                    ProjectName    = 'MyModule'
+                    SourcePath     = (Join-Path -Path $TestDrive -ChildPath 'source')
+                    ModuleVersion  = '2.0.0'
+                    BuildType      = 'PowerShellModule'
+                    HasBuiltOutput = $true
+                }
+            }
+
             Mock -CommandName Get-Command -ParameterFilter {
                 $Name -eq 'Invoke-Pester'
             } -MockWith {
@@ -89,7 +99,7 @@ Describe 'Invoke_Pester_Tests_v4' {
             }
 
             Mock -CommandName Import-Module -ParameterFilter {
-                $Name -eq 'MyModule'
+                $Name -eq 'MyModule' -or $Name -like '*MyModule.psd1'
             } -MockWith {
                 return @{
                     ModuleBase = $TestDrive | Join-Path -ChildPath 'MyModule'
@@ -163,8 +173,22 @@ Describe 'Invoke_Pester_Tests_v5' {
 
             Mock -CommandName New-Item
 
+            Mock -CommandName Get-SamplerProjectBuildInfo -MockWith {
+                return @{
+                    ProjectName    = 'MyModule'
+                    SourcePath     = (Join-Path -Path $TestDrive -ChildPath 'source')
+                    ModuleVersion  = '2.0.0'
+                    BuildType      = 'PowerShellModule'
+                    HasBuiltOutput = $true
+                }
+            }
+
             Mock -CommandName Import-Module -ParameterFilter {
-                $Name -eq 'MyModule'
+                $Name -eq 'MyModule' -or $Name -like '*MyModule.psd1'
+            } -MockWith {
+                return @{
+                    ModuleBase = $TestDrive | Join-Path -ChildPath 'MyModule'
+                }
             }
 
             Mock -CommandName Invoke-Pester -MockWith {
@@ -180,6 +204,9 @@ Describe 'Invoke_Pester_Tests_v5' {
             } | Should -Not -Throw
 
             Should -Invoke -CommandName Invoke-Pester -Exactly -Times 1 -Scope It
+            Should -Invoke -CommandName Import-Module -ParameterFilter {
+                $Name -eq 'MyModule' -or $Name -like '*MyModule.psd1'
+            } -Exactly -Times 1 -Scope It
         }
     }
 
@@ -207,8 +234,18 @@ Describe 'Invoke_Pester_Tests_v5' {
 
             Mock -CommandName New-Item
 
+            Mock -CommandName Get-SamplerProjectBuildInfo -MockWith {
+                return @{
+                    ProjectName    = 'MyModule'
+                    SourcePath     = (Join-Path -Path $TestDrive -ChildPath 'source')
+                    ModuleVersion  = '2.0.0'
+                    BuildType      = 'PowerShellModule'
+                    HasBuiltOutput = $true
+                }
+            }
+
             Mock -CommandName Import-Module -ParameterFilter {
-                $Name -eq 'MyModule'
+                $Name -eq 'MyModule' -or $Name -like '*MyModule.psd1'
             } -MockWith {
                 return @{
                     ModuleBase = $TestDrive | Join-Path -ChildPath 'MyModule'
@@ -241,6 +278,79 @@ Describe 'Invoke_Pester_Tests_v5' {
             } | Should -Not -Throw
 
             Should -Invoke -CommandName Invoke-Pester -Exactly -Times 1 -Scope It
+            Should -Invoke -CommandName Import-Module -ParameterFilter {
+                $Name -eq 'MyModule' -or $Name -like '*MyModule.psd1'
+            } -Exactly -Times 1 -Scope It
+        }
+    }
+
+    Context 'When running repository tests without a built module' {
+        BeforeAll {
+            $BuildInfo = @{
+                SemVer = '0.0.1'
+                Pester = @{
+                    Configuration = @{
+                        Run = @{
+                            Path = 'tests/Integration'
+                        }
+                        CodeCoverage = @{
+                            CoveragePercentTarget = 0
+                        }
+                    }
+                }
+            }
+
+            $mockRepositoryTaskParameters = @{
+                OutputDirectory = Join-Path -Path $TestDrive -ChildPath 'output'
+                ProjectPath = Join-Path -Path $TestDrive -ChildPath 'MyRepository'
+                ProjectName = ''
+            }
+
+            $repositoryTestsPath = Join-Path -Path $TestDrive -ChildPath 'MyRepository' |
+                Join-Path -ChildPath 'tests/Integration'
+
+            Mock -CommandName Get-Module -MockWith {
+                return @{
+                    Version = '5.3.3'
+                }
+            }
+
+            Mock -CommandName New-Item
+
+            Mock -CommandName Get-SamplerProjectBuildInfo -MockWith {
+                return @{
+                    ProjectName    = 'MyRepository'
+                    SourcePath     = ''
+                    ModuleVersion  = '0.0.1'
+                    BuildType      = 'Other'
+                    HasBuiltOutput = $false
+                }
+            }
+
+            Mock -CommandName Test-Path -ParameterFilter {
+                $Path -eq $repositoryTestsPath
+            } -MockWith {
+                return $true
+            }
+
+            Mock -CommandName Import-Module
+
+            Mock -CommandName Invoke-Pester -MockWith {
+                return 'Mock Pester PassThru-object'
+            }
+
+            Mock -CommandName Export-Clixml
+        }
+
+        It 'Should run the build task without importing a built module' {
+            {
+                Invoke-Build -Task 'Invoke_Pester_Tests_v5' -File $taskAlias.Definition @mockRepositoryTaskParameters
+            } | Should -Not -Throw
+
+            Should -Invoke -CommandName Invoke-Pester -Exactly -Times 1 -Scope It
+            Should -Not -Invoke -CommandName Import-Module -ParameterFilter {
+                $Name -like '*MyRepository*'
+            } -Scope It
         }
     }
 }
