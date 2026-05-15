@@ -102,13 +102,25 @@ task Invoke_Pester_Tests_v4 {
     }
 
     $samplerProjectBuildInfo = Get-SamplerProjectBuildInfo @getSamplerProjectBuildInfoParameters
-    $ProjectName = $samplerProjectBuildInfo.ProjectName
-    $SourcePath = $samplerProjectBuildInfo.SourcePath
-    $ModuleVersion = $samplerProjectBuildInfo.ModuleVersion
+    $resolvedProjectName = $samplerProjectBuildInfo.ProjectName
+    $resolvedSourcePath = $samplerProjectBuildInfo.SourcePath
+    $resolvedModuleVersion = $samplerProjectBuildInfo.ModuleVersion
+
+    Write-Build -Color 'DarkGray' -Text (
+        "Resolved project build info. BuildType = '{0}', HasBuiltOutput = '{1}', ProjectName = '{2}', SourcePath = '{3}', ModuleVersion = '{4}'." -f
+        $samplerProjectBuildInfo.BuildType,
+        $samplerProjectBuildInfo.HasBuiltOutput,
+        $resolvedProjectName,
+        $resolvedSourcePath,
+        $resolvedModuleVersion
+    )
 
     # Get the values for task variables, see https://github.com/gaelcolas/Sampler?tab=readme-ov-file#build-task-variables.
-    . Set-SamplerTaskVariable
-
+    $ProjectName = $resolvedProjectName
+    $SourcePath = $resolvedSourcePath
+    $ModuleVersion = $resolvedModuleVersion
+    # Get the values for task variables, see https://github.com/gaelcolas/Sampler?tab=readme-ov-file#build-task-variables.
+     . Set-SamplerTaskVariable
     $PesterOutputFolder = Get-SamplerAbsolutePath -Path $PesterOutputFolder -RelativeTo $OutputDirectory
 
     "`tPester Output Folder     = '$PesterOutputFolder"
@@ -502,12 +514,24 @@ task Invoke_Pester_Tests_v5 {
     }
 
     $samplerProjectBuildInfo = Get-SamplerProjectBuildInfo @getSamplerProjectBuildInfoParameters
-    $ProjectName = $samplerProjectBuildInfo.ProjectName
-    $SourcePath = $samplerProjectBuildInfo.SourcePath
-    $ModuleVersion = $samplerProjectBuildInfo.ModuleVersion
+    $resolvedProjectName = $samplerProjectBuildInfo.ProjectName
+    $resolvedSourcePath = $samplerProjectBuildInfo.SourcePath
+    $resolvedModuleVersion = $samplerProjectBuildInfo.ModuleVersion
 
+    Write-Build -Color 'DarkGray' -Text (
+        "Resolved project build info. BuildType = '{0}', HasBuiltOutput = '{1}', ProjectName = '{2}', SourcePath = '{3}', ModuleVersion = '{4}'." -f
+        $samplerProjectBuildInfo.BuildType,
+        $samplerProjectBuildInfo.HasBuiltOutput,
+        $resolvedProjectName,
+        $resolvedSourcePath,
+        $resolvedModuleVersion
+    )
+
+    $ProjectName = $resolvedProjectName
+    $SourcePath = $resolvedSourcePath
+    $ModuleVersion = $resolvedModuleVersion
     # Get the values for task variables, see https://github.com/gaelcolas/Sampler?tab=readme-ov-file#build-task-variables.
-    . Set-SamplerTaskVariable
+     . Set-SamplerTaskVariable
 
     $PesterOutputFolder = Get-SamplerAbsolutePath -Path $PesterOutputFolder -RelativeTo $OutputDirectory
 
@@ -865,6 +889,12 @@ Pester:
 
     if ($samplerProjectBuildInfo.BuildType -eq 'PowerShellModule')
     {
+        Write-Build -Color 'DarkGray' -Text (
+            "Resolving built module manifest for test import using project '{0}' and version '{1}'." -f
+            $ProjectName,
+            $ModuleVersion
+        )
+
         $getSamplerBuiltModuleManifestParameters = @{
             OutputDirectory          = $OutputDirectory
             BuiltModuleSubdirectory  = $BuiltModuleSubdirectory
@@ -882,6 +912,11 @@ Pester:
 
         if ($resolvedBuiltModuleManifestPath)
         {
+            Write-Build -Color 'DarkGray' -Text (
+                "Importing module under test from built manifest '{0}'." -f
+                $resolvedBuiltModuleManifestPath
+            )
+
             $moduleUnderTest = Import-Module -Name $resolvedBuiltModuleManifestPath -PassThru -ErrorAction 'Stop'
         }
     }
