@@ -15,18 +15,22 @@ parameters:
   - name: PlatformMatrix
     type: object
     default:
-      WINDOWS_PWSH7:
+      Windows_PWSH7:
         vmImage: 'windows-latest'
-        PWSH: true
-      WINDOWS_PWSH5:
+        UsePWSH: true
+        PlatformName: 'Windows_PWSH7'
+      Windows_PWSH5:
         vmImage: 'windows-latest'
-        PWSH: false
-      UBUNTU_PWSH7:
+        UsePWSH: false
+        PlatformName: 'Windows_PWSH5'
+      Ubuntu_PWSH7:
         vmImage: 'ubuntu-latest'
-        PWSH: true
-      MACOS_PWSH7:
+        UsePWSH: true
+        PlatformName: 'Ubuntu_PWSH7'
+      MacOS_PWSH7:
         vmImage: 'macos-latest'
-        PWSH: true
+        UsePWSH: true
+        PlatformName: 'MacOS_PWSH7'
 
 variables:
   buildFolderName: output
@@ -93,7 +97,7 @@ stages:
             inputs:
               filePath: './build.ps1'
               arguments: '-tasks test'
-              pwsh: $(PWSH)
+              pwsh: $(UsePWSH)
           - task: PublishTestResults@2
             displayName: 'Publish Test Results'
             condition: succeededOrFailed()
@@ -106,7 +110,7 @@ stages:
             condition: succeededOrFailed()
             inputs:
               targetPath: '$(buildFolderName)/$(testResultFolderName)/'
-              artifactName: 'CodeCoverage$(vmImage)_$(System.JobAttempt)'
+              artifactName: 'CodeCoverage_$(PlatformName)_$(System.JobAttempt)'
               parallel: true
 
       - job: Test_Integration
@@ -130,7 +134,7 @@ stages:
             inputs:
               filePath: './build.ps1'
               arguments: "-Tasks test -CodeCoverageThreshold 0 -PesterPath 'tests/Integration'"
-              pwsh: $(PWSH)
+              pwsh: $(UsePWSH)
           - task: PublishTestResults@2
             displayName: 'Publish Test Results'
             condition: succeededOrFailed()
@@ -167,7 +171,7 @@ stages:
               displayName: 'Download Test Artifact ${{ platform.Key }}'
               inputs:
                 buildType: 'current'
-                artifactName: 'CodeCoverage${{ platform.Value.vmImage }}_$(System.JobAttempt)'
+                artifactName: 'CodeCoverage_${{ platform.Value.PlatformName }}_$(System.JobAttempt)'
                 targetPath: '$(Build.SourcesDirectory)/$(buildFolderName)/$(testResultFolderName)'
           - task: PowerShell@2
             name: merge
