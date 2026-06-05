@@ -16,16 +16,16 @@ parameters:
     type: object
     default:
       WINDOWS_PWSH7:
-        JOB_VMIMAGE: 'windows-latest'
+        vmImage: 'windows-latest'
         PWSH: true
       WINDOWS_PWSH5:
-        JOB_VMIMAGE: 'windows-latest'
+        vmImage: 'windows-latest'
         PWSH: false
       UBUNTU_PWSH7:
-        JOB_VMIMAGE: 'ubuntu-latest'
+        vmImage: 'ubuntu-latest'
         PWSH: true
       MACOS_PWSH7:
-        JOB_VMIMAGE: 'macos-latest'
+        vmImage: 'macos-latest'
         PWSH: true
 
 variables:
