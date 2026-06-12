@@ -22,7 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - `New-SampleModule` no longer splits `ModuleType` and `Features` into separate parameter sets, so both can be supplied in the same invocation.
-- Pester task setup now resolves repository-only test runs without requiring a prebuilt module, while still preferring the built module when it exists.
+- Pester task setup now still supports repository-only test runs without a prebuilt module, but fails fast when a PowerShell module test workflow is invoked before the module output has been built.
+- Documented the separation between source kind and artifact context in build-task guidance, clarified module-versus-non-module version fallback rules, and expanded the README with pipeline-shape documentation for module, alternate-artifact, and standalone repository flows.
 - Added `Get-SamplerProjectBuildInfo` and updated Pester build tasks to use its `BuildType`/`HasBuiltOutput` project model directly instead of Pester-specific setup/import/identity wrapper functions.
 - Pinned `ModuleBuilder` to `3.1.8` in `RequiredModules.psd1` because newer versions break Sampler task alias registration during tests.
 - Temporarily skip the `SimpleModule` integration tests that depend on building the sample module on Windows PowerShell 5.1 while `ModuleBuilder` 3.2 is broken there.
@@ -42,6 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Fixed the `azure-pipelines.yml` file condition that referenced the non-existent `Azure-Pipelines` feature value.
   - Aligned `New-SampleModule` `Features` `ValidateSet` casing with the template's choice values.
 - Made `Add-Sample` and `New-SamplerPipeline` resolve Plaster's culture-aware manifest-path helper at runtime so they work with both Plaster v2.x (`Get-PlasterManifestPathForCulture`) and Plaster v1.x (`GetPlasterManifestPathForCulture`).
+- `Set-SamplerTaskVariable` now infers module sources from the source manifest, uses an explicit Chocolatey artifact context instead of build-output probing, and falls back to version `0.0.1` for non-module repositories when no manifest or GitVersion data is available.
 
 ## [0.119.0] - 2026-01-08
 

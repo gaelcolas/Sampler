@@ -453,9 +453,19 @@ task Fail_Build_If_Pester_Tests_Failed {
         PowerShellVersion = $powerShellVersion
     }
 
-    $PesterOutputFileFileName = Get-PesterOutputFileFileName @getPesterOutputFileFileNameParameters
+    if ([System.String]::IsNullOrEmpty($ProjectName) -or [System.String]::IsNullOrEmpty($ModuleVersion))
+    {
+        $latestPesterResultObject = Get-ChildItem -Path $PesterOutputFolder -Filter 'PesterObject_*.xml' -ErrorAction 'Ignore' |
+            Sort-Object -Property LastWriteTime -Descending |
+            Select-Object -First 1
 
-    $PesterResultObjectClixml = Join-Path -Path $PesterOutputFolder -ChildPath "PesterObject_$PesterOutputFileFileName"
+        $PesterResultObjectClixml = $latestPesterResultObject.FullName
+    }
+    else
+    {
+        $PesterOutputFileFileName = Get-PesterOutputFileFileName @getPesterOutputFileFileNameParameters
+        $PesterResultObjectClixml = Join-Path -Path $PesterOutputFolder -ChildPath "PesterObject_$PesterOutputFileFileName"
+    }
 
     Write-Build -Color 'White' -Text "`tPester Output Object = $PesterResultObjectClixml"
 
@@ -1227,9 +1237,19 @@ task Pester_Run_Times {
         PowerShellVersion = ('PSv.{0}' -f $PSVersionTable.PSVersion)
     }
 
-    $PesterOutputFileFileName = Get-PesterOutputFileFileName @getPesterOutputFileFileNameParameters
+    if ([System.String]::IsNullOrEmpty($ProjectName) -or [System.String]::IsNullOrEmpty($ModuleVersion))
+    {
+        $latestPesterResultObject = Get-ChildItem -Path $PesterOutputFolder -Filter 'PesterObject_*.xml' -ErrorAction 'Ignore' |
+            Sort-Object -Property LastWriteTime -Descending |
+            Select-Object -First 1
 
-    $PesterResultObjectClixml = Join-Path $PesterOutputFolder "PesterObject_$PesterOutputFileFileName"
+        $PesterResultObjectClixml = $latestPesterResultObject.FullName
+    }
+    else
+    {
+        $PesterOutputFileFileName = Get-PesterOutputFileFileName @getPesterOutputFileFileNameParameters
+        $PesterResultObjectClixml = Join-Path $PesterOutputFolder "PesterObject_$PesterOutputFileFileName"
+    }
 
     "`tPester Output Folder     = {0}" -f $PesterOutputFolder
     "`tPester Output Object     = {0}" -f $PesterResultObjectClixml

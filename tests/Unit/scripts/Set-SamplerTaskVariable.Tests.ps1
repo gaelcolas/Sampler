@@ -51,6 +51,16 @@ Describe 'Set-SamplerTaskVariable' {
                 return (Join-Path -Path $TestDrive -ChildPath 'source')
             }
 
+            Mock -CommandName Get-SamplerProjectBuildInfo -MockWith {
+                return @{
+                    ProjectName    = 'MyModule'
+                    SourcePath     = (Join-Path -Path $TestDrive -ChildPath 'source')
+                    ModuleVersion  = $null
+                    BuildType      = 'PowerShellModule'
+                    HasBuiltOutput = $false
+                }
+            }
+
             Mock -CommandName Get-SamplerAbsolutePath -ParameterFilter {
                 $Path -eq 'MyModule.psd1'
             } -MockWith {
@@ -97,16 +107,20 @@ Describe 'Set-SamplerTaskVariable' {
                 return (Join-Path -Path $TestDrive -ChildPath 'source')
             }
 
+            Mock -CommandName Get-SamplerProjectBuildInfo -MockWith {
+                return @{
+                    ProjectName    = 'MyModule'
+                    SourcePath     = (Join-Path -Path $TestDrive -ChildPath 'source')
+                    ModuleVersion  = $null
+                    BuildType      = 'PowerShellModule'
+                    HasBuiltOutput = $false
+                }
+            }
+
             Mock -CommandName Get-SamplerAbsolutePath -ParameterFilter {
                 $Path -eq 'MyModule.psd1'
             } -MockWith {
                 return (Join-Path -Path $TestDrive -ChildPath (Join-Path -Path 'source' -ChildPath 'MyModule.psd1'))
-            }
-
-            Mock -CommandName Test-Path -ParameterFilter {
-                $Path -eq (Join-Path -Path $TestDrive -ChildPath (Join-Path -Path 'output' -ChildPath 'choco'))
-            } -MockWith {
-                return $true
             }
 
             Mock -CommandName Get-SamplerBuildVersion -MockWith {
@@ -115,7 +129,7 @@ Describe 'Set-SamplerTaskVariable' {
         }
 
         It 'Should run the scripts and return correct values for variables' {
-            . Sampler\Set-SamplerTaskVariable -AsNewBuild
+            . Sampler\Set-SamplerTaskVariable -AsNewBuild -ArtifactContext 'Chocolatey'
 
             $ProjectName | Should -Be 'MyModule'
             $SourcePath | Should -Be (Join-Path -Path $TestDrive -ChildPath 'source')
@@ -123,7 +137,7 @@ Describe 'Set-SamplerTaskVariable' {
             $ReleaseNotesPath.TrimEnd('\/') | Should -Be (Join-Path -Path $TestDrive -ChildPath 'output')
             $BuiltModuleSubDirectory | Should -Be (Join-Path -Path $TestDrive -ChildPath (Join-Path -Path 'output' -ChildPath 'builtModule'))
             $ChocolateyBuildOutput | Should -Be (Join-Path -Path $TestDrive -ChildPath (Join-Path -Path 'output' -ChildPath 'choco'))
-            $ModuleManifestPath | Should -BeNullOrEmpty
+            $ModuleManifestPath | Should -Be (Join-Path -Path $TestDrive -ChildPath (Join-Path -Path 'source' -ChildPath 'MyModule.psd1'))
             $ModuleVersion | Should -Be '2.0.0'
         }
     }
@@ -171,6 +185,23 @@ Describe 'Set-SamplerTaskVariable' {
                     Join-Path -ChildPath '2.0.0' |
                     Join-Path -ChildPath 'MyModule.psm1'
             )
+        }
+
+        It 'Should throw when the module build output does not exist' {
+            Mock -CommandName Get-Item -MockWith {
+                return $null
+            } -ParameterFilter {
+                $Path -contains (
+                    Join-Path -Path $TestDrive -ChildPath 'output' |
+                        Join-Path -ChildPath 'builtModule' |
+                        Join-Path -ChildPath 'MyModule' |
+                        Join-Path -ChildPath '2.0.0' |
+                        Join-Path -ChildPath 'MyModule.psd1'
+                )
+            }
+
+            { . Sampler\Set-SamplerTaskVariable } |
+                Should -Throw -ExpectedMessage "Could not find the built module manifest for module 'MyModule'. Build the module before running tasks that require the built module output."
         }
     }
 }

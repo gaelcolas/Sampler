@@ -39,6 +39,7 @@ Describe 'Get-SamplerProjectBuildInfo' {
 
         Mock -CommandName Get-SamplerProjectName
         Mock -CommandName Get-SamplerSourcePath
+        Mock -CommandName Get-SamplerProjectModuleManifest
     }
 
     Context 'When source root has no valid module manifest' {
@@ -147,6 +148,7 @@ Describe 'Get-SamplerProjectBuildInfo' {
         BeforeAll {
             Mock -CommandName Get-SamplerProjectName
             Mock -CommandName Get-SamplerSourcePath
+            Mock -CommandName Get-SamplerProjectModuleManifest
         }
 
         It 'Should use the project path leaf and leave module version empty' {
@@ -165,6 +167,33 @@ Describe 'Get-SamplerProjectBuildInfo' {
 
             $result.ProjectName | Should -Be 'RepoRoot'
             $result.ModuleVersion | Should -BeNullOrEmpty
+        }
+    }
+
+    Context 'When source path cannot be inferred from a manifest or conventional folder' {
+        BeforeAll {
+            Mock -CommandName Get-SamplerProjectModuleManifest
+            Mock -CommandName Test-Path -MockWith {
+                return $false
+            }
+        }
+
+        It 'Should use the project path as the source path' {
+            $sourceFallbackParameters = @{
+                ProjectPath              = (Join-Path -Path $TestDrive -ChildPath 'PipelineRepo')
+                OutputDirectory          = (Join-Path -Path $TestDrive -ChildPath 'output')
+                BuiltModuleSubdirectory  = ''
+                VersionedOutputDirectory = $true
+                ProjectName              = ''
+                SourcePath               = ''
+                ModuleVersion            = ''
+                BuildInfo                = @{ }
+            }
+
+            $result = Sampler\Get-SamplerProjectBuildInfo @sourceFallbackParameters
+
+            $result.SourcePath | Should -Be (Join-Path -Path $TestDrive -ChildPath 'PipelineRepo')
+            $result.BuildType | Should -Be 'Other'
         }
     }
 }

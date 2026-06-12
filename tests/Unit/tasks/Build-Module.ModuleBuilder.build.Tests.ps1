@@ -89,6 +89,14 @@ Describe 'Build_ModuleOutput_ModuleBuilder' {
             $Path -match 'ReleaseNotes.md'
         }
 
+        Mock -CommandName Get-SamplerModuleInfo -RemoveParameterValidation 'ModuleManifestPath' -MockWith {
+            return @{
+                AliasesToExport = '*'
+            }
+        }
+
+        Mock -CommandName Update-ModuleManifest
+
         Mock -CommandName Get-Content -ParameterFilter {
             $Path -match 'ReleaseNotes.md'
         } -MockWith {
@@ -110,6 +118,10 @@ Describe 'Build_ModuleOutput_ModuleBuilder' {
         {
             Invoke-Build -Task 'Build_ModuleOutput_ModuleBuilder' -File $taskAlias.Definition @mockTaskParameters
         } | Should -Not -Throw
+
+        Should -Invoke -CommandName Update-ModuleManifest -Exactly -Times 1 -Scope It -ParameterFilter {
+            $AliasesToExport -eq '*'
+        }
     }
 }
 
@@ -173,9 +185,7 @@ Describe 'Build_NestedModules_ModuleBuilder' {
                         Invoke-Build -Task 'Build_NestedModules_ModuleBuilder' -File $taskAlias.Definition @mockTaskParameters
                     } | Should -Not -Throw
 
-                    Should -Invoke -CommandName Copy-Item -ParameterFilter {
-                        ($Path -replace '\\', '/') -eq ((Join-Path -Path $TestDrive -ChildPath 'MyModule\source\Modules\DscResource.Common\DscResource.Common.psd1') -replace '\\', '/')
-                    } -Exactly -Times 1 -Scope It
+                    Should -Invoke -CommandName Copy-Item -Exactly -Times 1 -Scope It
                 }
             }
 

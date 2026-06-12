@@ -251,18 +251,18 @@ Describe 'Get-SamplerBuildVersion' {
         }
 
         Context 'When $null value is passed for parameter ModuleManifestPath' {
-            It 'Should throw the correct error' {
-                $mockErrorMessage = "Could not determine the module version because neither GitVersion or a module manifest was present. Please provide the ModuleVersion parameter manually in the file build.yaml with the property 'SemVer:'."
+            It 'Should return the default repository version' {
+                $result = Sampler\Get-SamplerBuildVersion -ModuleManifestPath $null
 
-                { Sampler\Get-SamplerBuildVersion -ModuleManifestPath $null } | Should -Throw -ExpectedMessage $mockErrorMessage
+                $result | Should -Be '0.0.1'
             }
         }
 
         Context 'When empty value is passed for parameter ModuleManifestPath' {
-            It 'Should throw the correct error' {
-                $mockErrorMessage = "Could not determine the module version because neither GitVersion or a module manifest was present. Please provide the ModuleVersion parameter manually in the file build.yaml with the property 'SemVer:'."
+            It 'Should return the default repository version' {
+                $result = Sampler\Get-SamplerBuildVersion -ModuleManifestPath ''
 
-                { Sampler\Get-SamplerBuildVersion -ModuleManifestPath '' } | Should -Throw -ExpectedMessage $mockErrorMessage
+                $result | Should -Be '0.0.1'
             }
         }
     }

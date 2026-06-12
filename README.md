@@ -68,6 +68,23 @@ pipeline scripts. Once the project is created, the `build.ps1` inside the new
 project folder is how you interact with the built-in pipeline automation, and
 the file `build.yaml` is where you configure and customize it.
 
+#### Pipeline shapes and artifact types
+
+Sampler build logic supports more than one pipeline shape. The important distinction
+is between the **source kind** (what the repository fundamentally contains) and the
+**artifact context** (what a specific task is currently building or packaging).
+
+| Scenario | Source kind | Primary artifact | Version source |
+| --- | --- | --- | --- |
+| PowerShell module pipeline | Valid source module manifest | Built module under `output/module/<ProjectName>/<Version>` | Built module manifest for post-build tasks; `ModuleVersion`/`SemVer` -> `GitVersion` -> source manifest for new-build tasks |
+| Module packaged as another artifact | Valid source module manifest | Alternate package such as Chocolatey or Guest Configuration | `ModuleVersion`/`SemVer` -> `GitVersion` -> source manifest |
+| Repository-only / standalone pipeline | No valid source module manifest | Repository-defined artifact or validation output | `ModuleVersion`/`SemVer` -> `GitVersion` -> `0.0.1` |
+
+For PowerShell module workflows, tasks that run **after** the build should fail
+fast if the built module manifest is missing. For non-module or alternate-artifact
+flows, tasks should resolve version information without pretending a built module
+exists.
+
 The section below shows only how to create a new module using the `SimpleModule` template.  
 For the complete `Getting Started` instructions, **please see** the [Sampler - Wiki][1].
 
@@ -768,7 +785,7 @@ running tests.
 
 <!-- markdownlint-disable MD013 - Line length -->
 ```plaintext
-Set-SamplerTaskVariable [-AsNewBuild] [<CommonParameters>]
+Set-SamplerTaskVariable [-AsNewBuild] [[-ArtifactContext] <String>] [<CommonParameters>]
 ```
 <!-- markdownlint-enable MD013 - Line length -->
 
@@ -785,8 +802,10 @@ for more information about the variables that are set.
 ```
 <!-- markdownlint-enable MD013 - Line length -->
 
-Call the scriptblock and tells the script to evaluate the module version
-by not checking after the module manifest in the built module.
+Call the scriptblock for a task that expects to work against an already-built
+PowerShell module artifact. In that mode the script resolves paths and version
+information from the built module manifest and should fail fast if the built
+module output is missing.
 
 <!-- markdownlint-disable MD013 - Line length -->
 ```powershell
@@ -797,6 +816,14 @@ by not checking after the module manifest in the built module.
 Call the scriptblock set script variables. The parameter **AsNewBuild** tells
 the script to skip variables that can only be set when the module has been
 built.
+
+```powershell
+. Set-SamplerTaskVariable -AsNewBuild -ArtifactContext 'Chocolatey'
+```
+
+Call the scriptblock for a task that is packaging a different artifact from the
+same source tree. The **ArtifactContext** keeps the packaging intent explicit so
+tasks do not have to guess artifact type by probing output folders.
 
 ### `Split-ModuleVersion`
 
@@ -868,6 +895,26 @@ parameter to build.ps1 or set as as an environment variable. It can often
 be used if defined in parent scope or read from the $BuildInfo properties
 defined in the configuration file.
 
+### Source kind and artifact context
+
+Sampler resolves build-task variables in two steps:
+
+1. infer the **source kind** from the repository content
+1. apply the **artifact context** for the current task
+
+A repository is treated as a PowerShell module source when its source root
+contains exactly one valid module manifest. That source can still produce more
+than one artifact type, for example a built module and a Chocolatey package.
+Tasks should therefore keep module detection and packaging intent separate.
+
+- Use normal `Set-SamplerTaskVariable` calls for tasks that operate on an
+  already-built module artifact.
+- Use `Set-SamplerTaskVariable -AsNewBuild` for tasks that establish fresh
+  artifact state before a built module exists.
+- Use `Set-SamplerTaskVariable -ArtifactContext 'Chocolatey'` (or another
+  explicit context) when the same source tree is producing a non-default
+  artifact type.
+
 ### `BuildModuleOutput`
 
 This is the path where the module will be built. The path will, for example,
@@ -883,10 +930,9 @@ default path in variable `BuildModuleOutput`.
 
 ### `ModuleVersion`
 
-The module version of the built module. Defaults to the property `NuGetVersionV2`
-returned by the executable `gitversion`, or if the executable `gitversion`
-is not available the the variable defaults to an empty string, and the
-build module task will use the version found in the Module Manifest.
+The resolved version for the current task. The exact source depends on whether
+the task is running against a built module artifact or establishing fresh state
+for a module or non-module pipeline.
 
 It is also possible to set the session environment variable `$env:ModuleVersion`
 in the PowerShell session or set the variable `$ModuleVersion` in the
@@ -897,22 +943,19 @@ This `ModuleVersion` task variable can be overridden by using the key `SemVer`
 in the file `build.yml`, e.g. `SemVer: '99.0.0-preview1'`. This can be used
 if the preferred method of using GitVersion is not available.
 
-The order that the module version is determined is as follows:
+The version is determined as follows:
 
-1. the parameter `ModuleVersion` is set from the command line (passing parameter
-   to build task)
-1. if no parameter was passed it defaults to using the property from the
-   environment variable `$env:ModuleVersion` or parent scope variable
-   `$ModuleVersion`
-1. if the `ModuleVersion` is still not found it will try to use `GitVersion`
-   if it is available
-1. if `GitVersion` is not available the module version is set from the module
-   manifest in the source path using the properties `ModuleVersion` and
-   `PrivateData.PSData.Prerelease`
-1. if module version is set using key `SemVer` in `build.yml` it will
-   override 1), 2), 3), and 4)
-1. ~~if `SemVar` is set through parameter from the command line then it will~~
-   ~~override 1), 2), 3), 4), and 5)~~. This is not yet supported.
+1. if the task is operating on a built PowerShell module artifact, read the
+   version from the built module manifest
+1. otherwise, honor `ModuleVersion` from the command line, parent scope, or
+   environment
+1. if `SemVer` is set in `build.yml`, use it as the resolved `ModuleVersion`
+1. if the version is still not set, use `GitVersion` if available
+1. if the source kind is a PowerShell module and `GitVersion` is not available,
+   use the source module manifest (`ModuleVersion` plus
+   `PrivateData.PSData.Prerelease`)
+1. if the source kind is not a PowerShell module and no other version source is
+   available, use the static default `0.0.1`
 
 ### `OutputDirectory`
 
@@ -943,7 +986,8 @@ THe path to the release notes markdown file. Defaults to the path for
 
 The path to the source folder. Defaults to the same path where the module
 manifest is found in either the folder 'source', 'src', or a folder with
-the same name as the module.
+the same name as the module. For non-module repositories, `SourcePath`
+falls back to the repository root when no dedicated source folder exists.
 
 ## Tasks
 

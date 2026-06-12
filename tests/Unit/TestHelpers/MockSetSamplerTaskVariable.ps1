@@ -45,6 +45,34 @@ Mock -CommandName Get-SamplerSourcePath -MockWith {
     return (Join-Path -Path $TestDrive -ChildPath 'source')
 }
 
+Mock -CommandName Get-SamplerProjectBuildInfo -MockWith {
+    $resolvedProjectName = if ([System.String]::IsNullOrEmpty($ProjectName))
+    {
+        'MyModule'
+    }
+    else
+    {
+        $ProjectName
+    }
+
+    $resolvedSourcePath = if ([System.String]::IsNullOrEmpty($SourcePath))
+    {
+        Join-Path -Path $TestDrive -ChildPath 'source'
+    }
+    else
+    {
+        $SourcePath
+    }
+
+    return @{
+        ProjectName    = $resolvedProjectName
+        SourcePath     = $resolvedSourcePath
+        ModuleVersion  = '2.0.0'
+        BuildType      = 'PowerShellModule'
+        HasBuiltOutput = $true
+    }
+}
+
 Mock -CommandName Get-SamplerAbsolutePath -ParameterFilter {
     $Path -eq 'MyModule.psd1'
 } -MockWith {

@@ -69,6 +69,16 @@ Describe 'Set-SamplerTaskVariable' {
                 return (Join-Path -Path $TestDrive -ChildPath 'MyProject/source')
             }
 
+            Mock -CommandName Get-SamplerProjectBuildInfo -MockWith {
+                return @{
+                    ProjectName    = 'MyProject'
+                    SourcePath     = (Join-Path -Path $TestDrive -ChildPath 'MyProject/source')
+                    ModuleVersion  = $null
+                    BuildType      = 'PowerShellModule'
+                    HasBuiltOutput = $false
+                }
+            }
+
             Mock -CommandName Get-SamplerBuildVersion -MockWith {
                 return '1.0.0-preview'
             }
@@ -219,6 +229,16 @@ Describe 'Set-SamplerTaskVariable' {
                 return (Join-Path -Path $TestDrive -ChildPath 'MyProject/source')
             }
 
+            Mock -CommandName Get-SamplerProjectBuildInfo -MockWith {
+                return @{
+                    ProjectName    = 'MyProject'
+                    SourcePath     = (Join-Path -Path $TestDrive -ChildPath 'MyProject/source')
+                    ModuleVersion  = '1.0.0-preview'
+                    BuildType      = 'PowerShellModule'
+                    HasBuiltOutput = $true
+                }
+            }
+
             $mockBuiltModuleManifest = Join-Path -Path $TestDrive -ChildPath 'MyProject/output/MyProject/1.0.0-preview/MyProject.psd1'
 
             Mock -CommandName Get-SamplerBuiltModuleManifest -MockWith {
@@ -305,6 +325,25 @@ Describe 'Set-SamplerTaskVariable' {
             $result | Should -Contain "`tModule Version Folder      = '1.0.0'"
             $result | Should -Contain "`tPre-release Tag            = 'preview'"
             $result | Should -Contain ("`tBuilt Module Root Script   = '{0}'" -f (Join-Path -Path $TestDrive -ChildPath 'MyProject\output\MyProject\1.0.0-preview\MyProject.psm1'))
+        }
+
+        Context 'When the built module manifest is not present yet' {
+            BeforeAll {
+                Mock -CommandName Get-Item -MockWith {
+                    return $null
+                } -ParameterFilter {
+                    $Path -in @(
+                        $mockBuiltModuleManifest,
+                        $mockBuiltModuleBase,
+                        $mockBuiltModuleRootScriptPath
+                    )
+                }
+            }
+
+            It 'Should throw when the built module manifest is not present yet' {
+                { . Sampler\Set-SamplerTaskVariable } |
+                    Should -Throw -ExpectedMessage "Could not find the built module manifest for module 'MyProject'. Build the module before running tasks that require the built module output."
+            }
         }
 
         Context 'When BuiltSubModuleDirectory is set on parameter' {

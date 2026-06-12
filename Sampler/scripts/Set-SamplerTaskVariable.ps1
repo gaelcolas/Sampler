@@ -14,6 +14,11 @@
        be able to be returned. For example, if this parameter is used it evaluates
        the ModuleVersion from GitVersion, instead from the built module's manifest.
 
+    .PARAMETER ArtifactContext
+       Tells the script which artifact the current task is working with. Use
+       'Chocolatey' for Chocolatey packaging tasks so source-kind detection stays
+       separate from artifact packaging.
+
     .NOTES
         Only the scriptblock portion of this function is used by the task by
         calling:
@@ -61,22 +66,13 @@ param
 (
     [Parameter()]
     [System.Management.Automation.SwitchParameter]
-    $AsNewBuild
+    $AsNewBuild,
+
+    [Parameter()]
+    [AllowEmptyString()]
+    [System.String]
+    $ArtifactContext = 'Auto'
 )
-
-if ([System.String]::IsNullOrEmpty($ProjectName))
-{
-    $ProjectName = Get-SamplerProjectName -BuildRoot $BuildRoot -ErrorAction Ignore
-}
-
-"`tProject Name               = '$ProjectName'"
-
-if ([System.String]::IsNullOrEmpty($SourcePath))
-{
-    $SourcePath = Get-SamplerSourcePath -BuildRoot $BuildRoot
-}
-
-"`tSource Path                = '$SourcePath'"
 
 $OutputDirectory = Get-SamplerAbsolutePath -Path $OutputDirectory -RelativeTo $BuildRoot
 
@@ -85,6 +81,51 @@ $OutputDirectory = Get-SamplerAbsolutePath -Path $OutputDirectory -RelativeTo $B
 $ReleaseNotesPath = Get-SamplerAbsolutePath -Path $ReleaseNotesPath -RelativeTo $OutputDirectory
 
 "`tRelease Notes path         = '$ReleaseNotesPath'"
+
+$getSamplerProjectBuildInfoParameters = @{
+    ProjectPath              = $BuildRoot
+    OutputDirectory          = $OutputDirectory
+    BuiltModuleSubdirectory  = $BuiltModuleSubdirectory
+    VersionedOutputDirectory = $VersionedOutputDirectory
+    ProjectName              = $ProjectName
+    SourcePath               = $SourcePath
+    ModuleVersion            = $ModuleVersion
+    BuildInfo                = $BuildInfo
+}
+
+$samplerProjectBuildInfo = Get-SamplerProjectBuildInfo @getSamplerProjectBuildInfoParameters
+
+$ProjectName = $samplerProjectBuildInfo.ProjectName
+$SourcePath = Get-SamplerAbsolutePath -Path $samplerProjectBuildInfo.SourcePath -RelativeTo $BuildRoot
+
+if ([System.String]::IsNullOrEmpty($ModuleVersion))
+{
+    $ModuleVersion = $samplerProjectBuildInfo.ModuleVersion
+}
+
+$sourceBuildType = $samplerProjectBuildInfo.BuildType
+
+if ([System.String]::IsNullOrEmpty($ArtifactContext) -or $ArtifactContext -eq 'Auto')
+{
+    if ($sourceBuildType -eq 'PowerShellModule')
+    {
+        $ArtifactContext = 'Module'
+    }
+    else
+    {
+        $ArtifactContext = 'Standalone'
+    }
+}
+
+if ($ArtifactContext -notin @('Module', 'Chocolatey', 'Standalone'))
+{
+    throw ("Unknown artifact context '{0}'. Valid values are 'Auto', 'Module', 'Chocolatey', and 'Standalone'." -f $ArtifactContext)
+}
+
+"`tProject Name               = '$ProjectName'"
+"`tSource Path                = '$SourcePath'"
+"`tSource Build Type          = '$sourceBuildType'"
+"`tArtifact Context           = '$ArtifactContext'"
 
 <#
     We check if the value is set in build.yaml.
@@ -107,53 +148,32 @@ else {
 
 "`tBuilt Module Subdirectory  = '$BuiltModuleSubdirectory'"
 
-$isChocolateyPackage = $false
-
 if (-not [System.String]::IsNullOrEmpty($ChocolateyBuildOutput))
 {
     $ChocolateyBuildOutput = Get-SamplerAbsolutePath -Path $ChocolateyBuildOutput -RelativeTo $OutputDirectory
-
-    # If this returns $true then the task Build_Chocolatey_Package created the folder
-    $isChocolateyPackage = Test-Path -Path $ChocolateyBuildOutput
 }
 
-if ($isChocolateyPackage)
+if ($sourceBuildType -eq 'PowerShellModule')
 {
-    Write-Debug -Message 'Building a Chocolatey package'
-
-    $ModuleManifestPath = $null
-}
-else
-{
-    Write-Debug -Message 'Building a module with a module manifest'
+    Write-Debug -Message 'Building from a PowerShell module source.'
 
     $ModuleManifestPath = Get-SamplerAbsolutePath -Path "$ProjectName.psd1" -RelativeTo $SourcePath
 
     "`tModule Manifest Path (src) = '$ModuleManifestPath'"
 }
-
-if ($AsNewBuild.IsPresent -or $isChocolateyPackage)
-{
-    $getBuildVersionParameters = @{
-        ModuleManifestPath = $ModuleManifestPath
-        ModuleVersion      = $ModuleVersion
-    }
-
-    <#
-        This will get the version from $ModuleVersion if is was set as a parameter
-        or as a property. If $ModuleVersion is $null or an empty string the version
-        will fetched from GitVersion if it is installed. If GitVersion is _not_
-        installed the version is fetched from the module manifest in SourcePath.
-    #>
-    $ModuleVersion = Get-SamplerBuildVersion @getBuildVersionParameters
-
-    "`tModule Version             = '$ModuleVersion'"
-}
-elseif ([string]::IsNullOrEmpty($ProjectName))
-{
-    "No PowerShell module name found. This might be because you are not building a PowerShell module, in which case you can ignore this message."
-}
 else
+{
+    Write-Debug -Message 'Building from a non-module source.'
+
+    $ModuleManifestPath = $null
+}
+
+$shouldUseBuiltModuleManifest =
+    -not $AsNewBuild.IsPresent -and
+    $sourceBuildType -eq 'PowerShellModule' -and
+    $ArtifactContext -eq 'Module'
+
+if ($shouldUseBuiltModuleManifest)
 {
     if ($VersionedOutputDirectory)
     {
@@ -185,17 +205,22 @@ else
     # Resolve path to replace '*' with version number.
     if ($BuiltModuleManifest)
     {
-        $BuiltModuleManifest = (Get-Item -Path $BuiltModuleManifest -ErrorAction 'SilentlyContinue').FullName
+        $BuiltModuleManifest = (Get-Item -Path $BuiltModuleManifest -ErrorAction 'Ignore').FullName
     }
 
     "`tBuilt Module Manifest      = '$BuiltModuleManifest'"
+
+    if (-not $BuiltModuleManifest)
+    {
+        throw ("Could not find the built module manifest for module '{0}'. Build the module before running tasks that require the built module output." -f $ProjectName)
+    }
 
     $BuiltModuleBase = Get-SamplerBuiltModuleBase @GetBuiltModuleManifestParams
 
     # Resolve path to replace '*' with version number.
     if ($BuiltModuleBase)
     {
-        $BuiltModuleBase = (Get-Item -Path $BuiltModuleBase -ErrorAction 'SilentlyContinue').FullName
+        $BuiltModuleBase = (Get-Item -Path $BuiltModuleBase -ErrorAction 'Ignore').FullName
     }
 
     "`tBuilt Module Base          = '$BuiltModuleBase'"
@@ -204,6 +229,39 @@ else
 
     "`tModule Version             = '$ModuleVersion'"
 
+    $BuiltModuleRootScriptPath = Get-SamplerModuleRootPath -ModuleManifestPath $BuiltModuleManifest
+
+    # Resolve path to replace '*' with version number.
+    if ($BuiltModuleRootScriptPath)
+    {
+        $BuiltModuleRootScriptPath = (Get-Item -Path $BuiltModuleRootScriptPath -ErrorAction 'Ignore').FullName
+    }
+}
+else
+{
+    $getBuildVersionParameters = @{
+        ModuleManifestPath = $ModuleManifestPath
+        ModuleVersion      = $ModuleVersion
+    }
+
+    <#
+        This will get the version from $ModuleVersion if is was set as a parameter
+        or as a property. If $ModuleVersion is $null or an empty string the version
+        will fetched from GitVersion if it is installed. If GitVersion is _not_
+        installed the version is fetched from the module manifest in SourcePath, or
+        fallback to the default repository version for non-module sources.
+    #>
+    $ModuleVersion = Get-SamplerBuildVersion @getBuildVersionParameters
+
+    $BuiltModuleManifest = $null
+    $BuiltModuleBase = $null
+    $BuiltModuleRootScriptPath = $null
+
+    "`tModule Version             = '$ModuleVersion'"
+}
+
+if (-not [System.String]::IsNullOrEmpty($ModuleVersion))
+{
     $moduleVersionObject = Split-ModuleVersion -ModuleVersion $ModuleVersion
     $ModuleVersionFolder = $moduleVersionObject.Version
 
@@ -212,20 +270,9 @@ else
     $PreReleaseTag = $moduleVersionObject.PreReleaseString
 
     "`tPre-release Tag            = '$PreReleaseTag'"
-
-    if ($BuiltModuleManifest)
-    {
-        $BuiltModuleRootScriptPath = Get-SamplerModuleRootPath -ModuleManifestPath $BuiltModuleManifest
-
-        # Resolve path to replace '*' with version number.
-        if ($BuiltModuleRootScriptPath)
-        {
-            $BuiltModuleRootScriptPath = (Get-Item -Path $BuiltModuleRootScriptPath -ErrorAction 'SilentlyContinue').FullName
-        }
-    }
-
-    "`tBuilt Module Root Script   = '$BuiltModuleRootScriptPath'"
 }
+
+"`tBuilt Module Root Script   = '$BuiltModuleRootScriptPath'"
 
 # Dump PSModulePath to support debugging
 "`tPSModulePath               = '$($s=''; foreach ($p1 in $env:PSModulePath.Split([System.IO.Path]::PathSeparator)) { $s += "$p1;`n`t$(' '*30)" }; $s.Trim())'"
