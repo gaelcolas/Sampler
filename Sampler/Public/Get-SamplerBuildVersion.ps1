@@ -70,7 +70,9 @@ function Get-SamplerBuildVersion
         }
         else
         {
-            throw 'Could not determine the module version because neither GitVersion or a module manifest was present. Please provide the ModuleVersion parameter manually in the file build.yaml with the property ''SemVer:''.'
+            Write-Verbose -Message 'GitVersion is not installed and no module manifest was provided. Using the default repository version.'
+
+            $ModuleVersion = '0.0.1'
         }
     }
 

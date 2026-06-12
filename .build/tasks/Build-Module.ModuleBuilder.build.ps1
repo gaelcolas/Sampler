@@ -100,6 +100,22 @@ Task Build_ModuleOutput_ModuleBuilder {
 
     $BuiltModule = Build-Module @buildModuleParams -PassThru
 
+    $sourceModuleInfo = Get-SamplerModuleInfo -ModuleManifestPath $moduleManifestPath
+
+    if ($sourceModuleInfo.AliasesToExport)
+    {
+        if (Split-Path -IsAbsolute -Path $BuiltModule.RootModule)
+        {
+            $builtModuleManifestPath = [System.IO.Path]::ChangeExtension($BuiltModule.RootModule, '.psd1')
+        }
+        else
+        {
+            $builtModuleManifestPath = Join-Path -Path $BuiltModule.ModuleBase -ChildPath ('{0}.psd1' -f $ProjectName)
+        }
+
+        Update-ModuleManifest -Path $builtModuleManifestPath -AliasesToExport $sourceModuleInfo.AliasesToExport
+    }
+
     # if we built the PSM1 on Windows with a BOM, re-write without BOM
     if ($PSVersionTable.PSVersion.Major -le 5)
     {

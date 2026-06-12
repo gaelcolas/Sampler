@@ -63,7 +63,7 @@ param
 )
 
 task copy_chocolatey_source_to_staging {
-    . Set-SamplerTaskVariable -AsNewBuild
+    . Set-SamplerTaskVariable -AsNewBuild -ArtifactContext 'Chocolatey'
     $ChocolateyBuildOutput = Get-SamplerAbsolutePath -Path $ChocolateyBuildOutput -RelativeTo $OutputDirectory
     $ChocolateyPackageSource = Get-SamplerAbsolutePath -Path $ChocolateyPackageSource -RelativeTo $SourcePath
 
@@ -81,7 +81,7 @@ task copy_chocolatey_source_to_staging {
 }
 
 task copy_paths_to_choco_staging {
-    . Set-SamplerTaskVariable -AsNewBuild
+    . Set-SamplerTaskVariable -AsNewBuild -ArtifactContext 'Chocolatey'
 
     $ChocolateyBuildOutput = Get-SamplerAbsolutePath -Path $ChocolateyBuildOutput -RelativeTo $OutputDirectory
     $ChocolateyPackageSource = Get-SamplerAbsolutePath -Path $ChocolateyPackageSource -RelativeTo $SourcePath
@@ -154,7 +154,7 @@ task copy_paths_to_choco_staging {
 }
 
 task upate_choco_nuspec_data {
-    . Set-SamplerTaskVariable -AsNewBuild
+    . Set-SamplerTaskVariable -AsNewBuild -ArtifactContext 'Chocolatey'
     $ChocolateyBuildOutput = Get-SamplerAbsolutePath -Path $ChocolateyBuildOutput -RelativeTo $OutputDirectory
     $ChocolateyPackageSource = Get-SamplerAbsolutePath -Path $ChocolateyPackageSource -RelativeTo $SourcePath
 
@@ -227,7 +227,7 @@ task Build_Chocolatey_Package {
 
     $null = Get-Command -Name choco -ErrorAction Stop
 
-    . Set-SamplerTaskVariable -AsNewBuild
+    . Set-SamplerTaskVariable -AsNewBuild -ArtifactContext 'Chocolatey'
     $ChocolateyBuildOutput = Get-SamplerAbsolutePath -Path $ChocolateyBuildOutput -RelativeTo $OutputDirectory
     $ChocolateyPackageSource = Get-SamplerAbsolutePath -Path $ChocolateyPackageSource -RelativeTo $SourcePath
 
@@ -265,7 +265,7 @@ task Push_Chocolatey_Package {
 
     $null = Get-Command -Name choco -ErrorAction Stop
 
-    . Set-SamplerTaskVariable -AsNewBuild
+    . Set-SamplerTaskVariable -AsNewBuild -ArtifactContext 'Chocolatey'
     $ChocolateyBuildOutput = Get-SamplerAbsolutePath -Path $ChocolateyBuildOutput -RelativeTo $OutputDirectory
     $ChocolateyPackageSource = Get-SamplerAbsolutePath -Path $ChocolateyPackageSource -RelativeTo $SourcePath
 

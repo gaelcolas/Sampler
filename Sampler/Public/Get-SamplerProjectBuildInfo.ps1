@@ -106,8 +106,41 @@ function Get-SamplerProjectBuildInfo
 
     if ([System.String]::IsNullOrEmpty($SourcePath))
     {
-        $SourcePath = Get-SamplerSourcePath -BuildRoot $ProjectPath -ErrorAction 'Ignore'
+        $sourceModuleManifest = Get-SamplerProjectModuleManifest -BuildRoot $ProjectPath -ErrorAction 'Ignore'
+        $sourcePathCandidate = $null
+
+        if ($sourceModuleManifest)
+        {
+            $sourcePathCandidate = $sourceModuleManifest.Directory.FullName
+        }
+        else
+        {
+            $namedSourcePaths = @(
+                (Join-Path -Path $ProjectPath -ChildPath 'source')
+                (Join-Path -Path $ProjectPath -ChildPath 'src')
+            )
+
+            foreach ($namedSourcePath in $namedSourcePaths)
+            {
+                if (Test-Path -Path $namedSourcePath)
+                {
+                    $sourcePathCandidate = $namedSourcePath
+                    break
+                }
+            }
+        }
+
+        if ([System.String]::IsNullOrEmpty($sourcePathCandidate))
+        {
+            $SourcePath = $ProjectPath
+        }
+        else
+        {
+            $SourcePath = $sourcePathCandidate
+        }
     }
+
+    $SourcePath = Get-SamplerAbsolutePath -Path $SourcePath -RelativeTo $ProjectPath
 
     if ([System.String]::IsNullOrEmpty($ModuleVersion) -and $BuildInfo.ContainsKey('SemVer'))
     {
