@@ -54,6 +54,15 @@ Use `-AsNewBuild` only for tasks that represent the start of a new build (e.g., 
     . Set-SamplerTaskVariable -AsNewBuild
 ```
 
+- Use `-ArtifactContext` when the task is producing or packaging a non-default artifact from the same source tree:
+
+```powershell
+    . Set-SamplerTaskVariable -AsNewBuild -ArtifactContext 'Chocolatey'
+```
+
+- Treat source kind and artifact kind as separate concepts. A repository can be a PowerShell module source and still package a Chocolatey artifact; do not infer Chocolatey packaging by probing output folders.
+- For module-source tasks that do not use `-AsNewBuild`, `Set-SamplerTaskVariable` is expected to read version and paths from the built module output and fail fast if that output is missing.
+- For non-module sources, version resolution falls back in this order: `ModuleVersion`/`SemVer` -> `GitVersion` -> static version `0.0.1`.
 **Never re-derive** `$ProjectName`, `$SourcePath`, or version information independently inside a task. Always rely on `Set-SamplerTaskVariable`.
 
 ## Task definitions

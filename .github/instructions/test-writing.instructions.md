@@ -78,3 +78,11 @@ Use the most specific assertion available — avoid `Should -Be $true` when a de
 
 - Always scope mock-call assertions with `-Scope It` so counts reset between tests.
 - Call the function under test with its module-qualified name (`Sampler\Get-Foo`) to avoid accidentally calling a mock or a stale imported version.
+
+## Build and pipeline intent in tests
+
+- Be explicit about whether the scenario expects a built module artifact.
+- For tests that exercise module workflows after build output exists, mock or create the built manifest/module paths and assert the task reads from the built artifact.
+- For tests that exercise module workflows before build output exists, assert the task fails fast with the expected error instead of silently recalculating module state.
+- For repository-only or non-module scenarios, set up the test so `BuildType = 'Other'` and `HasBuiltOutput = $false`, and assert the code path avoids importing a built module.
+- For alternate artifact pipelines such as Chocolatey, keep the source-kind setup independent from the artifact-kind setup. A module source packaged as Chocolatey should still be modeled as a module source with a Chocolatey artifact context.

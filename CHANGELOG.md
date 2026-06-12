@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `New-SampleModule` no longer splits `ModuleType` and `Features` into separate parameter sets, so both can be supplied in the same invocation.
 - Pester task setup now still supports repository-only test runs without a prebuilt module, but fails fast when a PowerShell module test workflow is invoked before the module output has been built.
+- Documented the separation between source kind and artifact context in build-task guidance, clarified module-versus-non-module version fallback rules, and expanded the README with pipeline-shape documentation for module, alternate-artifact, and standalone repository flows.
 - Added `Get-SamplerProjectBuildInfo` and updated Pester build tasks to use its `BuildType`/`HasBuiltOutput` project model directly instead of Pester-specific setup/import/identity wrapper functions.
 - Pinned `ModuleBuilder` to `3.1.8` in `RequiredModules.psd1` because newer versions break Sampler task alias registration during tests.
 - Temporarily skip the `SimpleModule` integration tests that depend on building the sample module on Windows PowerShell 5.1 while `ModuleBuilder` 3.2 is broken there.
