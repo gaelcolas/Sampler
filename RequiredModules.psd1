@@ -14,7 +14,10 @@
 
     InvokeBuild                 = 'latest'
     PSScriptAnalyzer            = 'latest'
-    Pester                      = 'latest'
+    Pester                      = @{
+        Version    = '6.0.0-rc1'
+        Parameters = @{ AllowPrerelease = $true }
+    }
     Plaster                     = 'latest'
     ModuleBuilder               = '3.1.8'
     MarkdownLinkCheck           = 'latest'
