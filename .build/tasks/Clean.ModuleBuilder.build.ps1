@@ -1,12 +1,16 @@
 param (
     # Base directory of all output (default to 'output')
     [Parameter()]
-    [string]
+    [System.String]
     $OutputDirectory = (property OutputDirectory (Join-Path -Path $BuildRoot -ChildPath 'output')),
 
     [Parameter()]
-    [string]
-    $RequiredModulesDirectory = (property RequiredModulesDirectory $(Join-Path -Path $OutputDirectory -ChildPath 'RequiredModules'))
+    [System.String]
+    $RequiredModulesDirectory = (property RequiredModulesDirectory $(Join-Path -Path $OutputDirectory -ChildPath 'RequiredModules')),
+
+    [Parameter()]
+    [System.String]
+    $AgentOutputSubdirectory = (property AgentOutputSubdirectory 'agentic')
 )
 
 # Removes the OutputDirectory\modules (errors if Pester is loaded)
@@ -14,12 +18,18 @@ task CleanAll Clean, CleanModule
 
 # Synopsis: Deleting the content of the Build Output folder, except ./modules
 task Clean {
-    $OutputDirectory =  Get-SamplerAbsolutePath -Path $OutputDirectory -RelativeTo $BuildRoot
-    $FolderToExclude = Split-Path -Leaf -Path $RequiredModulesDirectory
+    $OutputDirectory = Get-SamplerAbsolutePath -Path $OutputDirectory -RelativeTo $BuildRoot
 
-    Write-Build -Color Green "Removing $OutputDirectory\* excluding $FolderToExclude"
+    $foldersToExclude = @(Split-Path -Leaf -Path $RequiredModulesDirectory)
 
-    Get-ChildItem -Path $OutputDirectory -Exclude $FolderToExclude | Remove-Item -Force -Recurse
+    if (-not [System.String]::IsNullOrWhiteSpace($AgentOutputSubdirectory))
+    {
+        $foldersToExclude += $AgentOutputSubdirectory
+    }
+
+    Write-Build -Color Green "Removing $OutputDirectory\* excluding $($foldersToExclude -join ', ')"
+
+    Get-ChildItem -Path $OutputDirectory -Exclude $foldersToExclude | Remove-Item -Force -Recurse
 }
 
 # Synopsis: Removes the Modules from OutputDirectory\Modules folder, might fail if there's an handle on one file.

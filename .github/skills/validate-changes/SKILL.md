@@ -65,17 +65,23 @@ Run the right Sampler test scope for a change, fast first and broad only when ne
 
 ## Running these commands without hanging
 
-Always tee `./build.ps1` output to a log file rather than wrapping the call in `| Select-Object -Last <N>` (or any other buffering filter). Inline `Select-Object` against a long-running pipeline forces full-stream buffering and the agent shell appears to hang — even after the build finishes — and would also swallow any unexpected prompt. Instead, stream freely and read the log:
+Always tee `./build.ps1` output to `output\agentic\` — this subfolder is excluded from the `Clean` task so logs survive between builds. Create it first, then stream:
 
 ```powershell
-if (Test-Path output\validate-test.log) { Remove-Item output\validate-test.log -Force }
+$null = New-Item -Path 'output\agentic' -ItemType Directory -Force
 
 ./build.ps1 -Tasks test -PesterPath '<paths>' -CodeCoverageThreshold 0 2>&1 |
-    Tee-Object -FilePath output\validate-test.log
+    Tee-Object -FilePath 'output\agentic\test.log'
 
 # Then poll/inspect the log without re-running:
-Get-Content output\validate-test.log -Tail 20
-Select-String -Path output\validate-test.log -Pattern 'Build (FAILED|succeeded)'
+Get-Content output\agentic\test.log -Tail 20
+Select-String -Path output\agentic\test.log -Pattern 'Build (FAILED|succeeded)'
+```
+
+**Clean up when done:** Remove `output\agentic` once investigation is complete:
+
+```powershell
+Remove-Item -Path 'output\agentic' -Recurse -Force -ErrorAction 'Ignore'
 ```
 
 When invoked through the `powershell` tool, prefer `mode="async"` with `Tee-Object` and poll periodically — never tail with `| Select -Last N` against a still-running build.

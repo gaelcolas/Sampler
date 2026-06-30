@@ -42,27 +42,33 @@ Sampler builds and tests are slow (task discovery alone is ~60–120s; a focused
 - **Never wrap the `./build.ps1 ...` invocation in `| Select-Object -Last <N>` (or `| Select-Object -First <N>`, `| Out-String -Stream | Select-Object ...`, etc.) inline.** Those filters force PowerShell to buffer the *entire* output stream before emitting anything, and the wrapping pipeline call appears to hang from the agent's perspective even after the build has finished. Worse, if the build asks for input (it should not, but ResolveDependency prompts can sneak in), the prompt is buried in the buffer and the shell is effectively stuck.
 - **Always tee the output to a log file and then inspect that log file separately**, so the build can stream freely and the agent can poll the log without consuming context with the entire output.
 
-Recommended pattern (works in both sync and async modes):
+Use `output\agentic\` as the log directory. The `Clean` task excludes this folder so logs survive between builds and are never accidentally deleted:
 
 ```powershell
-if (Test-Path output\validate-test.log) { Remove-Item output\validate-test.log -Force }
+$null = New-Item -Path 'output\agentic' -ItemType Directory -Force
 
 ./build.ps1 -Tasks test -PesterPath '<paths>' -CodeCoverageThreshold 0 2>&1 |
-    Tee-Object -FilePath output\validate-test.log
+    Tee-Object -FilePath 'output\agentic\test.log'
 ```
 
 Then, while the build runs (or after it completes), inspect the log without re-running anything:
 
 ```powershell
 # Quick status / tail
-Get-Item   output\validate-test.log | Select-Object Length, LastWriteTime
-Get-Content output\validate-test.log -Tail 20
+Get-Item   output\agentic\test.log | Select-Object Length, LastWriteTime
+Get-Content output\agentic\test.log -Tail 20
 
 # Look for the conventional "Build FAILED" / "Build succeeded" terminator
-Select-String -Path output\validate-test.log -Pattern 'Build (FAILED|succeeded)'
+Select-String -Path output\agentic\test.log -Pattern 'Build (FAILED|succeeded)'
 ```
 
 When running long commands through the `powershell` tool, prefer `mode="async"` with `Tee-Object`, then poll with short `read_powershell` reads or by reading the log file directly. Do not pass `| Select-Object -Last N` as a workaround for wanting a short response — read the log file with `Get-Content -Tail` instead.
+
+**Clean up when done:** Once you have finished investigating a build or test failure, remove the agentic log folder:
+
+```powershell
+Remove-Item -Path 'output\agentic' -Recurse -Force -ErrorAction 'Ignore'
+```
 
 ### Diagnosing test failures from XML output
 
