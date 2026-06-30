@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - New `Link_Local_Workspace_Dependencies` build task and supporting public functions (`Get-SamplerWorkspaceBuiltModulePath`, `New-SamplerWorkspaceModuleLink`) for linking sibling workspace module build outputs into the local module output path when working across related repos in a multi-repo workspace. Configure via `WorkspaceModules` in `build.yaml`.
 - `Clean` task now preserves `output\agentic\` across builds (in addition to `RequiredModules`), providing a stable location for build and test log files that survive clean cycles. The subfolder name is configurable via the `AgentOutputSubdirectory` parameter (default `'agentic'`; set to empty string to disable the exclusion).
 - `package_psresource_nupkg` tasks that recursively packs dependencies, ignoring `ExternalDependencies` using `PSResourceGet` module.
+
+### Fixed
+
+- `Create_Release_Git_Tag` and `Create_Changelog_Branch` tasks now read `MainGitBranch` from `BuildInfo.GitConfig.MainGitBranch` in `build.yaml` when not set as a task parameter or InvokeBuild property. The resolution order is: task parameter → `build.yaml` `GitConfig.MainGitBranch` → default `'main'`.
 - `New-SampleModule` `Features` parameter now accepts `github`, `vscode`, `codecov`, `azurepipelines`, and `gitversion` to mirror the Plaster template's feature choices.
 - `New-SampleModule` documents the `CustomModule` `ModuleType` and the new `MainGitBranch` parameter.
 - `New-SampleModule` `ModuleType` `ValidateSet` now includes `CustomModule`.

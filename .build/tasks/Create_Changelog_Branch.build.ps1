@@ -42,7 +42,9 @@
 
     .PARAMETER MainGitBranch
         The name of the default branch. Defaults to 'main'. It is used to compare
-        and target the branch against.
+        and target the branch against. If not set as a task parameter or InvokeBuild
+        property, the value is read from `BuildInfo.GitConfig.MainGitBranch` in
+        `build.yaml`.
 
     .PARAMETER BasicAuthPAT
         The personal access token to use to access the Azure DevOps Git repository.
@@ -100,7 +102,7 @@ param
     $ChangelogUpdateChangelogOnPrerelease = (property ChangelogUpdateChangelogOnPrerelease $false),
 
     [Parameter()]
-    $MainGitBranch = (property MainGitBranch 'main'),
+    $MainGitBranch = (property MainGitBranch ''),
 
     [Parameter()]
     $BasicAuthPAT = (property BasicAuthPAT ''),
@@ -146,7 +148,21 @@ task Create_Changelog_Branch {
         }
     }
 
-    Write-Build DarkGray "`tSetting git configuration."
+    if ([System.String]::IsNullOrEmpty($MainGitBranch))
+    {
+        if ($BuildInfo.GitConfig.MainGitBranch)
+        {
+            $MainGitBranch = $BuildInfo.GitConfig.MainGitBranch
+
+            Write-Build DarkGray "`t...Set property MainGitBranch to the value $MainGitBranch from build configuration."
+        }
+        else
+        {
+            $MainGitBranch = 'main'
+        }
+    }
+
+    "`tMainGitBranch              = '$MainGitBranch'"
 
     Sampler\Invoke-SamplerGit -Argument @('config', 'user.name', $GitConfigUserName)
     Sampler\Invoke-SamplerGit -Argument @('config', 'user.email', $GitConfigUserEmail)

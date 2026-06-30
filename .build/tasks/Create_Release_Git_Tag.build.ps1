@@ -77,7 +77,7 @@ param
     $SkipPublish = (property SkipPublish ''),
 
     [Parameter()]
-    $MainGitBranch = (property MainGitBranch 'main'),
+    $MainGitBranch = (property MainGitBranch ''),
 
     [Parameter()]
     $BasicAuthPAT = (property BasicAuthPAT ''),
@@ -145,6 +145,22 @@ task Create_Release_Git_Tag {
                 Write-Build DarkGray "`t...Set property $gitConfigVariableName to the value $configurationValue"
             }
         }
+
+        if ([System.String]::IsNullOrEmpty($MainGitBranch))
+        {
+            if ($BuildInfo.GitConfig.MainGitBranch)
+            {
+                $MainGitBranch = $BuildInfo.GitConfig.MainGitBranch
+
+                Write-Build DarkGray "`t...Set property MainGitBranch to the value $MainGitBranch from build configuration."
+            }
+            else
+            {
+                $MainGitBranch = 'main'
+            }
+        }
+
+        "`tMainGitBranch              = '$MainGitBranch'"
 
         Write-Build DarkGray "`tSetting git configuration."
 

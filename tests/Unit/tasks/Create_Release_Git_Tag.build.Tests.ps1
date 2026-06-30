@@ -60,6 +60,7 @@ Describe 'Create_Release_Git_Tag' {
                 GitConfigUserName = 'bot'
                 GitConfigUserEmail = 'bot@company.local'
                 MainGitBranch = 'main'
+                BuildInfo = @{}
             }
         }
 
@@ -122,6 +123,7 @@ Describe 'Create_Release_Git_Tag' {
                 GitConfigUserName = 'bot'
                 GitConfigUserEmail = 'bot@company.local'
                 MainGitBranch = 'main'
+                BuildInfo = @{}
             }
         }
 
@@ -133,6 +135,60 @@ Describe 'Create_Release_Git_Tag' {
             {
                 Invoke-Build -Task $buildTaskName -File $taskAlias.Definition @mockTaskParameters
             } | Should -Not -Throw
+        }
+    }
+
+    Context 'When MainGitBranch is not set and BuildInfo.GitConfig.MainGitBranch is configured' {
+        BeforeAll {
+            # Dot-source mocks
+            . $PSScriptRoot/../TestHelpers/MockSetSamplerTaskVariable
+
+            function script:git
+            {
+                throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
+            }
+
+            Mock -CommandName git
+
+            Mock -CommandName Sampler\Invoke-SamplerGit
+
+            Mock -CommandName Sampler\Invoke-SamplerGit -ParameterFilter {
+                $Argument -contains 'rev-parse'
+            } -MockWith {
+                return '0c23efc'
+            }
+
+            Mock -CommandName Start-Sleep
+
+            $mockTaskParameters = @{
+                ProjectPath       = Join-Path -Path $TestDrive -ChildPath 'MyModule'
+                OutputDirectory   = Join-Path -Path $TestDrive -ChildPath 'MyModule/output'
+                SourcePath        = Join-Path -Path $TestDrive -ChildPath 'MyModule/source'
+                ProjectName       = 'MyModule'
+                BasicAuthPAT      = '22222'
+                GitConfigUserName = 'bot'
+                GitConfigUserEmail = 'bot@company.local'
+                MainGitBranch     = ''
+                BuildInfo         = @{
+                    GitConfig = @{
+                        MainGitBranch = 'develop'
+                    }
+                }
+            }
+        }
+
+        AfterAll {
+            Remove-Item 'function:git'
+        }
+
+        It 'Should run the build task without throwing and use the branch from BuildInfo' {
+            {
+                Invoke-Build -Task $buildTaskName -File $taskAlias.Definition @mockTaskParameters
+            } | Should -Not -Throw
+
+            Should -Invoke -CommandName Sampler\Invoke-SamplerGit -Scope It -ParameterFilter {
+                $Argument -contains 'rev-parse' -and $Argument -contains 'origin/develop'
+            }
         }
     }
 }
