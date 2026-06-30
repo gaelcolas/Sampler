@@ -128,8 +128,8 @@ Describe 'Build_ModuleOutput_ModuleBuilder' {
                 Invoke-Build -Task 'Build_ModuleOutput_ModuleBuilder' -File $taskAlias.Definition @mockTaskParameters
             } | Should -Not -Throw
 
-            Should -Invoke -CommandName Update-ModuleManifest -Exactly -Times 1 -Scope It -ParameterFilter {
-                $AliasesToExport -eq '*'
+            Should -Invoke -CommandName Update-Metadata -Exactly -Times 1 -Scope It -ParameterFilter {
+                $PropertyName -eq 'AliasesToExport' -and $Value -eq '*'
             }
         }
     }
@@ -154,7 +154,9 @@ Describe 'Build_ModuleOutput_ModuleBuilder' {
                 Invoke-Build -Task 'Build_ModuleOutput_ModuleBuilder' -File $taskAlias.Definition @mockTaskParameters
             } | Should -Not -Throw
 
-            Should -Not -Invoke -CommandName Update-ModuleManifest -Scope It
+            Should -Not -Invoke -CommandName Update-Metadata -Scope It -ParameterFilter {
+                $PropertyName -eq 'AliasesToExport'
+            }
         }
     }
 
@@ -178,8 +180,9 @@ Describe 'Build_ModuleOutput_ModuleBuilder' {
                 Invoke-Build -Task 'Build_ModuleOutput_ModuleBuilder' -File $taskAlias.Definition @mockTaskParameters
             } | Should -Not -Throw
 
-            Should -Invoke -CommandName Update-ModuleManifest -Exactly -Times 1 -Scope It -ParameterFilter {
-                $AliasesToExport -contains 'Get-Foo' -and $AliasesToExport -contains 'Set-Foo'
+            Should -Invoke -CommandName Update-Metadata -Exactly -Times 1 -Scope It -ParameterFilter {
+                $PropertyName -eq 'AliasesToExport' -and
+                $Value -contains 'Get-Foo' -and $Value -contains 'Set-Foo'
             }
         }
     }
