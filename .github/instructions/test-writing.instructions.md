@@ -79,6 +79,18 @@ Use the most specific assertion available — avoid `Should -Be $true` when a de
 - Always scope mock-call assertions with `-Scope It` so counts reset between tests.
 - Call the function under test with its module-qualified name (`Sampler\Get-Foo`) to avoid accidentally calling a mock or a stale imported version.
 
+## Windows PowerShell 5.1 compatibility
+
+- Always wrap pipeline expressions in `@()` before calling `.Count`, `.Length`, or indexing into the result (`[0]`). On Windows PowerShell 5.1, a pipeline that produces exactly one object returns a scalar, not an array, and scalars without a `Count` property return `$null` instead of `1`. PowerShell 7 adds a synthetic `Count` member to all objects, masking the bug.
+
+```powershell
+# Wrong — returns $null on WinPS 5.1 when exactly one item matches
+($collection | Where-Object { $_.Name -eq 'X' }).Count | Should -Be 1
+
+# Correct
+@($collection | Where-Object { $_.Name -eq 'X' }).Count | Should -Be 1
+```
+
 ## Build and pipeline intent in tests
 
 - Be explicit about whether the scenario expects a built module artifact.

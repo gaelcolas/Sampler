@@ -17,6 +17,38 @@ Public functions are user-facing and are the most critical API surface of Sample
 - Use `[CmdletBinding()]` and include `[OutputType(...)]`.
 - Use explicit .NET parameter types (`[System.String]`, `[System.Boolean]`, etc.).
 - Keep parameter names and defaults stable unless intentionally introducing a breaking change.
+- Follow DSC Community parameter style: `[Parameter()]` attribute, type, and variable name each on their own line, with a blank line between comma-separated parameter declarations:
+
+```powershell
+param
+(
+    [Parameter(Mandatory = $true)]
+    [System.String]
+    $ProjectName,
+
+    [Parameter()]
+    [System.Management.Automation.SwitchParameter]
+    $Force
+)
+```
+
+## PowerShell style
+
+- Prefer `$null = <expression>` over `<expression> | Out-Null` to suppress output.
+- Prefer splatting over backtick-based line continuation for multi-line command calls:
+
+```powershell
+# Preferred
+$params = @{
+    Path    = $OutputDirectory
+    Recurse = $true
+}
+Get-ChildItem @params
+
+# Avoid
+Get-ChildItem -Path $OutputDirectory `
+    -Recurse
+```
 
 ## Validation model
 

@@ -105,6 +105,12 @@ When running long commands through the `powershell` tool, prefer `mode="async"` 
 - **Always look at the *latest* result file**: every test invocation rewrites these XML files, so sort by `LastWriteTime` descending instead of relying on a hard-coded path.
 - The failing-test summary written to the log file (e.g. `Build FAILED. N tasks, 1 errors, ...`) tells you *that* something failed; only the XML tells you *what* failed. Quote the XML message in any report back to the user — do not paraphrase the build-log tail.
 
+## Git workflow
+
+- Never run `git commit`, `git push`, or `git tag`. Leave all commits to the user so they can review with `git diff` first.
+- Stage changes with `git add` only when explicitly asked to prepare a commit.
+- After completing work, summarize what changed so the user can review before committing.
+
 ## High-level architecture
 
 - `Sampler/` is the module source. `Sampler.psm1` dot-sources everything under `Public/` and `Private/` and exports public function basenames but is rarely used as it's overridden during build by the built artifact under `output/module/`. The module is designed to be imported and used directly from the source tree for development when necessary, but the built artifact is the intended consumption method for users and CI.
@@ -124,7 +130,7 @@ When running long commands through the `powershell` tool, prefer `mode="async"` 
 - Use `Set-SamplerTaskVariable -AsNewBuild` for tasks that are establishing fresh artifact state, and pass `-ArtifactContext 'Chocolatey'` (or another explicit context) for non-default artifact pipelines. Do not infer alternate artifact types by probing output folder existence.
 - For non-module sources, the default version fallback chain is `ModuleVersion`/`SemVer` -> `GitVersion` -> static version `0.0.1`.
 - Treat template changes as product changes. If you modify anything under `Sampler/Templates/`, update the matching integration tests under `tests/Integration/PlasterTemplates/` and preserve expected scaffolded file trees.
-- The repo enforces changelog discipline through QA tests. For any repository change that affects behavior, tests, templates, tasks, or documentation consumed by users/contributors, update `CHANGELOG.md` under `Unreleased` in the same change set or QA tests will fail.
+- The repo enforces changelog discipline through QA tests. Update `CHANGELOG.md` under `Unreleased` only for changes that affect the module behavior, public API, templates, tasks, or module-facing documentation consumed by users or contributors. Build, pipeline, CI, and Copilot-instruction-only changes do not require changelog entries.
 - Public and private functions are expected to have comment-based help and corresponding unit tests; QA tests inspect `.SYNOPSIS`, `.DESCRIPTION`, examples, and parameter help for every exported function.
 - Prefer `-ErrorAction 'Ignore'` over `-ErrorAction 'SilentlyContinue'` for cmdlet calls whose failure is *expected* (probes such as `Get-Command`, `Get-Module`, `Get-Item`, `Test-Path`-style lookups). `Ignore` does not append to `$Error`, keeping the error history clean for real diagnostics. Reserve `SilentlyContinue` for cases where you intentionally want the error recorded but not surfaced.
 - Code must run on **both Windows PowerShell 5.1 (Desktop) and PowerShell 7+ (Core)**, and must work cross-platform on Windows, Linux, and macOS, unless the module manifest of the module under development declares otherwise (i.e. `PowerShellVersion` is `'7.0'` or higher and/or `CompatiblePSEditions` is restricted to `@('Core')`). Sampler itself targets `PowerShellVersion = '5.0'` with no `CompatiblePSEditions` restriction (see `Sampler/Sampler.psd1`), so any change to Sampler source, templates, build tasks, or scripts must:
