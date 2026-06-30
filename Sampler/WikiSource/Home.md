@@ -12,6 +12,12 @@ for this repository.
 
 See the section [[Getting started]]
 
+## Working across related repositories
+
+See [[Workspace-Dependencies]] for how to link sibling workspace module builds
+into the local output path so they are discoverable during builds and tests
+without publishing them to a feed.
+
 ## Prerequisites
 
 - PowerShell 5.or higher
