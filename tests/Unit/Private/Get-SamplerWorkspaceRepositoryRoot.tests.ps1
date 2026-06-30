@@ -33,10 +33,13 @@ Describe 'Get-SamplerWorkspaceRepositoryRoot' {
         }
 
         It 'Should return the joined sibling repository path' {
-            InModuleScope -ScriptBlock {
-                $result = Get-SamplerWorkspaceRepositoryRoot -ModuleName 'MyModule' -WorkspaceRoot 'C:\src'
+            $workspaceRoot = $TestDrive
+            $expected = Join-Path -Path $workspaceRoot -ChildPath 'MyModule'
 
-                $result | Should -Be (Join-Path -Path 'C:\src' -ChildPath 'MyModule')
+            InModuleScope -Parameters @{ WorkspaceRoot = $workspaceRoot; Expected = $expected } -ScriptBlock {
+                $result = Get-SamplerWorkspaceRepositoryRoot -ModuleName 'MyModule' -WorkspaceRoot $WorkspaceRoot
+
+                $result | Should -Be $Expected
             }
         }
     }
@@ -49,11 +52,12 @@ Describe 'Get-SamplerWorkspaceRepositoryRoot' {
         }
 
         It 'Should throw with a message containing the expected path' {
-            InModuleScope -ScriptBlock {
-                $expectedPath = Join-Path -Path 'C:\src' -ChildPath 'MissingModule'
+            $workspaceRoot = $TestDrive
+            $expectedPath = Join-Path -Path $workspaceRoot -ChildPath 'MissingModule'
 
-                { Get-SamplerWorkspaceRepositoryRoot -ModuleName 'MissingModule' -WorkspaceRoot 'C:\src' } |
-                    Should -Throw -ExpectedMessage ("*'{0}'*" -f $expectedPath)
+            InModuleScope -Parameters @{ WorkspaceRoot = $workspaceRoot; ExpectedPath = $expectedPath } -ScriptBlock {
+                { Get-SamplerWorkspaceRepositoryRoot -ModuleName 'MissingModule' -WorkspaceRoot $WorkspaceRoot } |
+                    Should -Throw -ExpectedMessage ("*'{0}'*" -f $ExpectedPath)
             }
         }
     }
