@@ -135,7 +135,7 @@ Task Build_ModuleOutput_ModuleBuilder {
 
         if ($shouldUpdate)
         {
-            Update-ModuleManifest -Path $builtModuleManifestPath -AliasesToExport $sourceAliasesToExport
+            Update-Metadata -Path $builtModuleManifestPath -PropertyName 'AliasesToExport' -Value $sourceAliasesToExport
         }
     }
 
