@@ -46,9 +46,13 @@ function Get-SamplerWorkspaceBuiltModulePath
 
     $moduleRepositoryRoot = Get-SamplerWorkspaceRepositoryRoot -ModuleName $ModuleName -WorkspaceRoot $WorkspaceRoot
 
+    $outputPath = Join-Path -Path $moduleRepositoryRoot -ChildPath 'output'
+    $manifestFileName = '{0}.psd1' -f $ModuleName
+    $versionGlob = Join-Path -Path '*' -ChildPath $manifestFileName
+
     $manifestSearchPatterns = @(
-        (Join-Path -Path $moduleRepositoryRoot -ChildPath ('output\module\{0}\*\{0}.psd1' -f $ModuleName))
-        (Join-Path -Path $moduleRepositoryRoot -ChildPath ('output\{0}\*\{0}.psd1' -f $ModuleName))
+        (Join-Path -Path (Join-Path -Path (Join-Path -Path $outputPath -ChildPath 'module') -ChildPath $ModuleName) -ChildPath $versionGlob)
+        (Join-Path -Path (Join-Path -Path $outputPath -ChildPath $ModuleName) -ChildPath $versionGlob)
     )
 
     foreach ($manifestSearchPattern in $manifestSearchPatterns)
@@ -69,5 +73,5 @@ function Get-SamplerWorkspaceBuiltModulePath
         }
     }
 
-    throw ("Unable to find a built module output for '{0}'. Build the sibling repository first, for example: {1}\build.ps1 -Tasks build" -f $ModuleName, $moduleRepositoryRoot)
+    throw ("Unable to find a built module output for '{0}'. Build the sibling repository first: '{1}' -Tasks build" -f $ModuleName, (Join-Path -Path $moduleRepositoryRoot -ChildPath 'build.ps1'))
 }

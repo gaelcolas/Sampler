@@ -79,6 +79,51 @@ Use the most specific assertion available — avoid `Should -Be $true` when a de
 - Always scope mock-call assertions with `-Scope It` so counts reset between tests.
 - Call the function under test with its module-qualified name (`Sampler\Get-Foo`) to avoid accidentally calling a mock or a stale imported version.
 
+## Cross-platform test paths
+
+- Never use hardcoded Windows paths (`'C:\src\...'`, `'C:\output\...'`) as test inputs when the code under test passes those values to `Join-Path`, `[System.IO.Path]::IsPathRooted`, `Test-Path`, or `New-Item`. On Linux, `C:\` is not rooted, and `Join-Path` may produce wrong results or throw a drive-not-found error.
+- Use `$TestDrive` as the base for any absolute path in test fixtures. `$TestDrive` is always a valid, OS-appropriate absolute path on every platform:
+
+```powershell
+# Wrong — C:\ is not rooted on Linux
+$repoRoot = 'C:\src\MyModule'
+
+# Correct
+$repoRoot = Join-Path -Path $TestDrive -ChildPath 'MyModule'
+```
+
+- When constructing expected paths, use chained `Join-Path` calls rather than hardcoded separators:
+
+```powershell
+# Correct — cross-platform
+$expected = Join-Path -Path $TestDrive -ChildPath (Join-Path -Path 'output' -ChildPath 'module')
+```
+
+## `InModuleScope` usage
+
+- Use `InModuleScope` only when the test needs to call a **private** function directly, or when the assertion relies on module-internal state.
+- Do NOT wrap calls to **public** functions in `InModuleScope`. Call them directly with the module-qualified name (`Sampler\Get-Foo`). The mocks registered via `$PSDefaultParameterValues['Mock:ModuleName'] = 'Sampler'` still intercept any private function calls made internally by the public function.
+- Do NOT reference `$script:` variables inside an `InModuleScope` block. Inside `InModuleScope`, `$script:` refers to the **module's** script scope, not the test file's. Variables set in `BeforeAll` with `$script:` are not visible there:
+
+```powershell
+# Wrong — $script:myVar is $null inside InModuleScope
+BeforeAll { $script:myVar = 'value' }
+It 'example' {
+    InModuleScope -ScriptBlock { $script:myVar | Should -Be 'value' }  # fails
+}
+
+# Correct — compute the value outside InModuleScope, or pass via mock that uses $TestDrive
+It 'example' {
+    $expected = 'value'
+    $result = Sampler\Get-Foo
+    $result | Should -Be $expected
+}
+```
+
+## `SupportsShouldProcess` in tests
+
+- For commands that use `SupportsShouldProcess`, pass `-Confirm:$false` in unit tests that are meant to exercise the execution path. Do not rely on `$ConfirmPreference` being low enough to skip the prompt.
+
 ## Windows PowerShell 5.1 compatibility
 
 - Always wrap pipeline expressions in `@()` before calling `.Count`, `.Length`, or indexing into the result (`[0]`). On Windows PowerShell 5.1, a pipeline that produces exactly one object returns a scalar, not an array, and scalars without a `Count` property return `$null` instead of `1`. PowerShell 7 adds a synthetic `Count` member to all objects, masking the bug.

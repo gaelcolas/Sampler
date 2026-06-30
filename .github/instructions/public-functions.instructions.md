@@ -50,6 +50,31 @@ Get-ChildItem -Path $OutputDirectory `
     -Recurse
 ```
 
+## Cross-platform path construction
+
+- Never use hardcoded backslash separators inside `Join-Path -ChildPath` strings. On Linux/macOS, backslashes are not path separators; a `ChildPath` containing backslashes is treated as a single filename component, not a multi-level path.
+- Build multi-level paths with chained `Join-Path` calls:
+
+```powershell
+# Wrong — backslash is not a separator on Linux
+Join-Path -Path $root -ChildPath 'output\module\MyModule\*\MyModule.psd1'
+
+# Correct
+$p = Join-Path -Path $root -ChildPath 'output'
+$p = Join-Path -Path $p    -ChildPath 'module'
+$p = Join-Path -Path $p    -ChildPath $ModuleName
+$p = Join-Path -Path $p    -ChildPath '*'
+$p = Join-Path -Path $p    -ChildPath "$ModuleName.psd1"
+```
+
+- Never hard-code `\` in user-facing messages that include paths; use `Join-Path` to build the example path.
+
+## State-changing functions (`SupportsShouldProcess`)
+
+- Functions whose verb implies state change (`New-`, `Remove-`, `Set-`, `Start-`, etc.) must declare `[CmdletBinding(SupportsShouldProcess = $true)]` to satisfy PSScriptAnalyzer rule `PSUseShouldProcessForStateChangingFunctions`.
+- Wrap the actual mutation with `if ($PSCmdlet.ShouldProcess($target, $action))`.
+- In tests, pass `-Confirm:$false` to bypass the `ShouldProcess` prompt.
+
 ## Validation model
 
 - Prefer enums over `ValidateSet` for option lists that are reused or expected to evolve.

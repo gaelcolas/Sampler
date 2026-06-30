@@ -126,6 +126,7 @@ Test failures are recorded in machine-readable XML under `output/testResults/`. 
 - For template changes: corresponding integration tests pass.
 - For public/private function changes: relevant unit tests pass.
 - If behavior is user-visible: ensure `CHANGELOG.md` has an `Unreleased` entry.
+- **Before declaring work complete on any PR-bound change, run the full `./build.ps1 -Tasks test` suite** (not just focused tests). Focused tests validate the changed scope; the full suite catches HQRM, ScriptAnalyzer, help quality, and test-coverage regressions that focused runs skip. A focused run passing is a necessary but not sufficient condition for readiness.
 
 ## Report format
 

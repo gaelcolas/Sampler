@@ -28,12 +28,15 @@ Describe 'Get-SamplerWorkspaceLinkedModuleRoot' {
     Context 'When OutputDirectory is absolute and BuiltModuleSubdirectory is provided' {
         It 'Should return the joined absolute output and subdirectory path' {
             InModuleScope -ScriptBlock {
+                $buildRoot  = $TestDrive
+                $absOutput  = Join-Path -Path $TestDrive -ChildPath 'output'
+
                 $result = Get-SamplerWorkspaceLinkedModuleRoot `
-                    -BuildRoot 'C:\src\MyRepo' `
-                    -OutputDirectory 'C:\src\MyRepo\output' `
+                    -BuildRoot $buildRoot `
+                    -OutputDirectory $absOutput `
                     -BuiltModuleSubdirectory 'module'
 
-                $result | Should -Be (Join-Path -Path 'C:\src\MyRepo\output' -ChildPath 'module')
+                $result | Should -Be (Join-Path -Path $absOutput -ChildPath 'module')
             }
         }
     }
@@ -41,12 +44,14 @@ Describe 'Get-SamplerWorkspaceLinkedModuleRoot' {
     Context 'When OutputDirectory is relative' {
         It 'Should join OutputDirectory with BuildRoot before appending BuiltModuleSubdirectory' {
             InModuleScope -ScriptBlock {
+                $buildRoot = $TestDrive
+
                 $result = Get-SamplerWorkspaceLinkedModuleRoot `
-                    -BuildRoot 'C:\src\MyRepo' `
+                    -BuildRoot $buildRoot `
                     -OutputDirectory 'output' `
                     -BuiltModuleSubdirectory 'module'
 
-                $expectedOutputRoot = Join-Path -Path 'C:\src\MyRepo' -ChildPath 'output'
+                $expectedOutputRoot = Join-Path -Path $buildRoot -ChildPath 'output'
                 $result | Should -Be (Join-Path -Path $expectedOutputRoot -ChildPath 'module')
             }
         }
@@ -55,12 +60,14 @@ Describe 'Get-SamplerWorkspaceLinkedModuleRoot' {
     Context 'When BuiltModuleSubdirectory is empty' {
         It 'Should return the output root without any subdirectory appended' {
             InModuleScope -ScriptBlock {
+                $absOutput = Join-Path -Path $TestDrive -ChildPath 'output'
+
                 $result = Get-SamplerWorkspaceLinkedModuleRoot `
-                    -BuildRoot 'C:\src\MyRepo' `
-                    -OutputDirectory 'C:\src\MyRepo\output' `
+                    -BuildRoot $TestDrive `
+                    -OutputDirectory $absOutput `
                     -BuiltModuleSubdirectory ''
 
-                $result | Should -Be 'C:\src\MyRepo\output'
+                $result | Should -Be $absOutput
             }
         }
     }
@@ -68,12 +75,14 @@ Describe 'Get-SamplerWorkspaceLinkedModuleRoot' {
     Context 'When BuiltModuleSubdirectory is absolute' {
         It 'Should return the absolute BuiltModuleSubdirectory path directly' {
             InModuleScope -ScriptBlock {
-                $result = Get-SamplerWorkspaceLinkedModuleRoot `
-                    -BuildRoot 'C:\src\MyRepo' `
-                    -OutputDirectory 'C:\src\MyRepo\output' `
-                    -BuiltModuleSubdirectory 'C:\custom\moduleroot'
+                $absSubDir = Join-Path -Path $TestDrive -ChildPath 'custom-moduleroot'
 
-                $result | Should -Be 'C:\custom\moduleroot'
+                $result = Get-SamplerWorkspaceLinkedModuleRoot `
+                    -BuildRoot $TestDrive `
+                    -OutputDirectory (Join-Path -Path $TestDrive -ChildPath 'output') `
+                    -BuiltModuleSubdirectory $absSubDir
+
+                $result | Should -Be $absSubDir
             }
         }
     }

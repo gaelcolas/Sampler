@@ -25,43 +25,42 @@ AfterAll {
 }
 
 Describe 'Get-SamplerWorkspaceBuiltModulePath' {
-    Context 'When the built module manifest is found in output\module\<name>' {
+    Context 'When the built module manifest is found in output/module/<name>' {
         BeforeAll {
             Mock -CommandName Get-SamplerWorkspaceRepositoryRoot -MockWith {
-                return 'C:\src\MyModule'
+                return (Join-Path -Path $TestDrive -ChildPath 'MyModule')
             }
 
             Mock -CommandName Get-ChildItem -MockWith {
-                $fakeParentParent = [System.IO.DirectoryInfo]::new('C:\src\MyModule\output\module\MyModule')
-                $fakeParent = [System.IO.DirectoryInfo]::new('C:\src\MyModule\output\module\MyModule\1.0.0')
+                $moduleRoot   = Join-Path -Path $TestDrive -ChildPath (Join-Path -Path 'MyModule' -ChildPath (Join-Path -Path 'output' -ChildPath (Join-Path -Path 'module' -ChildPath 'MyModule')))
+                $versionDir   = Join-Path -Path $moduleRoot -ChildPath '1.0.0'
+                $manifestFile = Join-Path -Path $versionDir -ChildPath 'MyModule.psd1'
 
-                $fakeItem = [PSCustomObject] @{
-                    FullName  = 'C:\src\MyModule\output\module\MyModule\1.0.0\MyModule.psd1'
+                return [PSCustomObject] @{
+                    FullName  = $manifestFile
                     Directory = [PSCustomObject] @{
-                        Parent   = $fakeParentParent
-                        FullName = $fakeParent.FullName
+                        Parent   = [PSCustomObject] @{ FullName = $moduleRoot }
+                        FullName = $versionDir
                     }
                 }
-
-                return $fakeItem
             } -ParameterFilter {
-                $Path -like '*output\module\MyModule\*'
+                $Path -like '*module*MyModule*'
             }
         }
 
         It 'Should return the versioned module parent directory' {
-            InModuleScope -ScriptBlock {
-                $result = Sampler\Get-SamplerWorkspaceBuiltModulePath -ModuleName 'MyModule' -WorkspaceRoot 'C:\src'
+            $expectedPath = Join-Path -Path $TestDrive -ChildPath (Join-Path -Path 'MyModule' -ChildPath (Join-Path -Path 'output' -ChildPath (Join-Path -Path 'module' -ChildPath 'MyModule')))
 
-                $result | Should -Be 'C:\src\MyModule\output\module\MyModule'
-            }
+            $result = Sampler\Get-SamplerWorkspaceBuiltModulePath -ModuleName 'MyModule' -WorkspaceRoot $TestDrive
+
+            $result | Should -Be $expectedPath
         }
     }
 
     Context 'When no built manifest is found' {
         BeforeAll {
             Mock -CommandName Get-SamplerWorkspaceRepositoryRoot -MockWith {
-                return 'C:\src\MyModule'
+                return (Join-Path -Path $TestDrive -ChildPath 'MyModule')
             }
 
             Mock -CommandName Get-ChildItem -MockWith {
@@ -70,10 +69,8 @@ Describe 'Get-SamplerWorkspaceBuiltModulePath' {
         }
 
         It 'Should throw with a message containing the module name' {
-            InModuleScope -ScriptBlock {
-                { Sampler\Get-SamplerWorkspaceBuiltModulePath -ModuleName 'MyModule' -WorkspaceRoot 'C:\src' } |
-                    Should -Throw -ExpectedMessage '*MyModule*'
-            }
+            { Sampler\Get-SamplerWorkspaceBuiltModulePath -ModuleName 'MyModule' -WorkspaceRoot $TestDrive } |
+                Should -Throw -ExpectedMessage '*MyModule*'
         }
     }
 }
