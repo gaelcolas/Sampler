@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- `Create_Release_Git_Tag` and `Create_Changelog_Branch` tasks now read `MainGitBranch` from `BuildInfo.GitConfig.MainGitBranch` in `build.yaml` when not set as a task parameter or InvokeBuild property. The resolution order is: task parameter → `build.yaml` `GitConfig.MainGitBranch` → default `'main'`.
+- `Create_Release_Git_Tag` and `Create_Changelog_Branch` tasks now read `MainGitBranch` from `BuildInfo.GitConfig.MainGitBranch` in `build.yaml` when not set as a task parameter or InvokeBuild property. The resolution order is: task parameter -> `build.yaml` `GitConfig.MainGitBranch` -> default `'main'`.
 - `New-SampleModule` `Features` parameter now accepts `github`, `vscode`, `codecov`, `azurepipelines`, and `gitversion` to mirror the Plaster template's feature choices.
 - `New-SampleModule` documents the `CustomModule` `ModuleType` and the new `MainGitBranch` parameter.
 - `New-SampleModule` `ModuleType` `ValidateSet` now includes `CustomModule`.

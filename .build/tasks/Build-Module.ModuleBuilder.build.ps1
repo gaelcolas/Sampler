@@ -159,6 +159,15 @@ Task Build_ModuleOutput_ModuleBuilder {
     {
         $releaseNotes = Get-Content -Path $ReleaseNotesPath -Raw
 
+        <#
+            Strip non-ASCII characters before embedding the release notes into the
+            built module manifest. Import-PowerShellDataFile on Windows PowerShell 5.1
+            cannot parse a PSD1 file that contains non-ASCII characters in string values
+            when the file is encoded as UTF-8 without BOM (which is the default on Linux/macOS).
+            Replace any non-ASCII character with '?' so the manifest remains parseable.
+        #>
+        $releaseNotes = [System.Text.RegularExpressions.Regex]::Replace($releaseNotes, '[^\x00-\x7F]', '?')
+
         $outputManifest = $BuiltModule.Path
 
         Update-Metadata -Path $outputManifest -PropertyName 'PrivateData.PSData.ReleaseNotes' -Value $releaseNotes
