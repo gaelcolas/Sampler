@@ -35,16 +35,58 @@ Describe 'Clean' {
         }
     }
 
-    Context 'When creating a preview release tag' {
+    Context 'When running the task with default parameters' {
         BeforeAll {
             Mock -CommandName Get-ChildItem
             Mock -CommandName Remove-Item
         }
 
-        It 'Should run the build task without throwing' {
+        It 'Should run the build task without throwing and exclude both RequiredModules and the agentic subfolder' {
             {
                 Invoke-Build -Task 'Clean' -File $taskAlias.Definition @mockTaskParameters
             } | Should -Not -Throw
+
+            Should -Invoke -CommandName Get-ChildItem -Exactly -Times 1 -Scope It -ParameterFilter {
+                $Exclude -contains 'RequiredModules' -and $Exclude -contains 'agentic'
+            }
+        }
+    }
+
+    Context 'When AgentOutputSubdirectory is set to a custom value' {
+        BeforeAll {
+            Mock -CommandName Get-ChildItem
+            Mock -CommandName Remove-Item
+        }
+
+        It 'Should run the build task without throwing and exclude the custom agent subfolder' {
+            $taskParametersWithCustomAgent = $mockTaskParameters + @{ AgentOutputSubdirectory = 'ci-logs' }
+
+            {
+                Invoke-Build -Task 'Clean' -File $taskAlias.Definition @taskParametersWithCustomAgent
+            } | Should -Not -Throw
+
+            Should -Invoke -CommandName Get-ChildItem -Exactly -Times 1 -Scope It -ParameterFilter {
+                $Exclude -contains 'ci-logs'
+            }
+        }
+    }
+
+    Context 'When AgentOutputSubdirectory is empty' {
+        BeforeAll {
+            Mock -CommandName Get-ChildItem
+            Mock -CommandName Remove-Item
+        }
+
+        It 'Should run the build task without throwing and only exclude RequiredModules' {
+            $taskParametersNoAgent = $mockTaskParameters + @{ AgentOutputSubdirectory = '' }
+
+            {
+                Invoke-Build -Task 'Clean' -File $taskAlias.Definition @taskParametersNoAgent
+            } | Should -Not -Throw
+
+            Should -Invoke -CommandName Get-ChildItem -Exactly -Times 1 -Scope It -ParameterFilter {
+                $Exclude -contains 'RequiredModules' -and $Exclude -notcontains 'agentic'
+            }
         }
     }
 }

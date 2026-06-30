@@ -2026,3 +2026,74 @@ Sets the module path to what is defined for the machine. The machines `PSModuleP
 ```powershell
 [System.Environment]::GetEnvironmentVariable('PSModulePath', 'Machine')
 ```
+
+### `Link_Local_Workspace_Dependencies`
+
+This task links sibling workspace module build outputs into the local output
+module path so that they are discoverable on `PSModulePath` during builds and
+tests, without requiring them to be published to a feed.
+
+This is useful when working in a multi-repo workspace (for example a VSCode
+workspace spanning several related modules) and you want changes in sibling
+repos to be immediately visible in the current repo's build and test pipeline.
+
+The task assumes that all related repositories are siblings under the same
+workspace root (one level above each repository's `BuildRoot`). Each sibling
+must have been built at least once before this task runs.
+
+For each configured module the task:
+
+1. Resolves the sibling repository root at `<workspaceRoot>\<ModuleName>`.
+2. Finds the sibling's built module root (the folder containing its versioned
+   sub-folder, typically `output\module\<ModuleName>`).
+3. Creates a symbolic link (or a directory junction on Windows as a fallback)
+   inside the local `output\module\` directory pointing at the sibling's built
+   module root.
+
+After the task runs, `Import-Module <SiblingName>` resolves the locally built
+version without any extra `PSModulePath` manipulation.
+
+```yaml
+  build:
+    - Clean
+    - Build_Module_ModuleBuilder
+    - Link_Local_Workspace_Dependencies
+
+  test:
+    - Link_Local_Workspace_Dependencies
+    - Pester_Tests_Stop_On_Fail
+    - Pester_If_Code_Coverage_Under_Threshold
+```
+
+#### Task parameters
+
+Some task parameters are vital for the task to work. See comment-based help in
+the task file for the full parameter list. The most important are described
+below.
+
+#### Task configuration
+
+The build configuration (_build.yaml_) controls which sibling modules are
+linked. See [[Workspace-Dependencies]] for the full reference.
+
+```yaml
+####################################################
+#       Workspace Dependencies Configuration       #
+####################################################
+WorkspaceModules:
+  - MyHelperModule
+  - MySharedModule
+```
+
+#### Section `WorkspaceModules`
+
+A list of sibling module names to link. Each entry must match the directory
+name of the sibling repository under the shared workspace root. If the list
+is empty or the key is absent, the task logs a message and exits without
+error.
+
+```yaml
+WorkspaceModules:
+  - MyHelperModule
+  - MySharedModule
+```

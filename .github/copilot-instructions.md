@@ -42,27 +42,33 @@ Sampler builds and tests are slow (task discovery alone is ~60–120s; a focused
 - **Never wrap the `./build.ps1 ...` invocation in `| Select-Object -Last <N>` (or `| Select-Object -First <N>`, `| Out-String -Stream | Select-Object ...`, etc.) inline.** Those filters force PowerShell to buffer the *entire* output stream before emitting anything, and the wrapping pipeline call appears to hang from the agent's perspective even after the build has finished. Worse, if the build asks for input (it should not, but ResolveDependency prompts can sneak in), the prompt is buried in the buffer and the shell is effectively stuck.
 - **Always tee the output to a log file and then inspect that log file separately**, so the build can stream freely and the agent can poll the log without consuming context with the entire output.
 
-Recommended pattern (works in both sync and async modes):
+Use `output\agentic\` as the log directory. The `Clean` task excludes this folder so logs survive between builds and are never accidentally deleted:
 
 ```powershell
-if (Test-Path output\validate-test.log) { Remove-Item output\validate-test.log -Force }
+$null = New-Item -Path 'output\agentic' -ItemType Directory -Force
 
 ./build.ps1 -Tasks test -PesterPath '<paths>' -CodeCoverageThreshold 0 2>&1 |
-    Tee-Object -FilePath output\validate-test.log
+    Tee-Object -FilePath 'output\agentic\test.log'
 ```
 
 Then, while the build runs (or after it completes), inspect the log without re-running anything:
 
 ```powershell
 # Quick status / tail
-Get-Item   output\validate-test.log | Select-Object Length, LastWriteTime
-Get-Content output\validate-test.log -Tail 20
+Get-Item   output\agentic\test.log | Select-Object Length, LastWriteTime
+Get-Content output\agentic\test.log -Tail 20
 
 # Look for the conventional "Build FAILED" / "Build succeeded" terminator
-Select-String -Path output\validate-test.log -Pattern 'Build (FAILED|succeeded)'
+Select-String -Path output\agentic\test.log -Pattern 'Build (FAILED|succeeded)'
 ```
 
 When running long commands through the `powershell` tool, prefer `mode="async"` with `Tee-Object`, then poll with short `read_powershell` reads or by reading the log file directly. Do not pass `| Select-Object -Last N` as a workaround for wanting a short response — read the log file with `Get-Content -Tail` instead.
+
+**Clean up when done:** Once you have finished investigating a build or test failure, remove the agentic log folder:
+
+```powershell
+Remove-Item -Path 'output\agentic' -Recurse -Force -ErrorAction 'Ignore'
+```
 
 ### Diagnosing test failures from XML output
 
@@ -104,6 +110,13 @@ When running long commands through the `powershell` tool, prefer `mode="async"` 
 
 - **Always look at the *latest* result file**: every test invocation rewrites these XML files, so sort by `LastWriteTime` descending instead of relying on a hard-coded path.
 - The failing-test summary written to the log file (e.g. `Build FAILED. N tasks, 1 errors, ...`) tells you *that* something failed; only the XML tells you *what* failed. Quote the XML message in any report back to the user — do not paraphrase the build-log tail.
+- **The built module output path uses only the main version number**, not the full prerelease tag. `output/module/Sampler/0.119.2/Sampler.psm1` is the path even when `ModuleVersion` is `0.119.2-gaelcolas`. Do not infer a stale CI build from a version mismatch in the path alone — compare the commit SHA instead.
+
+## Git workflow
+
+- Never run `git commit`, `git push`, or `git tag`. Leave all commits to the user so they can review with `git diff` first.
+- Stage changes with `git add` only when explicitly asked to prepare a commit.
+- After completing work, summarize what changed so the user can review before committing.
 
 ## High-level architecture
 
@@ -124,7 +137,7 @@ When running long commands through the `powershell` tool, prefer `mode="async"` 
 - Use `Set-SamplerTaskVariable -AsNewBuild` for tasks that are establishing fresh artifact state, and pass `-ArtifactContext 'Chocolatey'` (or another explicit context) for non-default artifact pipelines. Do not infer alternate artifact types by probing output folder existence.
 - For non-module sources, the default version fallback chain is `ModuleVersion`/`SemVer` -> `GitVersion` -> static version `0.0.1`.
 - Treat template changes as product changes. If you modify anything under `Sampler/Templates/`, update the matching integration tests under `tests/Integration/PlasterTemplates/` and preserve expected scaffolded file trees.
-- The repo enforces changelog discipline through QA tests. For any repository change that affects behavior, tests, templates, tasks, or documentation consumed by users/contributors, update `CHANGELOG.md` under `Unreleased` in the same change set or QA tests will fail.
+- The repo enforces changelog discipline through QA tests. Update `CHANGELOG.md` under `Unreleased` only for changes that affect the module behavior, public API, templates, tasks, or module-facing documentation consumed by users or contributors. Build, pipeline, CI, and Copilot-instruction-only changes do not require changelog entries.
 - Public and private functions are expected to have comment-based help and corresponding unit tests; QA tests inspect `.SYNOPSIS`, `.DESCRIPTION`, examples, and parameter help for every exported function.
 - Prefer `-ErrorAction 'Ignore'` over `-ErrorAction 'SilentlyContinue'` for cmdlet calls whose failure is *expected* (probes such as `Get-Command`, `Get-Module`, `Get-Item`, `Test-Path`-style lookups). `Ignore` does not append to `$Error`, keeping the error history clean for real diagnostics. Reserve `SilentlyContinue` for cases where you intentionally want the error recorded but not surfaced.
 - Code must run on **both Windows PowerShell 5.1 (Desktop) and PowerShell 7+ (Core)**, and must work cross-platform on Windows, Linux, and macOS, unless the module manifest of the module under development declares otherwise (i.e. `PowerShellVersion` is `'7.0'` or higher and/or `CompatiblePSEditions` is restricted to `@('Core')`). Sampler itself targets `PowerShellVersion = '5.0'` with no `CompatiblePSEditions` restriction (see `Sampler/Sampler.psd1`), so any change to Sampler source, templates, build tasks, or scripts must:

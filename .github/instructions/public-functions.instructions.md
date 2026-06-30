@@ -17,6 +17,63 @@ Public functions are user-facing and are the most critical API surface of Sample
 - Use `[CmdletBinding()]` and include `[OutputType(...)]`.
 - Use explicit .NET parameter types (`[System.String]`, `[System.Boolean]`, etc.).
 - Keep parameter names and defaults stable unless intentionally introducing a breaking change.
+- Follow DSC Community parameter style: `[Parameter()]` attribute, type, and variable name each on their own line, with a blank line between comma-separated parameter declarations:
+
+```powershell
+param
+(
+    [Parameter(Mandatory = $true)]
+    [System.String]
+    $ProjectName,
+
+    [Parameter()]
+    [System.Management.Automation.SwitchParameter]
+    $Force
+)
+```
+
+## PowerShell style
+
+- Prefer `$null = <expression>` over `<expression> | Out-Null` to suppress output.
+- Prefer splatting over backtick-based line continuation for multi-line command calls:
+
+```powershell
+# Preferred
+$params = @{
+    Path    = $OutputDirectory
+    Recurse = $true
+}
+Get-ChildItem @params
+
+# Avoid
+Get-ChildItem -Path $OutputDirectory `
+    -Recurse
+```
+
+## Cross-platform path construction
+
+- Never use hardcoded backslash separators inside `Join-Path -ChildPath` strings. On Linux/macOS, backslashes are not path separators; a `ChildPath` containing backslashes is treated as a single filename component, not a multi-level path.
+- Build multi-level paths with chained `Join-Path` calls:
+
+```powershell
+# Wrong — backslash is not a separator on Linux
+Join-Path -Path $root -ChildPath 'output\module\MyModule\*\MyModule.psd1'
+
+# Correct
+$p = Join-Path -Path $root -ChildPath 'output'
+$p = Join-Path -Path $p    -ChildPath 'module'
+$p = Join-Path -Path $p    -ChildPath $ModuleName
+$p = Join-Path -Path $p    -ChildPath '*'
+$p = Join-Path -Path $p    -ChildPath "$ModuleName.psd1"
+```
+
+- Never hard-code `\` in user-facing messages that include paths; use `Join-Path` to build the example path.
+
+## State-changing functions (`SupportsShouldProcess`)
+
+- Functions whose verb implies state change (`New-`, `Remove-`, `Set-`, `Start-`, etc.) must declare `[CmdletBinding(SupportsShouldProcess = $true)]` to satisfy PSScriptAnalyzer rule `PSUseShouldProcessForStateChangingFunctions`.
+- Wrap the actual mutation with `if ($PSCmdlet.ShouldProcess($target, $action))`.
+- In tests, pass `-Confirm:$false` to bypass the `ShouldProcess` prompt.
 
 ## Validation model
 
