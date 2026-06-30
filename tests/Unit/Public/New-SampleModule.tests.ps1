@@ -194,4 +194,87 @@ Describe New-SampleModule {
             }
         }
     }
+
+    Context 'When ModuleDescription is an empty string' {
+        It 'Should forward ModuleDescription to Plaster so no interactive prompt is shown' {
+            InModuleScope -Parameters @{ DestinationPath = $TestDrive } -ScriptBlock {
+                $script:capturedPlasterParameters = $null
+
+                $newSampleModuleParameters = @{
+                    DestinationPath   = $DestinationPath
+                    ModuleName        = 'testMod'
+                    ModuleDescription = ''
+                    ModuleType        = 'SimpleModule'
+                }
+
+                { New-SampleModule @newSampleModuleParameters } | Should -Not -Throw
+
+                $script:capturedPlasterParameters.ContainsKey('ModuleDescription') | Should -BeTrue
+                $script:capturedPlasterParameters['ModuleDescription'] | Should -Be ''
+            }
+        }
+    }
+
+    Context 'When GitHubOwner is explicitly supplied for a non-dsccommunity module' {
+        It 'Should forward GitHubOwner as the GitHubOwner Plaster parameter' {
+            InModuleScope -Parameters @{ DestinationPath = $TestDrive } -ScriptBlock {
+                $script:capturedPlasterParameters = $null
+
+                $newSampleModuleParameters = @{
+                    DestinationPath   = $DestinationPath
+                    ModuleName        = 'testMod'
+                    ModuleDescription = 'my module'
+                    ModuleType        = 'CustomModule'
+                    Features          = @('github')
+                    GitHubOwner       = 'MyOrg'
+                }
+
+                { New-SampleModule @newSampleModuleParameters } | Should -Not -Throw
+
+                $script:capturedPlasterParameters['GitHubOwner'] | Should -Be 'MyOrg'
+                $script:capturedPlasterParameters.ContainsKey('GitHubOwnerDscCommunity') | Should -BeFalse
+            }
+        }
+    }
+
+    Context 'When GitHubOwner is explicitly supplied for a dsccommunity module' {
+        It 'Should forward GitHubOwner as the GitHubOwnerDscCommunity Plaster parameter' {
+            InModuleScope -Parameters @{ DestinationPath = $TestDrive } -ScriptBlock {
+                $script:capturedPlasterParameters = $null
+
+                $newSampleModuleParameters = @{
+                    DestinationPath   = $DestinationPath
+                    ModuleName        = 'testMod'
+                    ModuleDescription = 'my module'
+                    ModuleType        = 'dsccommunity'
+                    GitHubOwner       = 'myorg'
+                }
+
+                { New-SampleModule @newSampleModuleParameters } | Should -Not -Throw
+
+                $script:capturedPlasterParameters['GitHubOwnerDscCommunity'] | Should -Be 'myorg'
+                $script:capturedPlasterParameters.ContainsKey('GitHubOwner') | Should -BeFalse
+            }
+        }
+    }
+
+    Context 'When GitHubOwner is not supplied' {
+        It 'Should not forward GitHubOwner or GitHubOwnerDscCommunity to Plaster' {
+            InModuleScope -Parameters @{ DestinationPath = $TestDrive } -ScriptBlock {
+                $script:capturedPlasterParameters = $null
+
+                $newSampleModuleParameters = @{
+                    DestinationPath   = $DestinationPath
+                    ModuleName        = 'testMod'
+                    ModuleDescription = 'my module'
+                    ModuleType        = 'SimpleModule'
+                }
+
+                { New-SampleModule @newSampleModuleParameters } | Should -Not -Throw
+
+                $script:capturedPlasterParameters.ContainsKey('GitHubOwner') | Should -BeFalse
+                $script:capturedPlasterParameters.ContainsKey('GitHubOwnerDscCommunity') | Should -BeFalse
+            }
+        }
+    }
 }

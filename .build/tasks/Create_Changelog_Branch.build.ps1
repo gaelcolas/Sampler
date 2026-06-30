@@ -164,8 +164,16 @@ task Create_Changelog_Branch {
 
     "`tMainGitBranch              = '$MainGitBranch'"
 
-    Sampler\Invoke-SamplerGit -Argument @('config', 'user.name', $GitConfigUserName)
-    Sampler\Invoke-SamplerGit -Argument @('config', 'user.email', $GitConfigUserEmail)
+    if (-not [System.String]::IsNullOrEmpty($GitConfigUserName))
+    {
+        Sampler\Invoke-SamplerGit -Argument @('config', 'user.name', $GitConfigUserName)
+    }
+
+    if (-not [System.String]::IsNullOrEmpty($GitConfigUserEmail))
+    {
+        Sampler\Invoke-SamplerGit -Argument @('config', 'user.email', $GitConfigUserEmail)
+    }
+
     Sampler\Invoke-SamplerGit -Argument @('config', 'pull.rebase', 'true')
 
     Write-Build DarkGray ("`tPulling latest commits and tags from branch '{0}'." -f $MainGitBranch)

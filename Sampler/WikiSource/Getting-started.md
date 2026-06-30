@@ -1880,11 +1880,10 @@ ChangelogConfig:
 GitConfig:
   UserName: bot
   UserEmail: bot@company.local
+  MainGitBranch: main
 ```
 
 #### Section ChangelogConfig
-
-##### Property FilesToAdd
 
 This specifies one or more files to add to the commit when creating the
 PR branch. If left out it will default to the one file _CHANGELOG.md_.
@@ -1906,6 +1905,12 @@ User name of the user that should push the tag.
 ##### Property UserEmail
 
 E-mail address of the user that should push the tag.
+
+##### Property MainGitBranch
+
+The name of the default branch. If not set here or as a task parameter, defaults
+to `'main'`. Set this when your repository uses a different default branch name
+(e.g. `master` or `develop`).
 
 ### `Create_Release_Git_Tag`
 
@@ -1940,6 +1945,7 @@ of the build task.
 GitConfig:
   UserName: bot
   UserEmail: bot@company.local
+  MainGitBranch: main
 ```
 
 #### Section GitConfig
@@ -1954,6 +1960,12 @@ User name of the user that should push the tag.
 ##### Property UserEmail
 
 E-mail address of the user that should push the tag.
+
+##### Property MainGitBranch
+
+The name of the default branch. If not set here or as a task parameter, defaults
+to `'main'`. Set this when your repository uses a different default branch name
+(e.g. `master` or `develop`).
 
 ### `Set_PSModulePath`
 
@@ -2025,6 +2037,30 @@ Sets the module path to what is defined for the machine. The machines `PSModuleP
 
 ```powershell
 [System.Environment]::GetEnvironmentVariable('PSModulePath', 'Machine')
+```
+
+### `Clean`
+
+This task deletes the content of the build output folder to ensure a clean
+build. By default it preserves the `RequiredModules` subfolder (to avoid
+re-downloading all dependencies on every build).
+
+It also preserves a dedicated subfolder for agent/Copilot log files so that
+build logs survive clean cycles.
+
+#### Task parameters
+
+| Parameter | Default | Description |
+|---|---|---|
+| `OutputDirectory` | `output` | The root output directory to clean. |
+| `RequiredModulesDirectory` | `output/RequiredModules` | Always excluded from deletion. |
+| `AgentOutputSubdirectory` | `agentic` | Subfolder excluded from deletion for use as a stable log destination. Set to empty string to disable. |
+
+#### Task configuration
+
+```yaml
+# Override the agent log subfolder name (or disable with empty string)
+AgentOutputSubdirectory: agentic
 ```
 
 ### `Link_Local_Workspace_Dependencies`

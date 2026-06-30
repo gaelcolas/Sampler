@@ -164,8 +164,15 @@ task Create_Release_Git_Tag {
 
         Write-Build DarkGray "`tSetting git configuration."
 
-        Sampler\Invoke-SamplerGit -Argument @('config', 'user.name', $GitConfigUserName)
-        Sampler\Invoke-SamplerGit -Argument @('config', 'user.email', $GitConfigUserEmail)
+        if (-not [System.String]::IsNullOrEmpty($GitConfigUserName))
+        {
+            Sampler\Invoke-SamplerGit -Argument @('config', 'user.name', $GitConfigUserName)
+        }
+
+        if (-not [System.String]::IsNullOrEmpty($GitConfigUserEmail))
+        {
+            Sampler\Invoke-SamplerGit -Argument @('config', 'user.email', $GitConfigUserEmail)
+        }
 
         # Make empty line in output
         ''

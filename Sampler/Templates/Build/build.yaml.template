@@ -351,6 +351,23 @@ GitHubConfig:
     }
 %>
 
+####################################################
+#             Git Configuration                    #
+####################################################
+GitConfig:
+  # UserName: dscbot
+  # UserEmail: dsccommunity@outlook.com
+  MainGitBranch: <%= ${PLASTER_PARAM_MainGitBranch} %>
+
+####################################################
+#          Changelog Configuration                 #
+####################################################
+# Used by Create_Changelog_Branch task. Defaults are shown below.
+# ChangelogConfig:
+#   FilesToAdd:
+#     - 'CHANGELOG.md'
+#   UpdateChangelogOnPrerelease: false  # Set to true to update changelog on pre-releases too
+
 <%
     if ($PLASTER_PARAM_ModuleType -eq 'dsccommunity' -or $PLASTER_PARAM_Features -Contains ("All")) {
 @"

@@ -49,6 +49,12 @@
         How you would like to call your Source repository to differentiate from the output and the tests folder. We recommend to call it 'source',
         and the default value is 'source'.
 
+    .PARAMETER GitHubOwner
+        The GitHub owner (personal account or organization) that will host and publish the module.
+        For non-dsccommunity module types this maps to the `GitHubOwner` Plaster parameter.
+        For `dsccommunity` module types it maps to the `GitHubOwnerDscCommunity` Plaster parameter.
+        Supplying this parameter suppresses the interactive GitHub-owner prompt regardless of module type.
+
     .PARAMETER Features
         If you'd rather select specific features from this template to build your module, use this parameter instead.
         Valid values mirror the Plaster template feature choices:
@@ -123,6 +129,10 @@ function New-SampleModule
         $SourceDirectory = 'source',
 
         [Parameter()]
+        [System.String]
+        $GitHubOwner,
+
+        [Parameter()]
         [ValidateSet(
             'All',
             'Enum',
@@ -175,10 +185,41 @@ function New-SampleModule
     {
         $paramValue = Get-Variable -Name $paramName -ValueOnly -ErrorAction SilentlyContinue
 
-        # if $paramName is $null, leave it to Plaster to ask the user.
-        if ($paramvalue -and -not $invokePlasterParam.ContainsKey($paramName))
+        <#
+            Skip parameters that are $null (not set) and not explicitly bound.
+            Use $null -ne check so that empty strings and $false are still forwarded —
+            they are valid values that suppress Plaster prompts (e.g. ModuleDescription='').
+            Do not forward parameters already in the hashtable (e.g. ModuleName added above).
+            GitHubOwner is handled separately below after the loop; skip it here.
+        #>
+        if ($paramName -eq 'GitHubOwner')
+        {
+            continue
+        }
+
+        if ($null -ne $paramValue -and -not $invokePlasterParam.ContainsKey($paramName))
         {
             $invokePlasterParam.Add($paramName, $paramValue)
+        }
+    }
+
+    <#
+        Route GitHubOwner to the correct Plaster parameter depending on ModuleType.
+        dsccommunity uses GitHubOwnerDscCommunity; all other types use GitHubOwner.
+        Remove the generic key if it was added by the loop above, then add the
+        correct Plaster key so the caller only needs to think about one parameter.
+    #>
+    if ($PSBoundParameters.ContainsKey('GitHubOwner'))
+    {
+        $invokePlasterParam.Remove('GitHubOwner')
+
+        if ($ModuleType -eq 'dsccommunity')
+        {
+            $invokePlasterParam['GitHubOwnerDscCommunity'] = $GitHubOwner
+        }
+        else
+        {
+            $invokePlasterParam['GitHubOwner'] = $GitHubOwner
         }
     }
 
