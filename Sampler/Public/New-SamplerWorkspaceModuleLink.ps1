@@ -32,7 +32,7 @@
 #>
 function New-SamplerWorkspaceModuleLink
 {
-    [CmdletBinding()]
+    [CmdletBinding(SupportsShouldProcess = $true)]
     [OutputType([System.String])]
     param
     (
@@ -54,42 +54,45 @@ function New-SamplerWorkspaceModuleLink
         Remove-Item -Path $LinkPath -Recurse -Force
     }
 
-    try
+    if ($PSCmdlet.ShouldProcess($LinkPath, ('Create workspace module link to {0}' -f $TargetPath)))
     {
-        $newItemParams = @{
-            Path        = $LinkPath
-            ItemType    = 'SymbolicLink'
-            Target      = $TargetPath
-            Force       = $true
-            ErrorAction = 'Stop'
-        }
-
-        $null = New-Item @newItemParams
-        return 'SymbolicLink'
-    }
-    catch
-    {
-        if (-not $IsWindowsPlatform)
+        try
         {
-            throw ("Failed to create the symbolic link '{0}' -> '{1}'. Ensure symbolic links are allowed in this session. {2}" -f $LinkPath, $TargetPath, $_.Exception.Message)
-        }
-    }
+            $newItemParams = @{
+                Path        = $LinkPath
+                ItemType    = 'SymbolicLink'
+                Target      = $TargetPath
+                Force       = $true
+                ErrorAction = 'Stop'
+            }
 
-    try
-    {
-        $newItemParams = @{
-            Path        = $LinkPath
-            ItemType    = 'Junction'
-            Target      = $TargetPath
-            Force       = $true
-            ErrorAction = 'Stop'
+            $null = New-Item @newItemParams
+            return 'SymbolicLink'
+        }
+        catch
+        {
+            if (-not $IsWindowsPlatform)
+            {
+                throw ("Failed to create the symbolic link '{0}' -> '{1}'. Ensure symbolic links are allowed in this session. {2}" -f $LinkPath, $TargetPath, $_.Exception.Message)
+            }
         }
 
-        $null = New-Item @newItemParams
-        return 'Junction'
-    }
-    catch
-    {
-        throw ("Failed to create a local workspace link '{0}' -> '{1}'. Symbolic link and junction creation both failed. {2}" -f $LinkPath, $TargetPath, $_.Exception.Message)
+        try
+        {
+            $newItemParams = @{
+                Path        = $LinkPath
+                ItemType    = 'Junction'
+                Target      = $TargetPath
+                Force       = $true
+                ErrorAction = 'Stop'
+            }
+
+            $null = New-Item @newItemParams
+            return 'Junction'
+        }
+        catch
+        {
+            throw ("Failed to create a local workspace link '{0}' -> '{1}'. Symbolic link and junction creation both failed. {2}" -f $LinkPath, $TargetPath, $_.Exception.Message)
+        }
     }
 }

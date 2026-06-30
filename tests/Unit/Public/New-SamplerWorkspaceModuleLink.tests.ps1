@@ -42,7 +42,8 @@ Describe 'New-SamplerWorkspaceModuleLink' {
             InModuleScope -ScriptBlock {
                 $result = Sampler\New-SamplerWorkspaceModuleLink `
                     -LinkPath 'C:\output\module\MyModule' `
-                    -TargetPath 'C:\src\MyModule\output\module\MyModule'
+                    -TargetPath 'C:\src\MyModule\output\module\MyModule' `
+                    -Confirm:$false
 
                 $result | Should -Be 'SymbolicLink'
             }
@@ -52,7 +53,8 @@ Describe 'New-SamplerWorkspaceModuleLink' {
             InModuleScope -ScriptBlock {
                 $null = Sampler\New-SamplerWorkspaceModuleLink `
                     -LinkPath 'C:\output\module\MyModule' `
-                    -TargetPath 'C:\src\MyModule\output\module\MyModule'
+                    -TargetPath 'C:\src\MyModule\output\module\MyModule' `
+                    -Confirm:$false
 
                 Should -Invoke -CommandName New-Item -Exactly -Times 1 -Scope It -ParameterFilter {
                     $ItemType -eq 'SymbolicLink'
@@ -80,7 +82,8 @@ Describe 'New-SamplerWorkspaceModuleLink' {
             InModuleScope -ScriptBlock {
                 $null = Sampler\New-SamplerWorkspaceModuleLink `
                     -LinkPath 'C:\output\module\MyModule' `
-                    -TargetPath 'C:\src\MyModule\output\module\MyModule'
+                    -TargetPath 'C:\src\MyModule\output\module\MyModule' `
+                    -Confirm:$false
 
                 Should -Invoke -CommandName Remove-Item -Exactly -Times 1 -Scope It -ParameterFilter {
                     $Path -eq 'C:\output\module\MyModule'
@@ -113,7 +116,8 @@ Describe 'New-SamplerWorkspaceModuleLink' {
                 $result = Sampler\New-SamplerWorkspaceModuleLink `
                     -LinkPath 'C:\output\module\MyModule' `
                     -TargetPath 'C:\src\MyModule\output\module\MyModule' `
-                    -IsWindowsPlatform $true
+                    -IsWindowsPlatform $true `
+                    -Confirm:$false
 
                 $result | Should -Be 'Junction'
             }
@@ -138,7 +142,8 @@ Describe 'New-SamplerWorkspaceModuleLink' {
                 { Sampler\New-SamplerWorkspaceModuleLink `
                         -LinkPath '/output/module/MyModule' `
                         -TargetPath '/src/MyModule/output/module/MyModule' `
-                        -IsWindowsPlatform $false } |
+                        -IsWindowsPlatform $false `
+                        -Confirm:$false } |
                     Should -Throw
             }
         }

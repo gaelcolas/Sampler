@@ -37,10 +37,9 @@ Describe 'Link_Local_Workspace_Dependencies' {
     Context 'When WorkspaceModules is configured in BuildInfo' {
         BeforeAll {
             $mockTaskParameters = @{
-                OutputDirectory = Join-Path -Path $TestDrive -ChildPath 'output'
-                BuildInfo       = @{
-                    WorkspaceModules = @('ModuleA', 'ModuleB')
-                }
+                OutputDirectory  = Join-Path -Path $TestDrive -ChildPath 'output'
+                WorkspaceModules = @('ModuleA', 'ModuleB')
+                BuildInfo        = @{}
             }
 
             Mock -CommandName Get-SamplerWorkspaceLinkedModuleRoot -MockWith {
@@ -72,8 +71,9 @@ Describe 'Link_Local_Workspace_Dependencies' {
     Context 'When WorkspaceModules is empty and not in BuildInfo' {
         BeforeAll {
             $mockTaskParameters = @{
-                OutputDirectory = Join-Path -Path $TestDrive -ChildPath 'output'
-                BuildInfo       = @{ }
+                OutputDirectory  = Join-Path -Path $TestDrive -ChildPath 'output'
+                WorkspaceModules = @()
+                BuildInfo        = @{}
             }
 
             Mock -CommandName New-SamplerWorkspaceModuleLink
@@ -91,10 +91,9 @@ Describe 'Link_Local_Workspace_Dependencies' {
     Context 'When New-SamplerWorkspaceModuleLink returns Junction' {
         BeforeAll {
             $mockTaskParameters = @{
-                OutputDirectory = Join-Path -Path $TestDrive -ChildPath 'output'
-                BuildInfo       = @{
-                    WorkspaceModules = @('ModuleA')
-                }
+                OutputDirectory  = Join-Path -Path $TestDrive -ChildPath 'output'
+                WorkspaceModules = @('ModuleA')
+                BuildInfo        = @{}
             }
 
             Mock -CommandName Get-SamplerWorkspaceLinkedModuleRoot -MockWith {
