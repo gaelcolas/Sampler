@@ -110,6 +110,7 @@ Remove-Item -Path 'output\agentic' -Recurse -Force -ErrorAction 'Ignore'
 
 - **Always look at the *latest* result file**: every test invocation rewrites these XML files, so sort by `LastWriteTime` descending instead of relying on a hard-coded path.
 - The failing-test summary written to the log file (e.g. `Build FAILED. N tasks, 1 errors, ...`) tells you *that* something failed; only the XML tells you *what* failed. Quote the XML message in any report back to the user — do not paraphrase the build-log tail.
+- **The built module output path uses only the main version number**, not the full prerelease tag. `output/module/Sampler/0.119.2/Sampler.psm1` is the path even when `ModuleVersion` is `0.119.2-gaelcolas`. Do not infer a stale CI build from a version mismatch in the path alone — compare the commit SHA instead.
 
 ## Git workflow
 
