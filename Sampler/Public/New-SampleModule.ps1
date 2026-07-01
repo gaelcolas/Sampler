@@ -187,8 +187,8 @@ function New-SampleModule
 
         <#
             Skip parameters that are $null (not set) and not explicitly bound.
-            Use $null -ne check so that empty strings and $false are still forwarded —
-            they are valid values that suppress Plaster prompts (e.g. ModuleDescription='').
+            Use $null -ne check so that empty strings and $false are still forwarded -
+            they are valid values that suppress Plaster prompts (e.g. ModuleDescription = '').
             Do not forward parameters already in the hashtable (e.g. ModuleName added above).
             GitHubOwner is handled separately below after the loop; skip it here.
         #>
