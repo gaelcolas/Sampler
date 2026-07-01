@@ -20,3 +20,4 @@ concise guidance.
   frontmatter `applyTo`
 - Use `##`/`###` headings, `-` bullets, backticks for code tokens, fenced blocks for multi-line examples.
 - No bold/italic emphasis, conversational tone, or verbose examples.
+- Prefer using ASCII characters in most authored files (instructions, prompts, skills, AGENTS.md, copilot-instructions.md). Non-ASCII characters (em-dashes, smart quotes, Unicode arrows, etc.) in PowerShell source files trigger PSScriptAnalyzer rule `PSUseBOMForUnicodeEncodedFile` and in CHANGELOG.md they break `Import-PowerShellDataFile` on Windows PowerShell 5.1. Use plain ASCII: `->` not `->`, `-` not `--`, straight quotes, hyphens instead of dashes.

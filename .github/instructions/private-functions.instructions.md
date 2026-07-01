@@ -37,6 +37,7 @@ param
 - Prefer `$null = <expression>` over `<expression> | Out-Null` to suppress output.
 - Prefer splatting over backtick-based line continuation for multi-line command calls.
 - Never use hardcoded backslash separators inside `Join-Path -ChildPath` strings. Build multi-level paths with chained `Join-Path` calls (one component at a time). Backslashes in a `ChildPath` are not path separators on Linux/macOS.
+- Use only ASCII characters in `.ps1` source files. Non-ASCII characters (em-dashes, smart quotes, Unicode arrows, etc.) trigger PSScriptAnalyzer rule `PSUseBOMForUnicodeEncodedFile`. Use `->` not Unicode arrows, `-` not dashes, straight quotes.
 
 ## Validation model
 
