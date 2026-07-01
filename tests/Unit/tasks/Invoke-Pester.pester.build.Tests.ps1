@@ -368,7 +368,7 @@ Describe 'Fail_Build_If_Pester_Tests_Failed' {
         }
     }
 
-    Context 'When tests failed' {
+    Context 'When Pester 4 reports failed tests' {
         BeforeAll {
             Mock -CommandName Get-CodeCoverageThreshold -MockWith {
                 return 70
@@ -394,7 +394,7 @@ Describe 'Fail_Build_If_Pester_Tests_Failed' {
         }
     }
 
-    Context 'When tests failed' {
+    Context 'When Pester 4 reports no failed tests' {
         BeforeAll {
             Mock -CommandName Get-CodeCoverageThreshold -MockWith {
                 return 70
@@ -413,7 +413,65 @@ Describe 'Fail_Build_If_Pester_Tests_Failed' {
             }
         }
 
-        It 'hould run the build task without throwing' {
+        It 'Should run the build task without throwing' {
+            {
+                Invoke-Build -Task 'Fail_Build_If_Pester_Tests_Failed' -File $taskAlias.Definition @mockTaskParameters
+            } | Should -Not -Throw
+        }
+    }
+
+    Context 'When a Pester 5 container failed but no tests failed' {
+        BeforeAll {
+            Mock -CommandName Get-CodeCoverageThreshold -MockWith {
+                return 70
+            }
+
+            Mock -CommandName Test-Path -ParameterFilter {
+                $Path -match 'PesterObject_'
+            } -MockWith {
+                return $true
+            }
+
+            Mock -CommandName Import-Clixml -MockWith {
+                return @{
+                    Result                = 'Failed'
+                    FailedCount           = 0
+                    FailedBlocksCount     = 0
+                    FailedContainersCount = 1
+                }
+            }
+        }
+
+        It 'Should throw the correct error' {
+            {
+                Invoke-Build -Task 'Fail_Build_If_Pester_Tests_Failed' -File $taskAlias.Definition @mockTaskParameters
+            } | Should -Throw -ExpectedMessage "*Pester result was 'Failed'. Failed 0 test(s), 0 block(s) and 1 container(s). Aborting Build*"
+        }
+    }
+
+    Context 'When a Pester 5 run passed' {
+        BeforeAll {
+            Mock -CommandName Get-CodeCoverageThreshold -MockWith {
+                return 70
+            }
+
+            Mock -CommandName Test-Path -ParameterFilter {
+                $Path -match 'PesterObject_'
+            } -MockWith {
+                return $true
+            }
+
+            Mock -CommandName Import-Clixml -MockWith {
+                return @{
+                    Result                = 'Passed'
+                    FailedCount           = 0
+                    FailedBlocksCount     = 0
+                    FailedContainersCount = 0
+                }
+            }
+        }
+
+        It 'Should run the build task without throwing' {
             {
                 Invoke-Build -Task 'Fail_Build_If_Pester_Tests_Failed' -File $taskAlias.Definition @mockTaskParameters
             } | Should -Not -Throw
