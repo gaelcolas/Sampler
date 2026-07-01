@@ -146,4 +146,42 @@ Describe 'Create_Changelog_Branch' {
             }
         }
     }
+
+    Context 'When GitConfigUserName and GitConfigUserEmail are not set' {
+        BeforeAll {
+            # Dot-source mocks
+            . $PSScriptRoot/../TestHelpers/MockSetSamplerTaskVariable
+
+            Mock -CommandName Sampler\Invoke-SamplerGit
+
+            Mock -CommandName Sampler\Invoke-SamplerGit -ParameterFilter {
+                $Argument -contains 'rev-parse'
+            } -MockWith {
+                return '0c23efc'
+            }
+
+            $mockTaskParameters = @{
+                ProjectPath        = Join-Path -Path $TestDrive -ChildPath 'MyModule'
+                OutputDirectory    = Join-Path -Path $TestDrive -ChildPath 'MyModule/output'
+                SourcePath         = Join-Path -Path $TestDrive -ChildPath 'MyModule/source'
+                ProjectName        = 'MyModule'
+                BasicAuthPAT       = '22222'
+                GitConfigUserName  = ''
+                GitConfigUserEmail = ''
+                MainGitBranch      = 'main'
+                ChangelogPath      = 'CHANGELOG.md'
+                BuildInfo          = @{}
+            }
+        }
+
+        It 'Should run the build task without throwing and not call git config user.name or user.email' {
+            {
+                Invoke-Build -Task $buildTaskName -File $taskAlias.Definition @mockTaskParameters
+            } | Should -Not -Throw
+
+            Should -Not -Invoke -CommandName Sampler\Invoke-SamplerGit -Scope It -ParameterFilter {
+                $Argument -contains 'user.name' -or $Argument -contains 'user.email'
+            }
+        }
+    }
 }

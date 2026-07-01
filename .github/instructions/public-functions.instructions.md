@@ -44,11 +44,9 @@ $params = @{
     Recurse = $true
 }
 Get-ChildItem @params
-
-# Avoid
-Get-ChildItem -Path $OutputDirectory `
-    -Recurse
 ```
+
+- Use only ASCII characters in `.ps1` source files. Non-ASCII characters (em-dashes, smart quotes, Unicode arrows, etc.) trigger PSScriptAnalyzer rule `PSUseBOMForUnicodeEncodedFile`. Use `->` not Unicode arrows, `-` not dashes, straight quotes.
 
 ## Cross-platform path construction
 
