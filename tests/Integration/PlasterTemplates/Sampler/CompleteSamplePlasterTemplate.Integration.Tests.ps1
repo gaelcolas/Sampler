@@ -30,6 +30,9 @@ Describe 'Complete Module Plaster Template' {
                 # Folders (relative to module root)
                 '.github'
                 '.github/ISSUE_TEMPLATE'
+                '.github/instructions'
+                '.github/skills'
+                '.github/skills/validate-changes'
                 '.vscode'
                 'output'
                 'output/RequiredModules'
@@ -58,6 +61,16 @@ Describe 'Complete Module Plaster Template' {
                 'tests/Unit/Public'
 
                 # Files (relative to module root)
+                '.github/copilot-instructions.md'
+                '.github/instructions/ai-instruction-authoring.instructions.md'
+                '.github/instructions/build-task-files.instructions.md'
+                '.github/instructions/build-tasks.instructions.md'
+                '.github/instructions/classes-and-type-accelerators.instructions.md'
+                '.github/instructions/private-functions.instructions.md'
+                '.github/instructions/public-functions.instructions.md'
+                '.github/instructions/test-writing.instructions.md'
+                '.github/instructions/wiki-publishing.instructions.md'
+                '.github/skills/validate-changes/SKILL.md'
                 '.github/ISSUE_TEMPLATE/config.yml'
                 '.github/ISSUE_TEMPLATE/General.md'
                 '.github/ISSUE_TEMPLATE/Problem_with_module.yml'

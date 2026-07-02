@@ -18,6 +18,11 @@ See [[Workspace-Dependencies]] for how to link sibling workspace module builds
 into the local output path so they are discoverable during builds and tests
 without publishing them to a feed.
 
+## GitHub Copilot integration
+
+See [[Copilot-Instructions-Template]] for how to scaffold GitHub Copilot
+instruction files and a `validate-changes` skill into a new or existing module.
+
 ## Prerequisites
 
 - PowerShell 5.or higher

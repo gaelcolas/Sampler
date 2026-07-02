@@ -1,0 +1,65 @@
+# GitHub Copilot Instructions for <%= $PLASTER_PARAM_ModuleName %>
+
+## Build and test
+
+- Use `./build.ps1` as the only entry point for all build, test, and environment setup operations.
+- Never invoke `Build-Module`, `Invoke-Pester`, or `Invoke-Build` directly.
+- Never manually prepend anything to `PSModulePath`.
+- Standard commands:
+  - Bootstrap dependencies: `./build.ps1 -ResolveDependency -Tasks noop`
+  - Build: `./build.ps1 -Tasks build`
+  - Focused test: `./build.ps1 -Tasks test -PesterPath 'tests/Unit/Public/MyFunction.Tests.ps1' -CodeCoverageThreshold 0`
+  - Full test suite: `./build.ps1 -Tasks test`
+  - Quality gate: `./build.ps1 -Tasks hqrmtest`
+
+## Git workflow
+
+- Never commit, push, tag, or publish on behalf of the user.
+- Leave all Git operations to the user.
+
+## Repository structure
+
+- Module name: `<%= $PLASTER_PARAM_ModuleName %>`
+- Source folder: `<%= $PLASTER_PARAM_SourceDirectory %>/`
+- Do not edit the root module `.psm1` directly; it is generated from source files during build.
+- Public functions live under `<%= $PLASTER_PARAM_SourceDirectory %>/Public/`.
+- Private functions live under `<%= $PLASTER_PARAM_SourceDirectory %>/Private/`.
+
+## Instruction files
+
+Read the per-area instruction files before making changes in the relevant area:
+
+- `.github/instructions/public-functions.instructions.md` - public function authoring rules
+- `.github/instructions/private-functions.instructions.md` - private function authoring rules
+- `.github/instructions/test-writing.instructions.md` - Pester test conventions
+- `.github/instructions/build-tasks.instructions.md` - InvokeBuild task authoring rules
+
+## Changelog policy
+
+- Update `CHANGELOG.md` only for module behavior changes that are visible to users.
+- Do not add changelog entries for CI, pipeline, or tooling-only changes.
+- Use the `## [Unreleased]` section for new entries.
+- Use ASCII-only characters in `CHANGELOG.md` (no em-dashes, smart quotes, or Unicode arrows).
+
+## PowerShell style
+
+- Use `$null = <expression>` not `<expression> | Out-Null` to suppress output.
+- Prefer splatting over backtick-based line continuation for multi-line calls.
+- Use ASCII-only characters in `.ps1` source files.
+- Follow DSC Community parameter style: `[Parameter()]` attribute, type, and variable name each on their own line with a blank line between parameter declarations.
+- Use explicit .NET types (`[System.String]`, `[System.Boolean]`, etc.).
+- Use `[CmdletBinding()]` and `[OutputType(...)]` on all functions.
+- Build multi-level paths with chained `Join-Path` calls; never use hardcoded backslash separators inside `Join-Path -ChildPath` strings.
+
+## Long-running commands
+
+- Always tee `./build.ps1` output to `output\agentic\` so logs survive between builds:
+
+```powershell
+$null = New-Item -Path 'output\agentic' -ItemType Directory -Force
+
+./build.ps1 -Tasks test -PesterPath '<paths>' -CodeCoverageThreshold 0 2>&1 |
+    Tee-Object -FilePath 'output\agentic\test.log'
+```
+
+- Poll the log with `Get-Content output\agentic\test.log -Tail 20` rather than re-running the build.

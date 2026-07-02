@@ -1,0 +1,97 @@
+---
+name: validate-changes
+description: Run targeted test scopes to validate changes quickly and safely, then run the full test suite when needed for confidence before PRs.
+argument-hint: What files or areas did you change, and how much validation do you want?
+---
+
+# Validate Changes with Tests
+
+## Purpose
+
+Run the right test scope for a change, fast first and broad only when needed.
+
+## Use this skill when
+
+- You changed PowerShell functions under `<%= $PLASTER_PARAM_SourceDirectory %>/Public` or `<%= $PLASTER_PARAM_SourceDirectory %>/Private`.
+- You changed PowerShell classes and enums under `<%= $PLASTER_PARAM_SourceDirectory %>/Classes` or `<%= $PLASTER_PARAM_SourceDirectory %>/Enum`.
+- You changed build logic under `.build/tasks` or `build.yaml`.
+- You need a confidence check before opening or updating a PR.
+
+## Inputs
+
+- `changed_paths`: list of changed files or folders.
+- `target_test`: optional single test file path for focused validation.
+- `run_quality_gate`: optional boolean to run HQRM checks.
+
+## Decision flow
+
+> **Mandatory:** every command must be invoked through `./build.ps1`. Do not run `Invoke-Pester` directly, do not call `Build-Module` directly, and do not manually prepend anything to `PSModulePath`. Running `./build.ps1 -ResolveDependency -Tasks noop` bootstraps dependencies and wires `PSModulePath` for the current shell.
+
+1. Bootstrap dependencies if needed.
+- Command:
+```powershell
+./build.ps1 -ResolveDependency -Tasks noop
+```
+
+2. Pick the smallest useful test scope first.
+- If `target_test` is provided, run only that test file:
+```powershell
+./build.ps1 -Tasks test -PesterPath '<target_test>' -CodeCoverageThreshold 0
+```
+- Else if changes are only in a specific function area, run a focused unit test file in `tests/Unit/**`.
+
+3. Expand based on change type.
+- If build/task wiring changed (`.build/tasks/**`, `build.yaml`, `build.ps1`): run default test workflow:
+```powershell
+./build.ps1 -Tasks test
+```
+
+4. Run broad integration only when needed.
+- For workflow-impacting changes:
+```powershell
+./build.ps1 -Tasks test -PesterPath 'tests/Integration' -CodeCoverageThreshold 0
+```
+
+5. Optional release-quality gate.
+- If `run_quality_gate` is true, run:
+```powershell
+./build.ps1 -Tasks hqrmtest
+```
+
+## Running these commands without hanging
+
+Always tee `./build.ps1` output to `output\agentic\` -- this subfolder is excluded from the `Clean` task so logs survive between builds:
+
+```powershell
+$null = New-Item -Path 'output\agentic' -ItemType Directory -Force
+
+./build.ps1 -Tasks test -PesterPath '<paths>' -CodeCoverageThreshold 0 2>&1 |
+    Tee-Object -FilePath 'output\agentic\test.log'
+```
+
+Poll the log with `Get-Content output\agentic\test.log -Tail 20` rather than re-running the build.
+
+## Diagnosing failures from XML output
+
+Test failures are recorded in machine-readable XML under `output/testResults/`. Always read those files instead of grepping the build log.
+
+- **Pester (`-Tasks test`)** writes NUnit XML at `output/testResults/NUnitXml_*.xml`. Each failing assertion is a `<test-case result="Failure">` node:
+
+  ```powershell
+  $latest = Get-ChildItem output\testResults\NUnitXml_*.xml |
+      Sort-Object LastWriteTime -Descending | Select-Object -First 1
+  [xml]$x = Get-Content $latest.FullName
+  $x.SelectNodes('//test-case[@result="Failure"]') | ForEach-Object {
+      "==FAIL==`n$($_.name)`n$($_.failure.message)`n"
+  }
+  ```
+
+- Always pick the **latest** result file (`Sort-Object LastWriteTime -Descending`).
+- When reporting a failure, quote the XML assertion message -- do not paraphrase the build-log tail.
+
+## Completion checks
+
+- All selected test commands exit successfully.
+- For public/private function changes: relevant unit tests pass.
+- If behavior is user-visible: ensure `CHANGELOG.md` has an `Unreleased` entry.
+- **Before declaring work complete on any PR-bound change, run the full `./build.ps1 -Tasks test` suite.**

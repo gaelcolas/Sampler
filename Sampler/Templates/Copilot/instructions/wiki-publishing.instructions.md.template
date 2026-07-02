@@ -1,0 +1,30 @@
+---
+description: 'GitHub wiki content and publishing instructions'
+applyTo: '<%= $PLASTER_PARAM_SourceDirectory %>/WikiSource/**/*.md,build.yaml,.pipelines/*.yml,.pipelines/*.yaml'
+---
+
+# GitHub Wiki Publishing Guidelines
+
+## Source of truth
+
+- Keep hand-authored GitHub wiki pages under `<%= $PLASTER_PARAM_SourceDirectory %>/WikiSource`.
+- Treat `<%= $PLASTER_PARAM_SourceDirectory %>/WikiSource` as the canonical source for custom wiki pages; do not edit generated files under `output/WikiContent`.
+- Prefer stable page names in `WikiSource` so published wiki links do not churn.
+
+## Build wiring
+
+- Keep wiki generation and publishing wired through `build.yaml`.
+- Ensure docs/build workflows that prepare wiki content include `Copy_Source_Wiki_Folder` so `<%= $PLASTER_PARAM_SourceDirectory %>/WikiSource` is copied into `output/WikiContent`.
+- Keep `Publish_GitHub_Wiki_Content` in the `publish` workflow so the generated wiki content is pushed to the repository wiki.
+- Keep `Generate_Wiki_Sidebar` after copying `WikiSource` content so custom pages can participate in sidebar generation.
+
+## Authoring notes
+
+- Put landing-page content in `<%= $PLASTER_PARAM_SourceDirectory %>/WikiSource/Home.md` when a custom wiki home page is needed.
+- If `Home.md` contains module version placeholders, rely on the Sampler/DscResource.DocGenerator task to update them during the build; do not hardcode release-specific versions into committed wiki pages.
+- Keep custom wiki content in Markdown that is compatible with GitHub wiki rendering.
+
+## Validation
+
+- After changing wiki workflow wiring or `<%= $PLASTER_PARAM_SourceDirectory %>/WikiSource` structure, validate with `./build.ps1 -Tasks build`.
+- When changing publish behavior, also validate the docs/publish path used by the pipeline rather than editing `output/WikiContent` manually.

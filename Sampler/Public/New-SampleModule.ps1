@@ -59,7 +59,7 @@
         If you'd rather select specific features from this template to build your module, use this parameter instead.
         Valid values mirror the Plaster template feature choices:
             All, Enum, Classes, DSCResources, ClassDSCResource, SampleScripts,
-            git, gitversion, github, vscode, codecov, azurepipelines,
+            git, gitversion, github, vscode, codecov, azurepipelines, copilot,
             Gherkin, UnitTests, ModuleQuality, Build, AppVeyor, TestKitchen.
 
     .EXAMPLE
@@ -146,6 +146,7 @@ function New-SampleModule
             'vscode',
             'codecov',
             'azurepipelines',
+            'copilot',
             'Gherkin',
             'UnitTests',
             'ModuleQuality',
