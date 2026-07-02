@@ -1,85 +1,30 @@
 ---
-description: 'Build task authoring instructions'
-applyTo: '.build/tasks/*.build.ps1'
+description: "Build and workflow authoring instructions"
+applyTo: "{build.ps1,build.yaml,.build/*.ps1,.github/workflows/*.yml,.github/workflows/*.yaml}"
 ---
 
-# Build Task Development Guidelines
+# Build and Workflow Development Guidelines
 
-## File naming and location
+## Entry points
 
-- All build task files live under `.build/tasks/` and follow the pattern `<Purpose>.<Subsystem>.build.ps1` (e.g., `Invoke-Pester.pester.build.ps1`, `Build-Module.ModuleBuilder.build.ps1`).
-- The file naming determines the alias that `suffix.ps1` auto-registers for InvokeBuild: `<BaseName>.Sampler.ib.tasks`. Do not register aliases manually inside task files.
-- Task files in `.build/tasks/` are copied into the built module (`output/module/Sampler/<version>/tasks/`) via the `CopyPaths` entry in `build.yaml`. If you add a new task file, add any required module imports or workflow entries to `build.yaml` -- not to `build.ps1`.
-- Put helper functions used by a task in a sibling `.psm1` file next to the task file (e.g., `MyTasks.build.psm1` alongside `MyTasks.build.ps1`). Keep the `.build.ps1` focused on task parameters, task definitions, and task-scoped logging; keep helper modules free of task-scoped UI concerns such as `Write-Build`.
+- Use `build.ps1` as the only bootstrap, build, and test entrypoint.
+- Keep `build.ps1` focused on bootstrap and runtime parameters.
+- Prefer changing `build.yaml` when altering workflow composition, copied assets, default test paths, code coverage behavior, or publish workflow ordering.
 
-## Parameter block
+## Dependency and artifact rules
 
-Every task file must open with a `param` block that declares all variables the tasks consume. Use InvokeBuild's `property` helper to set defaults -- never hard-code paths:
+- Restore dependencies with `./build.ps1 -ResolveDependency -Tasks noop`.
+- Do not manually edit `PSModulePath`; let `build.ps1` manage it.
+- Keep required modules resolving into `output\RequiredModules`.
+- Treat `output\module` as the validation target and disposable build output.
+- Keep `CopyPaths` in `build.yaml` aligned with the shipped runtime assets under `source\`.
 
-```powershell
-param
-(
-    [Parameter()]
-    [System.String]
-    $ProjectName = (property ProjectName ''),
+## Custom task rules
 
-    [Parameter()]
-    [System.String]
-    $OutputDirectory = (property OutputDirectory (Join-Path $BuildRoot 'output')),
+- See `build-task-files.instructions.md` for `.build/tasks/*.build.ps1` authoring rules (parameters, `Set-SamplerTaskVariable`, task definitions).
+- Keep PowerShell Universal publish logic aligned with the built package path and `BuildInfo.UniversalServer` settings rather than re-deriving that state elsewhere.
 
-    [Parameter()]
-    [System.Collections.Hashtable]
-    $BuildInfo = (property BuildInfo @{ })
-)
-```
+## Validation
 
-- Always include `$BuildInfo` as a `[System.Collections.Hashtable]` parameter -- tasks read per-workflow configuration from it.
-- Use fully-qualified .NET types (e.g., `[System.String]`, `[System.Management.Automation.SwitchParameter]`) for all parameters.
-
-## Shared task variables
-
-At the start of every task body, dot-source `Set-SamplerTaskVariable` to populate the standard shared variables (`$ProjectName`, `$SourcePath`, `$BuildModuleOutput`, `$ModuleVersion`, etc.):
-
-```powershell
-task My_Task {
-    # Get the values for task variables, see https://github.com/gaelcolas/Sampler?tab=readme-ov-file#build-task-variables.
-    . Set-SamplerTaskVariable
-
-    # ... task body
-}
-```
-
-Use `-AsNewBuild` only for tasks that represent the start of a new build (e.g., tasks that derive the version fresh):
-
-```powershell
-    . Set-SamplerTaskVariable -AsNewBuild
-```
-
-- Use `-ArtifactContext` when the task is producing or packaging a non-default artifact from the same source tree:
-
-```powershell
-    . Set-SamplerTaskVariable -AsNewBuild -ArtifactContext 'Chocolatey'
-```
-
-- Treat source kind and artifact kind as separate concepts. A repository can be a PowerShell module source and still package a Chocolatey artifact; do not infer Chocolatey packaging by probing output folders.
-- For module-source tasks that do not use `-AsNewBuild`, `Set-SamplerTaskVariable` is expected to read version and paths from the built module output and fail fast if that output is missing.
-- For non-module sources, version resolution falls back in this order: `ModuleVersion`/`SemVer` -> `GitVersion` -> static version `0.0.1`.
-**Never re-derive** `$ProjectName`, `$SourcePath`, or version information independently inside a task. Always rely on `Set-SamplerTaskVariable`.
-
-## Task definitions
-
-- Prefix every task definition with a `# Synopsis:` comment -- InvokeBuild surfaces this as the task description:
-  ```powershell
-  # Synopsis: Build the module output using ModuleBuilder.
-  task Build_ModuleOutput_ModuleBuilder {
-      . Set-SamplerTaskVariable -AsNewBuild
-      # ...
-  }
-  ```
-- Compound tasks (tasks that only sequence other tasks) do not need a body -- list dependencies inline:
-  ```powershell
-  task Build_Module_ModuleBuilder Build_ModuleOutput_ModuleBuilder, Build_DscResourcesToExport_ModuleBuilder
-  ```
-- Prefer exposing workflows through compound tasks instead of having downstream projects call low-level implementation tasks directly. Treat compound tasks as the stable public surface so internal task composition can change in Sampler without requiring updates in projects that consume it.
-- Use `Write-Build -Color <Color> -Text <message>` for task output, not `Write-Host`. Prefer `Green` for success, `Yellow` for warnings, `DarkGray` for verbose detail.
-- Resolve all paths through `Get-SamplerAbsolutePath -Path <path> -RelativeTo $BuildRoot` (or `$OutputDirectory`) rather than with `Join-Path` alone, so relative paths in `build.yaml` resolve correctly.
+- Treat changes to `build.ps1`, `build.yaml`, `.build\`, or workflow files as validation-impacting changes.
+- Run at least `./build.ps1 -Tasks test` after workflow wiring changes.
