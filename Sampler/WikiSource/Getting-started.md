@@ -1880,11 +1880,10 @@ ChangelogConfig:
 GitConfig:
   UserName: bot
   UserEmail: bot@company.local
+  MainGitBranch: main
 ```
 
 #### Section ChangelogConfig
-
-##### Property FilesToAdd
 
 This specifies one or more files to add to the commit when creating the
 PR branch. If left out it will default to the one file _CHANGELOG.md_.
@@ -1906,6 +1905,12 @@ User name of the user that should push the tag.
 ##### Property UserEmail
 
 E-mail address of the user that should push the tag.
+
+##### Property MainGitBranch
+
+The name of the default branch. If not set here or as a task parameter, defaults
+to `'main'`. Set this when your repository uses a different default branch name
+(e.g. `master` or `develop`).
 
 ### `Create_Release_Git_Tag`
 
@@ -1940,6 +1945,7 @@ of the build task.
 GitConfig:
   UserName: bot
   UserEmail: bot@company.local
+  MainGitBranch: main
 ```
 
 #### Section GitConfig
@@ -1954,6 +1960,12 @@ User name of the user that should push the tag.
 ##### Property UserEmail
 
 E-mail address of the user that should push the tag.
+
+##### Property MainGitBranch
+
+The name of the default branch. If not set here or as a task parameter, defaults
+to `'main'`. Set this when your repository uses a different default branch name
+(e.g. `master` or `develop`).
 
 ### `Set_PSModulePath`
 
@@ -2025,4 +2037,99 @@ Sets the module path to what is defined for the machine. The machines `PSModuleP
 
 ```powershell
 [System.Environment]::GetEnvironmentVariable('PSModulePath', 'Machine')
+```
+
+### `Clean`
+
+This task deletes the content of the build output folder to ensure a clean
+build. By default it preserves the `RequiredModules` subfolder (to avoid
+re-downloading all dependencies on every build).
+
+It also preserves a dedicated subfolder for agent/Copilot log files so that
+build logs survive clean cycles.
+
+#### Task parameters
+
+| Parameter | Default | Description |
+|---|---|---|
+| `OutputDirectory` | `output` | The root output directory to clean. |
+| `RequiredModulesDirectory` | `output/RequiredModules` | Always excluded from deletion. |
+| `AgentOutputSubdirectory` | `agentic` | Subfolder excluded from deletion for use as a stable log destination. Set to empty string to disable. |
+
+#### Task configuration
+
+```yaml
+# Override the agent log subfolder name (or disable with empty string)
+AgentOutputSubdirectory: agentic
+```
+
+### `Link_Local_Workspace_Dependencies`
+
+This task links sibling workspace module build outputs into the local output
+module path so that they are discoverable on `PSModulePath` during builds and
+tests, without requiring them to be published to a feed.
+
+This is useful when working in a multi-repo workspace (for example a VSCode
+workspace spanning several related modules) and you want changes in sibling
+repos to be immediately visible in the current repo's build and test pipeline.
+
+The task assumes that all related repositories are siblings under the same
+workspace root (one level above each repository's `BuildRoot`). Each sibling
+must have been built at least once before this task runs.
+
+For each configured module the task:
+
+1. Resolves the sibling repository root at `<workspaceRoot>\<ModuleName>`.
+2. Finds the sibling's built module root (the folder containing its versioned
+   sub-folder, typically `output\module\<ModuleName>`).
+3. Creates a symbolic link (or a directory junction on Windows as a fallback)
+   inside the local `output\module\` directory pointing at the sibling's built
+   module root.
+
+After the task runs, `Import-Module <SiblingName>` resolves the locally built
+version without any extra `PSModulePath` manipulation.
+
+```yaml
+  build:
+    - Clean
+    - Build_Module_ModuleBuilder
+    - Link_Local_Workspace_Dependencies
+
+  test:
+    - Link_Local_Workspace_Dependencies
+    - Pester_Tests_Stop_On_Fail
+    - Pester_If_Code_Coverage_Under_Threshold
+```
+
+#### Task parameters
+
+Some task parameters are vital for the task to work. See comment-based help in
+the task file for the full parameter list. The most important are described
+below.
+
+#### Task configuration
+
+The build configuration (_build.yaml_) controls which sibling modules are
+linked. See [[Workspace-Dependencies]] for the full reference.
+
+```yaml
+####################################################
+#       Workspace Dependencies Configuration       #
+####################################################
+WorkspaceModules:
+  - MyHelperModule
+  - MySharedModule
+```
+
+#### Section `WorkspaceModules`
+
+A list of sibling module names to link. Each entry must match the directory
+name of the sibling repository under the shared workspace root. If the list
+is empty or the key is absent, the task logs a message and exits without
+error.
+
+```yaml
+WorkspaceModules:
+  - MyHelperModule
+  - MySharedModule
 ```

@@ -9,8 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- New `Link_Local_Workspace_Dependencies` build task and supporting public functions (`Get-SamplerWorkspaceLinkedModuleRoot`, `Get-SamplerWorkspaceBuiltModulePath`, `New-SamplerWorkspaceModuleLink`) for linking sibling workspace module build outputs into the local module output path when working across related repos in a multi-repo workspace. Configure via `WorkspaceModules` in `build.yaml`.
+- `Clean` task now preserves `output\agentic\` across builds (in addition to `RequiredModules`), providing a stable location for build and test log files that survive clean cycles. The subfolder name is configurable via the `AgentOutputSubdirectory` parameter (default `'agentic'`; set to empty string to disable the exclusion).
 - `package_psresource_nupkg` tasks that recursively packs dependencies, ignoring `ExternalDependencies` using `PSResourceGet` module.
-- `New-SampleModule` `Features` parameter now accepts `github`, `vscode`, `codecov`, `azurepipelines`, and `gitversion` to mirror the Plaster template's feature choices.
+
+### Fixed
+
+- `Create_Release_Git_Tag` and `Create_Changelog_Branch` tasks now read `MainGitBranch` from `BuildInfo.GitConfig.MainGitBranch` in `build.yaml` when not set as a task parameter or InvokeBuild property. The resolution order is: task parameter -> `build.yaml` `GitConfig.MainGitBranch` -> default `'main'`.
+- `Create_Release_Git_Tag` and `Create_Changelog_Branch` tasks no longer call `git config user.name` or `git config user.email` when `GitConfigUserName` or `GitConfigUserEmail` are not set (empty/null), allowing the existing global or system git identity to be used without being overwritten with an empty value.
+- The `Build` Plaster template (`build.yaml.template`) now scaffolds a `GitConfig:` section with `MainGitBranch` pre-populated from the Plaster parameter entered during scaffolding, and `UserName`/`UserEmail` as commented-out examples.
+- `New-SampleModule` now accepts `-GitHubOwner` and `-GitHubOwnerDscCommunity` parameters so the GitHub owner can be specified non-interactively when scaffolding GitHub-enabled or `dsccommunity` modules.
+- `New-SampleModule` now forwards empty-string parameter values (such as `ModuleDescription = ''`) to Plaster instead of silently dropping them, eliminating unexpected interactive prompts when all parameters are splatted.
 - `New-SampleModule` documents the `CustomModule` `ModuleType` and the new `MainGitBranch` parameter.
 - `New-SampleModule` `ModuleType` `ValidateSet` now includes `CustomModule`.
 - `New-SampleModule` exposes a `MainGitBranch` parameter (defaults to `main`) for templates that configure a default Git branch.

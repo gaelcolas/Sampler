@@ -10,6 +10,7 @@ applyTo: '.build/tasks/*.build.ps1'
 - All build task files live under `.build/tasks/` and follow the pattern `<Purpose>.<Subsystem>.build.ps1` (e.g., `Invoke-Pester.pester.build.ps1`, `Build-Module.ModuleBuilder.build.ps1`).
 - The file naming determines the alias that `suffix.ps1` auto-registers for InvokeBuild: `<BaseName>.Sampler.ib.tasks`. Do not register aliases manually inside task files.
 - Task files in `.build/tasks/` are copied into the built module (`output/module/Sampler/<version>/tasks/`) via the `CopyPaths` entry in `build.yaml`. If you add a new task file, add any required module imports or workflow entries to `build.yaml` — not to `build.ps1`.
+- Put helper functions used by a task in a sibling `.psm1` file next to the task file (e.g., `MyTasks.build.psm1` alongside `MyTasks.build.ps1`). Keep the `.build.ps1` focused on task parameters, task definitions, and task-scoped logging; keep helper modules free of task-scoped UI concerns such as `Write-Build`.
 
 ## Parameter block
 

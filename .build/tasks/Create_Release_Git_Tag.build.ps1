@@ -77,7 +77,7 @@ param
     $SkipPublish = (property SkipPublish ''),
 
     [Parameter()]
-    $MainGitBranch = (property MainGitBranch 'main'),
+    $MainGitBranch = (property MainGitBranch ''),
 
     [Parameter()]
     $BasicAuthPAT = (property BasicAuthPAT ''),
@@ -146,10 +146,33 @@ task Create_Release_Git_Tag {
             }
         }
 
+        if ([System.String]::IsNullOrEmpty($MainGitBranch))
+        {
+            if ($BuildInfo.GitConfig.MainGitBranch)
+            {
+                $MainGitBranch = $BuildInfo.GitConfig.MainGitBranch
+
+                Write-Build DarkGray "`t...Set property MainGitBranch to the value $MainGitBranch from build configuration."
+            }
+            else
+            {
+                $MainGitBranch = 'main'
+            }
+        }
+
+        "`tMainGitBranch              = '$MainGitBranch'"
+
         Write-Build DarkGray "`tSetting git configuration."
 
-        Sampler\Invoke-SamplerGit -Argument @('config', 'user.name', $GitConfigUserName)
-        Sampler\Invoke-SamplerGit -Argument @('config', 'user.email', $GitConfigUserEmail)
+        if (-not [System.String]::IsNullOrEmpty($GitConfigUserName))
+        {
+            Sampler\Invoke-SamplerGit -Argument @('config', 'user.name', $GitConfigUserName)
+        }
+
+        if (-not [System.String]::IsNullOrEmpty($GitConfigUserEmail))
+        {
+            Sampler\Invoke-SamplerGit -Argument @('config', 'user.email', $GitConfigUserEmail)
+        }
 
         # Make empty line in output
         ''

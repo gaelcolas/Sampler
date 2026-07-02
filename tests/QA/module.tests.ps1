@@ -82,6 +82,18 @@ Describe 'Changelog Management' -Tag 'Changelog' {
     It 'Changelog should have an Unreleased header' -Skip:$skipTest {
             (Get-ChangelogData -Path (Join-Path -Path $ProjectPath -ChildPath 'CHANGELOG.md') -ErrorAction Stop).Unreleased | Should -Not -BeNullOrEmpty
     }
+
+    It 'Changelog contains only ASCII characters' {
+        $changelogPath = Join-Path -Path $ProjectPath -ChildPath 'CHANGELOG.md'
+        $content = Get-Content -Path $changelogPath -Raw -ErrorAction Stop
+        $nonAsciiMatches = [System.Text.RegularExpressions.Regex]::Matches($content, '[^\x00-\x7F]')
+
+        $nonAsciiMatches | Should -BeNullOrEmpty -Because (
+            'non-ASCII characters in CHANGELOG.md are embedded in the built module manifest ReleaseNotes ' +
+            'and cause Import-PowerShellDataFile to fail on Windows PowerShell 5.1. ' +
+            'Replace characters like smart quotes, em-dashes, or Unicode arrows (e.g. -> instead of ->).'
+        )
+    }
 }
 
 Describe 'General module control' -Tags 'FunctionalQuality' {

@@ -89,12 +89,6 @@ Describe 'Build_ModuleOutput_ModuleBuilder' {
             $Path -match 'ReleaseNotes.md'
         }
 
-        Mock -CommandName Get-SamplerModuleInfo -RemoveParameterValidation 'ModuleManifestPath' -MockWith {
-            return @{
-                AliasesToExport = '*'
-            }
-        }
-
         Mock -CommandName Update-ModuleManifest
 
         Mock -CommandName Get-Content -ParameterFilter {
@@ -114,13 +108,82 @@ Describe 'Build_ModuleOutput_ModuleBuilder' {
         }
     }
 
-    It 'Should run the build task without throwing' {
-        {
-            Invoke-Build -Task 'Build_ModuleOutput_ModuleBuilder' -File $taskAlias.Definition @mockTaskParameters
-        } | Should -Not -Throw
+    Context 'When source manifest has AliasesToExport set to wildcard and ModuleBuilder resolved no aliases' {
+        BeforeAll {
+            Mock -CommandName Get-SamplerModuleInfo -RemoveParameterValidation 'ModuleManifestPath' -MockWith {
+                return @{
+                    AliasesToExport = '*'
+                }
+            }
 
-        Should -Invoke -CommandName Update-ModuleManifest -Exactly -Times 1 -Scope It -ParameterFilter {
-            $AliasesToExport -eq '*'
+            Mock -CommandName Import-PowerShellDataFile -RemoveParameterValidation 'Path' -MockWith {
+                return @{
+                    AliasesToExport = @()
+                }
+            }
+        }
+
+        It 'Should run the build task without throwing and restore the wildcard so dynamically registered aliases remain visible' {
+            {
+                Invoke-Build -Task 'Build_ModuleOutput_ModuleBuilder' -File $taskAlias.Definition @mockTaskParameters
+            } | Should -Not -Throw
+
+            Should -Invoke -CommandName Update-Metadata -Exactly -Times 1 -Scope It -ParameterFilter {
+                $PropertyName -eq 'AliasesToExport' -and $Value -eq '*'
+            }
+        }
+    }
+
+    Context 'When source manifest has AliasesToExport set to wildcard and ModuleBuilder resolved a concrete alias list' {
+        BeforeAll {
+            Mock -CommandName Get-SamplerModuleInfo -RemoveParameterValidation 'ModuleManifestPath' -MockWith {
+                return @{
+                    AliasesToExport = '*'
+                }
+            }
+
+            Mock -CommandName Import-PowerShellDataFile -RemoveParameterValidation 'Path' -MockWith {
+                return @{
+                    AliasesToExport = @('Get-Foo', 'Set-Foo')
+                }
+            }
+        }
+
+        It 'Should run the build task without throwing and not override the concrete alias list resolved by ModuleBuilder' {
+            {
+                Invoke-Build -Task 'Build_ModuleOutput_ModuleBuilder' -File $taskAlias.Definition @mockTaskParameters
+            } | Should -Not -Throw
+
+            Should -Not -Invoke -CommandName Update-Metadata -Scope It -ParameterFilter {
+                $PropertyName -eq 'AliasesToExport'
+            }
+        }
+    }
+
+    Context 'When source manifest has a concrete AliasesToExport list' {
+        BeforeAll {
+            Mock -CommandName Get-SamplerModuleInfo -RemoveParameterValidation 'ModuleManifestPath' -MockWith {
+                return @{
+                    AliasesToExport = @('Get-Foo', 'Set-Foo')
+                }
+            }
+
+            Mock -CommandName Import-PowerShellDataFile -RemoveParameterValidation 'Path' -MockWith {
+                return @{
+                    AliasesToExport = @()
+                }
+            }
+        }
+
+        It 'Should run the build task without throwing and propagate the concrete alias list' {
+            {
+                Invoke-Build -Task 'Build_ModuleOutput_ModuleBuilder' -File $taskAlias.Definition @mockTaskParameters
+            } | Should -Not -Throw
+
+            Should -Invoke -CommandName Update-Metadata -Exactly -Times 1 -Scope It -ParameterFilter {
+                $PropertyName -eq 'AliasesToExport' -and
+                $Value -contains 'Get-Foo' -and $Value -contains 'Set-Foo'
+            }
         }
     }
 }
