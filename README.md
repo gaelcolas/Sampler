@@ -21,8 +21,8 @@ maintaining infrastructure.
 - **Build, test, pack & publish**: A curated set of InvokeBuild tasks
   covers the full lifecycle from source to the PowerShell Gallery.
 - **Rich templates**: Add classes, MOF-based DSC resources, class-based
-  DSC resources, helper modules, composite resources, and more with a
-  single command.
+  DSC resources, helper modules, composite resources, GitHub Copilot
+  instruction files, and more with a single command.
 - **Reproducible everywhere**: The same build runs on a developer
   workstation, behind a corporate firewall, or in a CI agent — no
   local-admin rights or pre-installed tooling required.

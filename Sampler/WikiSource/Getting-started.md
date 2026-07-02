@@ -349,6 +349,7 @@ values (they map 1:1 to the multichoice values defined in the Plaster template):
 | `vscode`          | `.vscode` folder with recommended Visual Studio Code settings.                                         |
 | `codecov`         | `codecov.yml` for code coverage reporting via CodeCov.io.                                              |
 | `azurepipelines`  | `azure-pipelines.yml` and supporting files for Azure Pipelines.                                        |
+| `copilot`         | GitHub Copilot instruction files and a `validate-changes` skill under `.github/`. See [[Copilot-Instructions-Template]]. |
 | `Gherkin`         | Gherkin/specification test scaffolding.                                                                |
 | `UnitTests`       | `tests/Unit` folder and example Pester tests for the features you selected.                            |
 | `ModuleQuality`   | Quality-assurance Pester tests (help, ScriptAnalyzer, code coverage gates).                            |
@@ -388,7 +389,8 @@ $newSampleModuleParameters = @{
         'github',
         'vscode',
         'azurepipelines',
-        'codecov'
+        'codecov',
+        'copilot'
     )
 }
 
@@ -937,6 +939,21 @@ Sampler module. With this function you can bootstrap your module project
 by adding classes, functions and associated tests, examples and configuration
 elements.
 
+The available sample types are:
+
+| Sample | What it adds |
+|---|---|
+| `Classes` | A sample of 4 classes with inheritance and how to manage load order. |
+| `ClassResource` | A class-based DSC resource with tests, Reasons, and localized strings. |
+| `Composite` | A DSC composite resource (configuration block). |
+| `Copilot` | GitHub Copilot instruction files and a `validate-changes` skill under `.github/`. See [[Copilot-Instructions-Template]]. |
+| `Enum` | An example enum. |
+| `MofResource` | A MOF-based DSC resource following DSC Community practices. |
+| `PrivateFunction` | A private function and its test. |
+| `PublicCallPrivateFunctions` | An exported function that calls a private one, with tests. |
+| `PublicFunction` | A public function and its test. |
+| `VscodeConfig` | Visual Studio Code settings and task configuration. |
+
 #### Syntax
 
 <!-- markdownlint-disable MD013 - Line length -->
@@ -957,6 +974,14 @@ Add-Sample -Sample PublicFunction -PublicFunctionName Get-MyStuff
 
 This example adds a public function to the module (in the current folder),
 with a sample unit test that test the public function.
+
+```powershell
+Add-Sample -Sample Copilot -DestinationPath .
+```
+
+This example scaffolds GitHub Copilot instruction files into an existing module
+project. You will be prompted for the module name, source directory, and whether
+to include optional files for classes, custom build tasks, and wiki publishing.
 
 ### `Invoke-SamplerGit`
 

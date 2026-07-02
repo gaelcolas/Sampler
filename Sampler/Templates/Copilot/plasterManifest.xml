@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<plasterManifest
+  schemaVersion="1.0" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+  <metadata>
+    <name>Copilot</name>
+    <id>7e3a1f2d-4b8c-4e9a-b1d6-0f5c3e7a9b2f</id>
+    <version>0.0.1</version>
+    <title>GitHub Copilot Instructions Template</title>
+    <description>Scaffolds GitHub Copilot instruction files under .github/ for any Sampler-based PowerShell module.</description>
+    <author>Gael Colas</author>
+    <tags>Sampler,Template,Copilot,GitHub</tags>
+  </metadata>
+  <parameters>
+    <parameter name="ModuleName"
+               type="text"
+               store="text"
+               prompt="Module name" />
+
+    <parameter name="SourceDirectory"
+               type="text"
+               store="text"
+               default="source"
+               prompt="Source folder name (e.g. source or src)" />
+
+    <parameter name="HasClasses"
+               type="choice"
+               default="1"
+               prompt="Does the module use PSv5+ Classes with type-accelerator exports?">
+      <choice label="&amp;Yes" value="true" />
+      <choice label="&amp;No"  value="false" />
+    </parameter>
+
+    <parameter name="HasCustomBuildTasks"
+               type="choice"
+               default="1"
+               prompt="Does the module have custom InvokeBuild task files under .build/tasks/?">
+      <choice label="&amp;Yes" value="true" />
+      <choice label="&amp;No"  value="false" />
+    </parameter>
+
+    <parameter name="HasWikiSource"
+               type="choice"
+               default="1"
+               prompt="Does the module publish a GitHub wiki from a WikiSource folder?">
+      <choice label="&amp;Yes" value="true" />
+      <choice label="&amp;No"  value="false" />
+    </parameter>
+  </parameters>
+
+  <content>
+
+    <!-- COPILOT ROOT INSTRUCTIONS -->
+    <templateFile source='copilot-instructions.md.template'
+                  destination='.github/copilot-instructions.md' />
+
+    <!-- AI INSTRUCTION AUTHORING (verbatim) -->
+    <file source='instructions/ai-instruction-authoring.instructions.md'
+          destination='.github/instructions/ai-instruction-authoring.instructions.md' />
+
+    <!-- PUBLIC FUNCTIONS INSTRUCTIONS (template - uses ModuleName + SourceDirectory) -->
+    <templateFile source='instructions/public-functions.instructions.md.template'
+                  destination='.github/instructions/public-functions.instructions.md' />
+
+    <!-- PRIVATE FUNCTIONS INSTRUCTIONS (template) -->
+    <templateFile source='instructions/private-functions.instructions.md.template'
+                  destination='.github/instructions/private-functions.instructions.md' />
+
+    <!-- TEST WRITING INSTRUCTIONS (template - uses ModuleName) -->
+    <templateFile source='instructions/test-writing.instructions.md.template'
+                  destination='.github/instructions/test-writing.instructions.md' />
+
+    <!-- BUILD TASKS INSTRUCTIONS (verbatim) -->
+    <file source='instructions/build-tasks.instructions.md'
+          destination='.github/instructions/build-tasks.instructions.md' />
+
+    <!-- VALIDATE-CHANGES SKILL (template - uses ModuleName + SourceDirectory) -->
+    <templateFile source='skills/validate-changes/SKILL.md.template'
+                  destination='.github/skills/validate-changes/SKILL.md' />
+
+    <!-- CLASSES INSTRUCTIONS (template - conditional on HasClasses) -->
+    <templateFile source='instructions/classes-and-type-accelerators.instructions.md.template'
+                  destination='.github/instructions/classes-and-type-accelerators.instructions.md'
+                  condition='$PLASTER_PARAM_HasClasses -eq "true"' />
+
+    <!-- CUSTOM BUILD TASK FILES INSTRUCTIONS (verbatim - conditional on HasCustomBuildTasks) -->
+    <file source='instructions/build-task-files.instructions.md'
+          destination='.github/instructions/build-task-files.instructions.md'
+          condition='$PLASTER_PARAM_HasCustomBuildTasks -eq "true"' />
+
+    <!-- WIKI PUBLISHING INSTRUCTIONS (template - conditional on HasWikiSource) -->
+    <templateFile source='instructions/wiki-publishing.instructions.md.template'
+                  destination='.github/instructions/wiki-publishing.instructions.md'
+                  condition='$PLASTER_PARAM_HasWikiSource -eq "true"' />
+
+  </content>
+</plasterManifest>

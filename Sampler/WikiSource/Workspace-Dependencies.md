@@ -115,6 +115,19 @@ the current build output.
 These functions are exposed by Sampler and can be called directly in custom
 build tasks or scripts.
 
+### `Get-SamplerWorkspaceLinkedModuleRoot`
+
+Resolves the directory where workspace module symlinks will be created. This
+is the `output\module` folder of the current project (or a custom path if
+`BuiltModuleSubdirectory` is overridden). Handles absolute/relative paths for
+both `OutputDirectory` and `BuiltModuleSubdirectory`.
+
+```powershell
+$root = Get-SamplerWorkspaceLinkedModuleRoot -BuildRoot $BuildRoot `
+    -OutputDirectory 'output' -BuiltModuleSubdirectory 'module'
+# Returns e.g. C:\src\MyModule\output\module
+```
+
 ### `Get-SamplerWorkspaceBuiltModulePath`
 
 Finds the built module root directory (`output\module\<name>`) for a named
