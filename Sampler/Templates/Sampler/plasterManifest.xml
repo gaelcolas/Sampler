@@ -46,6 +46,10 @@
                   help="Adds PSv5+ Classes folders and an example."
                   value="Classes"/>
 
+            <choice label='&amp;Type Accelerators'
+                  help="Adds a suffix.ps1 exporting your Classes as (module-qualified) type accelerators. Requires Classes."
+                  value="TypeAccelerators"/>
+
             <choice label='&amp;DSC Resources'
                   help="Adds DSCResources folders and an example."
                   value="DSCResources"/>
@@ -100,6 +104,12 @@
       <parameter name="ModuleDescription" type="text" prompt="Description of this module" />
       <parameter name="CustomRepo" default="PSGallery" type="text" prompt="Do you pull from default repository (PSGallery) or a custom repository?" />
       <parameter name="ModuleVersion" type="text" prompt="Module version"  default="0.0.1" />
+
+      <!-- Only prompted when the TypeAccelerators feature (or All/CompleteSample) is selected alongside Classes. -->
+      <parameter name="ExportableTypeName" store="text" type="text"
+                  default="Class1"
+                  prompt="Name of the Class to export as a type accelerator via suffix.ps1?"
+                  condition='(${PLASTER_PARAM_ModuleType} -eq "CompleteSample" -or ${PLASTER_PARAM_Features} -Contains ("TypeAccelerators") -or ${PLASTER_PARAM_Features} -Contains ("All")) -and (${PLASTER_PARAM_Features} -Contains "All" -or (${PLASTER_PARAM_Features} -Contains "Classes" -and ${PLASTER_PARAM_Features} -Contains "SampleScripts") -or ${PLASTER_PARAM_ModuleType} -in @("CompleteSample"))' />
 
       <!-- UseGit prompts only for ModuleTypes that don't decide it implicitly. CustomModule expresses Git via the 'git' Feature. -->
       <parameter name="UseGit" type="choice"
@@ -355,6 +365,12 @@
     <file source='../Classes/Classes/4.class12.ps1'
           destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/Classes/4.class12.ps1'
           condition='${PLASTER_PARAM_Features} -Contains "All" -or (${PLASTER_PARAM_Features} -Contains "Classes" -and ${PLASTER_PARAM_Features} -Contains "SampleScripts") -or ${PLASTER_PARAM_ModuleType} -in @("CompleteSample")'
+    />
+
+    <!--   TYPE ACCELERATORS Suffix File - requires the Classes sample files (see condition above) -->
+    <templateFile source='../TypeAccelerators/suffix.ps1.template'
+          destination='${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_SourceDirectory}/suffix.ps1'
+          condition='(${PLASTER_PARAM_ModuleType} -eq "CompleteSample" -or ${PLASTER_PARAM_Features} -Contains ("TypeAccelerators") -or ${PLASTER_PARAM_Features} -Contains ("All")) -and (${PLASTER_PARAM_Features} -Contains "All" -or (${PLASTER_PARAM_Features} -Contains "Classes" -and ${PLASTER_PARAM_Features} -Contains "SampleScripts") -or ${PLASTER_PARAM_ModuleType} -in @("CompleteSample"))'
     />
 
     <!--   OUTPUT FOLDER -->

@@ -23,6 +23,12 @@ without publishing them to a feed.
 See [[Copilot-Instructions-Template]] for how to scaffold GitHub Copilot
 instruction files and a `validate-changes` skill into a new or existing module.
 
+## Exporting classes as type accelerators
+
+See [[Type-Accelerators]] for how to scaffold a `suffix.ps1` that exports your
+module's PSv5+ classes as type accelerators, so consumers can use them without
+a `using module` statement.
+
 ## Prerequisites
 
 - PowerShell 5.or higher

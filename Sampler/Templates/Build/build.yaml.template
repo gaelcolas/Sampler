@@ -33,11 +33,22 @@ Encoding: UTF8
 
 <%
     if ($PLASTER_PARAM_ModuleType -ne 'dsccommunity') {
+        # Mirror the exact condition used to scaffold source/suffix.ps1 itself (see Templates/Sampler/plasterManifest.xml), so this is only ever uncommented when that file is guaranteed to actually exist.
+        # This build.yaml.template is also rendered standalone via 'Add-Sample -Sample Build', whose own manifest does not declare a ModuleType parameter at all (so $PLASTER_PARAM_ModuleType is always $null there) and whose Features choices never include 'TypeAccelerators'/'Classes'/'SampleScripts'. Gate on ModuleType being set at all first, so a standalone Build scaffold - which never creates a suffix.ps1 - can never uncomment this setting just because its own unrelated 'All' feature happens to share the same string.
+        if (($null -ne $PLASTER_PARAM_ModuleType) -and ($PLASTER_PARAM_ModuleType -eq 'CompleteSample' -or $PLASTER_PARAM_Features -Contains ("TypeAccelerators") -or $PLASTER_PARAM_Features -Contains ("All")) -and ($PLASTER_PARAM_Features -Contains ("All") -or ($PLASTER_PARAM_Features -Contains ("Classes") -and $PLASTER_PARAM_Features -Contains ("SampleScripts")) -or $PLASTER_PARAM_ModuleType -eq 'CompleteSample')) {
+@"
+# Suffix to add to Root module PSM1 after merge (here, the suffix.ps1 exporting classes as type accelerators)
+suffix: suffix.ps1
+# prefix: prefix.ps1
+"@
+        }
+        else {
 @"
 # Suffix to add to Root module PSM1 after merge (here, the Set-Alias exporting IB tasks)
 # suffix: suffix.ps1
 # prefix: prefix.ps1
 "@
+        }
     }
 "VersionedOutputDirectory: true"
 %>

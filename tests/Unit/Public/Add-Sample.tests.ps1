@@ -52,6 +52,14 @@ BeforeDiscovery {
                 Sample          = 'Examples'
             }
         }
+        @{
+            TestCaseName = 'TypeAccelerators'
+            AddSampleParameters = @{
+                Sample             = 'TypeAccelerators'
+                SourceDirectory    = 'source'
+                ExportableTypeName = 'MyClass'
+            }
+        }
     )
 }
 
