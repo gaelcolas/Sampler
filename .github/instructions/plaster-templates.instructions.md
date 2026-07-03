@@ -12,6 +12,7 @@ Templates under `Sampler/Templates/` are product code. Any change must preserve 
 - Every template change must include updates to the matching integration tests under `tests/Integration/PlasterTemplates/**`.
 - Do not ship template-only changes without validating and updating expected scaffold outputs.
 - For changes that affect generated file trees, update the corresponding `$listOfExpectedFilesAndFolders` arrays.
+- When new composite content is gated to trigger under `All` or `CompleteSample`, grep all integration tests for those contexts and update every matching expected-file-list, not just the new feature's own dedicated test.
 
 ## Parameter compatibility
 
@@ -24,6 +25,7 @@ Templates under `Sampler/Templates/` are product code. Any change must preserve 
 - `Add-Sample` and `New-SampleModule` must support both usage modes:
   - Non-interactive: users can pass enough parameters to avoid prompts entirely.
   - Interactive: when required details are omitted, Sampler prompts for the missing information.
+- A Plaster `text`/`choice` parameter's `default` attribute only applies during interactive prompting. Any integration test whose feature/`ModuleType` selection satisfies the parameter's `condition` must explicitly pass that parameter to `Invoke-Plaster`, or the call will attempt to prompt and fail with "PowerShell is in NonInteractive mode" during non-interactive test runs.
 - If a parameter contract changes, update:
   - Integration tests that call `Invoke-Plaster`.
   - Public command tests that validate template invocation (for example, tests for `Add-Sample`, `New-SampleModule`, `New-SamplerPipeline`).

@@ -20,6 +20,8 @@
             - PrivateFunction: A sample of a Private function (not exported from the module) and its test.
             - PublicCallPrivateFunctions: A sample of 2 functions where the exported one (public) calls the private one, with the tests.
             - PublicFunction: A sample public function and its test.
+            - TypeAccelerators: A suffix.ps1 exporting classes as (module-qualified) type accelerators.
+              See https://synedgy.com/powershell-modules-exporting-classes/ for the background on this technique.
 
     .PARAMETER DestinationPath
         Destination of your module source root folder, defaults to the current directory ".".
@@ -60,6 +62,7 @@ function Add-Sample
             'PrivateFunction',
             'PublicCallPrivateFunctions',
             'PublicFunction',
+            'TypeAccelerators',
             'VscodeConfig',
             'ChocolateyPackage'
         )]
