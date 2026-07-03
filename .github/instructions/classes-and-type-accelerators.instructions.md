@@ -13,6 +13,7 @@ applyTo: '{source/suffix.ps1,source/Classes/*.ps1,source/Enum/*.ps1,source/synio
 ## Registration rules
 
 - Keep type-accelerator registration in `source\suffix.ps1`, after classes are available.
+- Naming: class properties use PascalCase. Top-level `suffix.ps1` variables holding persistent export-list state (for example the exportable-types lists, the resolved module name) use PascalCase; transient loop/computation variables within `suffix.ps1` use camelCase.
 - Use module-qualified accelerators when possible to reduce name collisions.
 - Resolve the module name dynamically rather than hard-coding it.
 - Validate that each type exists before registering its accelerator.

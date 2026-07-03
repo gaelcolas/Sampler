@@ -34,6 +34,7 @@ param
 
 ## PowerShell style
 
+- Naming: parameters and class properties use PascalCase. Variables scoped to a function/method (including top-level script transient/loop variables) use camelCase. Top-level script/module-scope variables holding persistent state use PascalCase.
 - Prefer `$null = <expression>` over `<expression> | Out-Null` to suppress output.
 - Prefer splatting over backtick-based line continuation for multi-line command calls.
 - Never use hardcoded backslash separators inside `Join-Path -ChildPath` strings. Build multi-level paths with chained `Join-Path` calls (one component at a time). Backslashes in a `ChildPath` are not path separators on Linux/macOS.

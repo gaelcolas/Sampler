@@ -33,39 +33,39 @@ $TypeAcceleratorsClass = [psobject].Assembly.GetType(
 $ModuleName = $MyInvocation.MyCommand.ScriptBlock.Module.Name
 
 $TypeAcceleratorExports = @(
-    foreach ($TypeName in $TypesToExportAsIs)
+    foreach ($typeName in $TypesToExportAsIs)
     {
-        $type = $TypeName -as [System.Type]
+        $type = $typeName -as [System.Type]
 
         if (-not $type)
         {
-            $Message = "Unable to register type accelerator '$TypeName'. Type '$TypeName' not found."
+            $message = "Unable to register type accelerator '$typeName'. Type '$typeName' not found."
 
             throw [System.Management.Automation.ErrorRecord]::new(
-                [System.InvalidOperationException]::new($Message),
+                [System.InvalidOperationException]::new($message),
                 'TypeAcceleratorTypeNotFound',
                 [System.Management.Automation.ErrorCategory]::InvalidOperation,
-                $TypeName
+                $typeName
             )
         }
 
         [PSCustomObject]@{
-            AcceleratorName = $TypeName
+            AcceleratorName = $typeName
             Type            = $type
         }
     }
 
-    foreach ($TypeName in $TypesToExportWithNamespace)
+    foreach ($typeName in $TypesToExportWithNamespace)
     {
-        $acceleratorName = '{0}.{1}' -f $ModuleName, $TypeName
-        $type = $TypeName -as [System.Type]
+        $acceleratorName = '{0}.{1}' -f $ModuleName, $typeName
+        $type = $typeName -as [System.Type]
 
         if (-not $type)
         {
-            $Message = "Unable to register type accelerator '$acceleratorName' for '$TypeName'. Type '$TypeName' not found."
+            $message = "Unable to register type accelerator '$acceleratorName' for '$typeName'. Type '$typeName' not found."
 
             throw [System.Management.Automation.ErrorRecord]::new(
-                [System.InvalidOperationException]::new($Message),
+                [System.InvalidOperationException]::new($message),
                 'TypeAcceleratorTypeNotFound',
                 [System.Management.Automation.ErrorCategory]::InvalidOperation,
                 $acceleratorName
@@ -89,22 +89,22 @@ $ExistingTypeAccelerators = $TypeAcceleratorsClass::Get
     collision with an unrelated module, so we brute-force override: remove any existing
     accelerator with the same name (if any) and register ours on top of it.
 #>
-foreach ($TypeAcceleratorExport in $TypeAcceleratorExports)
+foreach ($typeAcceleratorExport in $TypeAcceleratorExports)
 {
-    if ($TypeAcceleratorExport.AcceleratorName -in $ExistingTypeAccelerators.Keys)
+    if ($typeAcceleratorExport.AcceleratorName -in $ExistingTypeAccelerators.Keys)
     {
-        Write-Verbose -Message "Overriding existing type accelerator '$($TypeAcceleratorExport.AcceleratorName)' with '$($TypeAcceleratorExport.Type.FullName)'."
+        Write-Verbose -Message "Overriding existing type accelerator '$($typeAcceleratorExport.AcceleratorName)' with '$($typeAcceleratorExport.Type.FullName)'."
 
-        $null = $TypeAcceleratorsClass::Remove($TypeAcceleratorExport.AcceleratorName)
+        $null = $TypeAcceleratorsClass::Remove($typeAcceleratorExport.AcceleratorName)
     }
 
-    $null = $TypeAcceleratorsClass::Add($TypeAcceleratorExport.AcceleratorName, $TypeAcceleratorExport.Type)
+    $null = $TypeAcceleratorsClass::Add($typeAcceleratorExport.AcceleratorName, $typeAcceleratorExport.Type)
 }
 
 # Remove type accelerators when the module is removed.
 $MyInvocation.MyCommand.ScriptBlock.Module.OnRemove = {
-    foreach ($TypeAcceleratorExport in $TypeAcceleratorExports)
+    foreach ($typeAcceleratorExport in $TypeAcceleratorExports)
     {
-        $null = $TypeAcceleratorsClass::Remove($TypeAcceleratorExport.AcceleratorName)
+        $null = $TypeAcceleratorsClass::Remove($typeAcceleratorExport.AcceleratorName)
     }
 }.GetNewClosure()
