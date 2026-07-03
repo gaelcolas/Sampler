@@ -82,6 +82,11 @@
                   destination='.github/instructions/classes-and-type-accelerators.instructions.md'
                   condition='$PLASTER_PARAM_HasClasses -eq "true"' />
 
+    <!-- EXPORT-CLASS-TYPE-ACCELERATOR SKILL (template - conditional on HasClasses) -->
+    <templateFile source='skills/export-class-type-accelerator/SKILL.md.template'
+                  destination='.github/skills/export-class-type-accelerator/SKILL.md'
+                  condition='$PLASTER_PARAM_HasClasses -eq "true"' />
+
     <!-- CUSTOM BUILD TASK FILES INSTRUCTIONS (verbatim - conditional on HasCustomBuildTasks) -->
     <file source='instructions/build-task-files.instructions.md'
           destination='.github/instructions/build-task-files.instructions.md'

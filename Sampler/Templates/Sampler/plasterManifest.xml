@@ -848,6 +848,11 @@
           condition='(${PLASTER_PARAM_ModuleType} -eq "CompleteSample" -or ${PLASTER_PARAM_Features} -Contains ("copilot") -or ${PLASTER_PARAM_Features} -Contains ("All")) -and (${PLASTER_PARAM_ModuleType} -eq "CompleteSample" -or ${PLASTER_PARAM_Features} -Contains ("Classes") -or ${PLASTER_PARAM_Features} -Contains ("All"))'
     />
 
+    <templateFile source='../Copilot/skills/export-class-type-accelerator/SKILL.md.template'
+          destination='${PLASTER_PARAM_ModuleName}/.github/skills/export-class-type-accelerator/SKILL.md'
+          condition='(${PLASTER_PARAM_ModuleType} -eq "CompleteSample" -or ${PLASTER_PARAM_Features} -Contains ("copilot") -or ${PLASTER_PARAM_Features} -Contains ("All")) -and (${PLASTER_PARAM_ModuleType} -eq "CompleteSample" -or ${PLASTER_PARAM_Features} -Contains ("Classes") -or ${PLASTER_PARAM_Features} -Contains ("All"))'
+    />
+
    <!-- COPILOT INSTRUCTIONS - conditional on Build feature -->
     <file source='../Copilot/instructions/build-task-files.instructions.md'
           destination='${PLASTER_PARAM_ModuleName}/.github/instructions/build-task-files.instructions.md'

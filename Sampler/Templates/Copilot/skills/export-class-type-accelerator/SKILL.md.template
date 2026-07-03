@@ -1,0 +1,66 @@
+---
+name: export-class-type-accelerator
+description: Scaffold or extend the suffix.ps1 type-accelerator export pattern so a PSv5+ class is exported from the module without a 'using module' statement, and verify build.yaml actually wires it in.
+argument-hint: Which class(es) do you want to export, and should they be exported bare (as-is) or module-qualified (with namespace)?
+---
+
+# Export a Class as a Type Accelerator
+
+## Purpose
+
+PowerShell modules cannot export classes directly - there is no `Export-ModuleMember`
+equivalent for PSv5+ classes. This skill scaffolds (or extends) the `suffix.ps1`
+type-accelerator workaround so a class becomes usable as `[ClassName]` or
+`[ModuleName.ClassName]` immediately after the module is imported, with no
+`using module` statement required from consumers.
+
+## Use this skill when
+
+- You added a new PowerShell class under `<%= $PLASTER_PARAM_SourceDirectory %>/Classes` and want callers (in this module or another) to use it without a `using module` statement.
+- `suffix.ps1` does not exist yet in this module.
+- You are reviewing why a class type accelerator isn't available after `Import-Module`.
+
+## Inputs
+
+- `class_names`: one or more class names to export.
+- `export_style`: for each class, `as-is` (bare name, e.g. `MyClass`) or `namespaced` (module-qualified, e.g. `<%= $PLASTER_PARAM_ModuleName %>.MyClass`). Default to `namespaced` unless the caller has a specific reason to want the bare name (bare names risk colliding with an accelerator of the same name from another module).
+
+## Steps
+
+1. **Scaffold `suffix.ps1` if it does not exist yet.**
+   ```powershell
+   Add-Sample -Sample TypeAccelerators -DestinationPath . -SourceDirectory <%= $PLASTER_PARAM_SourceDirectory %> -ExportableTypeName '<first class name>'
+   ```
+   This is a Sampler (the build tooling module) command, not a function in this module.
+
+2. **If `suffix.ps1` already exists, edit it directly** instead of re-running `Add-Sample` (which would overwrite it). Add each class name (as a string, not a type literal like `[MyClass]`) to the appropriate list:
+   - `$TypesToExportAsIs` for bare-name exports.
+   - `$TypesToExportWithNamespace` for module-qualified exports (the safer default).
+
+3. **Verify `build.yaml` actually merges `suffix.ps1` into the built module.** This is the single most common way this pattern silently fails: the class compiles, the tests pass, but the accelerator is never registered because `suffix.ps1` was never merged in.
+   ```powershell
+   Select-String -Path build.yaml -Pattern '^\s*#?\s*suffix:'
+   ```
+   The line must read exactly `suffix: suffix.ps1` (uncommented). If it reads `# suffix: suffix.ps1`, uncomment it.
+
+4. **Rebuild and confirm the accelerator is registered.**
+   ```powershell
+   ./build.ps1 -Tasks build
+   Import-Module (Get-ChildItem -Path output/module/*/*.psd1 | Select-Object -First 1).FullName -Force
+   [ModuleName.MyClass] # or [MyClass] for as-is exports - should resolve without error
+   ```
+
+5. **Add or update a unit test** that imports the built module and resolves the expected type accelerator name(s), so a future change that breaks the `suffix: suffix.ps1` wiring or the export lists is caught by `-Tasks test` instead of discovered at consumption time.
+
+## Common pitfalls
+
+- **Type literals resolve at parse time.** Do not write `$Type = [MyClass]` inside `suffix.ps1` - if an accelerator with that name already exists (for example a stale one from a previous `-Force` re-import), the literal silently binds to the *old* type. Always resolve by name: `'MyClass' -as [System.Type]`.
+- **`build.yaml` wiring is silent when missing.** There is no error, warning, or failed test by default if `suffix: suffix.ps1` is left commented out - the class just never becomes available as an accelerator. Always do step 3.
+- **Re-imports during development are expected to override, not fail.** If you see a `Write-Verbose` message about overriding an existing accelerator after a `-Force` re-import, that is expected behavior, not a bug to silence.
+
+## Completion checks
+
+- `suffix.ps1` contains every class you intended to export, in the correct list (`$TypesToExportAsIs` vs `$TypesToExportWithNamespace`).
+- `build.yaml` has `suffix: suffix.ps1` uncommented.
+- `./build.ps1 -Tasks build` succeeds and the built module actually resolves the expected type accelerator name(s).
+- A unit test exists that would fail if the `suffix: suffix.ps1` wiring or the export lists regressed.

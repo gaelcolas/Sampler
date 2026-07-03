@@ -48,6 +48,7 @@ Describe 'Copilot Plaster Template' {
                 '.github/instructions/classes-and-type-accelerators.instructions.md'
                 '.github/instructions/build-task-files.instructions.md'
                 '.github/instructions/wiki-publishing.instructions.md'
+                '.github/skills/export-class-type-accelerator/SKILL.md'
             )
         }
 
@@ -152,6 +153,24 @@ Describe 'Copilot Plaster Template' {
             $filePath = Join-Path -Path $filePath -ChildPath 'instructions'
             $filePath = Join-Path -Path $filePath -ChildPath 'classes-and-type-accelerators.instructions.md'
             $content  = Get-Content -Path $filePath -Raw
+            $content | Should -Match 'source'
+        }
+
+        It 'Should create the export-class-type-accelerator skill' {
+            $filePath = Join-Path -Path $mockDestinationPath -ChildPath '.github'
+            $filePath = Join-Path -Path $filePath -ChildPath 'skills'
+            $filePath = Join-Path -Path $filePath -ChildPath 'export-class-type-accelerator'
+            $filePath = Join-Path -Path $filePath -ChildPath 'SKILL.md'
+            $filePath | Should -Exist
+        }
+
+        It 'Should substitute the module name and source directory in the export-class-type-accelerator skill' {
+            $filePath = Join-Path -Path $mockDestinationPath -ChildPath '.github'
+            $filePath = Join-Path -Path $filePath -ChildPath 'skills'
+            $filePath = Join-Path -Path $filePath -ChildPath 'export-class-type-accelerator'
+            $filePath = Join-Path -Path $filePath -ChildPath 'SKILL.md'
+            $content  = Get-Content -Path $filePath -Raw
+            $content | Should -Match 'TestModule'
             $content | Should -Match 'source'
         }
     }
