@@ -28,6 +28,13 @@ which this template is based on.
 placed in the source folder root, after the `Classes` are already declared
 elsewhere in the module.
 
+> **Important:** for `suffix.ps1` to actually be merged in, your `build.yaml`
+> must have `suffix: suffix.ps1` uncommented (it is commented out by default
+> in a plain scaffolded `build.yaml`). When using `Add-Sample -Sample
+> TypeAccelerators` on an existing module, check/update `build.yaml` yourself.
+> When using `New-SampleModule` with the `TypeAccelerators` feature (or
+> `CompleteSample`), this is wired up for you automatically.
+
 ## Usage
 
 ### Add to an existing module

@@ -22,6 +22,7 @@
             - PublicFunction: A sample public function and its test.
             - TypeAccelerators: A suffix.ps1 exporting classes as (module-qualified) type accelerators.
               See https://synedgy.com/powershell-modules-exporting-classes/ for the background on this technique.
+              Requires 'suffix: suffix.ps1' to be uncommented in build.yaml for ModuleBuilder to merge it in.
 
     .PARAMETER DestinationPath
         Destination of your module source root folder, defaults to the current directory ".".
