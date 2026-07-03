@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<plasterManifest
+  schemaVersion="1.0" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+  <metadata>
+    <name>TypeAccelerators</name>
+    <id>bdae430c-1347-4ba9-8215-2fb96b5b6ecc</id>
+    <version>0.0.1</version>
+    <title>Type Accelerators Template</title>
+    <description>A template that adds a suffix.ps1 exporting classes as (module-qualified) type accelerators, since PowerShell modules cannot export classes directly.</description>
+    <author>Gael Colas</author>
+    <tags>Sampler,Template, Build, Module, Classes</tags>
+  </metadata>
+  <parameters>
+    <parameter store="text" name="SourceDirectory" type="text" prompt="What is your source folder?" default="source" />
+    <parameter store="text" name="ExportableTypeName" type="text" prompt="Name of a Class to export as a type accelerator?" default="MyClass" />
+  </parameters>
+    <!--
+      ${PLASTER_PARAM_SourceDirectory}
+      ${PLASTER_PARAM_ExportableTypeName}
+
+     -->
+  <content>
+    <!-- MODULES FOLDER SCAFFOLDING -->
+
+    <!--   SOURCE Folder -->
+    <file source=''
+          destination='${PLASTER_PARAM_SourceDirectory}/'
+    />
+
+    <!--   SOURCE/suffix.ps1 File -->
+    <templateFile source='suffix.ps1.template'
+          destination='${PLASTER_PARAM_SourceDirectory}/suffix.ps1'
+    />
+
+  </content>
+</plasterManifest>

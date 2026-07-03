@@ -58,9 +58,11 @@
     .PARAMETER Features
         If you'd rather select specific features from this template to build your module, use this parameter instead.
         Valid values mirror the Plaster template feature choices:
-            All, Enum, Classes, DSCResources, ClassDSCResource, SampleScripts,
+            All, Enum, Classes, TypeAccelerators, DSCResources, ClassDSCResource, SampleScripts,
             git, gitversion, github, vscode, codecov, azurepipelines, copilot,
             Gherkin, UnitTests, ModuleQuality, Build, AppVeyor, TestKitchen.
+        TypeAccelerators requires Classes (and SampleScripts, unless All/CompleteSample is used) to also be selected,
+        since it scaffolds a suffix.ps1 exporting the sample Classes as type accelerators.
 
     .EXAMPLE
         C:\src> New-SampleModule -DestinationPath . -ModuleType CompleteSample -ModuleAuthor "Gael Colas" -ModuleName MyModule -ModuleVersion 0.0.1 -ModuleDescription "a sample module" -LicenseType MIT -SourceDirectory Source
@@ -137,6 +139,7 @@ function New-SampleModule
             'All',
             'Enum',
             'Classes',
+            'TypeAccelerators',
             'DSCResources',
             'ClassDSCResource',
             'SampleScripts',

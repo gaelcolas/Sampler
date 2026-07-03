@@ -90,6 +90,8 @@ When invoked through the `powershell` tool, prefer `mode="async"` with `Tee-Obje
 
 Test failures are recorded in machine-readable XML under `output/testResults/`. Always read those files instead of grepping the build log — they tell you *which* tests failed and *why*.
 
+- **The build summary's "N errors" count is not a reliable pass/fail signal.** `./build.ps1` prints a final line like `Build completed with errors. 98 tasks, 8 errors, 3 warnings`, but this count reflects everything written to the PowerShell error stream during the run — including caught/non-terminating errors that scripts intentionally handle (for example, `Add-Sample` and `New-SamplerPipeline` write to `$Error` internally while probing dynamic parameters, even though they catch and continue). A non-zero error count here does not mean any test failed. Always confirm actual failures via the NUnit/HQRM result files below before reporting a failure to the user.
+
 - **Pester (`-Tasks test`)** writes NUnit XML at `output/testResults/NUnitXml_<ProjectName>_<Version>.<OS>.PSv.<PSVersion>.xml`. Each failing assertion is a `<test-case result="Failure">` node with the assertion message under `<failure><message>`:
 
   ```powershell
