@@ -19,6 +19,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `Fail_Build_If_Pester_Tests_Failed` and the `DscResource.Test` build task now fail
+  the build when a Pester 5 run reports failed blocks or failed containers (for
+  example a discovery failure such as an empty `-ForEach`), not only when
+  `FailedCount` is greater than zero. Such container/discovery failures leave
+  `FailedCount` at `0`, so the previous gate let them pass as a green build. The gate
+  now uses the Pester 5 `Result` property and falls back to `FailedCount` for
+  Pester 4 result objects.
 - `Create_Release_Git_Tag` and `Create_Changelog_Branch` tasks now read `MainGitBranch` from `BuildInfo.GitConfig.MainGitBranch` in `build.yaml` when not set as a task parameter or InvokeBuild property. The resolution order is: task parameter -> `build.yaml` `GitConfig.MainGitBranch` -> default `'main'`.
 - `Create_Release_Git_Tag` and `Create_Changelog_Branch` tasks no longer call `git config user.name` or `git config user.email` when `GitConfigUserName` or `GitConfigUserEmail` are not set (empty/null), allowing the existing global or system git identity to be used without being overwritten with an empty value.
 - The `Build` Plaster template (`build.yaml.template`) now scaffolds a `GitConfig:` section with `MainGitBranch` pre-populated from the Plaster parameter entered during scaffolding, and `UserName`/`UserEmail` as commented-out examples.

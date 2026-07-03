@@ -266,7 +266,25 @@ task Fail_Build_If_DscResource_Tests_Failed {
     {
         $DscTestObject = Import-Clixml -Path $DscTestResultObjectClixml -ErrorAction 'Stop'
 
-        Assert-Build -Condition ($DscTestObject.FailedCount -eq 0) -Message ('Failed {0} tests. Aborting Build' -f $DscTestObject.FailedCount)
+        if ($null -ne $DscTestObject.Result)
+        {
+            <#
+                Pester 5+ exposes a single Result property ('Passed'/'Failed') that
+                already accounts for failed tests, failed blocks and failed containers.
+                Container/discovery failures (for example an empty -ForEach) do not
+                increase FailedCount, so gating on FailedCount alone lets those
+                failures slip through as a green build.
+            #>
+            $assertMessage = "DSC test result was '{0}'. Failed {1} test(s), {2} block(s) and {3} container(s). Aborting Build" -f
+                $DscTestObject.Result, $DscTestObject.FailedCount, $DscTestObject.FailedBlocksCount, $DscTestObject.FailedContainersCount
+
+            Assert-Build -Condition ($DscTestObject.Result -eq 'Passed') -Message $assertMessage
+        }
+        else
+        {
+            # Pester 4 result objects have no Result/FailedBlocksCount/FailedContainersCount properties.
+            Assert-Build -Condition ($DscTestObject.FailedCount -eq 0) -Message ('Failed {0} tests. Aborting Build' -f $DscTestObject.FailedCount)
+        }
     }
 }
 

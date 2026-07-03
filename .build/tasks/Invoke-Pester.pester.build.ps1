@@ -486,7 +486,25 @@ task Fail_Build_If_Pester_Tests_Failed {
     {
         $pesterObject = Import-Clixml -Path $PesterResultObjectClixml -ErrorAction 'Stop'
 
-        Assert-Build -Condition ($pesterObject.FailedCount -eq 0) -Message ('Failed {0} tests. Aborting Build' -f $pesterObject.FailedCount)
+        if ($null -ne $pesterObject.Result)
+        {
+            <#
+                Pester 5+ exposes a single Result property ('Passed'/'Failed') that
+                already accounts for failed tests, failed blocks and failed containers.
+                Container/discovery failures (for example an empty -ForEach, or a parse
+                error in a test file) do not increase FailedCount, so gating on
+                FailedCount alone lets those failures slip through as a green build.
+            #>
+            $assertMessage = "Pester result was '{0}'. Failed {1} test(s), {2} block(s) and {3} container(s). Aborting Build" -f
+                $pesterObject.Result, $pesterObject.FailedCount, $pesterObject.FailedBlocksCount, $pesterObject.FailedContainersCount
+
+            Assert-Build -Condition ($pesterObject.Result -eq 'Passed') -Message $assertMessage
+        }
+        else
+        {
+            # Pester 4 result objects have no Result/FailedBlocksCount/FailedContainersCount properties.
+            Assert-Build -Condition ($pesterObject.FailedCount -eq 0) -Message ('Failed {0} tests. Aborting Build' -f $pesterObject.FailedCount)
+        }
     }
 }
 
