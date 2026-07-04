@@ -65,7 +65,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `Get-SamplerProjectBuildInfo` and updated Pester build tasks to use its `BuildType`/`HasBuiltOutput` project model directly instead of Pester-specific setup/import/identity wrapper functions.
 - Pinned `ModuleBuilder` to `3.1.8` in `RequiredModules.psd1` because newer versions break Sampler task alias registration during tests.
 - Temporarily skip the `SimpleModule` integration tests that depend on building the sample module on Windows PowerShell 5.1 while `ModuleBuilder` 3.2 is broken there.
-- Change azure-pipelines.yml to support runtime parameters for running only selected platforms. Refactored the jobs to matrix jobs so it is not hardcoded jobs
+- Change `azure-pipelines.yml` to support runtime parameters for running only selected platforms. Refactored the jobs to matrix jobs so it is not hardcoded jobs
+- Changed `azure-pipelines.yml.template` and `azure-pipelines_dsccommunity.yml.template` templates to support runtime parameters for running only selected platforms. Refactored the jobs to matrix jobs so it is not hardcoded jobs
 
 ### Fixed
 
