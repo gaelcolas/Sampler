@@ -11,6 +11,27 @@ trigger:
     exclude:
     - "*-*"
 
+parameters:
+  - name: PlatformMatrix
+    type: object
+    default:
+      Windows_PWSH7:
+        vmImage: 'windows-latest'
+        UsePWSH: true
+        PlatformName: 'Windows_PWSH7'
+      Windows_PWSH5:
+        vmImage: 'windows-latest'
+        UsePWSH: false
+        PlatformName: 'Windows_PWSH5'
+      Ubuntu_PWSH7:
+        vmImage: 'ubuntu-latest'
+        UsePWSH: true
+        PlatformName: 'Ubuntu_PWSH7'
+      MacOS_PWSH7:
+        vmImage: 'macos-latest'
+        UsePWSH: true
+        PlatformName: 'MacOS_PWSH7'
+
 variables:
   buildFolderName: output
   buildArtifactName: output
@@ -47,7 +68,7 @@ stages:
               ModuleVersion: $(NuGetVersionV2)
 
           - task: PublishPipelineArtifact@1
-            displayName: 'Publish Build Artifact'
+            displayName: 'Publish Pipeline Artifact'
             inputs:
               targetPath: '$(buildFolderName)/'
               artifact: $(buildArtifactName)
@@ -57,14 +78,16 @@ stages:
   - stage: Test
     dependsOn: Build
     jobs:
-      - job: test_linux
-        displayName: 'Linux'
+      - job: Test
+        strategy:
+          matrix:
+            ${{ parameters.PlatformMatrix }}
         timeoutInMinutes: 0
         pool:
-          vmImage: 'ubuntu-latest'
+          vmImage: $[ variables['vmImage'] ]
         steps:
           - task: DownloadPipelineArtifact@2
-            displayName: 'Download Build Artifact'
+            displayName: 'Download Pipeline Artifact'
             inputs:
               buildType: 'current'
               artifactName: $(buildArtifactName)
@@ -76,6 +99,7 @@ stages:
             inputs:
               filePath: './build.ps1'
               arguments: '-tasks test'
+              pwsh: $(UsePWSH)
 
           - task: PublishTestResults@2
             displayName: 'Publish Test Results'
@@ -83,131 +107,22 @@ stages:
             inputs:
               testResultsFormat: 'NUnit'
               testResultsFiles: '$(buildFolderName)/$(testResultFolderName)/NUnit*.xml'
-              testRunTitle: 'Linux'
+              testRunTitle: $(vmImage)
 
           - task: PublishPipelineArtifact@1
             displayName: 'Publish Test Artifact'
-            inputs:
-              targetPath: '$(buildFolderName)/$(testResultFolderName)/'
-              artifactName: 'CodeCoverageLinux'
-              parallel: true
-
-      - job: test_windows_core
-        displayName: 'Windows (PowerShell)'
-        timeoutInMinutes: 0
-        pool:
-          vmImage: 'windows-latest'
-        steps:
-          - task: DownloadPipelineArtifact@2
-            displayName: 'Download Build Artifact'
-            inputs:
-              buildType: 'current'
-              artifactName: $(buildArtifactName)
-              targetPath: '$(Build.SourcesDirectory)/$(buildFolderName)'
-
-          - task: PowerShell@2
-            name: test
-            displayName: 'Run Tests'
-            inputs:
-              filePath: './build.ps1'
-              arguments: '-tasks test'
-              pwsh: true
-
-          - task: PublishTestResults@2
-            displayName: 'Publish Test Results'
             condition: succeededOrFailed()
             inputs:
-              testResultsFormat: 'NUnit'
-              testResultsFiles: '$(buildFolderName)/$(testResultFolderName)/NUnit*.xml'
-              testRunTitle: 'Windows (PowerShell)'
-
-          - task: PublishPipelineArtifact@1
-            displayName: 'Publish Test Artifact'
-            inputs:
               targetPath: '$(buildFolderName)/$(testResultFolderName)/'
-              artifactName: 'CodeCoverageWinPS7'
-              parallel: true
-
-      - job: test_windows_ps
-        displayName: 'Windows (Windows PowerShell)'
-        timeoutInMinutes: 0
-        pool:
-          vmImage: 'windows-latest'
-        steps:
-          - task: DownloadPipelineArtifact@2
-            displayName: 'Download Build Artifact'
-            inputs:
-              buildType: 'current'
-              artifactName: $(buildArtifactName)
-              targetPath: '$(Build.SourcesDirectory)/$(buildFolderName)'
-
-          - task: PowerShell@2
-            name: test
-            displayName: 'Run Tests'
-            inputs:
-              filePath: './build.ps1'
-              arguments: '-tasks test'
-              pwsh: false
-
-          - task: PublishTestResults@2
-            displayName: 'Publish Test Results'
-            condition: succeededOrFailed()
-            inputs:
-              testResultsFormat: 'NUnit'
-              testResultsFiles: '$(buildFolderName)/$(testResultFolderName)/NUnit*.xml'
-              testRunTitle: 'Windows (Windows PowerShell)'
-
-          - task: PublishPipelineArtifact@1
-            displayName: 'Publish Test Artifact'
-            inputs:
-              targetPath: '$(buildFolderName)/$(testResultFolderName)/'
-              artifactName: 'CodeCoverageWinPS51'
-              parallel: true
-
-      - job: test_macos
-        displayName: 'macOS'
-        timeoutInMinutes: 0
-        pool:
-          vmImage: 'macos-latest'
-        steps:
-          - task: DownloadPipelineArtifact@2
-            displayName: 'Download Build Artifact'
-            inputs:
-              buildType: 'current'
-              artifactName: $(buildArtifactName)
-              targetPath: '$(Build.SourcesDirectory)/$(buildFolderName)'
-
-          - task: PowerShell@2
-            name: test
-            displayName: 'Run Tests'
-            inputs:
-              filePath: './build.ps1'
-              arguments: '-tasks test'
-              pwsh: true
-
-          - task: PublishTestResults@2
-            displayName: 'Publish Test Results'
-            condition: succeededOrFailed()
-            inputs:
-              testResultsFormat: 'NUnit'
-              testResultsFiles: '$(buildFolderName)/$(testResultFolderName)/NUnit*.xml'
-              testRunTitle: 'MacOS'
-
-          - task: PublishPipelineArtifact@1
-            displayName: 'Publish Test Artifact'
-            inputs:
-              targetPath: '$(buildFolderName)/$(testResultFolderName)/'
-              artifactName: 'CodeCoverageMacOS'
+              artifactName: 'CodeCoverage_$(PlatformName)_$(System.JobAttempt)'
               parallel: true
 
       # If no code coverage should be reported, then this entire removed:
       - job: Code_Coverage
         displayName: 'Publish Code Coverage'
         dependsOn:
-          - test_macos
-          - test_linux
-          - test_windows_core
-          - test_windows_ps
+          - Test
+        condition: succeededOrFailed()
         pool:
           vmImage: 'ubuntu-latest'
         timeoutInMinutes: 0
@@ -226,33 +141,14 @@ stages:
               artifactName: $(buildArtifactName)
               targetPath: '$(Build.SourcesDirectory)/$(buildArtifactName)'
 
-          - task: DownloadPipelineArtifact@2
-            displayName: 'Download Test Artifact macOS'
-            inputs:
-              buildType: 'current'
-              artifactName: 'CodeCoverageMacOS'
-              targetPath: '$(Build.SourcesDirectory)/$(buildFolderName)/$(testResultFolderName)'
-
-          - task: DownloadPipelineArtifact@2
-            displayName: 'Download Test Artifact Linux'
-            inputs:
-              buildType: 'current'
-              artifactName: 'CodeCoverageLinux'
-              targetPath: '$(Build.SourcesDirectory)/$(buildFolderName)/$(testResultFolderName)'
-
-          - task: DownloadPipelineArtifact@2
-            displayName: 'Download Test Artifact Windows (PS 5.1)'
-            inputs:
-              buildType: 'current'
-              artifactName: 'CodeCoverageWinPS51'
-              targetPath: '$(Build.SourcesDirectory)/$(buildFolderName)/$(testResultFolderName)'
-
-          - task: DownloadPipelineArtifact@2
-            displayName: 'Download Test Artifact Windows (PS7)'
-            inputs:
-              buildType: 'current'
-              artifactName: 'CodeCoverageWinPS7'
-              targetPath: '$(Build.SourcesDirectory)/$(buildFolderName)/$(testResultFolderName)'
+          # Dynamic download of test artifacts based on matrix
+          - ${{ each platform in parameters.PlatformMatrix }}:
+            - task: DownloadPipelineArtifact@2
+              displayName: 'Download Test Artifact ${{ platform.Key }}'
+              inputs:
+                buildType: 'current'
+                artifactName: 'CodeCoverage_${{ platform.Value.PlatformName }}_$(System.JobAttempt)'
+                targetPath: '$(Build.SourcesDirectory)/$(buildFolderName)/$(testResultFolderName)'
 
           # Make sure to update build.yaml to support these tasks, then uncomment these tasks:
           #- task: PowerShell@2
@@ -275,7 +171,7 @@ stages:
 
   - stage: Deploy
     dependsOn: Test
-    # Only execute deploy stage if we're on master and previous stage succeeded
+    # Only execute deploy stage if we're on <%= ${PLASTER_PARAM_MainGitBranch} %> and previous stage succeeded
     condition: |
       and(
         succeeded(),
@@ -292,7 +188,7 @@ stages:
           vmImage: 'ubuntu-latest'
         steps:
           - task: DownloadPipelineArtifact@2
-            displayName: 'Download Build Artifact'
+            displayName: 'Download Pipeline Artifact'
             inputs:
               buildType: 'current'
               artifactName: $(buildArtifactName)

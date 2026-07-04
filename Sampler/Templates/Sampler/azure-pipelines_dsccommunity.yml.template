@@ -11,11 +11,31 @@ trigger:
     exclude:
     - "*-*"
 
+parameters:
+  - name: PlatformMatrix
+    type: object
+    default:
+      Windows_PWSH7:
+        vmImage: 'windows-latest'
+        UsePWSH: true
+        PlatformName: 'Windows_PWSH7'
+      Windows_PWSH5:
+        vmImage: 'windows-latest'
+        UsePWSH: false
+        PlatformName: 'Windows_PWSH5'
+      Ubuntu_PWSH7:
+        vmImage: 'ubuntu-latest'
+        UsePWSH: true
+        PlatformName: 'Ubuntu_PWSH7'
+      MacOS_PWSH7:
+        vmImage: 'macos-latest'
+        UsePWSH: true
+        PlatformName: 'MacOS_PWSH7'
+
 variables:
   buildFolderName: output
   buildArtifactName: output
   testResultFolderName: testResults
-  testArtifactName: testResults
   sourceFolderName: source
   defaultBranch: <%= ${PLASTER_PARAM_MainGitBranch} %>
   Agent.Source.Git.ShallowFetchDepth: 0 # override ShallowFetchDepth
@@ -47,7 +67,7 @@ stages:
             env:
               ModuleVersion: $(NuGetVersionV2)
           - task: PublishPipelineArtifact@1
-            displayName: 'Publish Build Artifact'
+            displayName: 'Publish Pipeline Artifact'
             inputs:
               targetPath: '$(buildFolderName)/'
               artifact: $(buildArtifactName)
@@ -81,18 +101,20 @@ stages:
             condition: succeededOrFailed()
             inputs:
               testResultsFormat: 'NUnit'
-              testResultsFiles: 'output/testResults/NUnit*.xml'
+              testResultsFiles: '$(buildFolderName)/$(testResultFolderName)/NUnit*.xml'
               testRunTitle: 'HQRM'
 
-      # If several pipeline jobs are running test, consider renaming this job:
       - job: Test_Unit
         displayName: 'Unit'
+        strategy:
+          matrix:
+            ${{ parameters.PlatformMatrix }}
         pool:
-          vmImage: 'windows-latest'
+          vmImage: $[ variables['vmImage'] ]
         timeoutInMinutes: 0
         steps:
           - task: DownloadPipelineArtifact@2
-            displayName: 'Download Build Artifact'
+            displayName: 'Download Pipeline Artifact'
             inputs:
               buildType: 'current'
               artifactName: $(buildArtifactName)
@@ -103,69 +125,34 @@ stages:
             inputs:
               filePath: './build.ps1'
               arguments: "-Tasks test -PesterScript 'tests/Unit'"
-              pwsh: true
+              pwsh: $(UsePWSH)
           - task: PublishTestResults@2
             displayName: 'Publish Test Results'
             condition: succeededOrFailed()
             inputs:
               testResultsFormat: 'NUnit'
               testResultsFiles: '$(buildFolderName)/$(testResultFolderName)/NUnit*.xml'
-              # If several pipeline jobs are generating test result, consider renaming this title:
-              testRunTitle: 'Unit'
+              testRunTitle: $(vmImage)
           - task: PublishPipelineArtifact@1
             displayName: 'Publish Test Artifact'
+            condition: succeededOrFailed()
             inputs:
               targetPath: '$(buildFolderName)/$(testResultFolderName)/'
-              artifactName: $(testArtifactName)
-              # If several pipeline jobs are generating code coverage, replace above with this:
-              #artifactName: 'CodeCoverageWindows' # Can be any, in the pipeline, unique name
+              artifactName: 'CodeCoverage_$(PlatformName)_$(System.JobAttempt)'
               parallel: true
-
-      # If several pipeline jobs should run unit tests, uncomment this:
-      ## If several pipeline jobs are generating test result consider renaming this:
-      #- job: Test_Unit_Linux
-      #  displayName: 'Unit Linux'
-      #  pool:
-      #    vmImage: 'ubuntu-latest'
-      #  timeoutInMinutes: 0
-      #  steps:
-      #    - task: DownloadPipelineArtifact@2
-      #      displayName: 'Download Build Artifact'
-      #      inputs:
-      #        buildType: 'current'
-      #        artifactName: $(buildArtifactName)
-      #        targetPath: '$(Build.SourcesDirectory)/$(buildFolderName)'
-      #    - task: PowerShell@2
-      #      name: test
-      #      displayName: 'Run Unit Test'
-      #      inputs:
-      #        filePath: './build.ps1'
-      #        arguments: "-Tasks test -PesterScript 'tests/Unit'"
-      #        pwsh: true
-      #    - task: PublishTestResults@2
-      #      displayName: 'Publish Test Results'
-      #      condition: succeededOrFailed()
-      #      inputs:
-      #        testResultsFormat: 'NUnit'
-      #        testResultsFiles: '$(buildFolderName)/$(testResultFolderName)/NUnit*.xml'
-      #        # If several pipeline jobs are generating test result consider renaming this:
-      #        testRunTitle: 'Unit Linux'
-      #    - task: PublishPipelineArtifact@1
-      #      displayName: 'Publish Test Artifact'
-      #      inputs:
-      #        targetPath: '$(buildFolderName)/$(testResultFolderName)/'
-      #        # If several pipeline jobs are generating code coverage, consider renaming this:
-      #        artifactName: 'CodeCoverageLinux' # Can be any, in the pipeline, unique name
-      #        parallel: true
 
       - job: Test_Integration
         displayName: 'Integration'
+        strategy:
+          matrix:
+            ${{ parameters.PlatformMatrix }}
         pool:
-          vmImage: 'windows-latest'
+          vmImage: $[ variables['vmImage'] ]
+        condition: and(succeeded(), eq(variables['Agent.OS'], 'Windows_NT'))
         timeoutInMinutes: 0
         steps:
           - task: DownloadPipelineArtifact@2
-            displayName: 'Download Build Artifact'
+            displayName: 'Download Pipeline Artifact'
             inputs:
               buildType: 'current'
               artifactName: $(buildArtifactName)
@@ -183,18 +170,21 @@ stages:
             inputs:
               filePath: './build.ps1'
               arguments: "-Tasks test -CodeCoverageThreshold 0 -PesterScript 'tests/Integration'"
-              pwsh: false
+              pwsh: $(UsePWSH)
           - task: PublishTestResults@2
             displayName: 'Publish Test Results'
             condition: succeededOrFailed()
             inputs:
               testResultsFormat: 'NUnit'
               testResultsFiles: '$(buildFolderName)/$(testResultFolderName)/NUnit*.xml'
-              testRunTitle: 'Integration'
+              testRunTitle: 'Integration ($(Agent.JobName))'
 
       - job: Code_Coverage
         displayName: 'Publish Code Coverage'
-        dependsOn: Test_Unit
+        dependsOn:
+          - Test_Unit
+          - Test_Integration
+        condition: succeededOrFailed()
         pool:
           vmImage: 'ubuntu-latest'
         timeoutInMinutes: 0
@@ -206,37 +196,31 @@ stages:
             name: dscBuildVariable
             displayName: 'Set Environment Variables'
           - task: DownloadPipelineArtifact@2
-            displayName: 'Download Build Artifact'
+            displayName: 'Download Pipeline Artifact'
             inputs:
               buildType: 'current'
               artifactName: $(buildArtifactName)
               targetPath: '$(Build.SourcesDirectory)/$(buildFolderName)'
-          - task: DownloadPipelineArtifact@2
-            # If several pipeline jobs are generating code coverage, consider renaming this display name:
-            displayName: 'Download Test Artifact'
+
+          # Dynamic download of test artifacts based on matrix
+          - ${{ each platform in parameters.PlatformMatrix }}:
+            - task: DownloadPipelineArtifact@2
+              displayName: 'Download Test Artifact ${{ platform.Key }}'
+              inputs:
+                buildType: 'current'
+                artifactName: 'CodeCoverage_${{ platform.Value.PlatformName }}_$(System.JobAttempt)'
+                targetPath: '$(Build.SourcesDirectory)/$(buildFolderName)/$(testResultFolderName)'
+          - task: PowerShell@2
+            name: merge
+            displayName: 'Merge Code Coverage files'
             inputs:
-              buildType: 'current'
-              # If several pipeline jobs are generating code coverage, set the correct artifact name:
-              artifactName: $(testArtifactName)
-              targetPath: '$(Build.SourcesDirectory)/$(buildFolderName)/$(testResultFolderName)'
-          # If several pipeline jobs are generating code coverage, uncomment these tasks:
-          #- task: DownloadPipelineArtifact@2
-          #  displayName: 'Download Test Artifact Linux'
-          #  inputs:
-          #    buildType: 'current'
-          #    artifactName: 'CodeCoverageLinux'
-          #    targetPath: '$(Build.SourcesDirectory)/$(buildFolderName)/$(testResultFolderName)'
-          #- task: PowerShell@2 # Merges the code coverage files.
-          #  name: merge
-          #  displayName: 'Merge Code Coverage files'
-          #  inputs:
-          #    filePath: './build.ps1'
-          #    arguments: '-tasks merge'
-          #    pwsh: true
+              filePath: './build.ps1'
+              arguments: '-tasks merge'
+              pwsh: true
           - task: PublishCodeCoverageResults@2
-            displayName: 'Publish Code Coverage to Azure DevOps'
+            displayName: 'Publish Azure Code Coverage'
             inputs:
-              summaryFileLocation: '$(Build.SourcesDirectory)/$(buildFolderName)/$(testResultFolderName)/JaCoCo_coverage.xml'
+              summaryFileLocation: '$(buildFolderName)/$(testResultFolderName)/JaCoCo_coverage.xml'
               pathToSources: '$(Build.SourcesDirectory)/$(sourceFolderName)/'
           - script: |
               bash <(curl -s https://codecov.io/bash) -f "./$(buildFolderName)/$(testResultFolderName)/JaCoCo_coverage.xml"
@@ -244,6 +228,7 @@ stages:
 
   - stage: Deploy
     dependsOn: Test
+    # Only execute deploy stage if we're on main and previous stage succeeded
     condition: |
       and(
         succeeded(),
@@ -264,7 +249,7 @@ stages:
             inputs:
               buildType: 'current'
               artifactName: $(buildArtifactName)
-              targetPath: '$(Build.SourcesDirectory)/$(buildArtifactName)'
+              targetPath: '$(Build.SourcesDirectory)/$(buildFolderName)'
           - task: PowerShell@2
             name: publishRelease
             displayName: 'Publish Release'
