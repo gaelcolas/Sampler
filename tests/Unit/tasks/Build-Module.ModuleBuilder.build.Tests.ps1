@@ -35,6 +35,11 @@ Describe 'Build_ModuleOutput_ModuleBuilder' {
             CopyPaths = @('folder1','folder2')
         }
 
+        <#
+            This mock is specifically needed because the task does
+            `(Get-Command -Name Build-Module).Parameters.Keys` to discover which
+            parameters are supported by the mocked Build-Module command.
+        #>
         Mock -CommandName Get-Command -MockWith {
             return @{
                 Parameters = @{
@@ -47,6 +52,18 @@ Describe 'Build_ModuleOutput_ModuleBuilder' {
                 Invoke-Build that runs in the same scope a the task.
             #>
             $Name -eq 'Build-Module'
+        }
+
+        <#
+            Default (catch-all) mock: uses the engine's command-discovery API
+            directly (bypassing the Get-Command cmdlet, and therefore this very
+            mock, to avoid infinite recursion) so any other call to Get-Command
+            (e.g. made by Invoke-Build in the same scope as the task) falls
+            through to the real command instead of throwing under Pester 6's
+            stricter mock semantics.
+        #>
+        Mock -CommandName Get-Command -MockWith {
+            return $ExecutionContext.InvokeCommand.GetCommand($Name, 'All')
         }
 
         Mock -CommandName Build-Module -RemoveParameterValidation 'SourcePath' -MockWith {
@@ -95,6 +112,18 @@ Describe 'Build_ModuleOutput_ModuleBuilder' {
             $Path -match 'ReleaseNotes.md'
         } -MockWith {
             return 'Mock release notes'
+        }
+
+        <#
+            Default (catch-all) mock so any other call to Get-Content (e.g. made
+            by Invoke-Build to read the task file itself, using -LiteralPath) falls
+            through to the real command instead of throwing under Pester 6's
+            stricter mock semantics.
+        #>
+        Mock -CommandName Get-Content -MockWith {
+            $realCommand = $ExecutionContext.InvokeCommand.GetCommand('Get-Content', 'Cmdlet')
+
+            & $realCommand @PesterBoundParameters
         }
 
         Mock -CommandName Update-Metadata -RemoveParameterValidation 'Path'
@@ -654,6 +683,17 @@ Describe 'Build_DscResourcesToExport_ModuleBuilder' {
                 }
             }
 
+            <#
+                Default (catch-all) mock for the '*.schema.psm1' lookup that the
+                task also performs unconditionally after the MOF-based lookup.
+                Returns no files found, matching the intent of this MOF-only test.
+            #>
+            Mock -CommandName Get-ChildItem -ParameterFilter {
+                $Filter -eq '*.schema.psm1'
+            } -MockWith {
+                return $null
+            }
+
             Mock -CommandName Get-MofSchemaName -MockWith {
                 return @{
                     Name = 'MyResource'
@@ -713,6 +753,18 @@ Describe 'Build_DscResourcesToExport_ModuleBuilder' {
                 return @{
                     FullName = (Join-Path -Path $TestDrive -ChildPath 'DSCResources/MyResource.schema.psm1')
                 }
+            }
+
+            <#
+                Default (catch-all) mock for the '*.schema.mof' lookup that the
+                task also performs unconditionally before the composite resource
+                lookup. Returns no files found, matching the intent of this
+                composite-resource-only test.
+            #>
+            Mock -CommandName Get-ChildItem -ParameterFilter {
+                $Filter -eq '*.schema.mof'
+            } -MockWith {
+                return $null
             }
 
             Mock -CommandName Get-Psm1SchemaName -MockWith {

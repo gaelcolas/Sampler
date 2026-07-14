@@ -171,6 +171,18 @@ Describe 'upate_choco_nuspec_data' {
             SourcePath = Join-Path -Path $TestDrive -ChildPath 'MyModule/source'
             ProjectName = 'MyModule'
         }
+
+        <#
+            Default (catch-all) mock so any other call to Get-Content (e.g. made
+            by Invoke-Build to read the task file itself, using -LiteralPath) falls
+            through to the real command instead of throwing under Pester 6's
+            stricter mock semantics.
+        #>
+        Mock -CommandName Get-Content -MockWith {
+            $realCommand = $ExecutionContext.InvokeCommand.GetCommand('Get-Content', 'Cmdlet')
+
+            & $realCommand @PesterBoundParameters
+        }
     }
 
     Context 'When there is a staged package' {
