@@ -186,11 +186,21 @@ task Create_Changelog_Branch {
 
         $patBase64 = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(('{0}:{1}' -f 'PAT', $BasicAuthPAT)))
 
-        $pullArguments += @('-c', ('http.extraheader="AUTHORIZATION: basic {0}"' -f $patBase64))
+        $pullArguments += @('-c', ('http.extraheader=AUTHORIZATION: basic {0}' -f $patBase64))
+    }
+
+    if (-not (Test-Path -Path 'variable:IsWindows') -or $IsWindows)
+    {
+        <#
+            The 'schannel' SSL backend is only available on Windows (Git for
+            Windows). Setting it on Linux or macOS causes git to fail with
+            'Unsupported SSL backend'.
+        #>
+        $pullArguments += @('-c', 'http.sslbackend=schannel')
     }
 
     # Track this branch on the remote 'origin
-    $pullArguments += @('-c', 'http.sslbackend=schannel', 'pull', 'origin', $MainGitBranch, '--tag')
+    $pullArguments += @('pull', 'origin', $MainGitBranch, '--tag')
 
     Sampler\Invoke-SamplerGit -Argument $pullArguments
 
@@ -258,11 +268,21 @@ task Create_Changelog_Branch {
 
         $patBase64 = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(('{0}:{1}' -f 'PAT', $BasicAuthPAT)))
 
-        $pushArguments += @('-c', ('http.extraheader="AUTHORIZATION: basic {0}"' -f $patBase64))
+        $pushArguments += @('-c', ('http.extraheader=AUTHORIZATION: basic {0}' -f $patBase64))
+    }
+
+    if (-not (Test-Path -Path 'variable:IsWindows') -or $IsWindows)
+    {
+        <#
+            The 'schannel' SSL backend is only available on Windows (Git for
+            Windows). Setting it on Linux or macOS causes git to fail with
+            'Unsupported SSL backend'.
+        #>
+        $pushArguments += @('-c', 'http.sslbackend=schannel')
     }
 
     # Track this branch on the remote 'origin
-    $pushArguments += @('-c', 'http.sslbackend=schannel', 'push', '-u', 'origin', $BranchName)
+    $pushArguments += @('push', '-u', 'origin', $BranchName)
 
     Sampler\Invoke-SamplerGit -Argument $pushArguments
 

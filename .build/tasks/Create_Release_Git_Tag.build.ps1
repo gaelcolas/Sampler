@@ -195,10 +195,20 @@ task Create_Release_Git_Tag {
 
             $patBase64 = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(('{0}:{1}' -f 'PAT', $BasicAuthPAT)))
 
-            $pushArguments += @('-c', ('http.extraheader="AUTHORIZATION: basic {0}"' -f $patBase64))
+            $pushArguments += @('-c', ('http.extraheader=AUTHORIZATION: basic {0}' -f $patBase64))
         }
 
-        $pushArguments += @('-c', 'http.sslbackend=schannel', 'push', 'origin', '--tags')
+        if (-not (Test-Path -Path 'variable:IsWindows') -or $IsWindows)
+        {
+            <#
+                The 'schannel' SSL backend is only available on Windows (Git for
+                Windows). Setting it on Linux or macOS causes git to fail with
+                'Unsupported SSL backend'.
+            #>
+            $pushArguments += @('-c', 'http.sslbackend=schannel')
+        }
+
+        $pushArguments += @('push', 'origin', '--tags')
 
         Sampler\Invoke-SamplerGit -Argument $pushArguments
 
