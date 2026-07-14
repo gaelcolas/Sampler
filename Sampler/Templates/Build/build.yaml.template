@@ -195,12 +195,72 @@ BuildWorkflow:
     - publish_module_to_gallery
 
 ####################################################
-#       PESTER  Configuration                      #
+#              PESTER Configuration                #
 ####################################################
 
 Pester:
-  OutputFormat: NUnitXML
-  # Excludes one or more paths from being used to calculate code coverage.
+  # Pester Advanced configuration.
+  # If a key is not set it will be using Sampler pipeline default value.
+  Configuration:
+    Run:
+      # If no scripts are defined the default is to use all the tests under the project's
+      # tests folder or source folder (if present). Test script paths can be defined to
+      # only run tests in certain folders, or run specific test files, or can be use to
+      # specify the order tests are run.
+      Path:
+<%
+    if ($PLASTER_PARAM_ModuleType -eq 'dsccommunity') {
+@"
+        - tests/Unit
+"@
+    }
+    else {
+@'
+        #- tests/QA/module.tests.ps1
+        #- tests/QA
+        #- tests/Unit
+        #- tests/Integration
+'@
+    }
+%>
+    Output:
+      Verbosity: Detailed
+      StackTraceVerbosity: Full
+      CIFormat: Auto
+    Filter:
+      Tag:
+      ExcludeTag:
+<%
+    if ($PLASTER_PARAM_ModuleType -ne 'dsccommunity') {
+@'
+        #- helpQuality
+        #- FunctionalQuality
+        #- TestQuality
+'@
+    }
+%>
+    CodeCoverage:
+<%
+    if ($PLASTER_PARAM_ModuleType -eq 'dsccommunity') {
+@"
+      CoveragePercentTarget: 85 # Set to 0 to bypass
+      OutputPath: JaCoCo_coverage.xml
+      OutputEncoding: ascii
+"@
+    }
+    else {
+@'
+      CoveragePercentTarget: 0 # Set to 0 to bypass
+      #OutputPath: JaCoCo_$OsShortName.xml
+      #OutputEncoding: ascii
+'@
+    }
+%>
+      UseBreakpoints: false
+    TestResult:
+      OutputFormat: NUnitXML
+      OutputEncoding: ascii
+  # Will look at every *.ps1 & *.psm1 under ModulePath, excepts when $_.FullName -match (Join-Path $ProjectPath $ExcludeFromCodeCoverageItem)
   ExcludeFromCodeCoverage:
 <%
     if ($PLASTER_PARAM_ModuleType -eq 'dsccommunity') {
@@ -216,54 +276,16 @@ Pester:
 "@
     }
 %>
-  # If no scripts are defined the default is to use all the tests under the project's
-  # tests folder or source folder (if present). Test script paths can be defined to
-  # only run tests in certain folders, or run specific test files, or can be use to
-  # specify the order tests are run.
-  Script:
-<%
-    if ($PLASTER_PARAM_ModuleType -eq 'dsccommunity') {
-@"
-    - tests/Unit
-"@
-    }
-    else {
-@"
-  # - tests/QA/module.tests.ps1
-  # - tests/QA
-  # - tests/Unit
-  # - tests/Integration
-  ExcludeTag:
-  #  - helpQuality
-  #  - FunctionalQuality
-  #  - TestQuality
-"@
-    }
-%>
-  Tag:
-  CodeCoverageThreshold: 85 # Set to 0 to bypass
-<%
-    if ($PLASTER_PARAM_ModuleType -eq 'dsccommunity') {
-@"
-  CodeCoverageOutputFile: JaCoCo_coverage.xml
-  CodeCoverageOutputFileEncoding: ascii
-"@
-    }
-    else {
-@'
-  #CodeCoverageOutputFile: JaCoCo_$OsShortName.xml
-  #CodeCoverageOutputFileEncoding: ascii
-'@
-    }
-%>
-  # Use this if code coverage should be merged from several pipeline test jobs.
-  # Any existing keys above should be replaced. See also CodeCoverage below.
-  # CodeCoverageOutputFile is the file that is created for each pipeline test job.
-  #CodeCoverageOutputFile: JaCoCo_Merge.xml
+
+# Use this if code coverage should be merged from several pipeline test jobs.
+# Any existing keys above should be replaced. See also CodeCoverage below.
+# Pester.Configuration.CodeCoverage.OutputPath is the file that is created for
+# each pipeline test job.
+#OutputPath: JaCoCo_Merge.xml
 
 # Use this to merged code coverage from several pipeline test jobs.
 # CodeCoverageFilePattern      - the pattern used to search all pipeline test job artifacts
-#                                after the file specified in CodeCoverageOutputFile.
+#                                after the file specified in CodeCoverage.OutputPath above.
 # CodeCoverageMergedOutputFile - the file that is created by the merge build task and
 #                                is the file that should be uploaded to code coverage services.
 #CodeCoverage:

@@ -36,6 +36,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `-OutputFile`/`-OutputFormat` parameters used by the Pester-4 code path in
   `Invoke-Pester.pester.build.Tests.ps1`. No production source files were
   changed; this is purely a test-suite compatibility fix.
+- `Sampler/Templates/Build/build.yaml.template` (scaffolded by `New-SampleModule`
+  and `Add-Sample -Sample Build`) now generates the current nested
+  `Pester.Configuration` (`Run`/`Output`/`Filter`/`CodeCoverage`/`TestResult`)
+  schema instead of the deprecated flat `Pester.OutputFormat`/`Pester.Script`/
+  `Pester.CodeCoverageThreshold`/`Pester.CodeCoverageOutputFile` keys, matching
+  the structure Sampler itself uses in its own `build.yaml`. The old flat keys
+  still work (`Invoke-Pester.pester.build.ps1` keeps a deprecation fallback and
+  prints migration guidance), but new modules scaffolded from the template were
+  being generated with an already-deprecated configuration shape. Fixes #587.
 - `Fail_Build_If_Pester_Tests_Failed` and the `DscResource.Test` build task now fail
   the build when a Pester 5 run reports failed blocks or failed containers (for
   example a discovery failure such as an empty `-ForEach`), not only when

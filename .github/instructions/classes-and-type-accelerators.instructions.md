@@ -1,6 +1,6 @@
 ---
 description: 'Module class export and type accelerator instructions'
-applyTo: '{source/suffix.ps1,source/Classes/*.ps1,source/Enum/*.ps1,source/synio.process.psm1}'
+applyTo: '{source/suffix.ps1,source/Classes/*.ps1,source/Enum/*.ps1}'
 ---
 
 # Classes and Type Accelerators Guidelines
