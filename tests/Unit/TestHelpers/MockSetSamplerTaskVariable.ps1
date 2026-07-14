@@ -82,6 +82,27 @@ Mock -CommandName Get-SamplerAbsolutePath -ParameterFilter {
     )
 }
 
+<#
+    Default (catch-all) mock for any other Path/RelativeTo combination that
+    Set-SamplerTaskVariable.ps1 resolves (e.g. $OutputDirectory, $ReleaseNotesPath,
+    $SourcePath, $BuiltModuleSubDirectory, $ChocolateyBuildOutput). It mimics the
+    real Get-SamplerAbsolutePath behavior of joining a relative $Path onto
+    $RelativeTo, without needing a bespoke -ParameterFilter for every call site.
+#>
+Mock -CommandName Get-SamplerAbsolutePath -MockWith {
+    if ([System.String]::IsNullOrEmpty($Path))
+    {
+        return $RelativeTo
+    }
+
+    if ([System.Io.Path]::IsPathRooted($Path))
+    {
+        return $Path
+    }
+
+    return (Join-Path -Path $RelativeTo -ChildPath $Path)
+}
+
 $script:mockGetSamplerBuiltModuleManifestReturnValue =
 
 Mock -CommandName Get-SamplerBuiltModuleManifest -MockWith {

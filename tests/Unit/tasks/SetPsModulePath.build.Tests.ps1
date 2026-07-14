@@ -43,7 +43,7 @@ Describe 'SetPsModulePath' -Tag x {
                 Invoke-Build -Task 'Set_PSModulePath' -File $taskAlias.Definition @mockTaskParameters
             } | Should -Not -Throw
 
-            Assert-MockCalled -CommandName Set-SamplerPSModulePath -Exactly -Times 1 -Scope It
+            Should -Invoke -CommandName Set-SamplerPSModulePath -Exactly -Times 1 -Scope It
         }
     }
 }

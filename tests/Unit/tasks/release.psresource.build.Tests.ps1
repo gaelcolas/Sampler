@@ -37,6 +37,18 @@ Describe 'package_psresource_nupkg' {
             OutputDirectory = Join-Path -Path $TestDrive -ChildPath 'output'
             ProjectName = 'MyModule'
         }
+
+        <#
+            Default (catch-all) mock so any other call to Get-Content (e.g. made
+            by Invoke-Build to read the task file itself, using -LiteralPath) falls
+            through to the real command instead of throwing under Pester 6's
+            stricter mock semantics.
+        #>
+        Mock -CommandName Get-Content -MockWith {
+            $realCommand = $ExecutionContext.InvokeCommand.GetCommand('Get-Content', 'Cmdlet')
+
+            & $realCommand @PesterBoundParameters
+        }
     }
 
     Context 'When packaging a Nuget package' {
@@ -138,6 +150,18 @@ Describe 'package_psresource_nupkg' {
                 }
             } -ParameterFilter {
                 $Name -ne 'Microsoft.PowerShell.PSResourceGet'
+            }
+
+            <#
+                Default (catch-all) mock so the real import of
+                Microsoft.PowerShell.PSResourceGet (needed by the task to use its
+                cmdlets) falls through to the real command instead of throwing
+                under Pester 6's stricter mock semantics.
+            #>
+            Mock -CommandName Import-Module -MockWith {
+                $realCommand = $ExecutionContext.InvokeCommand.GetCommand('Import-Module', 'Cmdlet')
+
+                & $realCommand @PesterBoundParameters
             }
 
             Mock -CommandName Get-ChildItem -ParameterFilter {

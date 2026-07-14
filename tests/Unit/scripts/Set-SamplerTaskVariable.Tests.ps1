@@ -67,6 +67,27 @@ Describe 'Set-SamplerTaskVariable' {
                 return (Join-Path -Path $TestDrive -ChildPath (Join-Path -Path 'source' -ChildPath 'MyModule.psd1'))
             }
 
+            <#
+                Default (catch-all) mock for any other Path/RelativeTo combination
+                resolved by Set-SamplerTaskVariable.ps1 (e.g. $OutputDirectory,
+                $ReleaseNotesPath, $BuiltModuleSubDirectory, $ChocolateyBuildOutput).
+                Mimics the real Get-SamplerAbsolutePath behavior of joining a
+                relative $Path onto $RelativeTo.
+            #>
+            Mock -CommandName Get-SamplerAbsolutePath -MockWith {
+                if ([System.String]::IsNullOrEmpty($Path))
+                {
+                    return $RelativeTo
+                }
+
+                if ([System.Io.Path]::IsPathRooted($Path))
+                {
+                    return $Path
+                }
+
+                return (Join-Path -Path $RelativeTo -ChildPath $Path)
+            }
+
             Mock -CommandName Get-SamplerBuildVersion -MockWith {
                 return '2.0.0'
             }
@@ -121,6 +142,27 @@ Describe 'Set-SamplerTaskVariable' {
                 $Path -eq 'MyModule.psd1'
             } -MockWith {
                 return (Join-Path -Path $TestDrive -ChildPath (Join-Path -Path 'source' -ChildPath 'MyModule.psd1'))
+            }
+
+            <#
+                Default (catch-all) mock for any other Path/RelativeTo combination
+                resolved by Set-SamplerTaskVariable.ps1 (e.g. $OutputDirectory,
+                $ReleaseNotesPath, $BuiltModuleSubDirectory, $ChocolateyBuildOutput).
+                Mimics the real Get-SamplerAbsolutePath behavior of joining a
+                relative $Path onto $RelativeTo.
+            #>
+            Mock -CommandName Get-SamplerAbsolutePath -MockWith {
+                if ([System.String]::IsNullOrEmpty($Path))
+                {
+                    return $RelativeTo
+                }
+
+                if ([System.Io.Path]::IsPathRooted($Path))
+                {
+                    return $Path
+                }
+
+                return (Join-Path -Path $RelativeTo -ChildPath $Path)
             }
 
             Mock -CommandName Get-SamplerBuildVersion -MockWith {

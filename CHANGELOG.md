@@ -20,6 +20,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Updated `Mock` setups across `tests/Unit/tasks/*.build.Tests.ps1`,
+  `tests/Unit/TestHelpers/MockSetSamplerTaskVariable.ps1`, and
+  `tests/Unit/scripts/Set-SamplerTaskVariable.Tests.ps1` for compatibility with
+  Pester 6.0.0, which removed the previous "fall through to the real command"
+  behavior for a `Mock -ParameterFilter` that did not match a call; such calls
+  now throw `No mock for command '<name>' matched the call` instead of silently
+  invoking the real command. Added default (no-filter) fallback mocks for
+  commands like `Get-SamplerAbsolutePath`, `Get-Command`, `Get-Content`,
+  `Test-Path`, `Get-ChildItem`, and `Import-Module` so calls not covered by a
+  test's specific `-ParameterFilter` resolve sensibly, without weakening any
+  test's original assertions. Also replaced the removed `Assert-MockCalled`
+  cmdlet with `Should -Invoke` in `SetPsModulePath.build.Tests.ps1`, and
+  accounted for Pester 6.0.0 dropping the legacy `Invoke-Pester`
+  `-OutputFile`/`-OutputFormat` parameters used by the Pester-4 code path in
+  `Invoke-Pester.pester.build.Tests.ps1`. No production source files were
+  changed; this is purely a test-suite compatibility fix.
 - `Fail_Build_If_Pester_Tests_Failed` and the `DscResource.Test` build task now fail
   the build when a Pester 5 run reports failed blocks or failed containers (for
   example a discovery failure such as an empty `-ForEach`), not only when

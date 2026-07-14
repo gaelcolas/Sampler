@@ -54,6 +54,16 @@ Describe 'Invoke_Pester_Tests_v4' {
             # Mocks testing of passing a Invoke-Pester parameter.
             PesterTag = 'MyTag'
         }
+
+        <#
+            Default (catch-all) mock so any other call to Get-Command (e.g. made
+            by Invoke-Build to resolve the task file itself) falls through to the
+            real command instead of throwing under Pester 6's stricter mock
+            semantics.
+        #>
+        Mock -CommandName Get-Command -MockWith {
+            return $ExecutionContext.InvokeCommand.GetCommand($Name, 'All')
+        }
     }
 
     Context 'When code coverage is disabled' {
@@ -84,6 +94,18 @@ Describe 'Invoke_Pester_Tests_v4' {
                     BuildType      = 'PowerShellModule'
                     HasBuiltOutput = $true
                 }
+            }
+
+            <#
+                Pester 6's real Invoke-Pester no longer has the legacy 'OutputFile'
+                and 'OutputFormat' parameters that this task uses when targeting
+                Pester 4. Define a permissive (non-advanced) stub function so Mock
+                can bind arbitrary named parameters instead of failing parameter
+                binding against the real (Pester 6) command signature.
+            #>
+            function Invoke-Pester
+            {
+                param ()
             }
 
             Mock -CommandName Get-Command -ParameterFilter {
@@ -149,6 +171,18 @@ Describe 'Invoke_Pester_Tests_v5' {
             PesterScript = $TestDrive
             # Mocks testing of passing a Invoke-Pester parameter.
             PesterTag = 'MyTag'
+        }
+
+        <#
+            Default (catch-all) mock so any other call to Test-Path (e.g. checking
+            for paths not specifically under test in a given Context) falls
+            through to the real command instead of throwing under Pester 6's
+            stricter mock semantics.
+        #>
+        Mock -CommandName Test-Path -MockWith {
+            $realCommand = $ExecutionContext.InvokeCommand.GetCommand('Test-Path', 'Cmdlet')
+
+            & $realCommand @PesterBoundParameters
         }
     }
 

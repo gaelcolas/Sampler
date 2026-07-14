@@ -37,6 +37,18 @@ Describe 'Merge_CodeCoverage_Files' {
             OutputDirectory = Join-Path -Path $TestDrive -ChildPath 'output'
             ProjectName = 'MyModule'
         }
+
+        <#
+            Default (catch-all) mock so any other call to Test-Path (e.g. for the
+            JaCoCo_coverage.xml path checked by the task before checking for
+            CodeCov_Merged.xml) falls through to the real command instead of
+            throwing under Pester 6's stricter mock semantics.
+        #>
+        Mock -CommandName Test-Path -MockWith {
+            $realCommand = $ExecutionContext.InvokeCommand.GetCommand('Test-Path', 'Cmdlet')
+
+            & $realCommand @PesterBoundParameters
+        }
     }
 
     Context 'When code coverage is disabled' {
