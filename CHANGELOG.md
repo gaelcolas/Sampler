@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.120.0] - 2026-07-14
+
 ### Added
 
 - New `Copilot` Plaster template under `Sampler/Templates/Copilot/` that scaffolds GitHub Copilot instruction files and a `validate-changes` skill into any Sampler-based module. Available via `Add-Sample -Sample Copilot` and as a `copilot` feature option in `New-SampleModule` (CustomModule and CompleteSample).
