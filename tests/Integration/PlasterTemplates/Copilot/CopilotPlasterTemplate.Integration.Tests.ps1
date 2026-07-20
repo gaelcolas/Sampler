@@ -243,5 +243,18 @@ Describe 'Copilot Plaster Template' {
             $content  = Get-Content -Path $filePath -Raw
             $content | Should -Match 'source/WikiSource'
         }
+
+        It 'Should document general PowerShell command documentation setup' {
+            $filePath = Join-Path -Path $mockDestinationPath -ChildPath '.github'
+            $filePath = Join-Path -Path $filePath -ChildPath 'instructions'
+            $filePath = Join-Path -Path $filePath -ChildPath 'wiki-publishing.instructions.md'
+            $content  = Get-Content -Path $filePath -Raw
+
+            $content | Should -Match 'not only DSC resources'
+            $content | Should -Match 'Generate_Markdown_For_Public_Commands'
+            $content | Should -Match 'DscResource.DocGenerator'
+            $content | Should -Match 'PlatyPS'
+            $content | Should -Match 'output/WikiContent.zip'
+        }
     }
 }

@@ -5,26 +5,72 @@ applyTo: '<%= $PLASTER_PARAM_SourceDirectory %>/WikiSource/**/*.md,build.yaml,.p
 
 # GitHub Wiki Publishing Guidelines
 
+## Scope
+
+- Use `DscResource.DocGenerator` for general PowerShell module documentation, not only DSC resources.
+- Use `Generate_Markdown_For_Public_Commands` and `Generate_External_Help_File_For_Public_Commands` for ordinary exported commands.
+- Use `Generate_Markdown_For_DSC_Resources` only when the module contains DSC resources.
+
 ## Source of truth
 
 - Keep hand-authored GitHub wiki pages under `<%= $PLASTER_PARAM_SourceDirectory %>/WikiSource`.
 - Treat `<%= $PLASTER_PARAM_SourceDirectory %>/WikiSource` as the canonical source for custom wiki pages; do not edit generated files under `output/WikiContent`.
 - Prefer stable page names in `WikiSource` so published wiki links do not churn.
 
+## Dependencies
+
+- Add `DscResource.DocGenerator = 'latest'` to `RequiredModules.psd1`.
+- Add `PlatyPS = 'latest'` when generating public command pages or external help.
+- Import `DscResource.DocGenerator` task aliases in `build.yaml`:
+
+```yaml
+ModuleBuildTasks:
+  DscResource.DocGenerator:
+    - 'Task.*'
+```
+
 ## Build wiring
 
 - Keep wiki generation and publishing wired through `build.yaml`.
+- Use this cross-platform task order:
+
+```yaml
+BuildWorkflow:
+  docs:
+    - Create_Wiki_Output_Folder
+    - Generate_Markdown_For_Public_Commands
+    - Generate_External_Help_File_For_Public_Commands
+    - Clean_Markdown_Of_Public_Commands
+    - Copy_Source_Wiki_Folder
+    - Generate_Wiki_Sidebar
+    - Clean_Markdown_Metadata
+    - Package_Wiki_Content
+
+  pack:
+    - build
+    - docs
+    - package_psresource_nupkg
+
+  publish:
+    - Publish_GitHub_Wiki_Content
+```
+
+- Generate external help before copying hand-authored WikiSource pages; otherwise PlatyPS can try to parse custom pages as command help.
 - Ensure docs/build workflows that prepare wiki content include `Copy_Source_Wiki_Folder` so `<%= $PLASTER_PARAM_SourceDirectory %>/WikiSource` is copied into `output/WikiContent`.
 - Keep `Publish_GitHub_Wiki_Content` in the `publish` workflow so the generated wiki content is pushed to the repository wiki.
 - Keep `Generate_Wiki_Sidebar` after copying `WikiSource` content so custom pages can participate in sidebar generation.
+- Add `output/WikiContent.zip` to `GitHubConfig.ReleaseAssets` when release artifacts should include the generated documentation.
+- Configure `DscResource.DocGenerator.Generate_Wiki_Sidebar.AlwaysOverwrite: true` when the sidebar should be rebuilt from generated and custom pages.
 
 ## Authoring notes
 
 - Put landing-page content in `<%= $PLASTER_PARAM_SourceDirectory %>/WikiSource/Home.md` when a custom wiki home page is needed.
 - If `Home.md` contains module version placeholders, rely on the Sampler/DscResource.DocGenerator task to update them during the build; do not hardcode release-specific versions into committed wiki pages.
 - Keep custom wiki content in Markdown that is compatible with GitHub wiki rendering.
+- Use relative `.md` links between committed WikiSource pages so repository link validation can resolve them.
 
 ## Validation
 
-- After changing wiki workflow wiring or `<%= $PLASTER_PARAM_SourceDirectory %>/WikiSource` structure, validate with `./build.ps1 -Tasks build`.
+- After changing wiki workflow wiring or `<%= $PLASTER_PARAM_SourceDirectory %>/WikiSource` structure, validate with `./build.ps1 -Tasks pack`.
+- Confirm `output/WikiContent`, `output/WikiContent.zip`, generated command pages, and `_Sidebar.md` exist.
 - When changing publish behavior, also validate the docs/publish path used by the pipeline rather than editing `output/WikiContent` manually.

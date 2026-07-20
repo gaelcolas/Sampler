@@ -41,7 +41,7 @@
     <parameter name="HasWikiSource"
                type="choice"
                default="1"
-               prompt="Does the module publish a GitHub wiki from a WikiSource folder?">
+               prompt="Does the module generate or publish documentation with DscResource.DocGenerator and WikiSource?">
       <choice label="&amp;Yes" value="true" />
       <choice label="&amp;No"  value="false" />
     </parameter>

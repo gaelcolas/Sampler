@@ -124,7 +124,7 @@
                   default="main"
                   store="text"
                   prompt="Name of your default branch"
-                  condition="$PLASTER_PARAM_UseGit -eq 'true' -or $PLASTER_PARAM_ModuleType -in @('CompleteSample', 'CustomModule')"/>
+                  condition="$PLASTER_PARAM_UseGit -eq 'true' -or $PLASTER_PARAM_ModuleType -in @('CompleteSample', 'CustomModule', 'dsccommunity')"/>
 
       <parameter name="UseGitVersion" type="choice"
                   prompt="Do you want to add configuration for GitVersion to handle automatic versioning for your project?"
