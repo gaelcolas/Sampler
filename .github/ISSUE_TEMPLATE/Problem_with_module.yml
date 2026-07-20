@@ -6,17 +6,13 @@ body:
   - type: markdown
     attributes:
       value: |
-        TITLE: Please be descriptive not sensationalist.
-
-        Your feedback and support is greatly appreciated, thanks for contributing!
-
-        Please provide information regarding your issue under each section below.
+        Thanks for contributing! Please be descriptive in your title, and fill in the sections below.
         **Write N/A in sections that do not apply, or if the information is not available.**
   - type: textarea
     id: description
     attributes:
       label: Problem description
-      description: Details of the scenario you tried and the problem that is occurring, or the enhancement you are suggesting.
+      description: What did you try, what happened, and what did you expect to happen? Include the steps to reproduce.
     validations:
       required: true
   - type: textarea
@@ -24,79 +20,32 @@ body:
     attributes:
       label: Verbose logs
       description: |
-        Verbose logs showing the problem. **NOTE! Sensitive information should be obfuscated.** _Will be automatically formatted as plain text._
+        Verbose logs showing the problem. **Sensitive information should be obfuscated.** _Will be automatically formatted as plain text._
       placeholder: |
         Paste verbose logs here
       render: text
     validations:
       required: true
   - type: textarea
-    id: reproducible
-    attributes:
-      label: How to reproduce
-      description: Provide the steps to reproduce the problem.
-    validations:
-      required: true
-  - type: textarea
-    id: expectedBehavior
-    attributes:
-      label: Expected behavior
-      description: Describe what you expected to happen.
-    validations:
-      required: true
-  - type: textarea
-    id: currentBehavior
-    attributes:
-      label: Current behavior
-      description: Describe what actually happens.
-    validations:
-      required: true
-  - type: textarea
     id: suggestedSolution
     attributes:
       label: Suggested solution
-      description: Do you have any suggestions how to solve the issue?
+      description: Do you have any suggestions how to solve the issue? (Optional)
     validations:
-      required: true
+      required: false
   - type: textarea
-    id: targetNodeOS
+    id: environment
     attributes:
-      label: Operating system the target node is running
+      label: Environment
       description: |
-        Please provide as much as possible about the node running Sampler. _Will be automatically formatted as plain text._
+        The OS, PowerShell version/build, and Sampler module version in use. _Will be automatically formatted as plain text._
 
-        To help with this information:
-        - On a Linux distribution, please provide the distribution name, version, and release. The following command can help get this information: `cat /etc/*-release && cat /proc/version`
-        - On macOS, please provide the product version and build version. The following command can help get this information: `sw_vers`
-        - On a Windows OS please provide edition, version, build, and language. The following command can help get this information: `Get-ComputerInfo -Property @('OsName','OsOperatingSystemSKU','OSArchitecture','WindowsVersion','WindowsBuildLabEx','OsLanguage','OsMuiLanguages')`
+        Helpful commands:
+        - OS: `Get-ComputerInfo` (Windows), `cat /etc/*-release && cat /proc/version` (Linux), `sw_vers` (macOS)
+        - PowerShell: `$PSVersionTable`
+        - Module version: `Get-Module -Name 'Sampler' -ListAvailable | ft Name,Version,Path`
       placeholder: |
-        Add operating system information here
-      render: text
-    validations:
-      required: true
-  - type: textarea
-    id: targetNodePS
-    attributes:
-      label: PowerShell version and build the target node is running
-      description: |
-        Please provide the version and build of PowerShell the target node is running. _Will be automatically formatted as plain text._
-
-        To help with this information, please run this command: `$PSVersionTable`
-      placeholder: |
-        Add PowerShell information here
-      render: text
-    validations:
-      required: true
-  - type: textarea
-    id: moduleVersion
-    attributes:
-      label: Module version used
-      description: |
-        Please provide the version of the Sampler module that was used. _Will be automatically formatted as plain text._
-
-        To help with this information, please run this command: `Get-Module -Name 'Sampler' -ListAvailable | ft Name,Version,Path`
-      placeholder: |
-        Add module information here
+        Add environment information here
       render: text
     validations:
       required: true

@@ -17,7 +17,7 @@ PowerShell module.
 | `.github/skills/validate-changes/SKILL.md` | Always | Targeted test-scope selection skill for Copilot |
 | `.github/instructions/classes-and-type-accelerators.instructions.md` | `HasClasses = Yes` | PSv5+ class export and type-accelerator conventions |
 | `.github/instructions/build-task-files.instructions.md` | `HasCustomBuildTasks = Yes` | Custom `.build/tasks/` file conventions |
-| `.github/instructions/wiki-publishing.instructions.md` | `HasWikiSource = Yes` | WikiSource authoring and publish conventions |
+| `.github/instructions/wiki-publishing.instructions.md` | `HasWikiSource = Yes` | General PowerShell command docs, WikiSource authoring, and wiki publish conventions |
 
 ## Usage
 
@@ -37,7 +37,7 @@ Plaster will prompt for:
 | Source folder name | `source` | Usually `source` or `src` |
 | Does the module use PSv5+ Classes? | No | Adds `classes-and-type-accelerators.instructions.md` |
 | Does the module have custom build task files? | No | Adds `build-task-files.instructions.md` |
-| Does the module publish a GitHub wiki? | No | Adds `wiki-publishing.instructions.md` |
+| Does the module generate or publish documentation with DscResource.DocGenerator and WikiSource? | No | Adds `wiki-publishing.instructions.md` |
 
 ### Include when scaffolding a new module
 
@@ -90,6 +90,22 @@ A Copilot skill that selects the correct test scope based on what changed:
 - Template change -> integration tests
 - Build task change -> full default test workflow
 - Completion check: always run the full suite before PR
+
+### `instructions/wiki-publishing.instructions.md`
+
+This conditional instruction file documents the complete
+`DscResource.DocGenerator` setup:
+
+- Required modules and `ModuleBuildTasks` imports
+- Generated Markdown for ordinary public PowerShell commands
+- Generated external command help
+- Hand-authored `WikiSource` pages
+- Sidebar and `WikiContent.zip` generation
+- GitHub wiki publishing and release assets
+
+`DscResource.DocGenerator` is not limited to DSC resources. Its DSC-specific
+tasks are optional; PowerShell modules without DSC resources can still generate
+command reference pages and publish custom wiki content.
 
 ## Customization
 

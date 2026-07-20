@@ -5,10 +5,10 @@ This module contains DSC resources for the management and
 configuration of PRODUCT.
 
 <!-- Update with the correct definition number - replace 9999 with the definition number for the pipeline /-->
-[![Build Status](https://dev.azure.com/dsccommunity/<%= $PLASTER_PARAM_ModuleName %>/_apis/build/status/dsccommunity.<%= $PLASTER_PARAM_ModuleName %>?branchName=<%= if ($PLASTER_PARAM_GitMainBranch -eq 'master') { 'master' } else { 'main' } %>)](https://dev.azure.com/dsccommunity/<%= $PLASTER_PARAM_ModuleName %>/_build/latest?definitionId=9999&branchName=<%= if ($PLASTER_PARAM_GitMainBranch -eq 'master') { 'master' } else { 'main' } %>)
-![Azure DevOps coverage (branch)](https://img.shields.io/azure-devops/coverage/dsccommunity/<%= $PLASTER_PARAM_ModuleName %>/9999/<%= if ($PLASTER_PARAM_GitMainBranch -eq 'master') { 'master' } else { 'main' } %>)
-[![codecov](https://codecov.io/gh/dsccommunity/<%= $PLASTER_PARAM_ModuleName %>/branch/<%= if ($PLASTER_PARAM_GitMainBranch -eq 'master') { 'master' } else { 'main' } %>/graph/badge.svg)](https://codecov.io/gh/dsccommunity/<%= $PLASTER_PARAM_ModuleName %>)
-[![Azure DevOps tests](https://img.shields.io/azure-devops/tests/dsccommunity/<%= $PLASTER_PARAM_ModuleName %>/9999/<%= if ($PLASTER_PARAM_GitMainBranch -eq 'master') { 'master' } else { 'main' } %>)](https://dsccommunity.visualstudio.com/<%= $PLASTER_PARAM_ModuleName %>/_test/analytics?definitionId=9999&contextType=build)
+[![Build Status](https://dev.azure.com/dsccommunity/<%= $PLASTER_PARAM_ModuleName %>/_apis/build/status/dsccommunity.<%= $PLASTER_PARAM_ModuleName %>?branchName=<%= ${PLASTER_PARAM_MainGitBranch} %>)](https://dev.azure.com/dsccommunity/<%= $PLASTER_PARAM_ModuleName %>/_build/latest?definitionId=9999&branchName=<%= ${PLASTER_PARAM_MainGitBranch} %>)
+![Azure DevOps coverage (branch)](https://img.shields.io/azure-devops/coverage/dsccommunity/<%= $PLASTER_PARAM_ModuleName %>/9999/<%= ${PLASTER_PARAM_MainGitBranch} %>)
+[![codecov](https://codecov.io/gh/dsccommunity/<%= $PLASTER_PARAM_ModuleName %>/branch/<%= ${PLASTER_PARAM_MainGitBranch} %>/graph/badge.svg)](https://codecov.io/gh/dsccommunity/<%= $PLASTER_PARAM_ModuleName %>)
+[![Azure DevOps tests](https://img.shields.io/azure-devops/tests/dsccommunity/<%= $PLASTER_PARAM_ModuleName %>/9999/<%= ${PLASTER_PARAM_MainGitBranch} %>)](https://dsccommunity.visualstudio.com/<%= $PLASTER_PARAM_ModuleName %>/_test/analytics?definitionId=9999&contextType=build)
 [![PowerShell Gallery (with prereleases)](https://img.shields.io/powershellgallery/v/<%= $PLASTER_PARAM_ModuleName %>?label=<%= $PLASTER_PARAM_ModuleName %>%20Preview&include_prelreleases)](https://www.powershellgallery.com/packages/<%= $PLASTER_PARAM_ModuleName %>/)
 [![PowerShell Gallery](https://img.shields.io/powershellgallery/v/<%= $PLASTER_PARAM_ModuleName %>?label=<%= $PLASTER_PARAM_ModuleName %>)](https://www.powershellgallery.com/packages/<%= $PLASTER_PARAM_ModuleName %>/)
 
@@ -18,7 +18,7 @@ This project has adopted this [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## Releases
 
-For each merge to the branch `<%= if ($PLASTER_PARAM_GitMainBranch -eq 'master') { 'master' } else { 'main' } %>` a preview release will be
+For each merge to the branch `<%= ${PLASTER_PARAM_MainGitBranch} %>` a preview release will be
 deployed to [PowerShell Gallery](https://www.powershellgallery.com/).
 Periodically a release version tag will be pushed which will deploy a
 full release to [PowerShell Gallery](https://www.powershellgallery.com/).
