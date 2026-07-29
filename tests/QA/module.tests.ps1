@@ -110,6 +110,52 @@ Describe 'General module control' -Tags 'FunctionalQuality' {
     }
 }
 
+Describe 'Build task shared property defaults' -Tags 'FunctionalQuality' {
+    <#
+        InvokeBuild dot-sources every imported task file into the same scope, and
+        the 'property' helper treats an empty string as unset. A task file that
+        declares a non-empty default for a shared property therefore overwrites
+        the value used by every other task in the build.
+    #>
+    It 'Should use the same BuiltModuleSubdirectory property default in every build task file' {
+        $taskFilePath = Join-Path -Path $projectPath -ChildPath (Join-Path -Path '.build' -ChildPath 'tasks')
+
+        $astSearchDelegate = { $args[0] -is [System.Management.Automation.Language.CommandAst] }
+
+        $propertyDefault = @()
+
+        foreach ($taskFile in (Get-ChildItem -Path $taskFilePath -Filter '*.build.ps1'))
+        {
+            $abstractSyntaxTree = [System.Management.Automation.Language.Parser]::ParseFile($taskFile.FullName, [ref] $null, [ref] $null)
+
+            $parameterAst = @(
+                $abstractSyntaxTree.ParamBlock.Parameters |
+                    Where-Object -FilterScript {
+                        $_.Name.VariablePath.UserPath -eq 'BuiltModuleSubdirectory'
+                    }
+            )
+
+            if ($parameterAst.Count -eq 0)
+            {
+                continue
+            }
+
+            $propertyCommandAst = $parameterAst[0].DefaultValue.Find($astSearchDelegate, $true)
+
+            $propertyDefault += [PSCustomObject] @{
+                FileName = $taskFile.Name
+                Default  = $propertyCommandAst.CommandElements[2].Value
+            }
+        }
+
+        $propertyDefault.Count | Should -BeGreaterThan 0 -Because 'the build task files must declare the shared BuiltModuleSubdirectory property'
+
+        $divergentDefault = @($propertyDefault | Where-Object -FilterScript { $_.Default -ne '' })
+
+        $divergentDefault.Count | Should -Be 0 -Because ("the shared 'BuiltModuleSubdirectory' property default must be an empty string in every build task file, but these files diverge: {0}" -f ($divergentDefault.FileName -join ', '))
+    }
+}
+
 BeforeDiscovery {
     # Must use the imported module to build test cases.
     $allModuleFunctions = & $mut { Get-Command -Module $args[0] -CommandType Function } $script:moduleName

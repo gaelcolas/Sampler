@@ -24,6 +24,35 @@ Describe 'WorkspaceDependencies.build' {
         $taskAlias.ReferencedCommand | Should -Be 'WorkspaceDependencies.build.ps1'
         $taskAlias.Definition | Should -Match 'Sampler[\/|\\]\d+\.\d+\.\d+[\/|\\]tasks[\/|\\]WorkspaceDependencies\.build\.ps1'
     }
+
+    <#
+        InvokeBuild dot-sources every imported task file into the same scope, and
+        the 'property' helper treats an empty string as unset. A non-empty default
+        here would therefore overwrite the shared $BuiltModuleSubdirectory value
+        for every other task in the build.
+    #>
+    It 'Should default the BuiltModuleSubdirectory property to an empty string' {
+        $taskFilePath = (Get-Alias -Name 'WorkspaceDependencies.build.Sampler.ib.tasks').Definition
+
+        $abstractSyntaxTree = [System.Management.Automation.Language.Parser]::ParseFile($taskFilePath, [ref] $null, [ref] $null)
+
+        $parameterAst = @(
+            $abstractSyntaxTree.ParamBlock.Parameters |
+                Where-Object -FilterScript {
+                    $_.Name.VariablePath.UserPath -eq 'BuiltModuleSubdirectory'
+                }
+        )
+
+        $parameterAst.Count | Should -Be 1
+
+        $astSearchDelegate = { $args[0] -is [System.Management.Automation.Language.CommandAst] }
+
+        $propertyCommandAst = $parameterAst[0].DefaultValue.Find($astSearchDelegate, $true)
+
+        $propertyCommandAst.CommandElements[0].Value | Should -Be 'property'
+        $propertyCommandAst.CommandElements[1].Value | Should -Be 'BuiltModuleSubdirectory'
+        $propertyCommandAst.CommandElements[2].Value | Should -Be '' -Because 'a non-empty default leaks into the shared build scope of every other task'
+    }
 }
 
 Describe 'Link_Local_Workspace_Dependencies' {

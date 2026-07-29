@@ -22,7 +22,15 @@
         `$BuildRoot`.
 
     .PARAMETER BuiltModuleSubdirectory
-        The parent path of the module to be built. Defaults to `module`.
+        The parent path of the module to be built, relative to `$OutputDirectory`.
+        Defaults to an empty string, which resolves the link root to the output
+        root - the same location `build.ps1` builds to and pre-pends to
+        `PSModulePath` when `BuiltModuleSubdirectory` is not set in `build.yaml`.
+        The default must stay empty because InvokeBuild dot-sources every task
+        file into the same scope and a non-empty default here would overwrite the
+        shared value for all other tasks. `Get-SamplerWorkspaceLinkedModuleRoot`
+        keeps `module` as its own parameter default for when the argument is
+        omitted entirely.
 
     .PARAMETER WorkspaceModules
         The sibling workspace modules to link into the local output module path.
@@ -41,7 +49,7 @@ param
 
     [Parameter()]
     [System.String]
-    $BuiltModuleSubdirectory = (property BuiltModuleSubdirectory 'module'),
+    $BuiltModuleSubdirectory = (property BuiltModuleSubdirectory ''),
 
     [Parameter()]
     [System.String[]]

@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- The `WorkspaceDependencies` build task declared its `BuiltModuleSubdirectory`
+  parameter default as `(property BuiltModuleSubdirectory 'module')` while every
+  other task file uses `''`. InvokeBuild dot-sources all imported task files into
+  the same scope and the `property` helper treats an empty string as unset, so
+  this non-empty default (dot-sourced last) overwrote the shared
+  `$BuiltModuleSubdirectory` value for every task in the build. Projects that do
+  not set `BuiltModuleSubdirectory` in `build.yaml` build to the output root, but
+  the tasks then looked for the built module under `output\module`, failing with
+  `Could not find the built module manifest for module '<Name>'. Build the module
+  before running tasks that require the built module output.` from
+  `Set-SamplerTaskVariable`. The default is now `''`, which also makes
+  `Link_Local_Workspace_Dependencies` link sibling modules into the location that
+  is actually on `PSModulePath` for the consuming project. Fixes #593.
+
 ## [0.120.0] - 2026-07-14
 
 ### Added
