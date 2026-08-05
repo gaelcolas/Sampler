@@ -87,6 +87,7 @@ $p = Join-Path -Path $p    -ChildPath "$ModuleName.psd1"
 ## Public-critical requirements
 
 - Preserve backward compatibility by default; avoid parameter renames/removals.
+- Keep alias-only scripts out of `<%= $PLASTER_PARAM_SourceDirectory %>/Public`. For purpose-built task modules, declare exported `Task.*` aliases in `prefix.ps1`.
 - Any user-visible behavior change must include:
   - unit tests under `tests/Unit/Public/`
   - integration test updates if scaffolding/template behavior is affected

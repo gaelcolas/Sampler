@@ -24,6 +24,16 @@ applyTo: "{build.ps1,build.yaml,.build/*.ps1,.github/workflows/*.yml,.github/wor
 - See `build-task-files.instructions.md` for `.build/tasks/*.build.ps1` authoring rules (parameters, `Set-SamplerTaskVariable`, task definitions).
 - Keep PowerShell Universal publish logic aligned with the built package path and `BuildInfo.UniversalServer` settings rather than re-deriving that state elsewhere.
 
+## Purpose-built task modules
+
+- Keep shipped InvokeBuild task files under the module source `Tasks` directory and include that directory in `CopyPaths`.
+- Declare exported `Task.*` aliases in an always-enabled module `prefix.ps1`.
+- Point aliases at task files under the built module's `Tasks` directory.
+- List task aliases under `AliasesToExport` in `build.yaml`.
+- Keep `prefix: prefix.ps1` enabled in `build.yaml`.
+- Do not place alias-only scripts under `Public`; ModuleBuilder can incorrectly add their basenames to `FunctionsToExport`.
+- Keep type-accelerator logic in `suffix.ps1`; do not require the suffix solely for task alias registration.
+
 ## Validation
 
 - Treat changes to `build.ps1`, `build.yaml`, `.build\`, or workflow files as validation-impacting changes.

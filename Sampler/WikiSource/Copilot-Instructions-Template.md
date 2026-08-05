@@ -82,6 +82,14 @@ Pester test conventions tuned for the module:
 - `InModuleScope` usage rules
 - WinPS 5.1 `@()` wrapping
 
+### `instructions/build-tasks.instructions.md`
+
+The scaffolded build-task guidance distinguishes repository-local custom tasks
+from purpose-built task modules. Task modules keep shipped task files under
+`source/Tasks`, register `Task.*` aliases in an always-enabled `prefix.ps1`,
+and list those aliases in `build.yaml` `AliasesToExport`. Alias-only scripts do
+not belong under `source/Public`.
+
 ### `skills/validate-changes/SKILL.md`
 
 A Copilot skill that selects the correct test scope based on what changed:

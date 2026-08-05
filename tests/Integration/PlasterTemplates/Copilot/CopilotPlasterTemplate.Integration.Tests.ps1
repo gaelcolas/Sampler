@@ -116,6 +116,22 @@ Describe 'Copilot Plaster Template' {
             $content  = Get-Content -Path $filePath -Raw
             $content | Should -Match 'source/Public'
         }
+
+        It 'Should document prefix-based task alias exports' {
+            $instructionsPath = Join-Path -Path $mockDestinationPath -ChildPath '.github'
+            $instructionsPath = Join-Path -Path $instructionsPath -ChildPath 'instructions'
+
+            $buildTaskPath = Join-Path -Path $instructionsPath -ChildPath 'build-tasks.instructions.md'
+            $buildTaskContent = Get-Content -Path $buildTaskPath -Raw
+            $buildTaskContent | Should -Match 'prefix\.ps1'
+            $buildTaskContent | Should -Match 'AliasesToExport'
+            $buildTaskContent | Should -Match 'FunctionsToExport'
+
+            $publicFunctionPath = Join-Path -Path $instructionsPath -ChildPath 'public-functions.instructions.md'
+            $publicFunctionContent = Get-Content -Path $publicFunctionPath -Raw
+            $publicFunctionContent | Should -Match 'alias-only scripts'
+            $publicFunctionContent | Should -Match 'prefix\.ps1'
+        }
     }
 
     Context 'When scaffolding with HasClasses enabled' {
