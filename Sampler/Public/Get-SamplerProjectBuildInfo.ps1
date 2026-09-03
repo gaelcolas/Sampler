@@ -8,8 +8,7 @@
 
         A project is treated as a PowerShell module when the source root contains
         exactly one valid module manifest (`*.psd1`, excluding build/analyzer
-        settings manifests) and that manifest has the publishing metadata needed for
-        a build.
+        settings manifests) with module identity metadata.
 
         If the project is a PowerShell module and a built manifest can be resolved
         in output, `HasBuiltOutput` is `$true`; otherwise `$false`.
@@ -174,14 +173,12 @@ function Get-SamplerProjectBuildInfo
                 continue
             }
 
-            $isValidPublishableManifest =
+            $isValidModuleManifest =
                 $testedManifest.Version -and
                 $testedManifest.Guid -and
-                $testedManifest.Guid -ne [System.Guid]::Empty -and
-                -not [System.String]::IsNullOrEmpty($testedManifest.Author) -and
-                -not [System.String]::IsNullOrEmpty($testedManifest.Description)
+                $testedManifest.Guid -ne [System.Guid]::Empty
 
-            if ($isValidPublishableManifest)
+            if ($isValidModuleManifest)
             {
                 $validSourceManifests += $sourceManifestCandidate
             }

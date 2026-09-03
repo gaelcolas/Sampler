@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed generated `SimpleModule` builds failing in `Build-Module` with
+  `Source must point to a valid module` when the source manifest has an empty
+  description. Module source detection now relies on the manifest's module
+  identity instead of optional publishing metadata.
+
 ## [0.120.1] - 2026-08-05
 
 ### Fixed
