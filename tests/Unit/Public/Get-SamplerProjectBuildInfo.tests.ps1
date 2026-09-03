@@ -105,6 +105,43 @@ Describe 'Get-SamplerProjectBuildInfo' {
         }
     }
 
+    Context 'When source root has a valid module manifest without publishing metadata' {
+        BeforeAll {
+            $script:expectedBuiltManifestPath =
+                Join-Path -Path $TestDrive -ChildPath 'output/module/MyModule/1.2.3/MyModule.psd1'
+
+            Mock -CommandName Get-ChildItem -MockWith {
+                return @(
+                    [PSCustomObject] @{ FullName = (Join-Path -Path $TestDrive -ChildPath 'source/MyModule.psd1'); Name = 'MyModule.psd1'; BaseName = 'MyModule' }
+                )
+            }
+
+            Mock -CommandName Test-ModuleManifest -MockWith {
+                return [PSCustomObject] @{
+                    Version     = '1.2.3'
+                    Guid        = [System.Guid]::NewGuid()
+                    Author      = ''
+                    Description = ''
+                }
+            }
+
+            Mock -CommandName Get-SamplerBuiltModuleManifest -MockWith {
+                return $script:expectedBuiltManifestPath
+            }
+
+            Mock -CommandName Get-Item -ParameterFilter {
+                $Path -eq $script:expectedBuiltManifestPath
+            }
+        }
+
+        It 'Should return PowerShellModule build type' {
+            $result = Sampler\Get-SamplerProjectBuildInfo @defaultSetupParameters
+
+            $result.BuildType | Should -Be 'PowerShellModule'
+            $result.HasBuiltOutput | Should -BeFalse
+        }
+    }
+
     Context 'When source root has valid module manifest and built output exists' {
         BeforeAll {
             $script:expectedBuiltManifestPath =

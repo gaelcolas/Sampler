@@ -27,6 +27,20 @@
     ChangelogManagement         = 'latest'
     Sampler                     = 'latest'
 <%
+    # TODO: Bug - when ModuleType is 'CustomModule' and Features contains 'github'
+    # (but not 'All' or 'DSCResources'), Sampler.GitHubTasks is NOT added here, even
+    # though build.yaml's ModuleBuildTasks always references 'Sampler.GitHubTasks' for
+    # CustomModule (see Templates/Build's build.yaml.template / plasterManifest.xml
+    # content section). This breaks `./build.ps1 -Tasks build` on first run with
+    # "The specified module 'Sampler.GitHubTasks' was not loaded...".
+    # Root cause: UseGitHub is never set for ModuleType 'CustomModule' (see its
+    # <parameter> condition in plasterManifest.xml: `-notin @(...,'CustomModule')`),
+    # so this condition's `$PLASTER_PARAM_UseGitHub -eq 'true'` check never fires for
+    # CustomModule; only the Feature flag does, and 'github' isn't checked here.
+    # Fix: add `-or $PLASTER_PARAM_Features -Contains ('github')` to this condition
+    # (repro: New-SampleModule -ModuleType CustomModule -Features git,gitversion,github,... ,
+    # found while scaffolding SynEdgy/PSOTel on Sampler 0.120.1). Related but distinct
+    # from the closed issue #397 (which covered CompleteSample/CompleteModule only).
     If ($PLASTER_PARAM_ModuleType -in @('dsccommunity','CompleteSample','CompleteModule') -or $PLASTER_PARAM_UseGitHub -eq 'true'  -or $PLASTER_PARAM_Features -Contains ('All') -or $PLASTER_PARAM_Features -Contains ('DSCResources')) {
 @"
     'Sampler.GitHubTasks'       = 'latest'

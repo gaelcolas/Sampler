@@ -41,7 +41,7 @@ Describe 'SimpleModule' {
             ModuleName           = $mockModuleName
             SourceDirectory      = 'source'
             ModuleAuthor         = 'SamplerTestUser'
-            ModuleDescription    = 'Module description'
+            ModuleDescription    = ''
             ModuleVersion        = '1.0.0'
             CustomRepo           = 'PSGallery'
             MainGitBranch        = 'main'
